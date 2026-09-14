@@ -1,8 +1,8 @@
 exports.handler = async function () {
   try {
-    const url = "https://catalogo.treinta.co/carola-2b7ca0";
+    const catalogUrl = "https://catalogo.treinta.co/carola-2b7ca0";
 
-    const response = await fetch(url, {
+    const response = await fetch(catalogUrl, {
       headers: {
         "User-Agent": "Mozilla/5.0"
       }
@@ -10,7 +10,7 @@ exports.handler = async function () {
 
     const html = await response.text();
 
-    const products = [];
+    const basicProducts = [];
 
     const regex =
       /href="([^"]*\/product\/[^"]+)"[^>]*>([\s\S]*?)<\/a>/g;
@@ -25,14 +25,14 @@ exports.handler = async function () {
         .replace(/\s+/g, " ")
         .trim();
 
+      // El precio se usa únicamente para limpiar el nombre,
+      // pero NO se guarda ni se devuelve.
       const priceMatch = text.match(/\$[\d,.]+/);
 
       if (!priceMatch) continue;
 
-      const price = priceMatch[0];
-
       const name = text
-        .replace(price, "")
+        .replace(priceMatch[0], "")
         .trim();
 
       if (!name) continue;
@@ -42,14 +42,60 @@ exports.handler = async function () {
         : `https://catalogo.treinta.co${href}`;
 
       if (
-        !products.some(
+        !basicProducts.some(
           product => product.url === fullUrl
         )
       ) {
-        products.push({
+        basicProducts.push({
           name,
-          price,
           url: fullUrl
+        });
+      }
+    }
+
+    const products = [];
+
+    for (const product of basicProducts) {
+      try {
+        const productResponse = await fetch(product.url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0"
+          }
+        });
+
+        const productHtml = await productResponse.text();
+
+        let image = null;
+
+        const ogImageMatch = productHtml.match(
+          /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i
+        );
+
+        if (ogImageMatch) {
+          image = ogImageMatch[1];
+        }
+
+        if (!image) {
+          const imageMatch = productHtml.match(
+            /<img[^>]+src=["']([^"']+)["']/i
+          );
+
+          if (imageMatch) {
+            image = imageMatch[1];
+          }
+        }
+
+        products.push({
+          name: product.name,
+          image,
+          url: product.url
+        });
+
+      } catch (error) {
+        products.push({
+          name: product.name,
+          image: null,
+          url: product.url
         });
       }
     }
@@ -70,6 +116,9 @@ exports.handler = async function () {
   } catch (error) {
     return {
       statusCode: 500,
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         success: false,
         error: error.message
