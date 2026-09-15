@@ -250,90 +250,210 @@
   </footer>
 
   <script>
-    const catalogContent =
-      document.getElementById("catalog-content");
+  const catalogContent =
+    document.getElementById("catalog-content");
 
-    async function loadProducts() {
-      try {
-        const response = await fetch(
-          "/.netlify/functions/treinta"
+  function normalizarModelo(texto) {
+    return String(texto || "")
+      .trim()
+      .toLowerCase()
+      .replace(/^modelo\s+/i, "");
+  }
+
+  async function loadProducts() {
+    try {
+      /*
+       * 1. Consultamos Treinta.
+       * Treinta se usa únicamente para saber
+       * qué modelos están disponibles.
+       */
+      const treintaResponse = await fetch(
+        "/.netlify/functions/treinta"
+      );
+
+      if (!treintaResponse.ok) {
+        throw new Error("No se pudo consultar Treinta");
+      }
+
+      const treintaData =
+        await treintaResponse.json();
+
+      if (
+        !treintaData.success ||
+        !Array.isArray(treintaData.products)
+      ) {
+        throw new Error(
+          "Respuesta incorrecta de Treinta"
         );
+      }
 
-        if (!response.ok) {
-          throw new Error("No se pudo cargar el catálogo");
-        }
+      /*
+       * Creamos una lista con los modelos
+       * actualmente disponibles en Treinta.
+       */
+      const modelosDisponibles = new Set(
+        treintaData.products.map(product =>
+          normalizarModelo(product.name)
+        )
+      );
 
-        const data = await response.json();
+      /*
+       * 2. Consultamos nuestra base de datos
+       * de Supabase.
+       */
+      const supabaseResponse = await fetch(
+        "/.netlify/functions/supabase"
+      );
 
-        if (
-          !data.success ||
-          !Array.isArray(data.products)
-        ) {
-          throw new Error("Respuesta no válida");
-        }
+      if (!supabaseResponse.ok) {
+        throw new Error(
+          "No se pudo consultar Supabase"
+        );
+      }
 
-        if (data.products.length === 0) {
-          catalogContent.innerHTML = `
-            <div class="loading">
-              No hay modelos disponibles en este momento.
-            </div>
-          `;
+      const supabaseData =
+        await supabaseResponse.json();
+
+      if (
+        !supabaseData.success ||
+        !Array.isArray(supabaseData.productos)
+      ) {
+        throw new Error(
+          "Respuesta incorrecta de Supabase"
+        );
+      }
+
+      /*
+       * 3. Mostramos únicamente productos que:
+       *
+       * - existen en nuestra base de Supabase
+       * - están disponibles actualmente en Treinta
+       */
+      const productos = supabaseData.productos.filter(
+        product =>
+          modelosDisponibles.has(
+            normalizarModelo(product.modelo)
+          )
+      );
+
+      if (productos.length === 0) {
+        catalogContent.innerHTML = `
+          <div class="loading">
+            No hay modelos disponibles en este momento.
+          </div>
+        `;
+        return;
+      }
+
+      /*
+       * 4. Construimos el catálogo.
+       */
+      const grid = document.createElement("div");
+      grid.className = "grid";
+
+      productos.forEach(product => {
+
+        /*
+         * Buscamos la primera variante que tenga
+         * al menos una imagen.
+         */
+        const variantePrincipal =
+          product.variantes.find(
+            variante =>
+              Array.isArray(variante.imagenes) &&
+              variante.imagenes.length > 0
+          ) || product.variantes[0];
+
+        if (!variantePrincipal) {
           return;
         }
 
-        const grid = document.createElement("div");
-        grid.className = "grid";
+        const imagenPrincipal =
+          variantePrincipal.imagenes &&
+          variantePrincipal.imagenes.length > 0
+            ? variantePrincipal.imagenes[0].url
+            : "https://placehold.co/600x600?text=CAROLA";
 
-        data.products.forEach(product => {
-          const card =
-            document.createElement("article");
-
-          card.className = "product-card";
-
-          const image =
-            product.image ||
-            "https://placehold.co/600x600?text=CAROLA";
-
-          card.innerHTML = `
-            <img
-              src="${image}"
-              alt="Modelo ${product.name}"
-              class="product-image"
-              loading="lazy"
-            >
-
-            <div class="product-info">
-              <h3>Modelo ${product.name}</h3>
-
-              <a
-                class="product-button"
-                href="${product.url}"
-                target="_blank"
-                rel="noopener noreferrer"
+        /*
+         * Generamos los botones de colores.
+         */
+        const colores = product.variantes
+          .map(
+            variante => `
+              <span
+                style="
+                  display:inline-block;
+                  padding:6px 10px;
+                  margin:3px;
+                  border-radius:999px;
+                  background:#fff0f6;
+                  font-size:12px;
+                "
               >
-                Ver modelo
-              </a>
+                ${variante.color}
+              </span>
+            `
+          )
+          .join("");
+
+        const card =
+          document.createElement("article");
+
+        card.className = "product-card";
+
+        card.innerHTML = `
+          <img
+            src="${imagenPrincipal}"
+            alt="Modelo ${product.modelo}"
+            class="product-image"
+            loading="lazy"
+          >
+
+          <div class="product-info">
+
+            <h3>
+              Modelo ${product.modelo}
+            </h3>
+
+            <div
+              style="
+                margin-bottom:15px;
+              "
+            >
+              ${colores}
             </div>
-          `;
 
-          grid.appendChild(card);
-        });
+            <a
+              class="product-button"
+              href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
+            >
+              Ver modelo
+            </a>
 
-        catalogContent.innerHTML = "";
-        catalogContent.appendChild(grid);
-
-      } catch (error) {
-        catalogContent.innerHTML = `
-          <div class="error">
-            No pudimos cargar los modelos.
-            Intenta nuevamente en unos minutos.
           </div>
         `;
-      }
-    }
 
-    loadProducts();
-  </script>
+        grid.appendChild(card);
+      });
+
+      catalogContent.innerHTML = "";
+      catalogContent.appendChild(grid);
+
+    } catch (error) {
+
+      console.error(error);
+
+      catalogContent.innerHTML = `
+        <div class="error">
+          No pudimos cargar los modelos.
+          Intenta nuevamente en unos minutos.
+        </div>
+      `;
+    }
+  }
+
+  loadProducts();
+</script>
 
 </body>
 </html>
