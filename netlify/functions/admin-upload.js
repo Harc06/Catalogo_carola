@@ -5,7 +5,25 @@ exports.handler = async function (event) {
   const headers = {
     "Content-Type": "application/json"
   };
+const adminPassword =
+  process.env.ADMIN_PASSWORD;
 
+const providedPassword =
+  event.headers["x-admin-password"];
+
+if (
+  !adminPassword ||
+  providedPassword !== adminPassword
+) {
+  return {
+    statusCode: 401,
+    headers,
+    body: JSON.stringify({
+      success: false,
+      error: "Acceso no autorizado"
+    })
+  };
+}
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
