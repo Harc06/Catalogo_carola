@@ -146,7 +146,7 @@ a{
   display:block;
 }
 
-/* INFO */
+/* INFORMACIÓN */
 
 .info{
   padding-top:25px;
@@ -236,10 +236,6 @@ h1{
   font-size:15px;
 }
 
-.whatsapp:hover{
-  opacity:.92;
-}
-
 .help{
   text-align:center;
   color:var(--muted);
@@ -270,8 +266,12 @@ h1{
 }
 
 @keyframes spin{
-  to{transform:rotate(360deg)}
+  to{
+    transform:rotate(360deg);
+  }
 }
+
+/* ERROR */
 
 .error{
   grid-column:1/-1;
@@ -359,6 +359,7 @@ h1{
 <body>
 
 <header class="header">
+
   <div class="header-inner">
 
     <a href="/" class="back">
@@ -378,20 +379,32 @@ h1{
     </button>
 
   </div>
+
 </header>
 
-<main id="productPage" class="product-page">
+<main
+  id="productPage"
+  class="product-page"
+>
 
   <div class="loading">
+
     <div class="loader"></div>
+
     Cargando modelo...
+
   </div>
 
 </main>
 
 <script>
 
+/* WHATSAPP CAROLA */
+
 const WHATSAPP_NUMBER = "524775971996";
+
+
+/* OBTENER MODELO DE LA URL */
 
 const params =
   new URLSearchParams(
@@ -401,30 +414,66 @@ const params =
 const requestedModel =
   params.get("modelo");
 
+
 const productPage =
-  document.getElementById("productPage");
+  document.getElementById(
+    "productPage"
+  );
 
 const shareButton =
-  document.getElementById("shareButton");
+  document.getElementById(
+    "shareButton"
+  );
+
 
 let currentProduct = null;
 let currentVariant = null;
 
 
-/* NORMALIZAR */
+/* NORMALIZAR TEXTO */
 
 function normalize(value){
+
   return String(value || "")
     .trim()
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"");
+    .replace(
+      /[\u0300-\u036f]/g,
+      ""
+    );
 }
 
 
-/* IMÁGENES */
+/* NORMALIZAR MODELO */
+
+function normalizeModel(value){
+
+  const text =
+    normalize(value);
+
+  const match =
+    text.match(
+      /[a-z]*\s*\d+[a-z]*/i
+    );
+
+  if(match){
+
+    return match[0]
+      .replace(
+        /\s+/g,
+        ""
+      );
+  }
+
+  return text;
+}
+
+
+/* ORDENAR FOTOGRAFÍAS */
 
 function sortImages(images){
+
   return (images || [])
     .slice()
     .sort((a,b) => {
@@ -437,36 +486,52 @@ function sortImages(images){
         return difference;
       }
 
-      return Number(a.id || 0) -
-             Number(b.id || 0);
+      return (
+        Number(a.id || 0) -
+        Number(b.id || 0)
+      );
     });
 }
 
 
-/* CARGAR */
+/* CARGAR PRODUCTO */
 
 async function loadProduct(){
 
   if(!requestedModel){
+
     showError();
+
     return;
   }
 
+
   try{
 
-    const [supabaseResponse, treintaResponse] =
+    const [
+      supabaseResponse,
+      treintaResponse
+    ] =
       await Promise.all([
+
         fetch(
           "/.netlify/functions/supabase?t=" +
           Date.now(),
-          {cache:"no-store"}
+          {
+            cache:"no-store"
+          }
         ),
+
         fetch(
           "/.netlify/functions/treinta?t=" +
           Date.now(),
-          {cache:"no-store"}
+          {
+            cache:"no-store"
+          }
         )
+
       ]);
+
 
     const supabaseData =
       await supabaseResponse.json();
@@ -474,81 +539,152 @@ async function loadProduct(){
     const treintaData =
       await treintaResponse.json();
 
+
     if(
       !supabaseResponse.ok ||
       !supabaseData.success
     ){
-      throw new Error();
+
+      throw new Error(
+        "No se pudo cargar Supabase."
+      );
     }
+
 
     if(
       !treintaResponse.ok ||
       !treintaData.success
     ){
-      throw new Error();
+
+      throw new Error(
+        "No se pudo comprobar Treinta."
+      );
     }
 
+
+    /*
+     * SUPABASE DEVUELVE:
+     * productos
+     */
+
     const products =
-      Array.isArray(supabaseData.productos)
+      Array.isArray(
+        supabaseData.productos
+      )
         ? supabaseData.productos
         : [];
 
+
     currentProduct =
-      products.find(product =>
-        normalize(product.modelo) ===
-        normalize(requestedModel)
+      products.find(
+        product =>
+          normalizeModel(
+            product.modelo
+          ) ===
+          normalizeModel(
+            requestedModel
+          )
       );
 
+
     if(!currentProduct){
-      showError();
+
+      showError(
+        "No encontramos este modelo."
+      );
+
       return;
     }
 
+
     /*
-      CONFIRMAMOS QUE SIGUE
-      DISPONIBLE EN TREINTA
-    */
+     * TREINTA DEVUELVE:
+     * products
+     */
 
     const treintaProducts =
-      Array.isArray(treintaData.productos)
-        ? treintaData.productos
+      Array.isArray(
+        treintaData.products
+      )
+        ? treintaData.products
         : [];
 
+
+    /*
+     * COMPROBAR DISPONIBILIDAD
+     */
+
     const available =
-      treintaProducts.some(item =>
-        normalizeModel(item.name) ===
-        normalizeModel(currentProduct.modelo)
+      treintaProducts.some(
+        item =>
+          normalizeModel(
+            item.name
+          ) ===
+          normalizeModel(
+            currentProduct.modelo
+          )
       );
 
+
     if(!available){
+
       showError(
         "Este modelo no está disponible actualmente."
       );
+
       return;
     }
+
+
+    /*
+     * SOLO COLORES
+     * QUE TENGAN FOTOGRAFÍAS
+     */
 
     currentProduct.variantes =
       (
-        Array.isArray(currentProduct.variantes)
+        Array.isArray(
+          currentProduct.variantes
+        )
           ? currentProduct.variantes
           : []
-      ).filter(variant =>
-        Array.isArray(variant.imagenes) &&
-        variant.imagenes.length
+      )
+      .filter(
+        variant =>
+          Array.isArray(
+            variant.imagenes
+          ) &&
+          variant.imagenes.length
       );
 
-    if(!currentProduct.variantes.length){
-      showError();
+
+    if(
+      !currentProduct
+        .variantes
+        .length
+    ){
+
+      showError(
+        "Este modelo todavía no tiene fotografías."
+      );
+
       return;
     }
 
+
     currentVariant =
-      currentProduct.variantes[0];
+      currentProduct
+        .variantes[0];
+
 
     document.title =
-      `Modelo ${currentProduct.modelo} | CAROLA`;
+      "Modelo " +
+      currentProduct.modelo +
+      " | CAROLA";
+
 
     renderProduct();
+
 
   }catch(error){
 
@@ -561,23 +697,7 @@ async function loadProduct(){
 }
 
 
-function normalizeModel(value){
-
-  const text = normalize(value);
-
-  const match =
-    text.match(/[a-z]*\s*\d+[a-z]*/i);
-
-  if(match){
-    return match[0]
-      .replace(/\s+/g,"");
-  }
-
-  return text;
-}
-
-
-/* RENDER */
+/* MOSTRAR PRODUCTO */
 
 function renderProduct(){
 
@@ -586,55 +706,94 @@ function renderProduct(){
       currentVariant.imagenes
     );
 
+
+  if(!images.length){
+
+    showError(
+      "Este color no tiene fotografías."
+    );
+
+    return;
+  }
+
+
   const mainImage =
     images[0];
 
+
   const thumbnails =
-    images.map((image,index) => `
-      <button
-        type="button"
-        class="thumbnail ${index === 0 ? "active" : ""}"
-        data-url="${escapeAttribute(image.url)}"
-      >
-        <img
-          src="${escapeAttribute(image.url)}"
-          alt=""
-        >
-      </button>
-    `).join("");
+    images
+      .map(
+        (image,index) => `
+
+          <button
+            type="button"
+            class="thumbnail ${
+              index === 0
+                ? "active"
+                : ""
+            }"
+            data-url="${escapeAttribute(image.url)}"
+          >
+
+            <img
+              src="${escapeAttribute(image.url)}"
+              alt=""
+            >
+
+          </button>
+
+        `
+      )
+      .join("");
+
 
   const colorButtons =
-    currentProduct.variantes
-      .map(variant => `
-        <button
-          type="button"
-          class="color-button ${
-            Number(variant.id) ===
-            Number(currentVariant.id)
-              ? "active"
-              : ""
-          }"
-          data-variant="${Number(variant.id)}"
-        >
-          ${escapeHtml(variant.color)}
-        </button>
-      `).join("");
+    currentProduct
+      .variantes
+      .map(
+        variant => `
+
+          <button
+            type="button"
+            class="color-button ${
+              Number(variant.id) ===
+              Number(currentVariant.id)
+                ? "active"
+                : ""
+            }"
+            data-variant="${Number(variant.id)}"
+          >
+
+            ${escapeHtml(variant.color)}
+
+          </button>
+
+        `
+      )
+      .join("");
+
 
   productPage.innerHTML = `
 
     <section class="gallery">
 
       <div class="main-image-wrap">
+
         <img
           id="mainImage"
           class="main-image"
           src="${escapeAttribute(mainImage.url)}"
           alt="Modelo ${escapeAttribute(currentProduct.modelo)} ${escapeAttribute(currentVariant.color)}"
         >
+
       </div>
 
+
       <div class="thumbnails">
+
         ${thumbnails}
+
       </div>
 
     </section>
@@ -646,23 +805,31 @@ function renderProduct(){
         Calzado Carola
       </span>
 
+
       <h1>
         Modelo ${escapeHtml(currentProduct.modelo)}
       </h1>
+
 
       <span class="available">
         Disponible
       </span>
 
+
       <div class="divider"></div>
+
 
       <span class="label">
         Selecciona un color
       </span>
 
+
       <div class="color-buttons">
+
         ${colorButtons}
+
       </div>
+
 
       <a
         id="whatsappButton"
@@ -671,46 +838,60 @@ function renderProduct(){
         target="_blank"
         rel="noopener"
       >
+
         Pedir este modelo
+
       </a>
 
+
       <div class="help">
+
         Te atenderemos directamente por WhatsApp.
+
       </div>
 
     </section>
+
   `;
 }
 
 
-/* WHATSAPP */
+/* CREAR ENLACE WHATSAPP */
 
 function buildWhatsApp(){
 
   const message =
-    `Hola, me interesa el modelo ${currentProduct.modelo} ` +
-    `en color ${currentVariant.color}. ¿Me das información para hacer mi pedido?`;
+    "Hola, me interesa el modelo " +
+    currentProduct.modelo +
+    " en color " +
+    currentVariant.color +
+    ". ¿Me das información para hacer mi pedido?";
+
 
   return (
     "https://wa.me/" +
     WHATSAPP_NUMBER +
     "?text=" +
-    encodeURIComponent(message)
+    encodeURIComponent(
+      message
+    )
   );
 }
 
 
-/* CLICS DEL PRODUCTO */
+/* INTERACCIONES */
 
 productPage.onclick =
   function(event){
 
-    /* MINIATURA */
+
+    /* CAMBIAR FOTOGRAFÍA */
 
     const thumbnail =
       event.target.closest(
         ".thumbnail"
       );
+
 
     if(thumbnail){
 
@@ -719,35 +900,43 @@ productPage.onclick =
           "mainImage"
         );
 
+
       if(mainImage){
+
         mainImage.src =
           thumbnail.dataset.url;
+
       }
+
 
       document
         .querySelectorAll(
           ".thumbnail"
         )
-        .forEach(item =>
-          item.classList.remove(
-            "active"
-          )
+        .forEach(
+          item =>
+            item.classList.remove(
+              "active"
+            )
         );
+
 
       thumbnail.classList.add(
         "active"
       );
 
+
       return;
     }
 
 
-    /* COLOR */
+    /* CAMBIAR COLOR */
 
     const colorButton =
       event.target.closest(
         ".color-button"
       );
+
 
     if(colorButton){
 
@@ -756,20 +945,38 @@ productPage.onclick =
           colorButton.dataset.variant
         );
 
+
       const variant =
-        currentProduct.variantes.find(
-          item =>
-            Number(item.id) === id
-        );
+        currentProduct
+          .variantes
+          .find(
+            item =>
+              Number(item.id) === id
+          );
+
 
       if(!variant){
+
         return;
+
       }
+
 
       currentVariant =
         variant;
 
+
+      /*
+       * AL CAMBIAR COLOR:
+       *
+       * cambia foto principal
+       * cambian miniaturas
+       * cambia botón seleccionado
+       * cambia mensaje de WhatsApp
+       */
+
       renderProduct();
+
 
       return;
     }
@@ -781,58 +988,82 @@ productPage.onclick =
 shareButton.onclick =
   async function(){
 
+
     const shareData = {
+
       title:
         currentProduct
-          ? `Modelo ${currentProduct.modelo} | CAROLA`
+          ? "Modelo " +
+            currentProduct.modelo +
+            " | CAROLA"
           : "CAROLA",
 
       text:
         currentProduct
-          ? `Mira el modelo ${currentProduct.modelo} de Calzado Carola`
+          ? "Mira el modelo " +
+            currentProduct.modelo +
+            " de Calzado Carola"
           : "Catálogo Calzado Carola",
 
       url:
         window.location.href
     };
 
+
     try{
 
-      if(navigator.share){
+      if(
+        navigator.share
+      ){
 
         await navigator.share(
           shareData
         );
 
-      }else{
+      }
 
-        await navigator.clipboard.writeText(
-          window.location.href
-        );
+      else if(
+        navigator.clipboard
+      ){
+
+        await navigator
+          .clipboard
+          .writeText(
+            window.location.href
+          );
+
 
         const original =
           shareButton.textContent;
 
+
         shareButton.textContent =
           "Copiado ✓";
 
+
         setTimeout(
-          () =>
+          function(){
+
             shareButton.textContent =
-              original,
+              original;
+
+          },
           1500
         );
       }
 
     }catch(error){
+
       /*
-        Cancelar compartir no es error.
-      */
+       * Si se cancela compartir,
+       * no hacemos nada.
+       */
+
     }
   };
 
 
-/* ERROR */
+/* MOSTRAR ERROR */
 
 function showError(
   message =
@@ -840,42 +1071,72 @@ function showError(
 ){
 
   productPage.innerHTML = `
+
     <div class="error">
 
       <h2>
+
         ${escapeHtml(message)}
+
       </h2>
 
+
       <p>
+
         Regresa al catálogo para ver
         los modelos disponibles.
+
       </p>
 
+
       <a href="/">
+
         Ver catálogo
+
       </a>
 
     </div>
+
   `;
 }
 
 
-/* SEGURIDAD */
+/* SEGURIDAD HTML */
 
 function escapeHtml(value){
+
   return String(value || "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 }
 
 
 function escapeAttribute(value){
+
   return escapeHtml(value);
+
 }
 
+
+/* INICIAR */
 
 loadProduct();
 
