@@ -45,9 +45,7 @@ header p{
   margin:7px 0 0;
 }
 
-/* =========================
-   NAVEGACIÓN
-========================= */
+/* NAVEGACIÓN */
 
 .tabs-wrap{
   position:sticky;
@@ -55,6 +53,7 @@ header p{
   z-index:100;
   background:rgba(255,255,255,.96);
   backdrop-filter:blur(15px);
+  -webkit-backdrop-filter:blur(15px);
   border-bottom:1px solid var(--border);
 }
 
@@ -68,13 +67,13 @@ header p{
 }
 
 .tab{
-  position:relative;
   padding:13px;
   border:0;
   border-radius:13px;
   background:#f7edf1;
   color:#555;
   font-weight:800;
+  cursor:pointer;
 }
 
 .tab.active{
@@ -82,21 +81,7 @@ header p{
   color:#fff;
 }
 
-.order-badge{
-  display:none;
-  min-width:21px;
-  height:21px;
-  padding:0 6px;
-  margin-left:6px;
-  border-radius:999px;
-  align-items:center;
-  justify-content:center;
-  background:#e94265;
-  color:white;
-  font-size:11px;
-}
-
-/* ========================= */
+/* GENERAL */
 
 main{
   width:min(1050px,94%);
@@ -113,8 +98,7 @@ main{
 
 .card,
 .model-card,
-.order-card,
-.metric{
+.order-card{
   background:#fff;
   border-radius:22px;
   box-shadow:0 8px 30px rgba(0,0,0,.05);
@@ -124,7 +108,9 @@ main{
   padding:26px;
 }
 
-h2{margin-top:0}
+h2{
+  margin-top:0;
+}
 
 label{
   display:block;
@@ -152,7 +138,9 @@ input[type="text"]{
   font-weight:700;
 }
 
-#imagenes{display:none}
+#imagenes{
+  display:none;
+}
 
 #preview{
   display:grid;
@@ -220,9 +208,7 @@ button{
   color:#a32d2d;
 }
 
-/* =========================
-   CATÁLOGO
-========================= */
+/* CATÁLOGO */
 
 .catalog{
   margin-top:55px;
@@ -444,59 +430,32 @@ button{
   font-size:14px;
 }
 
-/* =========================
-   PEDIDOS
-========================= */
+/* REGISTRO DE PEDIDOS */
 
-.metrics{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  margin-bottom:28px;
-}
-
-.metric{
-  padding:20px;
-}
-
-.metric-label{
-  font-size:12px;
-  color:#888;
-  font-weight:700;
-  margin-bottom:7px;
-}
-
-.metric-value{
-  font-size:30px;
-  font-weight:900;
-}
-
-.metric-sub{
-  margin-top:4px;
-  font-size:11px;
-  color:#aaa;
-}
-
-.order-filters{
+.record-summary{
   display:flex;
-  gap:8px;
-  overflow-x:auto;
-  padding-bottom:20px;
-  -webkit-overflow-scrolling:touch;
+  gap:10px;
+  margin-bottom:22px;
 }
 
-.order-filter{
-  flex:none;
+.summary-box{
   background:#fff;
-  border:1px solid #eadde3;
-  border-radius:999px;
-  padding:10px 15px;
+  border-radius:18px;
+  padding:17px 20px;
+  box-shadow:0 8px 30px rgba(0,0,0,.04);
 }
 
-.order-filter.active{
-  background:#171717;
-  color:#fff;
-  border-color:#171717;
+.summary-box strong{
+  display:block;
+  font-size:25px;
+}
+
+.summary-box span{
+  display:block;
+  margin-top:3px;
+  color:#888;
+  font-size:11px;
+  font-weight:700;
 }
 
 #orders{
@@ -550,43 +509,8 @@ button{
   font-size:11px;
 }
 
-.status-pill{
-  display:inline-block;
-  margin-top:10px;
-  padding:7px 10px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:900;
-}
-
-.status-nuevo{
-  background:#ffe8ef;
-  color:#a82850;
-}
-
-.status-confirmado{
-  background:#fff4d7;
-  color:#886300;
-}
-
-.status-surtido{
-  background:#e8f0ff;
-  color:#2453a6;
-}
-
-.status-enviado{
-  background:#e4f7ea;
-  color:#146b34;
-}
-
-.status-cancelado{
-  background:#eee;
-  color:#666;
-}
-
 .order-items{
   border-top:1px solid #f1e9ec;
-  border-bottom:1px solid #f1e9ec;
   padding:12px 20px;
   background:#fffafb;
 }
@@ -595,7 +519,7 @@ button{
   display:grid;
   grid-template-columns:60px 1fr;
   gap:10px;
-  padding:8px 0;
+  padding:9px 0;
   border-bottom:1px solid #f3e9ed;
 }
 
@@ -618,36 +542,15 @@ button{
   margin-left:5px;
 }
 
-.order-actions{
-  padding:16px 20px 20px;
-}
-
-.order-actions label{
-  font-size:12px;
-  margin:0 0 7px;
-  color:#777;
-}
-
-.order-actions-row{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:9px;
-}
-
-.order-status{
-  width:100%;
-  padding:13px;
-  border:1px solid #ddd;
+.record-note{
+  margin-bottom:20px;
+  padding:14px 16px;
+  border-radius:14px;
   background:#fff;
-  border-radius:12px;
-  font-size:15px;
-}
-
-.delete-order{
-  padding:12px 15px;
-  border-radius:12px;
-  background:#fff0f0;
-  color:#a32d2d;
+  color:#777;
+  font-size:12px;
+  line-height:1.5;
+  border:1px solid var(--border);
 }
 
 .loading,
@@ -684,7 +587,10 @@ footer{
 
 @media(max-width:650px){
 
-  main{width:94%;margin-top:20px}
+  main{
+    width:94%;
+    margin-top:20px;
+  }
 
   .card,
   .model-card{
@@ -713,20 +619,13 @@ footer{
     height:115px;
   }
 
-  .metrics{
+  .record-summary{
+    display:grid;
     grid-template-columns:1fr 1fr;
   }
 
-  .metric:last-child{
-    grid-column:1/-1;
-  }
-
-  .metric{
-    padding:16px;
-  }
-
-  .metric-value{
-    font-size:25px;
+  .summary-box{
+    padding:14px;
   }
 
   .order-top{
@@ -763,11 +662,7 @@ footer{
       class="tab"
       type="button"
     >
-      PEDIDOS
-      <span
-        id="orderBadge"
-        class="order-badge"
-      ></span>
+      REGISTRO
     </button>
 
   </div>
@@ -775,9 +670,7 @@ footer{
 
 <main>
 
-<!-- =========================
-     CATÁLOGO
-========================= -->
+<!-- CATÁLOGO -->
 
 <div
   id="catalogPanel"
@@ -848,7 +741,6 @@ footer{
 
 </section>
 
-
 <section class="catalog">
 
   <div class="catalog-header">
@@ -880,10 +772,7 @@ footer{
 
 </div>
 
-
-<!-- =========================
-     PEDIDOS
-========================= -->
+<!-- REGISTRO -->
 
 <div
   id="ordersPanel"
@@ -893,9 +782,9 @@ footer{
   <div class="orders-header">
 
     <div>
-      <h2>Pedidos</h2>
+      <h2>Registro de pedidos</h2>
       <p>
-        Control de pedidos recibidos.
+        Historial generado desde el catálogo.
       </p>
     </div>
 
@@ -909,119 +798,28 @@ footer{
 
   </div>
 
+  <div class="record-note">
+    Este registro sirve como respaldo de los pedidos generados desde el catálogo. La confirmación y administración final del pedido se realiza en Treinta.
+  </div>
 
-  <div class="metrics">
+  <div class="record-summary">
 
-    <div class="metric">
-      <div class="metric-label">
-        PEDIDOS NUEVOS
-      </div>
-
-      <div
-        id="metricNew"
-        class="metric-value"
-      >
-        0
-      </div>
-
-      <div class="metric-sub">
-        Pendientes de revisar
-      </div>
+    <div class="summary-box">
+      <strong id="recordCount">0</strong>
+      <span>PEDIDOS REGISTRADOS</span>
     </div>
 
-
-    <div class="metric">
-      <div class="metric-label">
-        PARES PENDIENTES
-      </div>
-
-      <div
-        id="metricPending"
-        class="metric-value"
-      >
-        0
-      </div>
-
-      <div class="metric-sub">
-        Sin marcar como enviados
-      </div>
-    </div>
-
-
-    <div class="metric">
-      <div class="metric-label">
-        PARES ENVIADOS
-      </div>
-
-      <div
-        id="metricSent"
-        class="metric-value"
-      >
-        0
-      </div>
-
-      <div class="metric-sub">
-        Historial registrado
-      </div>
+    <div class="summary-box">
+      <strong id="recordPairs">0</strong>
+      <span>PARES REGISTRADOS</span>
     </div>
 
   </div>
-
-
-  <div
-    id="orderFilters"
-    class="order-filters"
-  >
-
-    <button
-      class="order-filter active"
-      data-status="Todos"
-    >
-      Todos
-    </button>
-
-    <button
-      class="order-filter"
-      data-status="Nuevo"
-    >
-      Nuevos
-    </button>
-
-    <button
-      class="order-filter"
-      data-status="Confirmado"
-    >
-      Confirmados
-    </button>
-
-    <button
-      class="order-filter"
-      data-status="Surtido"
-    >
-      Surtidos
-    </button>
-
-    <button
-      class="order-filter"
-      data-status="Enviado"
-    >
-      Enviados
-    </button>
-
-    <button
-      class="order-filter"
-      data-status="Cancelado"
-    >
-      Cancelados
-    </button>
-
-  </div>
-
 
   <div id="orders">
 
     <div class="loading">
-      Abre PEDIDOS para cargar.
+      Abre REGISTRO para cargar.
     </div>
 
   </div>
@@ -1030,33 +828,28 @@ footer{
 
 </main>
 
-
 <div id="operationStatus">
   Procesando...
 </div>
-
 
 <footer>
   Panel interno de Calzado Carola
 </footer>
 
-
 <script>
 
-/* =========================
-   CONTRASEÑA
-========================= */
+/* CONTRASEÑA */
 
-let adminPassword =
+let adminPassword=
   prompt(
     "Contraseña de administrador de Calzado Carola:"
   );
 
-if(adminPassword === null){
+if(adminPassword===null){
 
-  document.body.innerHTML =
-    "<h2 style='text-align:center;margin-top:80px'>" +
-    "Acceso cancelado" +
+  document.body.innerHTML=
+    "<h2 style='text-align:center;margin-top:80px'>"+
+    "Acceso cancelado"+
     "</h2>";
 
   throw new Error(
@@ -1064,125 +857,106 @@ if(adminPassword === null){
   );
 }
 
-adminPassword =
+adminPassword=
   String(
-    adminPassword || ""
+    adminPassword||""
   ).trim();
 
+/* VARIABLES */
 
-/* =========================
-   VARIABLES
-========================= */
+let allOrders=[];
+let ordersLoaded=false;
 
-let allOrders = [];
+/* ELEMENTOS */
 
-let orderStatusFilter =
-  "Todos";
-
-let ordersLoaded =
-  false;
-
-
-/* =========================
-   ELEMENTOS
-========================= */
-
-const form =
+const form=
   document.getElementById(
     "uploadForm"
   );
 
-const modelo =
+const modelo=
   document.getElementById(
     "modelo"
   );
 
-const color =
+const color=
   document.getElementById(
     "color"
   );
 
-const imagenes =
+const imagenes=
   document.getElementById(
     "imagenes"
   );
 
-const preview =
+const preview=
   document.getElementById(
     "preview"
   );
 
-const count =
+const count=
   document.getElementById(
     "count"
   );
 
-const uploadButton =
+const uploadButton=
   document.getElementById(
     "uploadButton"
   );
 
-const statusBox =
+const statusBox=
   document.getElementById(
     "status"
   );
 
-const models =
+const models=
   document.getElementById(
     "models"
   );
 
-const refreshButton =
+const refreshButton=
   document.getElementById(
     "refreshButton"
   );
 
-const uploadSection =
+const uploadSection=
   document.getElementById(
     "uploadSection"
   );
 
-const operationStatus =
+const operationStatus=
   document.getElementById(
     "operationStatus"
   );
 
-const catalogTab =
+const catalogTab=
   document.getElementById(
     "catalogTab"
   );
 
-const ordersTab =
+const ordersTab=
   document.getElementById(
     "ordersTab"
   );
 
-const catalogPanel =
+const catalogPanel=
   document.getElementById(
     "catalogPanel"
   );
 
-const ordersPanel =
+const ordersPanel=
   document.getElementById(
     "ordersPanel"
   );
 
-const orders =
+const orders=
   document.getElementById(
     "orders"
   );
 
-const orderBadge =
-  document.getElementById(
-    "orderBadge"
-  );
+/* PESTAÑAS */
 
-
-/* =========================
-   PESTAÑAS
-========================= */
-
-catalogTab.onclick =
+catalogTab.onclick=
   function(){
 
     catalogTab.classList.add(
@@ -1202,8 +976,7 @@ catalogTab.onclick =
     );
   };
 
-
-ordersTab.onclick =
+ordersTab.onclick=
   async function(){
 
     ordersTab.classList.add(
@@ -1227,80 +1000,72 @@ ordersTab.onclick =
     }
   };
 
-
-/* =========================
-   MENSAJES
-========================= */
+/* MENSAJES */
 
 function showStatus(
   message,
   type
 ){
 
-  statusBox.textContent =
+  statusBox.textContent=
     message;
 
-  statusBox.className =
+  statusBox.className=
     type;
 }
-
 
 function showOperation(
   message
 ){
 
-  operationStatus.textContent =
+  operationStatus.textContent=
     message;
 
-  operationStatus.style.display =
+  operationStatus.style.display=
     "block";
 }
 
-
 function hideOperation(){
 
-  operationStatus.style.display =
+  operationStatus.style.display=
     "none";
 }
 
+/* PREVISUALIZACIÓN */
 
-/* =========================
-   PREVISUALIZACIÓN
-========================= */
-
-imagenes.onchange =
+imagenes.onchange=
   function(){
 
-    preview.innerHTML = "";
+    preview.innerHTML="";
 
-    const files =
+    const files=
       Array.from(
-        imagenes.files || []
+        imagenes.files||[]
       );
 
     if(!files.length){
 
-      count.textContent =
+      count.textContent=
         "Ninguna fotografía seleccionada";
 
       return;
     }
 
-    count.textContent =
-      files.length === 1
-        ? "1 fotografía seleccionada"
-        : files.length +
+    count.textContent=
+      files.length===1
+        ?"1 fotografía seleccionada"
+        :files.length+
           " fotografías seleccionadas";
 
     files.forEach(
       function(file){
 
-        const img =
+        const img=
           document.createElement(
             "img"
           );
 
-        img.src =
+        img.src=
           URL.createObjectURL(
             file
           );
@@ -1312,35 +1077,32 @@ imagenes.onchange =
     );
   };
 
-
-/* =========================
-   BASE64
-========================= */
+/* BASE64 */
 
 function fileToBase64(file){
 
   return new Promise(
     function(resolve,reject){
 
-      const reader =
+      const reader=
         new FileReader();
 
-      reader.onload =
+      reader.onload=
         function(){
 
-          const result =
+          const result=
             String(
-              reader.result || ""
+              reader.result||""
             );
 
-          const comma =
+          const comma=
             result.indexOf(",");
 
-          if(comma === -1){
+          if(comma===-1){
 
             reject(
               new Error(
-                "No se pudo procesar " +
+                "No se pudo procesar "+
                 file.name
               )
             );
@@ -1351,21 +1113,21 @@ function fileToBase64(file){
           resolve({
             name:file.name,
             type:
-              file.type ||
+              file.type||
               "image/jpeg",
             data:
               result.substring(
-                comma + 1
+                comma+1
               )
           });
         };
 
-      reader.onerror =
+      reader.onerror=
         function(){
 
           reject(
             new Error(
-              "No se pudo leer " +
+              "No se pudo leer "+
               file.name
             )
           );
@@ -1378,25 +1140,22 @@ function fileToBase64(file){
   );
 }
 
+/* SUBIR FOTOS */
 
-/* =========================
-   SUBIR FOTOS
-========================= */
-
-form.onsubmit =
+form.onsubmit=
   async function(event){
 
     event.preventDefault();
 
-    const modelValue =
+    const modelValue=
       modelo.value.trim();
 
-    const colorValue =
+    const colorValue=
       color.value.trim();
 
-    const files =
+    const files=
       Array.from(
-        imagenes.files || []
+        imagenes.files||[]
       );
 
     if(!modelValue){
@@ -1429,27 +1188,24 @@ form.onsubmit =
       return false;
     }
 
-    uploadButton.disabled =
-      true;
-
-    uploadButton.textContent =
-      "Subiendo...";
+    uploadButton.disabled=true;
+    uploadButton.textContent="Subiendo...";
 
     try{
 
-      const converted = [];
+      const converted=[];
 
       for(
-        let i = 0;
-        i < files.length;
+        let i=0;
+        i<files.length;
         i++
       ){
 
         showStatus(
-          "Preparando fotografía " +
-          (i + 1) +
-          " de " +
-          files.length +
+          "Preparando fotografía "+
+          (i+1)+
+          " de "+
+          files.length+
           "...",
           "loading"
         );
@@ -1466,7 +1222,7 @@ form.onsubmit =
         "loading"
       );
 
-      const response =
+      const response=
         await fetch(
           "/.netlify/functions/admin-upload",
           {
@@ -1482,54 +1238,48 @@ form.onsubmit =
 
             body:
               JSON.stringify({
-                modelo:
-                  modelValue,
-
-                color:
-                  colorValue,
-
-                imagenes:
-                  converted
+                modelo:modelValue,
+                color:colorValue,
+                imagenes:converted
               })
           }
         );
 
-      const result =
+      const result=
         await readJson(
           response
         );
 
       if(
-        !response.ok ||
+        !response.ok||
         !result.success
       ){
 
         throw new Error(
-          result.error ||
+          result.error||
           "No se pudieron subir las fotografías."
         );
       }
 
       showStatus(
-        "✓ Modelo " +
-        modelValue +
-        " · " +
-        colorValue +
-        "\n" +
-        files.length +
+        "✓ Modelo "+
+        modelValue+
+        " · "+
+        colorValue+
+        "\n"+
+        files.length+
         (
-          files.length === 1
-            ? " fotografía subida correctamente."
-            : " fotografías subidas correctamente."
+          files.length===1
+            ?" fotografía subida correctamente."
+            :" fotografías subidas correctamente."
         ),
         "success"
       );
 
-      imagenes.value = "";
+      imagenes.value="";
+      preview.innerHTML="";
 
-      preview.innerHTML = "";
-
-      count.textContent =
+      count.textContent=
         "Ninguna fotografía seleccionada";
 
       await loadModels();
@@ -1543,20 +1293,16 @@ form.onsubmit =
 
     }finally{
 
-      uploadButton.disabled =
-        false;
+      uploadButton.disabled=false;
 
-      uploadButton.textContent =
+      uploadButton.textContent=
         "Subir al catálogo";
     }
 
     return false;
   };
 
-
-/* =========================
-   ADMIN CATÁLOGO
-========================= */
+/* ADMIN CATÁLOGO */
 
 async function manage(payload){
 
@@ -1566,7 +1312,7 @@ async function manage(payload){
 
   try{
 
-    const response =
+    const response=
       await fetch(
         "/.netlify/functions/admin-manage",
         {
@@ -1587,25 +1333,25 @@ async function manage(payload){
         }
       );
 
-    const result =
+    const result=
       await readJson(
         response
       );
 
     if(
-      !response.ok ||
+      !response.ok||
       !result.success
     ){
 
       throw new Error(
-        result.error ||
+        result.error||
         "No se pudo completar la operación."
       );
     }
 
     await loadModels();
 
-    operationStatus.textContent =
+    operationStatus.textContent=
       "✓ Cambio guardado";
 
     setTimeout(
@@ -1617,8 +1363,8 @@ async function manage(payload){
 
   }catch(error){
 
-    operationStatus.textContent =
-      "Error: " +
+    operationStatus.textContent=
+      "Error: "+
       error.message;
 
     setTimeout(
@@ -1630,36 +1376,33 @@ async function manage(payload){
   }
 }
 
-
-/* =========================
-   CARGAR MODELOS
-========================= */
+/* CARGAR MODELOS */
 
 async function loadModels(){
 
   try{
 
-    const response =
+    const response=
       await fetch(
-        "/.netlify/functions/supabase?t=" +
+        "/.netlify/functions/supabase?t="+
         Date.now(),
         {
           cache:"no-store"
         }
       );
 
-    const result =
+    const result=
       await readJson(
         response
       );
 
     if(
-      !response.ok ||
+      !response.ok||
       !result.success
     ){
 
       throw new Error(
-        result.error ||
+        result.error||
         "No se pudieron cargar los modelos."
       );
     }
@@ -1668,33 +1411,30 @@ async function loadModels(){
       Array.isArray(
         result.productos
       )
-        ? result.productos
-        : []
+        ?result.productos
+        :[]
     );
 
   }catch(error){
 
-    models.innerHTML =
-      '<div class="empty">' +
+    models.innerHTML=
+      '<div class="empty">'+
       escapeHtml(
         error.message
-      ) +
+      )+
       "</div>";
   }
 }
 
-
-/* =========================
-   MOSTRAR MODELOS
-========================= */
+/* MOSTRAR MODELOS */
 
 function renderModels(products){
 
   if(!products.length){
 
-    models.innerHTML =
-      '<div class="empty">' +
-      "No hay modelos cargados." +
+    models.innerHTML=
+      '<div class="empty">'+
+      "No hay modelos cargados."+
       "</div>";
 
     return;
@@ -1718,307 +1458,301 @@ function renderModels(products){
     }
   );
 
-  let html = "";
+  let html="";
 
   products.forEach(
     function(product){
 
-      const variants =
+      const variants=
         Array.isArray(
           product.variantes
         )
-          ? product.variantes
-          : [];
+          ?product.variantes
+          :[];
 
-      html +=
-        '<article class="model-card">' +
+      html+=
+        '<article class="model-card">'+
 
-        '<div class="model-header">' +
+        '<div class="model-header">'+
 
-        '<div class="model-title">' +
+        '<div class="model-title">'+
 
-        "<h3>Modelo " +
+        "<h3>Modelo "+
         escapeHtml(
           product.modelo
-        ) +
-        "</h3>" +
+        )+
+        "</h3>"+
 
-        '<span class="model-count">' +
-        variants.length +
+        '<span class="model-count">'+
+        variants.length+
         (
-          variants.length === 1
-            ? " color"
-            : " colores"
-        ) +
-        "</span>" +
+          variants.length===1
+            ?" color"
+            :" colores"
+        )+
+        "</span>"+
 
-        "</div>" +
+        "</div>"+
 
-        '<div class="model-actions">' +
+        '<div class="model-actions">'+
 
-        '<button type="button" ' +
-        'class="edit-model" ' +
-        'data-id="' +
-        Number(product.id) +
-        '" ' +
-        'data-name="' +
+        '<button type="button" '+
+        'class="edit-model" '+
+        'data-id="'+
+        Number(product.id)+
+        '" '+
+        'data-name="'+
         escapeAttribute(
           product.modelo
-        ) +
-        '">' +
-        "✏️ Editar modelo" +
-        "</button>" +
+        )+
+        '">'+
+        "✏️ Editar modelo"+
+        "</button>"+
 
-        '<button type="button" ' +
-        'class="delete-model" ' +
-        'data-id="' +
-        Number(product.id) +
-        '" ' +
-        'data-name="' +
+        '<button type="button" '+
+        'class="delete-model" '+
+        'data-id="'+
+        Number(product.id)+
+        '" '+
+        'data-name="'+
         escapeAttribute(
           product.modelo
-        ) +
-        '">' +
-        "Eliminar modelo" +
-        "</button>" +
+        )+
+        '">'+
+        "Eliminar modelo"+
+        "</button>"+
 
-        "</div>" +
+        "</div>"+
 
         "</div>";
 
       variants.forEach(
         function(variant){
 
-          const images =
+          const images=
             Array.isArray(
               variant.imagenes
             )
-              ? variant.imagenes.slice()
-              : [];
+              ?variant.imagenes.slice()
+              :[];
 
           images.sort(
             function(a,b){
 
-              const difference =
-                Number(a.orden || 0) -
-                Number(b.orden || 0);
+              const difference=
+                Number(a.orden||0)-
+                Number(b.orden||0);
 
-              if(
-                difference !== 0
-              ){
+              if(difference!==0){
                 return difference;
               }
 
               return (
-                Number(a.id || 0) -
-                Number(b.id || 0)
+                Number(a.id||0)-
+                Number(b.id||0)
               );
             }
           );
 
-          let photosHtml = "";
+          let photosHtml="";
 
           images.forEach(
             function(image,index){
 
-              photosHtml +=
+              photosHtml+=
                 '<div class="photo-card">';
 
-              if(index === 0){
+              if(index===0){
 
-                photosHtml +=
-                  '<div class="primary-badge">' +
-                  "PRINCIPAL" +
+                photosHtml+=
+                  '<div class="primary-badge">'+
+                  "PRINCIPAL"+
                   "</div>";
               }
 
-              photosHtml +=
-                '<img src="' +
+              photosHtml+=
+                '<img src="'+
                 escapeAttribute(
-                  image.url || ""
-                ) +
-                '" loading="lazy" alt="">' +
+                  image.url||""
+                )+
+                '" loading="lazy" alt="">'+
 
-                '<div class="photo-controls">' +
+                '<div class="photo-controls">'+
 
-                '<button type="button" ' +
-                'class="move-left" ' +
-                'data-id="' +
-                Number(image.id) +
-                '">' +
-                "←" +
-                "</button>" +
+                '<button type="button" '+
+                'class="move-left" '+
+                'data-id="'+
+                Number(image.id)+
+                '">'+
+                "←"+
+                "</button>"+
 
-                '<button type="button" ' +
-                'class="move-right" ' +
-                'data-id="' +
-                Number(image.id) +
-                '">' +
-                "→" +
-                "</button>" +
+                '<button type="button" '+
+                'class="move-right" '+
+                'data-id="'+
+                Number(image.id)+
+                '">'+
+                "→"+
+                "</button>"+
 
-                '<button type="button" ' +
-                'class="delete-photo" ' +
-                'data-id="' +
-                Number(image.id) +
-                '">' +
-                "🗑" +
-                "</button>" +
+                '<button type="button" '+
+                'class="delete-photo" '+
+                'data-id="'+
+                Number(image.id)+
+                '">'+
+                "🗑"+
+                "</button>"+
 
                 "</div>";
 
-              if(index !== 0){
+              if(index!==0){
 
-                photosHtml +=
-                  '<button type="button" ' +
-                  'class="make-primary" ' +
-                  'data-id="' +
-                  Number(image.id) +
-                  '">' +
-                  "Hacer principal" +
+                photosHtml+=
+                  '<button type="button" '+
+                  'class="make-primary" '+
+                  'data-id="'+
+                  Number(image.id)+
+                  '">'+
+                  "Hacer principal"+
                   "</button>";
               }
 
-              photosHtml +=
+              photosHtml+=
                 "</div>";
             }
           );
 
           if(!images.length){
 
-            photosHtml =
-              '<span class="photo-count">' +
-              "Sin fotografías" +
+            photosHtml=
+              '<span class="photo-count">'+
+              "Sin fotografías"+
               "</span>";
           }
 
-          html +=
-            '<div class="variant">' +
+          html+=
+            '<div class="variant">'+
 
-            '<div class="variant-header">' +
+            '<div class="variant-header">'+
 
-            '<div class="variant-title">' +
+            '<div class="variant-title">'+
 
-            '<span class="color-name">' +
+            '<span class="color-name">'+
             escapeHtml(
               variant.color
-            ) +
-            "</span>" +
+            )+
+            "</span>"+
 
-            '<button type="button" ' +
-            'class="edit-color" ' +
-            'data-id="' +
-            Number(variant.id) +
-            '" ' +
-            'data-color="' +
+            '<button type="button" '+
+            'class="edit-color" '+
+            'data-id="'+
+            Number(variant.id)+
+            '" '+
+            'data-color="'+
             escapeAttribute(
               variant.color
-            ) +
-            '">' +
-            "✏️ Editar" +
-            "</button>" +
+            )+
+            '">'+
+            "✏️ Editar"+
+            "</button>"+
 
-            "</div>" +
+            "</div>"+
 
-            '<span class="photo-count">' +
-            images.length +
+            '<span class="photo-count">'+
+            images.length+
             (
-              images.length === 1
-                ? " fotografía"
-                : " fotografías"
-            ) +
-            "</span>" +
+              images.length===1
+                ?" fotografía"
+                :" fotografías"
+            )+
+            "</span>"+
 
-            "</div>" +
+            "</div>"+
 
-            '<div class="photos">' +
-            photosHtml +
-            "</div>" +
+            '<div class="photos">'+
+            photosHtml+
+            "</div>"+
 
-            '<div class="variant-bottom">' +
+            '<div class="variant-bottom">'+
 
-            '<div class="variant-actions">' +
+            '<div class="variant-actions">'+
 
-            '<button type="button" ' +
-            'class="add-photos" ' +
-            'data-model="' +
+            '<button type="button" '+
+            'class="add-photos" '+
+            'data-model="'+
             escapeAttribute(
               product.modelo
-            ) +
-            '" ' +
-            'data-color="' +
+            )+
+            '" '+
+            'data-color="'+
             escapeAttribute(
               variant.color
-            ) +
-            '">' +
-            "+ Agregar fotos" +
-            "</button>" +
+            )+
+            '">'+
+            "+ Agregar fotos"+
+            "</button>"+
 
-            '<button type="button" ' +
-            'class="delete-variant" ' +
-            'data-id="' +
-            Number(variant.id) +
-            '" ' +
-            'data-color="' +
+            '<button type="button" '+
+            'class="delete-variant" '+
+            'data-id="'+
+            Number(variant.id)+
+            '" '+
+            'data-color="'+
             escapeAttribute(
               variant.color
-            ) +
-            '">' +
-            "Eliminar color" +
-            "</button>" +
+            )+
+            '">'+
+            "Eliminar color"+
+            "</button>"+
 
-            "</div>" +
+            "</div>"+
 
-            "</div>" +
+            "</div>"+
 
             "</div>";
         }
       );
 
-      html +=
-        '<div class="model-bottom">' +
+      html+=
+        '<div class="model-bottom">'+
 
-        '<button type="button" ' +
-        'class="add-color" ' +
-        'data-model="' +
+        '<button type="button" '+
+        'class="add-color" '+
+        'data-model="'+
         escapeAttribute(
           product.modelo
-        ) +
-        '">' +
-        "+ Agregar nuevo color" +
-        "</button>" +
+        )+
+        '">'+
+        "+ Agregar nuevo color"+
+        "</button>"+
 
-        "</div>" +
+        "</div>"+
 
         "</article>";
     }
   );
 
-  models.innerHTML =
-    html;
+  models.innerHTML=html;
 }
 
+/* CLICS CATÁLOGO */
 
-/* =========================
-   CLICS CATÁLOGO
-========================= */
-
-models.onclick =
+models.onclick=
   async function(event){
 
-    const addPhotos =
+    const addPhotos=
       event.target.closest(
         ".add-photos"
       );
 
     if(addPhotos){
 
-      modelo.value =
-        addPhotos.dataset.model ||
+      modelo.value=
+        addPhotos.dataset.model||
         "";
 
-      color.value =
-        addPhotos.dataset.color ||
+      color.value=
+        addPhotos.dataset.color||
         "";
 
       uploadSection.scrollIntoView({
@@ -2036,25 +1770,22 @@ models.onclick =
       return;
     }
 
-
-    const addColor =
+    const addColor=
       event.target.closest(
         ".add-color"
       );
 
     if(addColor){
 
-      modelo.value =
-        addColor.dataset.model ||
+      modelo.value=
+        addColor.dataset.model||
         "";
 
-      color.value = "";
+      color.value="";
+      imagenes.value="";
+      preview.innerHTML="";
 
-      imagenes.value = "";
-
-      preview.innerHTML = "";
-
-      count.textContent =
+      count.textContent=
         "Ninguna fotografía seleccionada";
 
       uploadSection.scrollIntoView({
@@ -2072,29 +1803,28 @@ models.onclick =
       return;
     }
 
-
-    const editModel =
+    const editModel=
       event.target.closest(
         ".edit-model"
       );
 
     if(editModel){
 
-      const oldName =
-        editModel.dataset.name ||
+      const oldName=
+        editModel.dataset.name||
         "";
 
-      const newName =
+      const newName=
         prompt(
           "Nuevo nombre/número del modelo:",
           oldName
         );
 
-      if(newName === null){
+      if(newName===null){
         return;
       }
 
-      const cleanName =
+      const cleanName=
         newName.trim();
 
       if(!cleanName){
@@ -2106,9 +1836,7 @@ models.onclick =
         return;
       }
 
-      if(
-        cleanName === oldName
-      ){
+      if(cleanName===oldName){
         return;
       }
 
@@ -2125,29 +1853,28 @@ models.onclick =
       return;
     }
 
-
-    const editColor =
+    const editColor=
       event.target.closest(
         ".edit-color"
       );
 
     if(editColor){
 
-      const oldColor =
-        editColor.dataset.color ||
+      const oldColor=
+        editColor.dataset.color||
         "";
 
-      const newColor =
+      const newColor=
         prompt(
           "Nuevo nombre del color:",
           oldColor
         );
 
-      if(newColor === null){
+      if(newColor===null){
         return;
       }
 
-      const cleanColor =
+      const cleanColor=
         newColor.trim();
 
       if(!cleanColor){
@@ -2160,7 +1887,7 @@ models.onclick =
       }
 
       if(
-        cleanColor.toLowerCase() ===
+        cleanColor.toLowerCase()===
         oldColor.toLowerCase()
       ){
         return;
@@ -2179,8 +1906,7 @@ models.onclick =
       return;
     }
 
-
-    const left =
+    const left=
       event.target.closest(
         ".move-left"
       );
@@ -2199,8 +1925,7 @@ models.onclick =
       return;
     }
 
-
-    const right =
+    const right=
       event.target.closest(
         ".move-right"
       );
@@ -2219,8 +1944,7 @@ models.onclick =
       return;
     }
 
-
-    const primary =
+    const primary=
       event.target.closest(
         ".make-primary"
       );
@@ -2238,8 +1962,7 @@ models.onclick =
       return;
     }
 
-
-    const deletePhoto =
+    const deletePhoto=
       event.target.closest(
         ".delete-photo"
       );
@@ -2265,22 +1988,21 @@ models.onclick =
       return;
     }
 
-
-    const deleteVariant =
+    const deleteVariant=
       event.target.closest(
         ".delete-variant"
       );
 
     if(deleteVariant){
 
-      const colorName =
-        deleteVariant.dataset.color ||
+      const colorName=
+        deleteVariant.dataset.color||
         "";
 
       if(
         !confirm(
-          "¿Eliminar el color " +
-          colorName +
+          "¿Eliminar el color "+
+          colorName+
           " y TODAS sus fotografías?"
         )
       ){
@@ -2298,22 +2020,21 @@ models.onclick =
       return;
     }
 
-
-    const deleteModel =
+    const deleteModel=
       event.target.closest(
         ".delete-model"
       );
 
     if(deleteModel){
 
-      const name =
-        deleteModel.dataset.name ||
+      const name=
+        deleteModel.dataset.name||
         "";
 
       if(
         !confirm(
-          "¿Eliminar COMPLETAMENTE el modelo " +
-          name +
+          "¿Eliminar COMPLETAMENTE el modelo "+
+          name+
           "?"
         )
       ){
@@ -2322,8 +2043,8 @@ models.onclick =
 
       if(
         !confirm(
-          "Se eliminarán todos sus colores y fotografías.\n\n" +
-          "Esta acción no se puede deshacer.\n\n" +
+          "Se eliminarán todos sus colores y fotografías.\n\n"+
+          "Esta acción no se puede deshacer.\n\n"+
           "¿Confirmas?"
         )
       ){
@@ -2342,23 +2063,20 @@ models.onclick =
     }
   };
 
-
-/* =========================
-   PEDIDOS - CARGAR
-========================= */
+/* REGISTRO DE PEDIDOS */
 
 async function loadOrders(){
 
-  orders.innerHTML =
-    '<div class="loading">' +
-    "Cargando pedidos..." +
+  orders.innerHTML=
+    '<div class="loading">'+
+    "Cargando registro..."+
     "</div>";
 
   try{
 
-    const response =
+    const response=
       await fetch(
-        "/.netlify/functions/admin-pedidos?t=" +
+        "/.netlify/functions/admin-pedidos?t="+
         Date.now(),
         {
           method:"GET",
@@ -2372,167 +2090,92 @@ async function loadOrders(){
         }
       );
 
-    const result =
+    const result=
       await readJson(
         response
       );
 
     if(
-      !response.ok ||
+      !response.ok||
       !result.success
     ){
 
       throw new Error(
-        result.error ||
-        "No se pudieron cargar los pedidos."
+        result.error||
+        "No se pudo cargar el registro."
       );
     }
 
-    allOrders =
+    allOrders=
       Array.isArray(
         result.pedidos
       )
-        ? result.pedidos
-        : [];
+        ?result.pedidos
+        :[];
 
-    ordersLoaded = true;
-
-    updateOrderMetrics();
+    ordersLoaded=true;
 
     renderOrders();
 
   }catch(error){
 
-    orders.innerHTML =
-      '<div class="empty">' +
+    orders.innerHTML=
+      '<div class="empty">'+
       escapeHtml(
         error.message
-      ) +
+      )+
       "</div>";
   }
 }
 
-
-/* =========================
-   MÉTRICAS
-========================= */
-
-function updateOrderMetrics(){
-
-  const newOrders =
-    allOrders.filter(
-      order =>
-        order.estado ===
-        "Nuevo"
-    );
-
-  const pendingPairs =
-    allOrders
-      .filter(
-        order =>
-          order.estado !==
-            "Enviado" &&
-          order.estado !==
-            "Cancelado"
-      )
-      .reduce(
-        (total,order) =>
-          total +
-          Number(
-            order.total_pares ||
-            0
-          ),
-        0
-      );
-
-  const sentPairs =
-    allOrders
-      .filter(
-        order =>
-          order.estado ===
-          "Enviado"
-      )
-      .reduce(
-        (total,order) =>
-          total +
-          Number(
-            order.total_pares ||
-            0
-          ),
-        0
-      );
-
-  document.getElementById(
-    "metricNew"
-  ).textContent =
-    newOrders.length;
-
-  document.getElementById(
-    "metricPending"
-  ).textContent =
-    pendingPairs;
-
-  document.getElementById(
-    "metricSent"
-  ).textContent =
-    sentPairs;
-
-  if(newOrders.length){
-
-    orderBadge.textContent =
-      newOrders.length;
-
-    orderBadge.style.display =
-      "inline-flex";
-
-  }else{
-
-    orderBadge.style.display =
-      "none";
-  }
-}
-
-
-/* =========================
-   MOSTRAR PEDIDOS
-========================= */
-
 function renderOrders(){
 
-  const visible =
-    orderStatusFilter ===
-    "Todos"
-      ? allOrders
-      : allOrders.filter(
-          order =>
-            order.estado ===
-            orderStatusFilter
-        );
+  const totalPairs=
+    allOrders.reduce(
+      function(sum,order){
 
-  if(!visible.length){
+        return sum+
+          Number(
+            order.total_pares||0
+          );
+      },
+      0
+    );
 
-    orders.innerHTML =
-      '<div class="empty">' +
-      "No hay pedidos en esta sección." +
+  document.getElementById(
+    "recordCount"
+  ).textContent=
+    allOrders.length;
+
+  document.getElementById(
+    "recordPairs"
+  ).textContent=
+    totalPairs;
+
+  if(!allOrders.length){
+
+    orders.innerHTML=
+      '<div class="empty">'+
+      "Todavía no hay pedidos registrados."+
       "</div>";
 
     return;
   }
 
-  orders.innerHTML =
-    visible.map(
+  orders.innerHTML=
+    allOrders.map(
       function(order){
 
-        const details =
+        const details=
           Array.isArray(
             order.pedido_detalles
           )
-            ? order.pedido_detalles
-            : [];
+            ?order.pedido_detalles
+            :[];
 
-        const lines =
+        const lines=
           details.length
-            ? details.map(
+            ?details.map(
                 function(item){
 
                   return `
@@ -2544,10 +2187,10 @@ function renderOrders(){
 
                       <div class="order-product">
 
-                        ${escapeHtml(item.modelo)}
+                        Modelo ${escapeHtml(item.modelo)}
 
                         <span>
-                          ${escapeHtml(item.color)}
+                          ${escapeHtml(formatColor(item.color))}
                         </span>
 
                       </div>
@@ -2556,7 +2199,7 @@ function renderOrders(){
                   `;
                 }
               ).join("")
-            : `
+            :`
               <div class="order-line">
                 Sin productos registrados
               </div>
@@ -2564,10 +2207,7 @@ function renderOrders(){
 
         return `
 
-          <article
-            class="order-card"
-            data-order-id="${Number(order.id)}"
-          >
+          <article class="order-card">
 
             <div class="order-top">
 
@@ -2585,16 +2225,12 @@ function renderOrders(){
                   ${escapeHtml(formatDate(order.creado_en))}
                 </div>
 
-                <span class="status-pill ${statusClass(order.estado)}">
-                  ${escapeHtml(order.estado)}
-                </span>
-
               </div>
 
               <div class="order-total">
 
                 <strong>
-                  ${Number(order.total_pares || 0)}
+                  ${Number(order.total_pares||0)}
                 </strong>
 
                 <span>
@@ -2605,40 +2241,8 @@ function renderOrders(){
 
             </div>
 
-
             <div class="order-items">
               ${lines}
-            </div>
-
-
-            <div class="order-actions">
-
-              <label>
-                Estado del pedido
-              </label>
-
-              <div class="order-actions-row">
-
-                <select
-                  class="order-status"
-                  data-id="${Number(order.id)}"
-                >
-
-                  ${statusOptions(order.estado)}
-
-                </select>
-
-                <button
-                  type="button"
-                  class="delete-order"
-                  data-id="${Number(order.id)}"
-                  data-folio="${escapeAttribute(order.folio)}"
-                >
-                  🗑
-                </button>
-
-              </div>
-
             </div>
 
           </article>
@@ -2647,367 +2251,54 @@ function renderOrders(){
     ).join("");
 }
 
+/* PRESENTACIÓN DE COLOR */
 
-/* =========================
-   ESTADOS
-========================= */
+function formatColor(value){
 
-function statusOptions(current){
+  const original=
+    String(value||"")
+      .trim();
 
-  const states = [
-    "Nuevo",
-    "Confirmado",
-    "Surtido",
-    "Enviado",
-    "Cancelado"
-  ];
+  if(!original){
+    return "";
+  }
 
-  return states.map(
-    state =>
+  const normalized=
+    original
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      );
 
-      '<option value="' +
-      escapeAttribute(state) +
-      '"' +
-      (
-        state === current
-          ? " selected"
-          : ""
-      ) +
-      ">" +
-      escapeHtml(state) +
-      "</option>"
+  const names={
+    "negro":"Negro",
+    "camel":"Camel",
+    "latte":"Latte",
+    "maquillaje":"Maquillaje",
+    "conac":"Coñac",
+    "cafe":"Café",
+    "capuchino":"Capuchino",
+    "espresso":"Espresso",
+    "shedron":"Shedrón"
+  };
 
-  ).join("");
+  if(names[normalized]){
+    return names[normalized];
+  }
+
+  return original
+    .toLowerCase()
+    .replace(
+      /(^|\s)\S/g,
+      function(letter){
+        return letter.toUpperCase();
+      }
+    );
 }
 
-
-function statusClass(status){
-
-  const value =
-    String(
-      status || ""
-    ).toLowerCase();
-
-  if(value === "nuevo"){
-    return "status-nuevo";
-  }
-
-  if(value === "confirmado"){
-    return "status-confirmado";
-  }
-
-  if(value === "surtido"){
-    return "status-surtido";
-  }
-
-  if(value === "enviado"){
-    return "status-enviado";
-  }
-
-  return "status-cancelado";
-}
-
-
-/* =========================
-   FILTROS PEDIDOS
-========================= */
-
-document.getElementById(
-  "orderFilters"
-).onclick =
-  function(event){
-
-    const button =
-      event.target.closest(
-        ".order-filter"
-      );
-
-    if(!button){
-      return;
-    }
-
-    orderStatusFilter =
-      button.dataset.status;
-
-    document
-      .querySelectorAll(
-        ".order-filter"
-      )
-      .forEach(
-        item =>
-          item.classList.remove(
-            "active"
-          )
-      );
-
-    button.classList.add(
-      "active"
-    );
-
-    renderOrders();
-  };
-
-
-/* =========================
-   ACCIONES PEDIDOS
-========================= */
-
-orders.onchange =
-  async function(event){
-
-    const select =
-      event.target.closest(
-        ".order-status"
-      );
-
-    if(!select){
-      return;
-    }
-
-    const pedidoId =
-      Number(
-        select.dataset.id
-      );
-
-    const order =
-      allOrders.find(
-        item =>
-          Number(item.id) ===
-          pedidoId
-      );
-
-    if(!order){
-      return;
-    }
-
-    const oldStatus =
-      order.estado;
-
-    const newStatus =
-      select.value;
-
-    if(
-      oldStatus ===
-      newStatus
-    ){
-      return;
-    }
-
-    select.disabled =
-      true;
-
-    showOperation(
-      "Actualizando pedido..."
-    );
-
-    try{
-
-      const response =
-        await fetch(
-          "/.netlify/functions/admin-pedidos",
-          {
-            method:"POST",
-
-            headers:{
-              "Content-Type":
-                "application/json",
-
-              "x-admin-password":
-                adminPassword
-            },
-
-            body:
-              JSON.stringify({
-                action:
-                  "change-status",
-
-                pedido_id:
-                  pedidoId,
-
-                estado:
-                  newStatus
-              })
-          }
-        );
-
-      const result =
-        await readJson(
-          response
-        );
-
-      if(
-        !response.ok ||
-        !result.success
-      ){
-
-        throw new Error(
-          result.error ||
-          "No se pudo cambiar el estado."
-        );
-      }
-
-      order.estado =
-        newStatus;
-
-      updateOrderMetrics();
-
-      renderOrders();
-
-      operationStatus.textContent =
-        "✓ Pedido actualizado";
-
-      setTimeout(
-        hideOperation,
-        1200
-      );
-
-    }catch(error){
-
-      order.estado =
-        oldStatus;
-
-      select.value =
-        oldStatus;
-
-      operationStatus.textContent =
-        "Error: " +
-        error.message;
-
-      setTimeout(
-        hideOperation,
-        4000
-      );
-
-    }finally{
-
-      select.disabled =
-        false;
-    }
-  };
-
-
-orders.onclick =
-  async function(event){
-
-    const button =
-      event.target.closest(
-        ".delete-order"
-      );
-
-    if(!button){
-      return;
-    }
-
-    const pedidoId =
-      Number(
-        button.dataset.id
-      );
-
-    const folio =
-      button.dataset.folio ||
-      "";
-
-    if(
-      !confirm(
-        "¿Eliminar el pedido " +
-        folio +
-        "?"
-      )
-    ){
-      return;
-    }
-
-    if(
-      !confirm(
-        "El pedido y todos sus productos se eliminarán definitivamente.\n\n¿Confirmas?"
-      )
-    ){
-      return;
-    }
-
-    showOperation(
-      "Eliminando pedido..."
-    );
-
-    try{
-
-      const response =
-        await fetch(
-          "/.netlify/functions/admin-pedidos",
-          {
-            method:"POST",
-
-            headers:{
-              "Content-Type":
-                "application/json",
-
-              "x-admin-password":
-                adminPassword
-            },
-
-            body:
-              JSON.stringify({
-                action:
-                  "delete-order",
-
-                pedido_id:
-                  pedidoId
-              })
-          }
-        );
-
-      const result =
-        await readJson(
-          response
-        );
-
-      if(
-        !response.ok ||
-        !result.success
-      ){
-
-        throw new Error(
-          result.error ||
-          "No se pudo eliminar el pedido."
-        );
-      }
-
-      allOrders =
-        allOrders.filter(
-          order =>
-            Number(order.id) !==
-            pedidoId
-        );
-
-      updateOrderMetrics();
-
-      renderOrders();
-
-      operationStatus.textContent =
-        "✓ Pedido eliminado";
-
-      setTimeout(
-        hideOperation,
-        1200
-      );
-
-    }catch(error){
-
-      operationStatus.textContent =
-        "Error: " +
-        error.message;
-
-      setTimeout(
-        hideOperation,
-        4000
-      );
-    }
-  };
-
-
-/* =========================
-   FECHA
-========================= */
+/* FECHA */
 
 function formatDate(value){
 
@@ -3015,7 +2306,7 @@ function formatDate(value){
     return "";
   }
 
-  const date =
+  const date=
     new Date(value);
 
   if(
@@ -3038,30 +2329,21 @@ function formatDate(value){
   ).format(date);
 }
 
+/* ACTUALIZAR */
 
-/* =========================
-   ACTUALIZAR
-========================= */
-
-refreshButton.onclick =
+refreshButton.onclick=
   loadModels;
-
 
 document.getElementById(
   "refreshOrders"
-).onclick =
+).onclick=
   loadOrders;
 
+/* LEER JSON */
 
-/* =========================
-   LEER JSON
-========================= */
+async function readJson(response){
 
-async function readJson(
-  response
-){
-
-  const text =
+  const text=
     await response.text();
 
   try{
@@ -3075,7 +2357,7 @@ async function readJson(
     return {
       success:false,
       error:
-        "Respuesta inválida del servidor: " +
+        "Respuesta inválida del servidor: "+
         text.substring(
           0,
           300
@@ -3084,62 +2366,30 @@ async function readJson(
   }
 }
 
-
-/* =========================
-   SEGURIDAD HTML
-========================= */
+/* SEGURIDAD HTML */
 
 function escapeHtml(value){
 
   return String(
-    value || ""
+    value||""
   )
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
-
-function escapeAttribute(
-  value
-){
+function escapeAttribute(value){
 
   return escapeHtml(
     value
   );
 }
 
-
-/* =========================
-   INICIAR
-========================= */
+/* INICIAR */
 
 loadModels();
-
-/*
- * Cargamos también los pedidos
- * silenciosamente para mostrar
- * el contador de NUEVOS.
- */
-
-loadOrders();
 
 </script>
 
