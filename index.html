@@ -1,458 +1,907 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  <title>Calzado Carola</title>
+<title>CAROLA | Catálogo</title>
+<meta name="description" content="Catálogo de Calzado Carola. Conoce nuestros modelos y colores disponibles.">
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+:root{
+  --pink:#f5dce7;
+  --pink2:#fff5f8;
+  --pink3:#e8b8cc;
+  --text:#191919;
+  --muted:#858085;
+  --white:#fff;
+  --border:#eee5e9;
+  --dark:#171717;
+}
 
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #fff8fb;
-      color: #222;
-    }
+*{
+  box-sizing:border-box;
+}
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid #f2dce5;
-      padding: 18px 20px;
-      text-align: center;
-    }
+html{
+  scroll-behavior:smooth;
+}
 
-    .logo {
-      font-size: 30px;
-      font-weight: 700;
-      letter-spacing: 7px;
-    }
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:#fff;
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
 
-    .hero {
-      padding: 70px 20px 50px;
-      text-align: center;
-      background: linear-gradient(135deg, #fff8fb, #f8dce8);
-    }
+button,
+input{
+  font:inherit;
+}
 
-    .hero h1 {
-      font-size: clamp(38px, 8vw, 70px);
-      margin-bottom: 16px;
-    }
+button{
+  cursor:pointer;
+}
 
-    .hero p {
-      max-width: 700px;
-      margin: 0 auto;
-      font-size: 18px;
-      line-height: 1.6;
-      color: #555;
-    }
+a{
+  color:inherit;
+  text-decoration:none;
+}
 
-    .catalog {
-      max-width: 1200px;
-      margin: auto;
-      padding: 55px 20px 70px;
-    }
+/* HEADER */
 
-    .catalog h2 {
-      text-align: center;
-      font-size: 34px;
-      margin-bottom: 12px;
-    }
+.header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(0,0,0,.05);
+}
 
-    .catalog-subtitle {
-      text-align: center;
-      color: #666;
-      margin-bottom: 35px;
-    }
+.header-inner{
+  max-width:1250px;
+  margin:auto;
+  height:72px;
+  padding:0 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 22px;
-    }
+.brand{
+  font-size:25px;
+  font-weight:800;
+  letter-spacing:7px;
+}
 
-    .product-card {
-      background: white;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+.header-link{
+  font-size:14px;
+  font-weight:700;
+  padding:10px 15px;
+  border-radius:999px;
+  background:var(--pink2);
+}
 
-    .product-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.09);
-    }
+/* HERO */
 
-    .product-image {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-      background: #f5f5f5;
-      display: block;
-    }
+.hero{
+  max-width:1250px;
+  margin:0 auto;
+  padding:70px 24px 45px;
+}
 
-    .product-info {
-      padding: 18px;
-      text-align: center;
-    }
+.hero-box{
+  min-height:360px;
+  border-radius:32px;
+  padding:55px;
+  display:flex;
+  align-items:flex-end;
+  background:
+    radial-gradient(circle at 85% 15%, #fff 0, transparent 30%),
+    linear-gradient(135deg,#f7dce8,#fff4f8);
+  overflow:hidden;
+  position:relative;
+}
 
-    .product-info h3 {
-      font-size: 22px;
-      margin-bottom: 12px;
-    }
+.hero-box::after{
+  content:"C";
+  position:absolute;
+  right:-25px;
+  top:-85px;
+  font-size:420px;
+  line-height:1;
+  font-weight:900;
+  color:rgba(255,255,255,.45);
+  pointer-events:none;
+}
 
-    .product-button {
-      display: inline-block;
-      text-decoration: none;
-      background: #222;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 999px;
-      font-size: 14px;
-      font-weight: 700;
-    }
+.hero-content{
+  position:relative;
+  z-index:2;
+  max-width:610px;
+}
 
-    .loading,
-    .error {
-      text-align: center;
-      padding: 40px 20px;
-      color: #666;
-      font-size: 17px;
-    }
+.eyebrow{
+  display:inline-block;
+  margin-bottom:17px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
 
-    .business-info {
-      background: white;
-      padding: 50px 20px;
-    }
+.hero h1{
+  margin:0;
+  font-size:clamp(42px,7vw,78px);
+  line-height:.95;
+  letter-spacing:-3px;
+}
 
-    .business-info h2 {
-      text-align: center;
-      margin-bottom: 28px;
-      font-size: 30px;
-    }
+.hero p{
+  max-width:500px;
+  margin:22px 0 0;
+  color:#625c60;
+  font-size:17px;
+  line-height:1.55;
+}
 
-    .info-grid {
-      max-width: 900px;
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-    }
+.hero-button{
+  display:inline-flex;
+  margin-top:28px;
+  padding:14px 22px;
+  border-radius:999px;
+  background:var(--dark);
+  color:#fff;
+  font-weight:700;
+}
 
-    .info-card {
-      background: #fff8fb;
-      padding: 26px 20px;
-      border-radius: 18px;
-      text-align: center;
-    }
+/* CATÁLOGO */
 
-    .info-card h3 {
-      margin-bottom: 8px;
-    }
+.catalog{
+  max-width:1250px;
+  margin:auto;
+  padding:35px 24px 100px;
+}
 
-    footer {
-      text-align: center;
-      padding: 35px 20px;
-      color: #777;
-      font-size: 14px;
-    }
+.catalog-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:25px;
+  margin-bottom:28px;
+}
 
-    @media (max-width: 600px) {
-      .hero {
-        padding-top: 50px;
-      }
+.catalog-top h2{
+  margin:0;
+  font-size:35px;
+  letter-spacing:-1.5px;
+}
 
-      .grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
+.catalog-top p{
+  margin:7px 0 0;
+  color:var(--muted);
+}
 
-      .product-info {
-        padding: 14px 10px;
-      }
+.product-count{
+  color:var(--muted);
+  font-size:14px;
+}
 
-      .product-info h3 {
-        font-size: 18px;
-      }
+/* BUSCADOR */
 
-      .product-button {
-        font-size: 13px;
-        padding: 10px 14px;
-      }
-    }
-  </style>
+.search-box{
+  position:relative;
+  margin-bottom:18px;
+}
+
+.search-box input{
+  width:100%;
+  border:1px solid var(--border);
+  outline:none;
+  background:#faf8f9;
+  padding:17px 20px 17px 48px;
+  border-radius:17px;
+  font-size:16px;
+}
+
+.search-box input:focus{
+  border-color:var(--pink3);
+  background:#fff;
+}
+
+.search-icon{
+  position:absolute;
+  left:18px;
+  top:50%;
+  transform:translateY(-50%);
+  opacity:.5;
+}
+
+/* FILTROS */
+
+.filters{
+  display:flex;
+  gap:9px;
+  overflow-x:auto;
+  padding:0 0 25px;
+  scrollbar-width:none;
+}
+
+.filters::-webkit-scrollbar{
+  display:none;
+}
+
+.filter{
+  flex:none;
+  border:1px solid var(--border);
+  background:#fff;
+  padding:10px 17px;
+  border-radius:999px;
+  font-size:14px;
+  font-weight:650;
+}
+
+.filter.active{
+  background:var(--dark);
+  color:#fff;
+  border-color:var(--dark);
+}
+
+/* GRID */
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:28px 18px;
+}
+
+.product{
+  display:block;
+  min-width:0;
+}
+
+.image-wrap{
+  position:relative;
+  width:100%;
+  aspect-ratio:4/5;
+  border-radius:20px;
+  overflow:hidden;
+  background:#f7f4f5;
+}
+
+.product img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  transition:transform .45s ease;
+}
+
+.product:hover img{
+  transform:scale(1.025);
+}
+
+.available{
+  position:absolute;
+  top:13px;
+  left:13px;
+  padding:7px 10px;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(10px);
+  border-radius:999px;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.5px;
+}
+
+.product-info{
+  padding:13px 4px 0;
+}
+
+.product-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+
+.product h3{
+  margin:0;
+  font-size:17px;
+}
+
+.arrow{
+  font-size:18px;
+}
+
+.colors{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:8px;
+  min-height:20px;
+}
+
+.color-chip{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.color-separator{
+  color:#d1c7cb;
+}
+
+/* ESTADOS */
+
+.state{
+  grid-column:1/-1;
+  padding:70px 20px;
+  text-align:center;
+  border-radius:22px;
+  background:#faf8f9;
+  color:var(--muted);
+}
+
+.loader{
+  width:28px;
+  height:28px;
+  margin:0 auto 15px;
+  border:3px solid #eadde3;
+  border-top-color:#222;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+/* FOOTER */
+
+footer{
+  border-top:1px solid var(--border);
+  padding:45px 24px;
+  text-align:center;
+}
+
+.footer-brand{
+  font-size:20px;
+  font-weight:800;
+  letter-spacing:6px;
+}
+
+footer p{
+  margin:12px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:850px){
+  .grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .hero-box{
+    min-height:330px;
+    padding:38px;
+  }
+}
+
+@media(max-width:520px){
+  .header-inner{
+    height:64px;
+    padding:0 17px;
+  }
+
+  .brand{
+    font-size:20px;
+    letter-spacing:5px;
+  }
+
+  .header-link{
+    font-size:12px;
+  }
+
+  .hero{
+    padding:18px 14px 30px;
+  }
+
+  .hero-box{
+    min-height:320px;
+    padding:30px 24px;
+    border-radius:25px;
+  }
+
+  .hero h1{
+    font-size:48px;
+    letter-spacing:-2px;
+  }
+
+  .hero p{
+    font-size:15px;
+  }
+
+  .catalog{
+    padding:30px 14px 75px;
+  }
+
+  .catalog-top{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .catalog-top h2{
+    font-size:29px;
+  }
+
+  .grid{
+    gap:25px 10px;
+  }
+
+  .image-wrap{
+    border-radius:15px;
+  }
+
+  .product h3{
+    font-size:15px;
+  }
+
+  .colors{
+    gap:4px;
+  }
+
+  .color-chip{
+    font-size:11px;
+  }
+
+  .available{
+    font-size:9px;
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <header>
-    <div class="logo">CAROLA</div>
-  </header>
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="brand">CAROLA</a>
+    <a href="#catalogo" class="header-link">Ver catálogo</a>
+  </div>
+</header>
 
-  <section class="hero">
-    <h1>Calzado Carola</h1>
+<section class="hero">
+  <div class="hero-box">
+    <div class="hero-content">
+      <span class="eyebrow">Calzado Carola</span>
 
-    <p>
-      Catálogo de modelos disponibles.
-      Mayoreo desde media docena,
-      envíos a todo México y entregas en León, Guanajuato.
-    </p>
-  </section>
+      <h1>
+        Encuentra<br>
+        tu próximo par.
+      </h1>
 
-  <main class="catalog">
-    <h2>Modelos disponibles</h2>
+      <p>
+        Explora nuestros modelos y descubre los colores
+        disponibles actualmente.
+      </p>
 
-    <p class="catalog-subtitle">
-      El catálogo se actualiza según la disponibilidad.
-    </p>
-
-    <div id="catalog-content">
-      <div class="loading">
-        Cargando modelos disponibles...
-      </div>
+      <a href="#catalogo" class="hero-button">
+        Explorar modelos ↓
+      </a>
     </div>
-  </main>
+  </div>
+</section>
 
-  <section class="business-info">
-    <h2>Compra con nosotros</h2>
+<main class="catalog" id="catalogo">
 
-    <div class="info-grid">
-
-      <div class="info-card">
-        <h3>Mayoreo</h3>
-        <p>Venta desde media docena.</p>
-      </div>
-
-      <div class="info-card">
-        <h3>Envíos</h3>
-        <p>Enviamos a todo México.</p>
-      </div>
-
-      <div class="info-card">
-        <h3>León, Gto.</h3>
-        <p>Entregas personales disponibles.</p>
-      </div>
-
+  <div class="catalog-top">
+    <div>
+      <h2>Catálogo</h2>
+      <p>Modelos disponibles</p>
     </div>
-  </section>
 
-  <footer>
-    © 2026 Calzado Carola
-  </footer>
+    <div id="productCount" class="product-count">
+      Cargando...
+    </div>
+  </div>
 
-  <script>
-  const catalogContent =
-    document.getElementById("catalog-content");
+  <div class="search-box">
+    <span class="search-icon">⌕</span>
 
-  function normalizarModelo(texto) {
-    return String(texto || "")
-      .trim()
-      .toLowerCase()
-      .replace(/^modelo\s+/i, "");
-  }
+    <input
+      id="search"
+      type="search"
+      placeholder="Buscar modelo..."
+      autocomplete="off"
+    >
+  </div>
 
-  async function loadProducts() {
-    try {
-      /*
-       * 1. Consultamos Treinta.
-       * Treinta se usa únicamente para saber
-       * qué modelos están disponibles.
-       */
-      const treintaResponse = await fetch(
-        "/.netlify/functions/treinta"
-      );
+  <div id="filters" class="filters"></div>
 
-      if (!treintaResponse.ok) {
-        throw new Error("No se pudo consultar Treinta");
-      }
+  <div id="grid" class="grid">
+    <div class="state">
+      <div class="loader"></div>
+      Cargando catálogo...
+    </div>
+  </div>
 
-      const treintaData =
-        await treintaResponse.json();
+</main>
 
-      if (
-        !treintaData.success ||
-        !Array.isArray(treintaData.products)
-      ) {
-        throw new Error(
-          "Respuesta incorrecta de Treinta"
-        );
-      }
+<footer>
+  <div class="footer-brand">CAROLA</div>
+  <p>Envíos a todo México · Entregas en León, Gto.</p>
+</footer>
 
-      /*
-       * Creamos una lista con los modelos
-       * actualmente disponibles en Treinta.
-       */
-      const modelosDisponibles = new Set(
-        treintaData.products.map(product =>
-          normalizarModelo(product.name)
-        )
-      );
+<script>
 
-      /*
-       * 2. Consultamos nuestra base de datos
-       * de Supabase.
-       */
-      const supabaseResponse = await fetch(
-        "/.netlify/functions/supabase"
-      );
+let allProducts = [];
+let selectedColor = "todos";
 
-      if (!supabaseResponse.ok) {
-        throw new Error(
-          "No se pudo consultar Supabase"
-        );
-      }
+const grid = document.getElementById("grid");
+const filters = document.getElementById("filters");
+const search = document.getElementById("search");
+const productCount = document.getElementById("productCount");
 
-      const supabaseData =
-        await supabaseResponse.json();
 
-      if (
-        !supabaseData.success ||
-        !Array.isArray(supabaseData.productos)
-      ) {
-        throw new Error(
-          "Respuesta incorrecta de Supabase"
-        );
-      }
+function normalize(value){
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"");
+}
 
-      /*
-       * 3. Mostramos únicamente productos que:
-       *
-       * - existen en nuestra base de Supabase
-       * - están disponibles actualmente en Treinta
-       */
-      const productos = supabaseData.productos.filter(
-        product =>
-          modelosDisponibles.has(
-            normalizarModelo(product.modelo)
-          )
-      );
 
-      if (productos.length === 0) {
-        catalogContent.innerHTML = `
-          <div class="loading">
-            No hay modelos disponibles en este momento.
-          </div>
-        `;
-        return;
-      }
+function getVariants(product){
+  return Array.isArray(product.variantes)
+    ? product.variantes.filter(v =>
+        Array.isArray(v.imagenes) &&
+        v.imagenes.length
+      )
+    : [];
+}
 
-      /*
-       * 4. Construimos el catálogo.
-       */
-      const grid = document.createElement("div");
-      grid.className = "grid";
 
-      productos.forEach(product => {
+function sortImages(images){
+  return images.slice().sort((a,b) => {
+    const order =
+      Number(a.orden || 0) -
+      Number(b.orden || 0);
 
-        /*
-         * Buscamos la primera variante que tenga
-         * al menos una imagen.
-         */
-        const variantePrincipal =
-          product.variantes.find(
-            variante =>
-              Array.isArray(variante.imagenes) &&
-              variante.imagenes.length > 0
-          ) || product.variantes[0];
+    if(order !== 0) return order;
 
-        if (!variantePrincipal) {
-          return;
-        }
+    return Number(a.id || 0) -
+           Number(b.id || 0);
+  });
+}
 
-        const imagenPrincipal =
-          variantePrincipal.imagenes &&
-          variantePrincipal.imagenes.length > 0
-            ? variantePrincipal.imagenes[0].url
-            : "https://placehold.co/600x600?text=CAROLA";
 
-        /*
-         * Generamos los botones de colores.
-         */
-        const colores = product.variantes
-          .map(
-            variante => `
-              <span
-                style="
-                  display:inline-block;
-                  padding:6px 10px;
-                  margin:3px;
-                  border-radius:999px;
-                  background:#fff0f6;
-                  font-size:12px;
-                "
-              >
-                ${variante.color}
-              </span>
-            `
-          )
-          .join("");
+function getCover(product){
+  const variants = getVariants(product);
 
-        const card =
-          document.createElement("article");
+  for(const variant of variants){
+    const images = sortImages(variant.imagenes);
 
-        card.className = "product-card";
-
-        card.innerHTML = `
-          <img
-            src="${imagenPrincipal}"
-            alt="Modelo ${product.modelo}"
-            class="product-image"
-            loading="lazy"
-          >
-
-          <div class="product-info">
-
-            <h3>
-              Modelo ${product.modelo}
-            </h3>
-
-            <div
-              style="
-                margin-bottom:15px;
-              "
-            >
-              ${colores}
-            </div>
-
-            <a
-              class="product-button"
-              href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
-            >
-              Ver modelo
-            </a>
-
-          </div>
-        `;
-
-        grid.appendChild(card);
-      });
-
-      catalogContent.innerHTML = "";
-      catalogContent.appendChild(grid);
-
-    } catch (error) {
-
-      console.error(error);
-
-      catalogContent.innerHTML = `
-        <div class="error">
-          No pudimos cargar los modelos.
-          Intenta nuevamente en unos minutos.
-        </div>
-      `;
+    if(images.length){
+      return images[0].url;
     }
   }
 
-  loadProducts();
+  return "";
+}
+
+
+function getColors(product){
+  return getVariants(product)
+    .map(v => v.color)
+    .filter(Boolean);
+}
+
+
+async function loadCatalog(){
+
+  try{
+
+    const [supabaseResponse, treintaResponse] =
+      await Promise.all([
+        fetch(
+          "/.netlify/functions/supabase?t=" + Date.now(),
+          {cache:"no-store"}
+        ),
+        fetch(
+          "/.netlify/functions/treinta?t=" + Date.now(),
+          {cache:"no-store"}
+        )
+      ]);
+
+    const supabaseData =
+      await supabaseResponse.json();
+
+    const treintaData =
+      await treintaResponse.json();
+
+    if(!supabaseResponse.ok || !supabaseData.success){
+      throw new Error("No se pudo cargar el catálogo.");
+    }
+
+    if(!treintaResponse.ok || !treintaData.success){
+      throw new Error("No se pudo comprobar disponibilidad.");
+    }
+
+    const treintaProducts =
+      Array.isArray(treintaData.productos)
+        ? treintaData.productos
+        : [];
+
+    const availableModels =
+      new Set(
+        treintaProducts.map(item =>
+          normalizeModel(item.name)
+        )
+      );
+
+    const supabaseProducts =
+      Array.isArray(supabaseData.productos)
+        ? supabaseData.productos
+        : [];
+
+    allProducts =
+      supabaseProducts
+        .filter(product =>
+          availableModels.has(
+            normalizeModel(product.modelo)
+          )
+        )
+        .filter(product =>
+          getCover(product)
+        )
+        .sort((a,b) =>
+          String(a.modelo).localeCompare(
+            String(b.modelo),
+            undefined,
+            {
+              numeric:true,
+              sensitivity:"base"
+            }
+          )
+        );
+
+    buildFilters();
+    renderProducts();
+
+  }catch(error){
+
+    console.error(error);
+
+    productCount.textContent = "";
+
+    grid.innerHTML = `
+      <div class="state">
+        No pudimos cargar el catálogo en este momento.<br>
+        Intenta nuevamente en unos minutos.
+      </div>
+    `;
+  }
+}
+
+
+function normalizeModel(value){
+
+  const text = normalize(value);
+
+  const match =
+    text.match(/[a-z]*\s*\d+[a-z]*/i);
+
+  if(match){
+    return match[0].replace(/\s+/g,"");
+  }
+
+  return text;
+}
+
+
+function buildFilters(){
+
+  const map = new Map();
+
+  allProducts.forEach(product => {
+    getColors(product).forEach(color => {
+
+      const key = normalize(color);
+
+      if(!map.has(key)){
+        map.set(key,color);
+      }
+    });
+  });
+
+  const colorList =
+    Array.from(map.entries())
+      .sort((a,b) =>
+        a[1].localeCompare(
+          b[1],
+          "es",
+          {sensitivity:"base"}
+        )
+      );
+
+  let html = `
+    <button
+      class="filter active"
+      data-color="todos"
+      type="button"
+    >
+      Todos
+    </button>
+  `;
+
+  colorList.forEach(([key,label]) => {
+    html += `
+      <button
+        class="filter"
+        data-color="${escapeAttribute(key)}"
+        type="button"
+      >
+        ${escapeHtml(label)}
+      </button>
+    `;
+  });
+
+  filters.innerHTML = html;
+}
+
+
+function renderProducts(){
+
+  const query =
+    normalize(search.value);
+
+  const visible =
+    allProducts.filter(product => {
+
+      const matchesSearch =
+        !query ||
+        normalize(product.modelo)
+          .includes(query);
+
+      const matchesColor =
+        selectedColor === "todos" ||
+        getColors(product).some(
+          color =>
+            normalize(color) ===
+            selectedColor
+        );
+
+      return matchesSearch && matchesColor;
+    });
+
+  productCount.textContent =
+    visible.length === 1
+      ? "1 modelo"
+      : `${visible.length} modelos`;
+
+  if(!visible.length){
+
+    grid.innerHTML = `
+      <div class="state">
+        No encontramos modelos con esos filtros.
+      </div>
+    `;
+
+    return;
+  }
+
+  grid.innerHTML =
+    visible.map(product => {
+
+      const cover =
+        getCover(product);
+
+      const colors =
+        getColors(product);
+
+      const colorsHtml =
+        colors.map((color,index) => `
+          ${index ? '<span class="color-separator">·</span>' : ""}
+          <span class="color-chip">
+            ${escapeHtml(color)}
+          </span>
+        `).join("");
+
+      return `
+        <a
+          class="product"
+          href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
+        >
+
+          <div class="image-wrap">
+
+            <img
+              src="${escapeAttribute(cover)}"
+              alt="Modelo ${escapeAttribute(product.modelo)}"
+              loading="lazy"
+            >
+
+            <span class="available">
+              DISPONIBLE
+            </span>
+
+          </div>
+
+          <div class="product-info">
+
+            <div class="product-row">
+              <h3>
+                Modelo ${escapeHtml(product.modelo)}
+              </h3>
+
+              <span class="arrow">→</span>
+            </div>
+
+            <div class="colors">
+              ${colorsHtml}
+            </div>
+
+          </div>
+
+        </a>
+      `;
+    }).join("");
+}
+
+
+filters.onclick = function(event){
+
+  const button =
+    event.target.closest(".filter");
+
+  if(!button) return;
+
+  selectedColor =
+    button.dataset.color || "todos";
+
+  document
+    .querySelectorAll(".filter")
+    .forEach(item =>
+      item.classList.remove("active")
+    );
+
+  button.classList.add("active");
+
+  renderProducts();
+};
+
+
+search.addEventListener(
+  "input",
+  renderProducts
+);
+
+
+function escapeHtml(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+
+function escapeAttribute(value){
+  return escapeHtml(value);
+}
+
+
+loadCatalog();
+
 </script>
 
 </body>
