@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
@@ -48,8 +49,7 @@
       background: white;
       border-radius: 24px;
       padding: 28px;
-      box-shadow:
-        0 10px 35px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 10px 35px rgba(0,0,0,.05);
     }
 
     h2 {
@@ -109,6 +109,7 @@
       border: 0;
       cursor: pointer;
       font-weight: 700;
+      font-family: inherit;
     }
 
     .upload-button {
@@ -122,7 +123,7 @@
     }
 
     .upload-button:disabled {
-      opacity: 0.5;
+      opacity: .5;
       cursor: not-allowed;
     }
 
@@ -184,8 +185,7 @@
       background: white;
       border-radius: 22px;
       padding: 22px;
-      box-shadow:
-        0 8px 28px rgba(0, 0, 0, 0.045);
+      box-shadow: 0 8px 28px rgba(0,0,0,.045);
     }
 
     .model-title {
@@ -208,7 +208,7 @@
 
     .variant {
       border-top: 1px solid #eee;
-      padding: 18px 0 4px;
+      padding: 18px 0 8px;
     }
 
     .variant:first-of-type {
@@ -246,6 +246,27 @@
       border-radius: 12px;
       flex: 0 0 auto;
       background: #f5f5f5;
+    }
+
+    .variant-actions {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .add-photos {
+      background: #171717;
+      color: white;
+      padding: 11px 16px;
+      border-radius: 12px;
+    }
+
+    .add-color {
+      background: #f7e6ee;
+      color: #222;
+      padding: 11px 16px;
+      border-radius: 12px;
     }
 
     .empty {
@@ -289,425 +310,356 @@
       .model-card {
         padding: 18px;
       }
+
+      .variant-actions button {
+        flex: 1;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <header>
-    <div class="logo">CAROLA</div>
-    <p>Administrador de catálogo</p>
-  </header>
+<header>
+  <div class="logo">CAROLA</div>
+  <p>Administrador de catálogo</p>
+</header>
 
-  <main>
+<main>
 
-    <section class="card">
+  <section class="card" id="uploadSection">
 
-      <h2>Agregar fotografías</h2>
+    <h2>Agregar fotografías</h2>
 
-      <label for="modelo">
-        Modelo
-      </label>
+    <label for="modelo">
+      Modelo
+    </label>
+
+    <input
+      id="modelo"
+      type="text"
+      placeholder="Ej. 565"
+      autocomplete="off"
+    >
+
+    <label for="color">
+      Color
+    </label>
+
+    <input
+      id="color"
+      type="text"
+      placeholder="Ej. negro"
+      autocomplete="off"
+    >
+
+    <label
+      class="file-box"
+      for="imagenes"
+    >
+      📷 Seleccionar fotografías
 
       <input
-        id="modelo"
-        type="text"
-        placeholder="Ej. 565"
-        autocomplete="off"
+        id="imagenes"
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple
       >
+    </label>
 
-      <label for="color">
-        Color
-      </label>
+    <div
+      id="preview"
+      class="preview"
+    ></div>
 
-      <input
-        id="color"
-        type="text"
-        placeholder="Ej. negro"
-        autocomplete="off"
-      >
+    <div
+      id="count"
+      class="count"
+    >
+      Ninguna fotografía seleccionada
+    </div>
 
-      <label
-        class="file-box"
-        for="imagenes"
-      >
-        📷 Seleccionar fotografías
+    <button
+      id="uploadButton"
+      class="upload-button"
+      type="button"
+    >
+      Subir al catálogo
+    </button>
 
-        <input
-          id="imagenes"
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          multiple
-        >
-      </label>
+    <div id="status"></div>
 
-      <div
-        id="preview"
-        class="preview"
-      ></div>
+  </section>
 
-      <div
-        id="count"
-        class="count"
-      >
-        Ninguna fotografía seleccionada
+
+  <section class="catalog-section">
+
+    <div class="catalog-header">
+
+      <div>
+        <h2>Modelos cargados</h2>
+        <p>
+          Fotografías y colores guardados en Carola.
+        </p>
       </div>
 
       <button
-        id="uploadButton"
-        class="upload-button"
+        id="refreshButton"
+        class="refresh"
         type="button"
       >
-        Subir al catálogo
+        Actualizar
       </button>
 
-      <div id="status"></div>
+    </div>
 
-    </section>
-
-
-    <section class="catalog-section">
-
-      <div class="catalog-header">
-
-        <div>
-          <h2>Modelos cargados</h2>
-          <p>
-            Fotografías y colores guardados
-            en Carola.
-          </p>
-        </div>
-
-        <button
-          id="refreshButton"
-          class="refresh"
-          type="button"
-        >
-          Actualizar
-        </button>
-
+    <div id="models">
+      <div class="loading">
+        Cargando modelos...
       </div>
+    </div>
 
-      <div id="models">
-        <div class="loading">
-          Cargando modelos...
-        </div>
-      </div>
+  </section>
 
-    </section>
+</main>
 
-  </main>
-
-  <footer>
-    Panel interno de Calzado Carola.
-  </footer>
+<footer>
+  Panel interno de Calzado Carola.
+</footer>
 
 
-  <script>
+<script>
 
-    /*
-     * CONTRASEÑA
-     */
+  /*
+   * CONTRASEÑA
+   */
 
-    let adminPassword = "";
+  let adminPassword = "";
 
-    while (!adminPassword) {
+  while (!adminPassword) {
 
-      adminPassword = prompt(
-        "Contraseña de administrador de Calzado Carola:"
+    adminPassword = prompt(
+      "Contraseña de administrador de Calzado Carola:"
+    );
+
+    if (adminPassword === null) {
+
+      document.body.innerHTML =
+        "<h2 style='text-align:center;margin-top:80px;'>Acceso cancelado</h2>";
+
+      throw new Error(
+        "Acceso cancelado"
       );
-
-      if (adminPassword === null) {
-
-        document.body.innerHTML =
-          "<h2 style='text-align:center;margin-top:80px;'>Acceso cancelado</h2>";
-
-        throw new Error(
-          "Acceso cancelado"
-        );
-      }
-
-      adminPassword =
-        adminPassword.trim();
     }
 
-
-    /*
-     * ELEMENTOS
-     */
-
-    const modelo =
-      document.getElementById("modelo");
-
-    const color =
-      document.getElementById("color");
-
-    const imagenes =
-      document.getElementById("imagenes");
-
-    const preview =
-      document.getElementById("preview");
-
-    const count =
-      document.getElementById("count");
-
-    const uploadButton =
-      document.getElementById("uploadButton");
-
-    const status =
-      document.getElementById("status");
-
-    const modelsContainer =
-      document.getElementById("models");
-
-    const refreshButton =
-      document.getElementById("refreshButton");
+    adminPassword =
+      adminPassword.trim();
+  }
 
 
-    /*
-     * PREVISUALIZACIÓN
-     */
+  /*
+   * ELEMENTOS
+   */
 
-    imagenes.addEventListener(
-      "change",
-      function () {
+  const modelo =
+    document.getElementById("modelo");
 
-        preview.innerHTML = "";
+  const color =
+    document.getElementById("color");
 
-        const files =
-          Array.from(imagenes.files);
+  const imagenes =
+    document.getElementById("imagenes");
 
-        if (files.length === 0) {
+  const preview =
+    document.getElementById("preview");
 
-          count.textContent =
-            "Ninguna fotografía seleccionada";
+  const count =
+    document.getElementById("count");
 
-          return;
-        }
+  const uploadButton =
+    document.getElementById("uploadButton");
+
+  const status =
+    document.getElementById("status");
+
+  const modelsContainer =
+    document.getElementById("models");
+
+  const refreshButton =
+    document.getElementById("refreshButton");
+
+  const uploadSection =
+    document.getElementById("uploadSection");
+
+
+  /*
+   * PREVISUALIZACIÓN
+   */
+
+  imagenes.addEventListener(
+    "change",
+    function () {
+
+      preview.innerHTML = "";
+
+      const files =
+        Array.from(imagenes.files);
+
+      if (files.length === 0) {
 
         count.textContent =
-          files.length === 1
-            ? "1 fotografía seleccionada"
-            : `${files.length} fotografías seleccionadas`;
+          "Ninguna fotografía seleccionada";
 
-        for (const file of files) {
-
-          const img =
-            document.createElement("img");
-
-          img.src =
-            URL.createObjectURL(file);
-
-          preview.appendChild(img);
-        }
+        return;
       }
-    );
 
+      count.textContent =
+        files.length === 1
+          ? "1 fotografía seleccionada"
+          : `${files.length} fotografías seleccionadas`;
 
-    /*
-     * CONVERTIR ARCHIVO A BASE64
-     */
+      for (const file of files) {
 
-    function fileToBase64(file) {
+        const img =
+          document.createElement("img");
 
-      return new Promise(
-        (resolve, reject) => {
+        img.src =
+          URL.createObjectURL(file);
 
-          const reader =
-            new FileReader();
-
-          reader.onload = () => {
-
-            const result =
-              String(reader.result);
-
-            resolve({
-              data:
-                result.split(",")[1],
-
-              type:
-                file.type,
-
-              name:
-                file.name
-            });
-          };
-
-          reader.onerror =
-            reject;
-
-          reader.readAsDataURL(file);
-        }
-      );
+        preview.appendChild(img);
+      }
     }
+  );
 
 
-    /*
-     * SUBIR FOTOGRAFÍAS
-     */
+  /*
+   * ARCHIVO A BASE64
+   */
 
-    uploadButton.addEventListener(
-      "click",
-      async function () {
+  function fileToBase64(file) {
 
-        const modeloValue =
-          modelo.value.trim();
+    return new Promise(
+      (resolve, reject) => {
 
-        const colorValue =
-          color.value.trim();
+        const reader =
+          new FileReader();
 
-        const files =
-          Array.from(imagenes.files);
-
-        status.className = "";
-        status.style.display = "none";
-
-        if (
-          !modeloValue ||
-          !colorValue
-        ) {
-
-          status.textContent =
-            "Escribe el modelo y el color.";
-
-          status.className =
-            "error";
-
-          return;
-        }
-
-        if (files.length === 0) {
-
-          status.textContent =
-            "Selecciona al menos una fotografía.";
-
-          status.className =
-            "error";
-
-          return;
-        }
-
-        try {
-
-          uploadButton.disabled =
-            true;
-
-          uploadButton.textContent =
-            "Subiendo...";
-
-          const convertedImages =
-            [];
-
-          for (const file of files) {
-
-            const converted =
-              await fileToBase64(file);
-
-            convertedImages.push(
-              converted
-            );
-          }
-
-          const response =
-            await fetch(
-              "/.netlify/functions/admin-upload",
-              {
-                method: "POST",
-
-                headers: {
-                  "Content-Type":
-                    "application/json",
-
-                  "x-admin-password":
-                    adminPassword
-                },
-
-                body: JSON.stringify({
-                  modelo:
-                    modeloValue,
-
-                  color:
-                    colorValue,
-
-                  imagenes:
-                    convertedImages
-                })
-              }
-            );
+        reader.onload = () => {
 
           const result =
-            await response.json();
+            String(reader.result);
 
-          if (
-            !response.ok ||
-            !result.success
-          ) {
+          resolve({
+            data:
+              result.split(",")[1],
 
-            throw new Error(
-              result.error ||
-              "No se pudieron subir las fotografías."
-            );
-          }
+            type:
+              file.type,
 
-          status.innerHTML =
-            `<strong>✓ Modelo ${modeloValue} · ${colorValue}</strong><br>` +
-            (
-              files.length === 1
-                ? "1 fotografía subida correctamente."
-                : `${files.length} fotografías subidas correctamente.`
-            );
+            name:
+              file.name
+          });
+        };
 
-          status.className =
-            "success";
+        reader.onerror =
+          reject;
 
-          imagenes.value = "";
-          preview.innerHTML = "";
-
-          count.textContent =
-            "Ninguna fotografía seleccionada";
-
-          /*
-           * Recargamos automáticamente
-           * la lista inferior.
-           */
-
-          await loadModels();
-
-        } catch (error) {
-
-          status.textContent =
-            error.message;
-
-          status.className =
-            "error";
-
-        } finally {
-
-          uploadButton.disabled =
-            false;
-
-          uploadButton.textContent =
-            "Subir al catálogo";
-        }
+        reader.readAsDataURL(file);
       }
     );
+  }
 
 
-    /*
-     * CARGAR MODELOS DESDE SUPABASE
-     */
+  /*
+   * SUBIR FOTOGRAFÍAS
+   */
 
-    async function loadModels() {
+  uploadButton.addEventListener(
+    "click",
+    async function () {
 
-      modelsContainer.innerHTML =
-        '<div class="loading">Cargando modelos...</div>';
+      const modeloValue =
+        modelo.value.trim();
+
+      const colorValue =
+        color.value.trim();
+
+      const files =
+        Array.from(imagenes.files);
+
+      status.className = "";
+      status.style.display = "none";
+
+      if (
+        !modeloValue ||
+        !colorValue
+      ) {
+
+        status.textContent =
+          "Escribe el modelo y el color.";
+
+        status.className =
+          "error";
+
+        return;
+      }
+
+      if (files.length === 0) {
+
+        status.textContent =
+          "Selecciona al menos una fotografía.";
+
+        status.className =
+          "error";
+
+        return;
+      }
 
       try {
 
+        uploadButton.disabled =
+          true;
+
+        uploadButton.textContent =
+          "Subiendo...";
+
+        const convertedImages = [];
+
+        for (const file of files) {
+
+          const converted =
+            await fileToBase64(file);
+
+          convertedImages.push(
+            converted
+          );
+        }
+
         const response =
           await fetch(
-            "/.netlify/functions/supabase"
+            "/.netlify/functions/admin-upload",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                "x-admin-password":
+                  adminPassword
+              },
+
+              body: JSON.stringify({
+                modelo:
+                  modeloValue,
+
+                color:
+                  colorValue,
+
+                imagenes:
+                  convertedImages
+              })
+            }
           );
 
         const result =
@@ -720,196 +672,358 @@
 
           throw new Error(
             result.error ||
-            "No se pudieron cargar los modelos."
+            "No se pudieron subir las fotografías."
           );
         }
 
-        renderModels(
-          result.productos || []
-        );
+        status.innerHTML =
+          `<strong>✓ Modelo ${escapeHtml(modeloValue)} · ${escapeHtml(colorValue)}</strong><br>` +
+          (
+            files.length === 1
+              ? "1 fotografía subida correctamente."
+              : `${files.length} fotografías subidas correctamente.`
+          );
+
+        status.className =
+          "success";
+
+        imagenes.value = "";
+        preview.innerHTML = "";
+
+        count.textContent =
+          "Ninguna fotografía seleccionada";
+
+        await loadModels();
 
       } catch (error) {
 
-        modelsContainer.innerHTML =
-          `<div class="empty">${escapeHtml(error.message)}</div>`;
+        status.textContent =
+          error.message;
+
+        status.className =
+          "error";
+
+      } finally {
+
+        uploadButton.disabled =
+          false;
+
+        uploadButton.textContent =
+          "Subir al catálogo";
       }
     }
+  );
 
 
-    /*
-     * MOSTRAR MODELOS
-     */
+  /*
+   * CARGAR MODELOS
+   */
 
-    function renderModels(products) {
+  async function loadModels() {
 
-      if (products.length === 0) {
+    modelsContainer.innerHTML =
+      '<div class="loading">Cargando modelos...</div>';
 
-        modelsContainer.innerHTML =
-          '<div class="empty">Todavía no hay modelos cargados.</div>';
+    try {
+
+      const response =
+        await fetch(
+          "/.netlify/functions/supabase"
+        );
+
+      const result =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !result.success
+      ) {
+
+        throw new Error(
+          result.error ||
+          "No se pudieron cargar los modelos."
+        );
+      }
+
+      renderModels(
+        result.productos || []
+      );
+
+    } catch (error) {
+
+      modelsContainer.innerHTML =
+        `<div class="empty">${escapeHtml(error.message)}</div>`;
+    }
+  }
+
+
+  /*
+   * MOSTRAR MODELOS
+   */
+
+  function renderModels(products) {
+
+    if (products.length === 0) {
+
+      modelsContainer.innerHTML =
+        '<div class="empty">Todavía no hay modelos cargados.</div>';
+
+      return;
+    }
+
+    const sortedProducts =
+      [...products].sort(
+        (a, b) =>
+          String(a.modelo).localeCompare(
+            String(b.modelo),
+            undefined,
+            {
+              numeric: true,
+              sensitivity: "base"
+            }
+          )
+      );
+
+    modelsContainer.innerHTML = "";
+
+    for (const product of sortedProducts) {
+
+      const card =
+        document.createElement("article");
+
+      card.className =
+        "model-card";
+
+      const variants =
+        Array.isArray(product.variantes)
+          ? product.variantes
+          : [];
+
+      let variantsHtml = "";
+
+      for (const variant of variants) {
+
+        const images =
+          Array.isArray(variant.imagenes)
+            ? [...variant.imagenes]
+            : [];
+
+        images.sort(
+          (a, b) =>
+            Number(a.orden || 0) -
+            Number(b.orden || 0)
+        );
+
+        const photosHtml =
+          images.length > 0
+            ? images
+                .map(
+                  image =>
+                    `<img
+                      src="${escapeAttribute(image.url)}"
+                      alt="Modelo ${escapeAttribute(product.modelo)} ${escapeAttribute(variant.color)}"
+                      loading="lazy"
+                    >`
+                )
+                .join("")
+            : '<span class="photo-count">Sin fotografías</span>';
+
+        variantsHtml += `
+          <div class="variant">
+
+            <div class="variant-info">
+
+              <span class="color-name">
+                ${escapeHtml(variant.color)}
+              </span>
+
+              <span class="photo-count">
+                ${
+                  images.length === 1
+                    ? "1 fotografía"
+                    : `${images.length} fotografías`
+                }
+              </span>
+
+            </div>
+
+            <div class="photos">
+              ${photosHtml}
+            </div>
+
+            <div class="variant-actions">
+
+              <button
+                type="button"
+                class="add-photos"
+                data-model="${escapeAttribute(product.modelo)}"
+                data-color="${escapeAttribute(variant.color)}"
+              >
+                + Agregar fotos a ${escapeHtml(variant.color)}
+              </button>
+
+              <button
+                type="button"
+                class="add-color"
+                data-model="${escapeAttribute(product.modelo)}"
+              >
+                + Agregar otro color
+              </button>
+
+            </div>
+
+          </div>
+        `;
+      }
+
+      if (variants.length === 0) {
+
+        variantsHtml =
+          '<div class="variant"><span class="photo-count">Sin colores cargados.</span></div>';
+      }
+
+      card.innerHTML = `
+        <div class="model-title">
+
+          <h3>
+            Modelo ${escapeHtml(product.modelo)}
+          </h3>
+
+          <span class="model-id">
+            ${variants.length}
+            ${
+              variants.length === 1
+                ? "color"
+                : "colores"
+            }
+          </span>
+
+        </div>
+
+        ${variantsHtml}
+      `;
+
+      modelsContainer.appendChild(
+        card
+      );
+    }
+  }
+
+
+  /*
+   * BOTONES DE CADA MODELO
+   */
+
+  modelsContainer.addEventListener(
+    "click",
+    function (event) {
+
+      const addPhotosButton =
+        event.target.closest(
+          ".add-photos"
+        );
+
+      if (addPhotosButton) {
+
+        const modelValue =
+          addPhotosButton.dataset.model;
+
+        const colorValue =
+          addPhotosButton.dataset.color;
+
+        modelo.value =
+          modelValue;
+
+        color.value =
+          colorValue;
+
+        uploadSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+
+        setTimeout(
+          function () {
+            imagenes.click();
+          },
+          450
+        );
 
         return;
       }
 
-      const sortedProducts =
-        [...products].sort(
-          (a, b) =>
-            String(a.modelo).localeCompare(
-              String(b.modelo),
-              undefined,
-              {
-                numeric: true,
-                sensitivity: "base"
-              }
-            )
+
+      const addColorButton =
+        event.target.closest(
+          ".add-color"
         );
 
-      modelsContainer.innerHTML = "";
+      if (addColorButton) {
 
-      for (
-        const product of sortedProducts
-      ) {
+        const modelValue =
+          addColorButton.dataset.model;
 
-        const card =
-          document.createElement("article");
+        modelo.value =
+          modelValue;
 
-        card.className =
-          "model-card";
+        color.value = "";
 
-        const variants =
-          Array.isArray(product.variantes)
-            ? product.variantes
-            : [];
+        uploadSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
 
-        let variantsHtml = "";
-
-        for (const variant of variants) {
-
-          const images =
-            Array.isArray(variant.imagenes)
-              ? [...variant.imagenes]
-              : [];
-
-          images.sort(
-            (a, b) =>
-              Number(a.orden || 0) -
-              Number(b.orden || 0)
-          );
-
-          const photosHtml =
-            images.length > 0
-              ? images
-                  .map(
-                    image =>
-                      `<img
-                        src="${escapeAttribute(image.url)}"
-                        alt="Modelo ${escapeAttribute(product.modelo)} ${escapeAttribute(variant.color)}"
-                        loading="lazy"
-                      >`
-                  )
-                  .join("")
-              : '<span class="photo-count">Sin fotografías</span>';
-
-          variantsHtml += `
-            <div class="variant">
-
-              <div class="variant-info">
-
-                <span class="color-name">
-                  ${escapeHtml(variant.color)}
-                </span>
-
-                <span class="photo-count">
-                  ${
-                    images.length === 1
-                      ? "1 fotografía"
-                      : `${images.length} fotografías`
-                  }
-                </span>
-
-              </div>
-
-              <div class="photos">
-                ${photosHtml}
-              </div>
-
-            </div>
-          `;
-        }
-
-        if (variants.length === 0) {
-
-          variantsHtml =
-            '<div class="variant"><span class="photo-count">Sin colores cargados.</span></div>';
-        }
-
-        card.innerHTML = `
-          <div class="model-title">
-
-            <h3>
-              Modelo ${escapeHtml(product.modelo)}
-            </h3>
-
-            <span class="model-id">
-              ${variants.length}
-              ${
-                variants.length === 1
-                  ? "color"
-                  : "colores"
-              }
-            </span>
-
-          </div>
-
-          ${variantsHtml}
-        `;
-
-        modelsContainer.appendChild(
-          card
+        setTimeout(
+          function () {
+            color.focus();
+          },
+          450
         );
       }
     }
+  );
 
 
-    /*
-     * SEGURIDAD AL INSERTAR TEXTO
-     */
+  /*
+   * SEGURIDAD AL MOSTRAR TEXTO
+   */
 
-    function escapeHtml(value) {
+  function escapeHtml(value) {
 
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-
-    function escapeAttribute(value) {
-
-      return escapeHtml(
-        value || ""
-      );
-    }
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
 
 
-    /*
-     * ACTUALIZAR
-     */
+  function escapeAttribute(value) {
 
-    refreshButton.addEventListener(
-      "click",
-      loadModels
+    return escapeHtml(
+      value || ""
     );
+  }
 
 
-    /*
-     * CARGA INICIAL
-     */
+  /*
+   * ACTUALIZAR
+   */
 
-    loadModels();
+  refreshButton.addEventListener(
+    "click",
+    loadModels
+  );
 
-  </script>
+
+  /*
+   * CARGA INICIAL
+   */
+
+  loadModels();
+
+</script>
 
 </body>
 </html>
