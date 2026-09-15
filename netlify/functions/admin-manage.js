@@ -25,12 +25,15 @@ exports.handler = async function (event) {
     });
   }
 
-  const adminPassword = process.env.ADMIN_PASSWORD;
   const providedPassword =
     event.headers["x-admin-password"] ||
     event.headers["X-Admin-Password"];
 
-  if (!adminPassword || providedPassword !== adminPassword) {
+  if (
+    !process.env.ADMIN_PASSWORD ||
+    providedPassword !==
+      process.env.ADMIN_PASSWORD
+  ) {
     return respond(401, {
       success: false,
       error: "Acceso no autorizado"
@@ -59,47 +62,72 @@ exports.handler = async function (event) {
   );
 
   try {
-    const body = JSON.parse(event.body || "{}");
-    const action = String(body.action || "");
+    const body =
+      JSON.parse(event.body || "{}");
 
-    /* EDITAR MODELO */
+    const action =
+      String(body.action || "");
+
+    /*
+     * =========================
+     * EDITAR MODELO
+     * =========================
+     */
 
     if (action === "rename-model") {
-      const modelId = Number(body.modelId);
-      const newName = String(body.newName || "").trim();
+      const modelId =
+        Number(body.modelId);
+
+      const newName =
+        String(
+          body.newName || ""
+        ).trim();
 
       if (!modelId || !newName) {
-        throw new Error("Modelo o nombre nuevo inválido.");
-      }
-
-      const { data: duplicates, error: duplicateError } =
-        await supabase
-          .from("modelos")
-          .select("id, modelo")
-          .ilike("modelo", newName);
-
-      if (duplicateError) {
-        throw new Error(duplicateError.message);
-      }
-
-      const duplicate = (duplicates || []).find(
-        item => Number(item.id) !== modelId
-      );
-
-      if (duplicate) {
         throw new Error(
-          "Ya existe otro modelo llamado " + newName + "."
+          "Modelo o nombre nuevo inválido."
         );
       }
 
-      const { error } =
+      const { data: modelos, error } =
         await supabase
           .from("modelos")
-          .update({ modelo: newName })
-          .eq("id", modelId);
+          .select("id, modelo");
 
       if (error) {
-        throw new Error(error.message);
+        throw new Error(
+          error.message
+        );
+      }
+
+      const duplicate =
+        (modelos || []).find(
+          item =>
+            Number(item.id) !== modelId &&
+            normalizeText(item.modelo) ===
+              normalizeText(newName)
+        );
+
+      if (duplicate) {
+        throw new Error(
+          "Ya existe el modelo " +
+          duplicate.modelo +
+          "."
+        );
+      }
+
+      const { error: updateError } =
+        await supabase
+          .from("modelos")
+          .update({
+            modelo: newName
+          })
+          .eq("id", modelId);
+
+      if (updateError) {
+        throw new Error(
+          updateError.message
+        );
       }
 
       return respond(200, {
@@ -107,56 +135,107 @@ exports.handler = async function (event) {
       });
     }
 
-    /* EDITAR COLOR */
 
-    if (action === "rename-variant") {
-      const variantId = Number(body.variantId);
-      const newColor = String(body.newColor || "").trim();
+    /*
+     * =========================
+     * EDITAR COLOR
+     * =========================
+     */
+
+    if (
+      action ===
+      "rename-variant"
+    ) {
+      const variantId =
+        Number(body.variantId);
+
+      const newColor =
+        String(
+          body.newColor || ""
+        ).trim();
 
       if (!variantId || !newColor) {
-        throw new Error("Color inválido.");
+        throw new Error(
+          "Color inválido."
+        );
       }
 
-      const { data: variant, error: variantError } =
+      const {
+        data: variant,
+        error: variantError
+      } =
         await supabase
           .from("variantes")
-          .select("id, modelo_id, color")
+          .select(
+            "id, modelo_id, color"
+          )
           .eq("id", variantId)
           .single();
 
-      if (variantError || !variant) {
-        throw new Error("No se encontró el color.");
-      }
-
-      const { data: duplicates, error: duplicateError } =
-        await supabase
-          .from("variantes")
-          .select("id, color")
-          .eq("modelo_id", variant.modelo_id)
-          .ilike("color", newColor);
-
-      if (duplicateError) {
-        throw new Error(duplicateError.message);
-      }
-
-      const duplicate = (duplicates || []).find(
-        item => Number(item.id) !== variantId
-      );
-
-      if (duplicate) {
+      if (
+        variantError ||
+        !variant
+      ) {
         throw new Error(
-          "Ese modelo ya tiene el color " + newColor + "."
+          "No se encontró el color."
         );
       }
 
-      const { error } =
+      const {
+        data: variantes,
+        error: listError
+      } =
         await supabase
           .from("variantes")
-          .update({ color: newColor })
+          .select(
+            "id, modelo_id, color"
+          )
+          .eq(
+            "modelo_id",
+            variant.modelo_id
+          );
+
+      if (listError) {
+        throw new Error(
+          listError.message
+        );
+      }
+
+      const duplicate =
+        (variantes || []).find(
+          item =>
+            Number(item.id) !==
+              variantId &&
+            normalizeText(
+              item.color
+            ) ===
+              normalizeText(
+                newColor
+              )
+        );
+
+      if (duplicate) {
+        throw new Error(
+          "Este modelo ya tiene el color " +
+          duplicate.color +
+          "."
+        );
+      }
+
+      const {
+        error: updateError
+      } =
+        await supabase
+          .from("variantes")
+          .update({
+            color: newColor
+          })
           .eq("id", variantId);
 
-      if (error) {
-        throw new Error(error.message);
+      if (updateError) {
+        throw new Error(
+          updateError.message
+        );
       }
 
       return respond(200, {
@@ -164,33 +243,61 @@ exports.handler = async function (event) {
       });
     }
 
-    /* ELIMINAR FOTO */
 
-    if (action === "delete-image") {
-      const imageId = Number(body.imageId);
+    /*
+     * =========================
+     * ELIMINAR FOTO
+     * =========================
+     */
 
-      const { data: image, error } =
+    if (
+      action ===
+      "delete-image"
+    ) {
+      const imageId =
+        Number(body.imageId);
+
+      const {
+        data: image,
+        error
+      } =
         await supabase
           .from("imagenes")
-          .select("id, variante_id, url")
+          .select(
+            "id, variante_id, url"
+          )
           .eq("id", imageId)
           .single();
 
       if (error || !image) {
-        throw new Error("No se encontró la fotografía.");
+        throw new Error(
+          "No se encontró la fotografía."
+        );
       }
 
-      await removeStorageFile(supabase, image.url);
+      /*
+       * Primero eliminamos el registro.
+       * Después limpiamos Storage.
+       */
 
-      const { error: deleteError } =
+      const {
+        error: deleteError
+      } =
         await supabase
           .from("imagenes")
           .delete()
           .eq("id", imageId);
 
       if (deleteError) {
-        throw new Error(deleteError.message);
+        throw new Error(
+          deleteError.message
+        );
       }
+
+      await removeStorageFile(
+        supabase,
+        image.url
+      );
 
       await normalizeOrders(
         supabase,
@@ -202,47 +309,97 @@ exports.handler = async function (event) {
       });
     }
 
-    /* MOVER FOTO */
 
-    if (action === "move-image") {
-      const imageId = Number(body.imageId);
-      const direction = String(body.direction || "");
+    /*
+     * =========================
+     * MOVER FOTO
+     * =========================
+     */
 
-      if (!["left", "right"].includes(direction)) {
-        throw new Error("Movimiento inválido.");
+    if (
+      action ===
+      "move-image"
+    ) {
+      const imageId =
+        Number(body.imageId);
+
+      const direction =
+        String(
+          body.direction || ""
+        );
+
+      if (
+        ![
+          "left",
+          "right"
+        ].includes(direction)
+      ) {
+        throw new Error(
+          "Movimiento inválido."
+        );
       }
 
-      const { data: image, error } =
+      const {
+        data: image,
+        error
+      } =
         await supabase
           .from("imagenes")
-          .select("id, variante_id")
+          .select(
+            "id, variante_id"
+          )
           .eq("id", imageId)
           .single();
 
       if (error || !image) {
-        throw new Error("No se encontró la fotografía.");
+        throw new Error(
+          "No se encontró la fotografía."
+        );
       }
 
-      const { data: images, error: listError } =
+      const {
+        data: images,
+        error: listError
+      } =
         await supabase
           .from("imagenes")
           .select("id, orden")
-          .eq("variante_id", image.variante_id)
-          .order("orden", { ascending: true })
-          .order("id", { ascending: true });
+          .eq(
+            "variante_id",
+            image.variante_id
+          )
+          .order(
+            "orden",
+            {
+              ascending: true
+            }
+          )
+          .order(
+            "id",
+            {
+              ascending: true
+            }
+          );
 
       if (listError) {
-        throw new Error(listError.message);
+        throw new Error(
+          listError.message
+        );
       }
 
-      const ids = (images || []).map(
-        item => Number(item.id)
-      );
+      const ids =
+        (images || []).map(
+          item =>
+            Number(item.id)
+        );
 
-      const index = ids.indexOf(imageId);
+      const index =
+        ids.indexOf(imageId);
 
       if (index === -1) {
-        throw new Error("No se encontró la posición.");
+        throw new Error(
+          "No se encontró la posición."
+        );
       }
 
       const target =
@@ -250,185 +407,349 @@ exports.handler = async function (event) {
           ? index - 1
           : index + 1;
 
-      if (target < 0 || target >= ids.length) {
+      if (
+        target < 0 ||
+        target >= ids.length
+      ) {
         return respond(200, {
           success: true
         });
       }
 
-      [ids[index], ids[target]] =
-        [ids[target], ids[index]];
+      [
+        ids[index],
+        ids[target]
+      ] = [
+        ids[target],
+        ids[index]
+      ];
 
-      await setOrders(supabase, ids);
+      await setOrders(
+        supabase,
+        ids
+      );
 
       return respond(200, {
         success: true
       });
     }
 
-    /* HACER PRINCIPAL */
 
-    if (action === "make-primary") {
-      const imageId = Number(body.imageId);
+    /*
+     * =========================
+     * HACER PRINCIPAL
+     * =========================
+     */
 
-      const { data: image, error } =
+    if (
+      action ===
+      "make-primary"
+    ) {
+      const imageId =
+        Number(body.imageId);
+
+      const {
+        data: image,
+        error
+      } =
         await supabase
           .from("imagenes")
-          .select("id, variante_id")
+          .select(
+            "id, variante_id"
+          )
           .eq("id", imageId)
           .single();
 
       if (error || !image) {
-        throw new Error("No se encontró la fotografía.");
+        throw new Error(
+          "No se encontró la fotografía."
+        );
       }
 
-      const { data: images, error: listError } =
+      const {
+        data: images,
+        error: listError
+      } =
         await supabase
           .from("imagenes")
           .select("id, orden")
-          .eq("variante_id", image.variante_id)
-          .order("orden", { ascending: true })
-          .order("id", { ascending: true });
+          .eq(
+            "variante_id",
+            image.variante_id
+          )
+          .order(
+            "orden",
+            {
+              ascending: true
+            }
+          )
+          .order(
+            "id",
+            {
+              ascending: true
+            }
+          );
 
       if (listError) {
-        throw new Error(listError.message);
+        throw new Error(
+          listError.message
+        );
       }
 
       const ids = [
         imageId,
         ...(images || [])
-          .map(item => Number(item.id))
-          .filter(id => id !== imageId)
+          .map(
+            item =>
+              Number(item.id)
+          )
+          .filter(
+            id =>
+              id !== imageId
+          )
       ];
 
-      await setOrders(supabase, ids);
+      await setOrders(
+        supabase,
+        ids
+      );
 
       return respond(200, {
         success: true
       });
     }
 
-    /* ELIMINAR COLOR */
 
-    if (action === "delete-variant") {
-      const variantId = Number(body.variantId);
+    /*
+     * =========================
+     * ELIMINAR COLOR
+     * =========================
+     */
+
+    if (
+      action ===
+      "delete-variant"
+    ) {
+      const variantId =
+        Number(body.variantId);
 
       if (!variantId) {
-        throw new Error("Color inválido.");
+        throw new Error(
+          "Color inválido."
+        );
       }
 
-      const { data: images, error: imageError } =
+      const {
+        data: images,
+        error: imageError
+      } =
         await supabase
           .from("imagenes")
           .select("id, url")
-          .eq("variante_id", variantId);
+          .eq(
+            "variante_id",
+            variantId
+          );
 
       if (imageError) {
-        throw new Error(imageError.message);
+        throw new Error(
+          imageError.message
+        );
       }
 
-      for (const image of images || []) {
+      /*
+       * Primero BD.
+       */
+
+      const {
+        error: deleteImagesError
+      } =
+        await supabase
+          .from("imagenes")
+          .delete()
+          .eq(
+            "variante_id",
+            variantId
+          );
+
+      if (deleteImagesError) {
+        throw new Error(
+          deleteImagesError.message
+        );
+      }
+
+      const {
+        error: deleteVariantError
+      } =
+        await supabase
+          .from("variantes")
+          .delete()
+          .eq(
+            "id",
+            variantId
+          );
+
+      if (deleteVariantError) {
+        throw new Error(
+          deleteVariantError.message
+        );
+      }
+
+      /*
+       * Después Storage.
+       */
+
+      for (
+        const image of
+        images || []
+      ) {
         await removeStorageFile(
           supabase,
           image.url
         );
       }
 
-      const { error: deleteImagesError } =
-        await supabase
-          .from("imagenes")
-          .delete()
-          .eq("variante_id", variantId);
-
-      if (deleteImagesError) {
-        throw new Error(deleteImagesError.message);
-      }
-
-      const { error: deleteVariantError } =
-        await supabase
-          .from("variantes")
-          .delete()
-          .eq("id", variantId);
-
-      if (deleteVariantError) {
-        throw new Error(deleteVariantError.message);
-      }
-
       return respond(200, {
         success: true
       });
     }
 
-    /* ELIMINAR MODELO */
 
-    if (action === "delete-model") {
-      const modelId = Number(body.modelId);
+    /*
+     * =========================
+     * ELIMINAR MODELO
+     * =========================
+     */
+
+    if (
+      action ===
+      "delete-model"
+    ) {
+      const modelId =
+        Number(body.modelId);
 
       if (!modelId) {
-        throw new Error("Modelo inválido.");
+        throw new Error(
+          "Modelo inválido."
+        );
       }
 
-      const { data: variants, error: variantError } =
+      const {
+        data: variants,
+        error: variantError
+      } =
         await supabase
           .from("variantes")
           .select("id")
-          .eq("modelo_id", modelId);
+          .eq(
+            "modelo_id",
+            modelId
+          );
 
       if (variantError) {
-        throw new Error(variantError.message);
+        throw new Error(
+          variantError.message
+        );
       }
 
-      const variantIds = (variants || []).map(
-        item => Number(item.id)
-      );
+      const variantIds =
+        (variants || []).map(
+          item =>
+            Number(item.id)
+        );
 
-      if (variantIds.length) {
-        const { data: images, error: imageError } =
+      let images = [];
+
+      if (
+        variantIds.length
+      ) {
+        const result =
           await supabase
             .from("imagenes")
             .select("id, url")
-            .in("variante_id", variantIds);
+            .in(
+              "variante_id",
+              variantIds
+            );
 
-        if (imageError) {
-          throw new Error(imageError.message);
-        }
-
-        for (const image of images || []) {
-          await removeStorageFile(
-            supabase,
-            image.url
+        if (result.error) {
+          throw new Error(
+            result.error.message
           );
         }
 
-        const { error: deleteImagesError } =
+        images =
+          result.data || [];
+
+        const {
+          error:
+            deleteImagesError
+        } =
           await supabase
             .from("imagenes")
             .delete()
-            .in("variante_id", variantIds);
+            .in(
+              "variante_id",
+              variantIds
+            );
 
-        if (deleteImagesError) {
-          throw new Error(deleteImagesError.message);
+        if (
+          deleteImagesError
+        ) {
+          throw new Error(
+            deleteImagesError.message
+          );
         }
 
-        const { error: deleteVariantsError } =
+        const {
+          error:
+            deleteVariantsError
+        } =
           await supabase
             .from("variantes")
             .delete()
-            .eq("modelo_id", modelId);
+            .eq(
+              "modelo_id",
+              modelId
+            );
 
-        if (deleteVariantsError) {
-          throw new Error(deleteVariantsError.message);
+        if (
+          deleteVariantsError
+        ) {
+          throw new Error(
+            deleteVariantsError.message
+          );
         }
       }
 
-      const { error: deleteModelError } =
+      const {
+        error: deleteModelError
+      } =
         await supabase
           .from("modelos")
           .delete()
-          .eq("id", modelId);
+          .eq(
+            "id",
+            modelId
+          );
 
       if (deleteModelError) {
-        throw new Error(deleteModelError.message);
+        throw new Error(
+          deleteModelError.message
+        );
+      }
+
+      /*
+       * Limpiar Storage al final.
+       */
+
+      for (
+        const image of images
+      ) {
+        await removeStorageFile(
+          supabase,
+          image.url
+        );
       }
 
       return respond(200, {
@@ -436,10 +757,16 @@ exports.handler = async function (event) {
       });
     }
 
-    throw new Error("Acción no reconocida.");
+
+    throw new Error(
+      "Acción no reconocida."
+    );
 
   } catch (error) {
-    console.error("ADMIN MANAGE ERROR:", error);
+    console.error(
+      "ADMIN MANAGE ERROR:",
+      error
+    );
 
     return respond(500, {
       success: false,
@@ -452,86 +779,169 @@ exports.handler = async function (event) {
 };
 
 
-/* ORDENAR 1,2,3... */
+/*
+ * ===================================
+ * NORMALIZAR TEXTO
+ * ===================================
+ */
+
+function normalizeText(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+
+/*
+ * ===================================
+ * NORMALIZAR ORDEN
+ * ===================================
+ */
 
 async function normalizeOrders(
   supabase,
   variantId
 ) {
-  const { data, error } =
+  const {
+    data,
+    error
+  } =
     await supabase
       .from("imagenes")
       .select("id, orden")
-      .eq("variante_id", variantId)
-      .order("orden", { ascending: true })
-      .order("id", { ascending: true });
+      .eq(
+        "variante_id",
+        variantId
+      )
+      .order(
+        "orden",
+        {
+          ascending: true
+        }
+      )
+      .order(
+        "id",
+        {
+          ascending: true
+        }
+      );
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(
+      error.message
+    );
   }
 
   await setOrders(
     supabase,
     (data || []).map(
-      item => Number(item.id)
+      item =>
+        Number(item.id)
     )
   );
 }
 
 
+/*
+ * ===================================
+ * ESTABLECER ORDEN
+ * ===================================
+ */
+
 async function setOrders(
   supabase,
   ids
 ) {
-  for (let i = 0; i < ids.length; i++) {
+  /*
+   * Primero valores temporales.
+   */
+
+  for (
+    let i = 0;
+    i < ids.length;
+    i++
+  ) {
     const { error } =
       await supabase
         .from("imagenes")
         .update({
-          orden: -100000 - i
+          orden:
+            -100000 - i
         })
-        .eq("id", ids[i]);
+        .eq(
+          "id",
+          ids[i]
+        );
 
     if (error) {
-      throw new Error(error.message);
+      throw new Error(
+        error.message
+      );
     }
   }
 
-  for (let i = 0; i < ids.length; i++) {
+  /*
+   * Después 1,2,3...
+   */
+
+  for (
+    let i = 0;
+    i < ids.length;
+    i++
+  ) {
     const { error } =
       await supabase
         .from("imagenes")
         .update({
-          orden: i + 1
+          orden:
+            i + 1
         })
-        .eq("id", ids[i]);
+        .eq(
+          "id",
+          ids[i]
+        );
 
     if (error) {
-      throw new Error(error.message);
+      throw new Error(
+        error.message
+      );
     }
   }
 }
 
 
-/* BORRAR DE STORAGE */
+/*
+ * ===================================
+ * BORRAR ARCHIVO DE STORAGE
+ * ===================================
+ */
 
 async function removeStorageFile(
   supabase,
   publicUrl
 ) {
-  if (!publicUrl) return;
+  if (!publicUrl) {
+    return;
+  }
 
   const marker =
     "/storage/v1/object/public/Productos/";
 
   const position =
-    publicUrl.indexOf(marker);
+    publicUrl.indexOf(
+      marker
+    );
 
-  if (position === -1) return;
+  if (position === -1) {
+    return;
+  }
 
   let path =
     publicUrl.substring(
-      position + marker.length
+      position +
+      marker.length
     );
 
   path =
@@ -544,9 +954,14 @@ async function removeStorageFile(
       .from("Productos")
       .remove([path]);
 
+  /*
+   * Si falla limpiar Storage,
+   * no dejamos rota la BD.
+   */
+
   if (error) {
-    throw new Error(
-      "No se pudo eliminar el archivo: " +
+    console.error(
+      "No se pudo limpiar Storage:",
       error.message
     );
   }
