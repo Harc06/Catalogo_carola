@@ -1,102 +1,106 @@
 exports.handler = async function () {
   try {
-    const catalogUrl = "https://catalogo.treinta.co/carola-2b7ca0";
+    const catalogUrl =
+      "https://catalogo.treinta.co/carola-2b7ca0";
 
-    const response = await fetch(catalogUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0"
-      }
-    });
+    const storeId =
+      "312b3bda-3178-5a1c-9f03-5d7a9558176e";
 
-    const html = await response.text();
+    const nextAction =
+      "40bb5b0ade1fd3be32128e7b8b012934e5391db5b1";
 
-    const basicProducts = [];
+    const limit = 12;
+    const allProducts = [];
 
-    const regex =
-      /href="([^"]*\/product\/[^"]+)"[^>]*>([\s\S]*?)<\/a>/g;
+    // Recorremos las páginas de Treinta.
+    // Dejamos un máximo de 100 como protección.
+    for (let page = 1; page <= 100; page++) {
+      const body = JSON.stringify([
+        {
+          storeId,
+          page,
+          limit,
+          category: "undefined",
+          search: "undefined",
+          orderBy: "name-asc",
+          excludeOutOfStock: true
+        }
+      ]);
 
-    let match;
-
-    while ((match = regex.exec(html)) !== null) {
-      const href = match[1];
-
-      const text = match[2]
-        .replace(/<[^>]+>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      // El precio se usa únicamente para limpiar el nombre,
-      // pero NO se guarda ni se devuelve.
-      const priceMatch = text.match(/\$[\d,.]+/);
-
-      if (!priceMatch) continue;
-
-      const name = text
-        .replace(priceMatch[0], "")
-        .trim();
-
-      if (!name) continue;
-
-      const fullUrl = href.startsWith("http")
-        ? href
-        : `https://catalogo.treinta.co${href}`;
-
-      if (
-        !basicProducts.some(
-          product => product.url === fullUrl
-        )
-      ) {
-        basicProducts.push({
-          name,
-          url: fullUrl
-        });
-      }
-    }
-
-    const products = [];
-
-    for (const product of basicProducts) {
-      try {
-        const productResponse = await fetch(product.url, {
+      const response = await fetch(
+        `${catalogUrl}?sort=name-asc`,
+        {
+          method: "POST",
           headers: {
-            "User-Agent": "Mozilla/5.0"
-          }
-        });
+            "User-Agent": "Mozilla/5.0",
+            "Accept": "text/x-component",
+            "Content-Type": "text/plain;charset=UTF-8",
+            "next-action": nextAction
+          },
+          body
+        }
+      );
 
-        const productHtml = await productResponse.text();
-
-        let image = null;
-
-        const ogImageMatch = productHtml.match(
-          /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i
+      if (!response.ok) {
+        throw new Error(
+          `Treinta respondió ${response.status} en página ${page}`
         );
+      }
 
-        if (ogImageMatch) {
-          image = ogImageMatch[1];
+      const text = await response.text();
+
+      /*
+       * La respuesta de una Server Action de Next.js no es
+       * JSON puro. Buscamos dentro de ella los objetos de
+       * producto que contienen id, name, stock, etc.
+       */
+      const productRegex =
+        /"id":"([^"]+)"[\s\S]*?"name":"([^"]+)"[\s\S]*?"isVisible":(\d+)[\s\S]*?"stock":(-?\d+)/g;
+
+      const pageProducts = [];
+      let match;
+
+      while ((match = productRegex.exec(text)) !== null) {
+        const id = match[1];
+        const name = match[2];
+        const isVisible = Number(match[3]);
+        const stock = Number(match[4]);
+
+        if (
+          isVisible === 1 &&
+          stock > 0 &&
+          !pageProducts.some(
+            product => product.id === id
+          )
+        ) {
+          pageProducts.push({
+            id,
+            name,
+            stock
+          });
         }
+      }
 
-        if (!image) {
-          const imageMatch = productHtml.match(
-            /<img[^>]+src=["']([^"']+)["']/i
-          );
+      // Si Treinta ya no devuelve productos,
+      // terminamos la paginación.
+      if (pageProducts.length === 0) {
+        break;
+      }
 
-          if (imageMatch) {
-            image = imageMatch[1];
-          }
+      for (const product of pageProducts) {
+        if (
+          !allProducts.some(
+            existing => existing.id === product.id
+          )
+        ) {
+          allProducts.push(product);
         }
+      }
 
-        products.push({
-          name: product.name,
-          image,
-          url: product.url
-        });
-
-      } catch (error) {
-        products.push({
-          name: product.name,
-          image: null,
-          url: product.url
-        });
+      // Una página incompleta normalmente indica
+      // que llegamos al final.
+      if (pageProducts.length < limit) {
+        break;
       }
     }
 
@@ -104,12 +108,13 @@ exports.handler = async function () {
       statusCode: 200,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "no-store"
       },
       body: JSON.stringify({
         success: true,
-        count: products.length,
-        products
+        count: allProducts.length,
+        products: allProducts
       })
     };
 
@@ -117,7 +122,8 @@ exports.handler = async function () {
     return {
       statusCode: 500,
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*"
       },
       body: JSON.stringify({
         success: false,
