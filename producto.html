@@ -17,9 +17,7 @@
   --dark:#171717;
 }
 
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -319,9 +317,7 @@ h1{
 }
 
 @keyframes spin{
-  to{
-    transform:rotate(360deg);
-  }
+  to{transform:rotate(360deg)}
 }
 
 /* ERROR */
@@ -441,17 +437,11 @@ h1{
 
   <div class="header-inner">
 
-    <a
-      href="/"
-      class="back"
-    >
+    <a href="/" class="back">
       ← Catálogo
     </a>
 
-    <a
-      href="/"
-      class="brand"
-    >
+    <a href="/" class="brand">
       CAROLA
     </a>
 
@@ -466,7 +456,6 @@ h1{
   </div>
 
 </header>
-
 
 <main
   id="productPage"
@@ -483,7 +472,6 @@ h1{
 
 </main>
 
-
 <div
   id="toast"
   class="toast"
@@ -491,58 +479,51 @@ h1{
   ✓ Agregado al pedido
 </div>
 
-
 <script>
 
 /* =========================
    CONFIGURACIÓN
 ========================= */
 
-const CART_KEY =
+const CART_KEY=
   "carola_cart_v2";
 
-const OLD_CART_KEY =
+const OLD_CART_KEY=
   "carola_cart_v1";
-
 
 /* =========================
    URL
 ========================= */
 
-const params =
+const params=
   new URLSearchParams(
     window.location.search
   );
 
-const requestedModel =
+const requestedModel=
   params.get("modelo");
-
 
 /* =========================
    ELEMENTOS
 ========================= */
 
-const productPage =
+const productPage=
   document.getElementById(
     "productPage"
   );
 
-const cartLink =
+const cartLink=
   document.getElementById(
     "cartLink"
   );
-
 
 /* =========================
    VARIABLES
 ========================= */
 
-let currentProduct = null;
-
-let currentVariant = null;
-
-let quantity = 6;
-
+let currentProduct=null;
+let currentVariant=null;
+let quantity=6;
 
 /* =========================
    NORMALIZACIÓN
@@ -550,7 +531,7 @@ let quantity = 6;
 
 function normalize(value){
 
-  return String(value || "")
+  return String(value||"")
     .trim()
     .toLowerCase()
     .normalize("NFD")
@@ -560,29 +541,22 @@ function normalize(value){
     );
 }
 
+/*
+ * IMPORTANTE:
+ * El nombre COMPLETO del modelo
+ * forma parte de su identidad.
+ *
+ * 1725
+ * 1725 flores
+ *
+ * son modelos diferentes.
+ */
 
 function normalizeModel(value){
 
-  const text =
-    normalize(value);
-
-  const match =
-    text.match(
-      /[a-z]*\s*\d+[a-z]*/i
-    );
-
-  if(match){
-
-    return match[0]
-      .replace(
-        /\s+/g,
-        ""
-      );
-  }
-
-  return text;
+  return normalize(value)
+    .replace(/\s+/g," ");
 }
-
 
 /* =========================
    FOTOS
@@ -590,38 +564,36 @@ function normalizeModel(value){
 
 function sortImages(images){
 
-  return (images || [])
+  return (images||[])
     .slice()
-    .sort((a,b) => {
+    .sort((a,b)=>{
 
-      const difference =
-        Number(a.orden || 0) -
-        Number(b.orden || 0);
+      const difference=
+        Number(a.orden||0)-
+        Number(b.orden||0);
 
-      if(difference !== 0){
+      if(difference!==0){
         return difference;
       }
 
       return (
-        Number(a.id || 0) -
-        Number(b.id || 0)
+        Number(a.id||0)-
+        Number(b.id||0)
       );
     });
 }
-
 
 function getVariantCover(
   variant
 ){
 
-  const images =
+  const images=
     sortImages(
       variant?.imagenes
     );
 
-  return images[0]?.url || "";
+  return images[0]?.url||"";
 }
-
 
 /* =========================
    CARRITO
@@ -631,42 +603,85 @@ function loadCart(){
 
   try{
 
-    let raw =
+    let raw=
       localStorage.getItem(
         CART_KEY
       );
 
-
-    /*
-     * MIGRAR CARRITO
-     * DE LA VERSIÓN ANTERIOR
-     */
-
     if(!raw){
 
-      raw =
+      raw=
         localStorage.getItem(
           OLD_CART_KEY
         );
     }
 
-
-    const data =
+    const data=
       JSON.parse(
-        raw || "[]"
+        raw||"[]"
       );
 
+    if(!Array.isArray(data)){
+      return [];
+    }
 
-    return Array.isArray(data)
-      ? data
-      : [];
+    /*
+     * Limpiamos cantidades para
+     * mantener siempre múltiplos
+     * de 6.
+     */
+
+    return data
+      .filter(
+        item=>
+          item &&
+          item.modelo &&
+          item.color
+      )
+      .map(item=>{
+
+        let cantidad=
+          Number(
+            item.cantidad||6
+          );
+
+        if(
+          !Number.isFinite(
+            cantidad
+          ) ||
+          cantidad<6
+        ){
+          cantidad=6;
+        }
+
+        cantidad=
+          Math.ceil(
+            cantidad/6
+          )*6;
+
+        return {
+          modelo:
+            String(
+              item.modelo
+            ),
+
+          color:
+            String(
+              item.color
+            ),
+
+          cantidad,
+
+          image:
+            item.image||""
+        };
+      });
 
   }catch(error){
 
     return [];
   }
 }
-
 
 function saveCart(cart){
 
@@ -678,33 +693,29 @@ function saveCart(cart){
   updateCartCount();
 }
 
-
 function getCartTotal(){
 
   return loadCart()
     .reduce(
-      (total,item) =>
-        total +
+      (total,item)=>
+        total+
         Number(
-          item.cantidad || 0
+          item.cantidad||0
         ),
       0
     );
 }
 
-
 function updateCartCount(){
 
-  const total =
+  const total=
     getCartTotal();
 
-
-  cartLink.textContent =
-    "Pedido · " +
-    total +
+  cartLink.textContent=
+    "Pedido · "+
+    total+
     " pares";
 }
-
 
 /* =========================
    AGREGAR AL CARRITO
@@ -719,23 +730,21 @@ function addToCart(){
     return;
   }
 
-
-  const cart =
+  const cart=
     loadCart();
 
-
   /*
-   * BUSCAR MISMO
-   * MODELO + COLOR
+   * Solo se combinan si coinciden
+   * modelo COMPLETO + color.
    */
 
-  const existing =
+  const existing=
     cart.find(
-      item =>
+      item=>
 
         normalizeModel(
           item.modelo
-        ) ===
+        )===
         normalizeModel(
           currentProduct.modelo
         )
@@ -744,37 +753,27 @@ function addToCart(){
 
         normalize(
           item.color
-        ) ===
+        )===
         normalize(
           currentVariant.color
         )
     );
 
-
-  const image =
+  const image=
     getVariantCover(
       currentVariant
     );
 
-
-  /*
-   * SI YA EXISTE:
-   * SUMAR CANTIDAD
-   */
-
   if(existing){
 
-    existing.cantidad =
+    existing.cantidad=
       Number(
-        existing.cantidad || 0
-      ) +
+        existing.cantidad||0
+      )+
       quantity;
 
-
     if(!existing.image){
-
-      existing.image =
-        image;
+      existing.image=image;
     }
 
   }else{
@@ -796,26 +795,21 @@ function addToCart(){
 
       image:
         image
-
     });
   }
 
-
   saveCart(cart);
 
-
   showToast(
-    "✓ " +
-    quantity +
+    "✓ "+
+    quantity+
     " pares agregados"
   );
 
-
-  const button =
+  const button=
     document.getElementById(
       "addCartButton"
     );
-
 
   if(button){
 
@@ -823,10 +817,8 @@ function addToCart(){
       "added"
     );
 
-
-    button.textContent =
+    button.textContent=
       "✓ Agregado al pedido";
-
 
     setTimeout(
       function(){
@@ -835,9 +827,9 @@ function addToCart(){
           "added"
         );
 
-        button.textContent =
-          "Agregar " +
-          quantity +
+        button.textContent=
+          "Agregar "+
+          quantity+
           " pares al pedido";
 
       },
@@ -845,7 +837,6 @@ function addToCart(){
     );
   }
 }
-
 
 /* =========================
    CARGAR PRODUCTO
@@ -862,17 +853,16 @@ async function loadProduct(){
     return;
   }
 
-
   try{
 
     const [
       supabaseResponse,
       treintaResponse
-    ] =
+    ]=
       await Promise.all([
 
         fetch(
-          "/.netlify/functions/supabase?t=" +
+          "/.netlify/functions/supabase?t="+
           Date.now(),
           {
             cache:"no-store"
@@ -880,7 +870,7 @@ async function loadProduct(){
         ),
 
         fetch(
-          "/.netlify/functions/treinta?t=" +
+          "/.netlify/functions/treinta?t="+
           Date.now(),
           {
             cache:"no-store"
@@ -889,13 +879,11 @@ async function loadProduct(){
 
       ]);
 
-
-    const supabaseData =
+    const supabaseData=
       await supabaseResponse.json();
 
-    const treintaData =
+    const treintaData=
       await treintaResponse.json();
-
 
     if(
       !supabaseResponse.ok ||
@@ -907,7 +895,6 @@ async function loadProduct(){
       );
     }
 
-
     if(
       !treintaResponse.ok ||
       !treintaData.success
@@ -918,30 +905,29 @@ async function loadProduct(){
       );
     }
 
+    /* =====================
+       BUSCAR EN SUPABASE
+    ===================== */
 
-    /* SUPABASE */
-
-    const products =
+    const products=
       Array.isArray(
         supabaseData.productos
       )
         ? supabaseData.productos
         : [];
 
-
-    currentProduct =
+    currentProduct=
       products.find(
-        product =>
+        product=>
 
           normalizeModel(
             product.modelo
-          ) ===
+          )===
 
           normalizeModel(
             requestedModel
           )
       );
-
 
     if(!currentProduct){
 
@@ -952,30 +938,29 @@ async function loadProduct(){
       return;
     }
 
+    /* =====================
+       VERIFICAR TREINTA
+    ===================== */
 
-    /* TREINTA */
-
-    const treintaProducts =
+    const treintaProducts=
       Array.isArray(
         treintaData.products
       )
         ? treintaData.products
         : [];
 
-
-    const available =
+    const available=
       treintaProducts.some(
-        item =>
+        item=>
 
           normalizeModel(
             item.name
-          ) ===
+          )===
 
           normalizeModel(
             currentProduct.modelo
           )
       );
-
 
     if(!available){
 
@@ -986,10 +971,11 @@ async function loadProduct(){
       return;
     }
 
+    /* =====================
+       VARIANTES CON FOTOS
+    ===================== */
 
-    /* VARIANTES CON FOTOS */
-
-    currentProduct.variantes =
+    currentProduct.variantes=
       (
         Array.isArray(
           currentProduct.variantes
@@ -998,7 +984,7 @@ async function loadProduct(){
           : []
       )
       .filter(
-        variant =>
+        variant=>
 
           Array.isArray(
             variant.imagenes
@@ -1008,7 +994,6 @@ async function loadProduct(){
 
           variant.imagenes.length
       );
-
 
     if(
       !currentProduct
@@ -1023,25 +1008,20 @@ async function loadProduct(){
       return;
     }
 
-
-    currentVariant =
+    currentVariant=
       currentProduct
         .variantes[0];
 
-
-    document.title =
-      "Modelo " +
-      currentProduct.modelo +
+    document.title=
+      "Modelo "+
+      currentProduct.modelo+
       " | CAROLA";
 
-
     renderProduct();
-
 
   }catch(error){
 
     console.error(error);
-
 
     showError(
       "No pudimos cargar este modelo."
@@ -1049,18 +1029,16 @@ async function loadProduct(){
   }
 }
 
-
 /* =========================
    RENDER PRODUCTO
 ========================= */
 
 function renderProduct(){
 
-  const images =
+  const images=
     sortImages(
       currentVariant.imagenes
     );
-
 
   if(!images.length){
 
@@ -1071,18 +1049,17 @@ function renderProduct(){
     return;
   }
 
-
-  const thumbnails =
+  const thumbnails=
     images
       .map(
-        (image,index) => `
+        (image,index)=>`
 
           <button
             type="button"
             class="thumbnail ${
-              index === 0
-                ? "active"
-                : ""
+              index===0
+                ?"active"
+                :""
             }"
             data-url="${escapeAttribute(image.url)}"
           >
@@ -1098,20 +1075,19 @@ function renderProduct(){
       )
       .join("");
 
-
-  const colorButtons =
+  const colorButtons=
     currentProduct
       .variantes
       .map(
-        variant => `
+        variant=>`
 
           <button
             type="button"
             class="color-button ${
-              Number(variant.id) ===
+              Number(variant.id)===
               Number(currentVariant.id)
-                ? "active"
-                : ""
+                ?"active"
+                :""
             }"
             data-variant="${Number(variant.id)}"
           >
@@ -1124,8 +1100,7 @@ function renderProduct(){
       )
       .join("");
 
-
-  productPage.innerHTML = `
+  productPage.innerHTML=`
 
     <section class="gallery">
 
@@ -1140,15 +1115,11 @@ function renderProduct(){
 
       </div>
 
-
       <div class="thumbnails">
-
         ${thumbnails}
-
       </div>
 
     </section>
-
 
     <section class="info">
 
@@ -1156,39 +1127,29 @@ function renderProduct(){
         Calzado Carola
       </span>
 
-
       <h1>
         Modelo ${escapeHtml(currentProduct.modelo)}
       </h1>
-
 
       <span class="available">
         Disponible
       </span>
 
-
       <div class="divider"></div>
-
 
       <span class="label">
         Selecciona un color
       </span>
 
-
       <div class="color-buttons">
-
         ${colorButtons}
-
       </div>
 
-
       <div class="divider"></div>
-
 
       <span class="label">
         Cantidad
       </span>
-
 
       <div class="quantity-selector">
 
@@ -1198,7 +1159,6 @@ function renderProduct(){
         >
           −
         </button>
-
 
         <div class="quantity-value">
 
@@ -1212,7 +1172,6 @@ function renderProduct(){
 
         </div>
 
-
         <button
           id="plusQuantity"
           type="button"
@@ -1222,32 +1181,23 @@ function renderProduct(){
 
       </div>
 
-
       <button
         id="addCartButton"
         class="add-cart"
         type="button"
       >
-
         Agregar ${quantity} pares al pedido
-
       </button>
-
 
       <a
         href="/"
         class="continue"
       >
-
         ← Seguir viendo modelos
-
       </a>
 
-
       <div class="note">
-
         Venta en múltiplos de 6 pares.
-
       </div>
 
     </section>
@@ -1255,100 +1205,91 @@ function renderProduct(){
   `;
 }
 
-
 /* =========================
    INTERACCIONES
 ========================= */
 
-productPage.onclick =
+productPage.onclick=
   function(event){
-
 
     /* CAMBIAR FOTO */
 
-    const thumbnail =
+    const thumbnail=
       event.target.closest(
         ".thumbnail"
       );
 
-
     if(thumbnail){
 
-      const mainImage =
+      const mainImage=
         document.getElementById(
           "mainImage"
         );
 
-
       if(mainImage){
 
-        mainImage.src =
+        mainImage.src=
           thumbnail.dataset.url;
       }
-
 
       document
         .querySelectorAll(
           ".thumbnail"
         )
         .forEach(
-          item =>
+          item=>
             item.classList.remove(
               "active"
             )
         );
 
-
       thumbnail.classList.add(
         "active"
       );
 
-
       return;
     }
 
-
     /* CAMBIAR COLOR */
 
-    const colorButton =
+    const colorButton=
       event.target.closest(
         ".color-button"
       );
 
-
     if(colorButton){
 
-      const id =
+      const id=
         Number(
           colorButton.dataset.variant
         );
 
-
-      const variant =
+      const variant=
         currentProduct
           .variantes
           .find(
-            item =>
-              Number(item.id) === id
+            item=>
+              Number(item.id)===
+              id
           );
 
-
       if(!variant){
-
         return;
       }
 
-
-      currentVariant =
+      currentVariant=
         variant;
 
+      /*
+       * Al cambiar de color,
+       * mostramos inmediatamente
+       * las fotos de ese color.
+       */
 
       renderProduct();
 
-
       return;
     }
-
 
     /* SUMAR 6 */
 
@@ -1358,15 +1299,12 @@ productPage.onclick =
       )
     ){
 
-      quantity += 6;
-
+      quantity+=6;
 
       updateQuantity();
 
-
       return;
     }
-
 
     /* RESTAR 6 */
 
@@ -1376,19 +1314,16 @@ productPage.onclick =
       )
     ){
 
-      quantity =
+      quantity=
         Math.max(
           6,
-          quantity - 6
+          quantity-6
         );
-
 
       updateQuantity();
 
-
       return;
     }
-
 
     /* AGREGAR */
 
@@ -1400,12 +1335,9 @@ productPage.onclick =
 
       addToCart();
 
-
       return;
     }
-
   };
-
 
 /* =========================
    ACTUALIZAR CANTIDAD
@@ -1413,34 +1345,30 @@ productPage.onclick =
 
 function updateQuantity(){
 
-  const value =
+  const value=
     document.getElementById(
       "quantityValue"
     );
 
-
-  const button =
+  const button=
     document.getElementById(
       "addCartButton"
     );
 
-
   if(value){
 
-    value.textContent =
+    value.textContent=
       quantity;
   }
 
-
   if(button){
 
-    button.textContent =
-      "Agregar " +
-      quantity +
+    button.textContent=
+      "Agregar "+
+      quantity+
       " pares al pedido";
   }
 }
-
 
 /* =========================
    TOAST
@@ -1448,20 +1376,17 @@ function updateQuantity(){
 
 function showToast(text){
 
-  const toast =
+  const toast=
     document.getElementById(
       "toast"
     );
 
-
-  toast.textContent =
+  toast.textContent=
     text;
-
 
   toast.classList.add(
     "show"
   );
-
 
   setTimeout(
     function(){
@@ -1475,17 +1400,16 @@ function showToast(text){
   );
 }
 
-
 /* =========================
    ERROR
 ========================= */
 
 function showError(
-  message =
+  message=
     "No encontramos este modelo."
 ){
 
-  productPage.innerHTML = `
+  productPage.innerHTML=`
 
     <div class="error">
 
@@ -1493,12 +1417,10 @@ function showError(
         ${escapeHtml(message)}
       </h2>
 
-
       <p>
         Regresa al catálogo para ver
         los modelos disponibles.
       </p>
-
 
       <a href="/">
         Ver catálogo
@@ -1509,42 +1431,24 @@ function showError(
   `;
 }
 
-
 /* =========================
    SEGURIDAD HTML
 ========================= */
 
 function escapeHtml(value){
 
-  return String(value || "")
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+  return String(value||"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
-
 
 function escapeAttribute(value){
 
   return escapeHtml(value);
 }
-
 
 /* =========================
    INICIAR
