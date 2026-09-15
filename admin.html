@@ -3,12 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-
 <title>Administrador | CAROLA</title>
 
 <style>
 *{box-sizing:border-box}
-
 :root{
   --pink:#f5dce7;
   --pink2:#fff8fb;
@@ -19,35 +17,20 @@
   --danger:#a32d2d;
   --green:#167344;
 }
-
 body{
   margin:0;
-  font-family:Arial,Helvetica,sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
   background:var(--pink2);
   color:var(--text);
 }
-
 header{
   background:#fff;
   text-align:center;
   padding:25px 20px 20px;
   border-bottom:1px solid var(--border);
 }
-
-.logo{
-  font-size:30px;
-  font-weight:800;
-  letter-spacing:8px;
-}
-
-header p{
-  color:#888;
-  margin:7px 0 0;
-}
-
-/* =========================
-   NAVEGACIÓN
-========================= */
+.logo{font-size:30px;font-weight:900;letter-spacing:8px}
+header p{color:#888;margin:7px 0 0}
 
 .tabs-wrap{
   position:sticky;
@@ -58,7 +41,6 @@ header p{
   -webkit-backdrop-filter:blur(15px);
   border-bottom:1px solid var(--border);
 }
-
 .tabs{
   width:min(1050px,94%);
   margin:auto;
@@ -67,7 +49,6 @@ header p{
   gap:8px;
   padding:10px 0;
 }
-
 .tab{
   padding:13px;
   border:0;
@@ -76,87 +57,51 @@ header p{
   color:#555;
   font-weight:800;
 }
-
-.tab.active{
-  background:var(--dark);
-  color:#fff;
-}
-
-/* =========================
-   GENERAL
-========================= */
+.tab.active{background:var(--dark);color:#fff}
 
 main{
   width:min(1050px,94%);
   margin:30px auto 80px;
 }
-
 .panel{display:none}
 .panel.active{display:block}
-
-.card,
-.model-card,
-.order-card{
+.card,.model-card,.order-card{
   background:#fff;
   border-radius:22px;
   box-shadow:0 8px 30px rgba(0,0,0,.05);
 }
-
 .card{padding:26px}
-
 h2{margin-top:0}
-
-button,
-input{
-  font-family:inherit;
-}
-
-button{
-  border:0;
-  cursor:pointer;
-  font-weight:700;
-}
-
-label{
-  display:block;
-  font-weight:700;
-  margin:18px 0 8px;
-}
-
-input[type="text"]{
+button,input{font:inherit}
+button{border:0;cursor:pointer;font-weight:700}
+label{display:block;font-weight:700;margin:18px 0 8px}
+input[type="text"],input[type="search"]{
   width:100%;
   padding:15px;
   border:1px solid #ddd;
   border-radius:13px;
   font-size:16px;
   outline:none;
+  background:#fff;
 }
+input:focus{border-color:#dcaabd}
 
-input[type="text"]:focus{
-  border-color:#dcaabd;
-}
-
-/* =========================
-   NUEVO CARGADOR
-========================= */
+/* CARGA */
 
 .upload-intro{
   color:#777;
   line-height:1.5;
   margin-top:-4px;
 }
-
 .model-input-wrap{
   padding-bottom:22px;
   border-bottom:1px solid #eee;
 }
-
 #colorBlocks{
   display:grid;
   gap:16px;
   margin-top:22px;
 }
-
 .color-block{
   position:relative;
   border:1px solid var(--border);
@@ -164,21 +109,18 @@ input[type="text"]:focus{
   padding:18px;
   background:#fffafb;
 }
-
 .color-block-top{
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:12px;
 }
-
 .color-number{
   font-size:12px;
   color:#999;
   font-weight:900;
   letter-spacing:.5px;
 }
-
 .remove-color-block{
   background:#fff0f0;
   color:var(--danger);
@@ -186,7 +128,6 @@ input[type="text"]:focus{
   padding:8px 11px;
   font-size:12px;
 }
-
 .file-label{
   display:block;
   margin-top:16px;
@@ -195,21 +136,16 @@ input[type="text"]:focus{
   border-radius:14px;
   text-align:center;
   cursor:pointer;
-  background:white;
+  background:#fff;
   font-weight:700;
 }
-
-.color-files{
-  display:none;
-}
-
+.color-files{display:none}
 .color-preview{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(85px,1fr));
   gap:9px;
   margin-top:13px;
 }
-
 .color-preview img{
   width:100%;
   aspect-ratio:1;
@@ -217,23 +153,19 @@ input[type="text"]:focus{
   border-radius:11px;
   background:#f5f5f5;
 }
-
 .file-count{
   text-align:center;
   color:#888;
   margin-top:12px;
   font-size:13px;
 }
-
 #addColorBlock{
   width:100%;
   margin-top:16px;
   padding:15px;
   border-radius:14px;
   background:#f7e6ee;
-  color:#222;
 }
-
 #uploadButton{
   width:100%;
   margin-top:18px;
@@ -243,11 +175,7 @@ input[type="text"]:focus{
   padding:17px;
   font-size:16px;
 }
-
-#uploadButton:disabled{
-  opacity:.5;
-}
-
+#uploadButton:disabled{opacity:.5}
 #status{
   display:none;
   margin-top:18px;
@@ -255,54 +183,25 @@ input[type="text"]:focus{
   border-radius:14px;
   white-space:pre-line;
 }
+#status.loading{display:block;background:#f5eef1;color:#555}
+#status.success{display:block;background:#e7f8ed;color:#146b34}
+#status.error{display:block;background:#fff0f0;color:#a32d2d}
 
-#status.loading{
-  display:block;
-  background:#f5eef1;
-  color:#555;
-}
+/* CATÁLOGO */
 
-#status.success{
-  display:block;
-  background:#e7f8ed;
-  color:#146b34;
-}
-
-#status.error{
-  display:block;
-  background:#fff0f0;
-  color:#a32d2d;
-}
-
-/* =========================
-   CATÁLOGO
-========================= */
-
-.catalog{
-  margin-top:55px;
-}
-
-.catalog-header,
-.orders-header{
+.catalog{margin-top:55px}
+.catalog-header,.orders-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:15px;
-  margin-bottom:20px;
+  margin-bottom:18px;
 }
-
-.catalog-header h2,
-.orders-header h2{
+.catalog-header h2,.orders-header h2{
   font-size:29px;
   margin:0 0 5px;
 }
-
-.catalog-header p,
-.orders-header p{
-  margin:0;
-  color:#888;
-}
-
+.catalog-header p,.orders-header p{margin:0;color:#888}
 .refresh{
   background:#f5e6ed;
   padding:11px 16px;
@@ -310,107 +209,107 @@ input[type="text"]:focus{
   flex:none;
 }
 
-#models{
-  display:grid;
-  gap:20px;
+.admin-search-area{
+  position:sticky;
+  top:68px;
+  z-index:80;
+  padding:9px 0 14px;
+  background:var(--pink2);
 }
-
-.model-card{
-  padding:24px;
+.admin-search-wrap{position:relative}
+.admin-search{
+  padding-right:48px!important;
+  box-shadow:0 5px 18px rgba(0,0,0,.035);
 }
-
+.search-clear{
+  position:absolute;
+  right:9px;
+  top:50%;
+  transform:translateY(-50%);
+  width:35px;
+  height:35px;
+  border-radius:50%;
+  background:#f3e9ed;
+  font-size:19px;
+  display:none;
+}
+.search-clear.show{display:block}
+.search-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:9px;
+  padding:0 3px;
+  color:#888;
+  font-size:12px;
+}
+#models{display:grid;gap:20px}
+.model-card{padding:24px}
 .model-header{
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
   gap:20px;
 }
-
 .model-title{
   display:flex;
   align-items:center;
   gap:10px;
   flex-wrap:wrap;
 }
-
-.model-title h3{
-  margin:0;
-  font-size:25px;
-}
-
-.model-count{
-  color:#999;
-  font-size:13px;
-}
-
+.model-title h3{margin:0;font-size:25px}
+.model-count{color:#999;font-size:13px}
 .model-actions{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
   justify-content:flex-end;
 }
-
-.edit-model,
-.edit-color{
+.edit-model,.edit-color{
   background:#f7e6ee;
   color:#222;
   border-radius:10px;
   padding:9px 12px;
 }
-
-.delete-model,
-.delete-variant{
+.delete-model,.delete-variant{
   background:#fff0f0;
   color:#a32d2d;
   border-radius:10px;
   padding:9px 12px;
 }
-
 .variant{
   border-top:1px solid #eee;
   margin-top:20px;
   padding-top:20px;
 }
-
 .variant-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:15px;
 }
-
 .variant-title{
   display:flex;
   align-items:center;
   gap:10px;
   flex-wrap:wrap;
 }
-
-.color-name{
-  font-weight:800;
-  font-size:17px;
-  text-transform:capitalize;
-}
-
-.photo-count{
-  color:#888;
-  font-size:14px;
-}
-
+.color-name{font-weight:800;font-size:17px}
+.photo-count{color:#888;font-size:14px}
 .photos{
   display:flex;
   gap:14px;
   overflow-x:auto;
   padding:16px 0 10px;
   -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
 }
-
+.photos::-webkit-scrollbar{display:none}
 .photo-card{
   width:130px;
   flex:0 0 130px;
   position:relative;
 }
-
 .photo-card img{
   width:130px;
   height:130px;
@@ -419,7 +318,6 @@ input[type="text"]:focus{
   border-radius:14px;
   background:#f5f5f5;
 }
-
 .primary-badge{
   position:absolute;
   top:7px;
@@ -431,26 +329,22 @@ input[type="text"]:focus{
   font-size:10px;
   font-weight:800;
 }
-
 .photo-controls{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
   gap:5px;
   margin-top:7px;
 }
-
 .photo-controls button{
   padding:9px 4px;
   border-radius:8px;
   background:#f3edf0;
   font-size:14px;
 }
-
 .photo-controls .delete-photo{
   color:#a32d2d;
   background:#fff0f0;
 }
-
 .make-primary{
   width:100%;
   margin-top:5px;
@@ -459,7 +353,6 @@ input[type="text"]:focus{
   background:#f7e6ee;
   font-size:11px;
 }
-
 .variant-bottom{
   display:flex;
   justify-content:space-between;
@@ -468,20 +361,17 @@ input[type="text"]:focus{
   flex-wrap:wrap;
   margin-top:10px;
 }
-
 .variant-actions{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
 }
-
 .add-photos{
   background:#171717;
   color:#fff;
   padding:11px 15px;
   border-radius:12px;
 }
-
 .model-bottom{
   border-top:1px solid #eee;
   margin-top:22px;
@@ -489,7 +379,6 @@ input[type="text"]:focus{
   display:flex;
   justify-content:center;
 }
-
 .add-color{
   background:#f7e6ee;
   color:#222;
@@ -498,28 +387,20 @@ input[type="text"]:focus{
   font-size:14px;
 }
 
-/* =========================
-   REGISTRO
-========================= */
+/* REGISTRO */
 
 .record-summary{
   display:flex;
   gap:10px;
-  margin-bottom:22px;
+  margin-bottom:18px;
 }
-
 .summary-box{
   background:#fff;
   border-radius:18px;
   padding:17px 20px;
   box-shadow:0 8px 30px rgba(0,0,0,.04);
 }
-
-.summary-box strong{
-  display:block;
-  font-size:25px;
-}
-
+.summary-box strong{display:block;font-size:25px}
 .summary-box span{
   display:block;
   margin-top:3px;
@@ -527,9 +408,8 @@ input[type="text"]:focus{
   font-size:11px;
   font-weight:700;
 }
-
 .record-note{
-  margin-bottom:20px;
+  margin-bottom:18px;
   padding:14px 16px;
   border-radius:14px;
   background:#fff;
@@ -538,16 +418,12 @@ input[type="text"]:focus{
   line-height:1.5;
   border:1px solid var(--border);
 }
-
-#orders{
-  display:grid;
-  gap:16px;
+.order-search-wrap{
+  position:relative;
+  margin-bottom:18px;
 }
-
-.order-card{
-  overflow:hidden;
-}
-
+#orders{display:grid;gap:16px}
+.order-card{overflow:hidden}
 .order-top{
   padding:20px;
   display:flex;
@@ -555,46 +431,29 @@ input[type="text"]:focus{
   align-items:flex-start;
   gap:15px;
 }
-
 .order-folio{
   font-size:12px;
   color:#999;
   font-weight:800;
 }
-
 .order-client{
   font-size:21px;
   font-weight:900;
   margin-top:5px;
 }
-
 .order-date{
   font-size:12px;
   color:#999;
   margin-top:5px;
 }
-
-.order-total{
-  text-align:right;
-  flex:none;
-}
-
-.order-total strong{
-  display:block;
-  font-size:26px;
-}
-
-.order-total span{
-  color:#888;
-  font-size:11px;
-}
-
+.order-total{text-align:right;flex:none}
+.order-total strong{display:block;font-size:26px}
+.order-total span{color:#888;font-size:11px}
 .order-items{
   border-top:1px solid #f1e9ec;
   padding:12px 20px;
   background:#fffafb;
 }
-
 .order-line{
   display:grid;
   grid-template-columns:60px 1fr;
@@ -602,35 +461,22 @@ input[type="text"]:focus{
   padding:9px 0;
   border-bottom:1px solid #f3e9ed;
 }
-
-.order-line:last-child{
-  border-bottom:0;
-}
-
-.order-qty{
-  font-weight:900;
-  font-size:17px;
-}
-
-.order-product{
-  font-weight:700;
-}
-
+.order-line:last-child{border-bottom:0}
+.order-qty{font-weight:900;font-size:17px}
+.order-product{font-weight:700}
 .order-product span{
   color:#888;
   font-weight:400;
   margin-left:5px;
 }
 
-.loading,
-.empty{
+.loading,.empty{
   background:#fff;
   border-radius:20px;
   padding:35px;
   text-align:center;
   color:#888;
 }
-
 #operationStatus{
   position:fixed;
   left:50%;
@@ -646,7 +492,6 @@ input[type="text"]:focus{
   max-width:90%;
   text-align:center;
 }
-
 footer{
   padding:30px;
   text-align:center;
@@ -655,54 +500,18 @@ footer{
 }
 
 @media(max-width:650px){
-  main{
-    width:94%;
-    margin-top:20px;
-  }
-
-  .card,
-  .model-card{
-    padding:18px;
-  }
-
-  .model-header{
-    flex-direction:column;
-  }
-
-  .model-actions{
-    justify-content:flex-start;
-  }
-
-  .variant-header{
-    align-items:flex-start;
-  }
-
-  .photo-card{
-    width:115px;
-    flex-basis:115px;
-  }
-
-  .photo-card img{
-    width:115px;
-    height:115px;
-  }
-
-  .record-summary{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-  }
-
-  .summary-box{
-    padding:14px;
-  }
-
-  .order-top{
-    padding:17px;
-  }
-
-  .order-client{
-    font-size:19px;
-  }
+  main{width:94%;margin-top:20px}
+  .card,.model-card{padding:18px}
+  .model-header{flex-direction:column}
+  .model-actions{justify-content:flex-start}
+  .variant-header{align-items:flex-start}
+  .photo-card{width:115px;flex-basis:115px}
+  .photo-card img{width:115px;height:115px}
+  .record-summary{display:grid;grid-template-columns:1fr 1fr}
+  .summary-box{padding:14px}
+  .order-top{padding:17px}
+  .order-client{font-size:19px}
+  .admin-search-area{top:68px}
 }
 </style>
 </head>
@@ -716,13 +525,8 @@ footer{
 
 <div class="tabs-wrap">
   <div class="tabs">
-    <button id="catalogTab" class="tab active" type="button">
-      CATÁLOGO
-    </button>
-
-    <button id="ordersTab" class="tab" type="button">
-      REGISTRO
-    </button>
+    <button id="catalogTab" class="tab active" type="button">CATÁLOGO</button>
+    <button id="ordersTab" class="tab" type="button">REGISTRO</button>
   </div>
 </div>
 
@@ -731,104 +535,88 @@ footer{
 <div id="catalogPanel" class="panel active">
 
 <section class="card" id="uploadSection">
-
   <h2>Agregar modelo</h2>
-
   <p class="upload-intro">
     Escribe el modelo y agrega todos sus colores con sus fotografías.
   </p>
 
   <form id="uploadForm">
-
     <div class="model-input-wrap">
-      <label for="modelo">
-        Modelo
-      </label>
-
-      <input
-        id="modelo"
-        type="text"
-        placeholder="Ej. 519"
-        autocomplete="off"
-      >
+      <label for="modelo">Modelo</label>
+      <input id="modelo" type="text" placeholder="Ej. 519" autocomplete="off">
     </div>
 
     <div id="colorBlocks"></div>
 
-    <button
-      id="addColorBlock"
-      type="button"
-    >
+    <button id="addColorBlock" type="button">
       + Agregar otro color
     </button>
 
-    <button
-      id="uploadButton"
-      type="submit"
-    >
+    <button id="uploadButton" type="submit">
       Subir modelo al catálogo
     </button>
-
   </form>
 
   <div id="status"></div>
-
 </section>
 
 <section class="catalog">
 
   <div class="catalog-header">
-
     <div>
       <h2>Modelos cargados</h2>
       <p>Administra modelos, colores y fotografías.</p>
     </div>
 
-    <button
-      id="refreshButton"
-      class="refresh"
-      type="button"
-    >
+    <button id="refreshButton" class="refresh" type="button">
       Actualizar
     </button>
-
   </div>
 
-  <div id="models">
-    <div class="loading">
-      Cargando modelos...
+  <div class="admin-search-area">
+    <div class="admin-search-wrap">
+      <input
+        id="modelSearch"
+        class="admin-search"
+        type="search"
+        placeholder="Buscar modelo o color..."
+        autocomplete="off"
+      >
+      <button id="clearModelSearch" class="search-clear" type="button">×</button>
+    </div>
+
+    <div class="search-meta">
+      <span id="modelResultCount">Cargando...</span>
+      <span>Busca por número, nombre o color</span>
     </div>
   </div>
 
-</section>
+  <div id="models">
+    <div class="loading">Cargando modelos...</div>
+  </div>
 
+</section>
 </div>
 
 <div id="ordersPanel" class="panel">
 
   <div class="orders-header">
-
     <div>
       <h2>Registro de pedidos</h2>
       <p>Historial generado desde el catálogo.</p>
     </div>
 
-    <button
-      id="refreshOrders"
-      class="refresh"
-      type="button"
-    >
+    <button id="refreshOrders" class="refresh" type="button">
       Actualizar
     </button>
-
   </div>
 
   <div class="record-note">
-    Este registro sirve como respaldo de los pedidos generados desde el catálogo. La confirmación y administración final del pedido se realiza en Treinta.
+    Este registro sirve como respaldo de los pedidos generados desde el catálogo.
+    La confirmación y administración final del pedido se realiza en Treinta.
   </div>
 
   <div class="record-summary">
-
     <div class="summary-box">
       <strong id="recordCount">0</strong>
       <span>PEDIDOS REGISTRADOS</span>
@@ -838,32 +626,32 @@ footer{
       <strong id="recordPairs">0</strong>
       <span>PARES REGISTRADOS</span>
     </div>
+  </div>
 
+  <div class="order-search-wrap">
+    <input
+      id="orderSearch"
+      type="search"
+      placeholder="Buscar cliente, folio, modelo o color..."
+      autocomplete="off"
+    >
   </div>
 
   <div id="orders">
-    <div class="loading">
-      Abre REGISTRO para cargar.
-    </div>
+    <div class="loading">Abre REGISTRO para cargar.</div>
   </div>
 
 </div>
 
 </main>
 
-<div id="operationStatus">
-  Procesando...
-</div>
+<div id="operationStatus">Procesando...</div>
 
-<footer>
-  Panel interno de Calzado Carola
-</footer>
+<footer>Panel interno de Calzado Carola</footer>
 
 <script>
 
-/* =========================
-   CONTRASEÑA
-========================= */
+/* CONTRASEÑA */
 
 let adminPassword=prompt(
   "Contraseña de administrador de Calzado Carola:"
@@ -872,23 +660,19 @@ let adminPassword=prompt(
 if(adminPassword===null){
   document.body.innerHTML=
     "<h2 style='text-align:center;margin-top:80px'>Acceso cancelado</h2>";
-
   throw new Error("Acceso cancelado");
 }
 
 adminPassword=String(adminPassword||"").trim();
 
-/* =========================
-   VARIABLES
-========================= */
+/* VARIABLES */
 
+let allProducts=[];
 let allOrders=[];
 let ordersLoaded=false;
 let colorBlockCounter=0;
 
-/* =========================
-   ELEMENTOS
-========================= */
+/* ELEMENTOS */
 
 const form=document.getElementById("uploadForm");
 const modelo=document.getElementById("modelo");
@@ -904,10 +688,12 @@ const ordersTab=document.getElementById("ordersTab");
 const catalogPanel=document.getElementById("catalogPanel");
 const ordersPanel=document.getElementById("ordersPanel");
 const orders=document.getElementById("orders");
+const modelSearch=document.getElementById("modelSearch");
+const clearModelSearch=document.getElementById("clearModelSearch");
+const modelResultCount=document.getElementById("modelResultCount");
+const orderSearch=document.getElementById("orderSearch");
 
-/* =========================
-   PESTAÑAS
-========================= */
+/* PESTAÑAS */
 
 catalogTab.onclick=function(){
   catalogTab.classList.add("active");
@@ -927,9 +713,7 @@ ordersTab.onclick=async function(){
   }
 };
 
-/* =========================
-   MENSAJES
-========================= */
+/* MENSAJES */
 
 function showStatus(message,type){
   statusBox.textContent=message;
@@ -945,38 +729,77 @@ function hideOperation(){
   operationStatus.style.display="none";
 }
 
-/* =========================
-   BLOQUES DE COLOR
-========================= */
+/* NORMALIZAR */
+
+function normalizeText(value){
+  return String(value||"")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/\s+/g," ");
+}
+
+/* COLOR */
+
+function formatColor(value){
+  const original=String(value||"").trim();
+  if(!original)return "";
+
+  const normalized=normalizeText(original);
+
+  const names={
+    "negro":"Negro",
+    "camel":"Camel",
+    "latte":"Latte",
+    "maquillaje":"Maquillaje",
+    "conac":"Coñac",
+    "cafe":"Café",
+    "capuchino":"Capuchino",
+    "espresso":"Espresso",
+    "shedron":"Shedrón",
+    "blanco":"Blanco",
+    "beige":"Beige",
+    "hueso":"Hueso",
+    "rojo":"Rojo",
+    "vino":"Vino",
+    "rosa":"Rosa",
+    "dorado":"Dorado",
+    "plata":"Plata",
+    "azul":"Azul",
+    "marino":"Marino",
+    "miel":"Miel",
+    "chocolate":"Chocolate",
+    "taupe":"Taupe"
+  };
+
+  if(names[normalized])return names[normalized];
+
+  return original
+    .toLowerCase()
+    .replace(/(^|\s)\S/g,function(letter){
+      return letter.toUpperCase();
+    });
+}
+
+/* BLOQUES COLOR */
 
 function createColorBlock(colorValue=""){
   colorBlockCounter++;
 
   const id=colorBlockCounter;
-
   const block=document.createElement("div");
+
   block.className="color-block";
   block.dataset.blockId=id;
 
   block.innerHTML=`
     <div class="color-block-top">
-
-      <span class="color-number">
-        COLOR
-      </span>
-
-      <button
-        type="button"
-        class="remove-color-block"
-      >
-        Eliminar
-      </button>
-
+      <span class="color-number">COLOR</span>
+      <button type="button" class="remove-color-block">Eliminar</button>
     </div>
 
-    <label>
-      Color
-    </label>
+    <label>Color</label>
 
     <input
       type="text"
@@ -986,10 +809,7 @@ function createColorBlock(colorValue=""){
       value="${escapeAttribute(colorValue)}"
     >
 
-    <label
-      class="file-label"
-      for="colorFiles${id}"
-    >
+    <label class="file-label" for="colorFiles${id}">
       📷 Seleccionar fotografías de este color
     </label>
 
@@ -1009,12 +829,9 @@ function createColorBlock(colorValue=""){
   `;
 
   colorBlocks.appendChild(block);
-
   updateColorBlockLabels();
 
-  const input=block.querySelector(".color-files");
-
-  input.onchange=function(){
+  block.querySelector(".color-files").onchange=function(){
     renderColorPreview(block);
   };
 
@@ -1034,21 +851,13 @@ function createColorBlock(colorValue=""){
 }
 
 function updateColorBlockLabels(){
-  const blocks=[
-    ...colorBlocks.querySelectorAll(".color-block")
-  ];
+  const blocks=[...colorBlocks.querySelectorAll(".color-block")];
 
-  blocks.forEach((block,index)=>{
-    block.querySelector(".color-number").textContent=
-      "COLOR "+(index+1);
+  blocks.forEach(function(block,index){
+    block.querySelector(".color-number").textContent="COLOR "+(index+1);
 
-    const removeButton=
-      block.querySelector(".remove-color-block");
-
-    removeButton.style.display=
-      blocks.length===1
-        ?"none"
-        :"inline-block";
+    block.querySelector(".remove-color-block").style.display=
+      blocks.length===1?"none":"inline-block";
   });
 }
 
@@ -1062,8 +871,7 @@ function renderColorPreview(block){
   const files=Array.from(input.files||[]);
 
   if(!files.length){
-    counter.textContent=
-      "Ninguna fotografía seleccionada";
+    counter.textContent="Ninguna fotografía seleccionada";
     return;
   }
 
@@ -1072,7 +880,7 @@ function renderColorPreview(block){
       ?"1 fotografía seleccionada"
       :files.length+" fotografías seleccionadas";
 
-  files.forEach(file=>{
+  files.forEach(function(file){
     const img=document.createElement("img");
     img.src=URL.createObjectURL(file);
     preview.appendChild(img);
@@ -1082,14 +890,12 @@ function renderColorPreview(block){
 document.getElementById("addColorBlock").onclick=function(){
   const block=createColorBlock("");
 
-  setTimeout(()=>{
+  setTimeout(function(){
     block.querySelector(".color-input").focus();
   },100);
 };
 
-/* =========================
-   BASE64
-========================= */
+/* BASE64 */
 
 function fileToBase64(file){
   return new Promise(function(resolve,reject){
@@ -1100,11 +906,7 @@ function fileToBase64(file){
       const comma=result.indexOf(",");
 
       if(comma===-1){
-        reject(
-          new Error(
-            "No se pudo procesar "+file.name
-          )
-        );
+        reject(new Error("No se pudo procesar "+file.name));
         return;
       }
 
@@ -1116,32 +918,14 @@ function fileToBase64(file){
     };
 
     reader.onerror=function(){
-      reject(
-        new Error(
-          "No se pudo leer "+file.name
-        )
-      );
+      reject(new Error("No se pudo leer "+file.name));
     };
 
     reader.readAsDataURL(file);
   });
 }
 
-/* =========================
-   VALIDAR COLORES REPETIDOS
-========================= */
-
-function normalizeText(value){
-  return String(value||"")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"");
-}
-
-/* =========================
-   SUBIR MODELO
-========================= */
+/* SUBIR */
 
 form.onsubmit=async function(event){
   event.preventDefault();
@@ -1149,23 +933,15 @@ form.onsubmit=async function(event){
   const modelValue=modelo.value.trim();
 
   if(!modelValue){
-    showStatus(
-      "Falta escribir el modelo.",
-      "error"
-    );
+    showStatus("Falta escribir el modelo.","error");
     modelo.focus();
     return false;
   }
 
-  const blocks=[
-    ...colorBlocks.querySelectorAll(".color-block")
-  ];
+  const blocks=[...colorBlocks.querySelectorAll(".color-block")];
 
   if(!blocks.length){
-    showStatus(
-      "Agrega al menos un color.",
-      "error"
-    );
+    showStatus("Agrega al menos un color.","error");
     return false;
   }
 
@@ -1173,25 +949,16 @@ form.onsubmit=async function(event){
 
   for(let i=0;i<blocks.length;i++){
     const block=blocks[i];
-
-    const colorInput=
-      block.querySelector(".color-input");
-
-    const fileInput=
-      block.querySelector(".color-files");
-
-    const colorValue=
-      colorInput.value.trim();
-
-    const files=
-      Array.from(fileInput.files||[]);
+    const colorInput=block.querySelector(".color-input");
+    const fileInput=block.querySelector(".color-files");
+    const colorValue=colorInput.value.trim();
+    const files=Array.from(fileInput.files||[]);
 
     if(!colorValue){
       showStatus(
         "Falta escribir el nombre del color "+(i+1)+".",
         "error"
       );
-
       colorInput.focus();
       return false;
     }
@@ -1201,23 +968,17 @@ form.onsubmit=async function(event){
         "Selecciona fotografías para el color "+colorValue+".",
         "error"
       );
-
       return false;
     }
 
-    entries.push({
-      color:colorValue,
-      files
-    });
+    entries.push({color:colorValue,files});
   }
 
-  const normalizedColors=
-    entries.map(item=>normalizeText(item.color));
+  const normalizedColors=entries.map(
+    item=>normalizeText(item.color)
+  );
 
-  const uniqueColors=
-    new Set(normalizedColors);
-
-  if(uniqueColors.size!==normalizedColors.length){
+  if(new Set(normalizedColors).size!==normalizedColors.length){
     showStatus(
       "Hay un color repetido. Cada color debe agregarse una sola vez.",
       "error"
@@ -1230,10 +991,7 @@ form.onsubmit=async function(event){
 
   try{
     let totalFiles=0;
-
-    entries.forEach(entry=>{
-      totalFiles+=entry.files.length;
-    });
+    entries.forEach(entry=>totalFiles+=entry.files.length);
 
     let preparedFiles=0;
 
@@ -1245,110 +1003,65 @@ form.onsubmit=async function(event){
         preparedFiles++;
 
         showStatus(
-          "Preparando fotografía "+
-          preparedFiles+
-          " de "+
-          totalFiles+
-          "...\n"+
-          "Color: "+
-          entry.color,
+          "Preparando fotografía "+preparedFiles+" de "+totalFiles+
+          "...\nColor: "+entry.color,
           "loading"
         );
 
-        converted.push(
-          await fileToBase64(entry.files[j])
-        );
+        converted.push(await fileToBase64(entry.files[j]));
       }
 
       showStatus(
-        "Subiendo color "+
-        (i+1)+
-        " de "+
-        entries.length+
-        "...\n"+
-        modelValue+
-        " · "+
-        entry.color,
+        "Subiendo color "+(i+1)+" de "+entries.length+
+        "...\n"+modelValue+" · "+entry.color,
         "loading"
       );
 
       uploadButton.textContent=
-        "Subiendo "+
-        (i+1)+
-        " de "+
-        entries.length+
-        "...";
+        "Subiendo "+(i+1)+" de "+entries.length+"...";
 
-      const response=
-        await fetch(
-          "/.netlify/functions/admin-upload",
-          {
-            method:"POST",
+      const response=await fetch(
+        "/.netlify/functions/admin-upload",
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+            "x-admin-password":adminPassword
+          },
+          body:JSON.stringify({
+            modelo:modelValue,
+            color:entry.color,
+            imagenes:converted
+          })
+        }
+      );
 
-            headers:{
-              "Content-Type":"application/json",
-              "x-admin-password":adminPassword
-            },
-
-            body:JSON.stringify({
-              modelo:modelValue,
-              color:entry.color,
-              imagenes:converted
-            })
-          }
-        );
-
-      const result=
-        await readJson(response);
+      const result=await readJson(response);
 
       if(!response.ok||!result.success){
         throw new Error(
           "Error en "+entry.color+": "+
-          (
-            result.error||
-            "No se pudieron subir las fotografías."
-          )
+          (result.error||"No se pudieron subir las fotografías.")
         );
       }
     }
 
     showStatus(
-      "✓ Modelo "+
-      modelValue+
-      " cargado correctamente.\n"+
-      entries.length+
-      (
-        entries.length===1
-          ?" color · "
-          :" colores · "
-      )+
-      totalFiles+
-      (
-        totalFiles===1
-          ?" fotografía."
-          :" fotografías."
-      ),
+      "✓ Modelo "+modelValue+" cargado correctamente.\n"+
+      entries.length+(entries.length===1?" color · ":" colores · ")+
+      totalFiles+(totalFiles===1?" fotografía.":" fotografías."),
       "success"
     );
 
     resetUploadForm();
-
     await loadModels();
 
   }catch(error){
-    showStatus(
-      error.message,
-      "error"
-    );
+    showStatus(error.message,"error");
   }finally{
     uploadButton.disabled=false;
-
-    document.getElementById(
-      "addColorBlock"
-    ).disabled=false;
-
-    uploadButton.textContent=
-      "Subir modelo al catálogo";
+    document.getElementById("addColorBlock").disabled=false;
+    uploadButton.textContent="Subir modelo al catálogo";
   }
 
   return false;
@@ -1360,9 +1073,7 @@ function resetUploadForm(){
   createColorBlock("");
 }
 
-/* =========================
-   ADMIN CATÁLOGO
-========================= */
+/* ADMIN MANAGE */
 
 async function manage(payload){
   showOperation("Guardando cambio...");
@@ -1372,12 +1083,10 @@ async function manage(payload){
       "/.netlify/functions/admin-manage",
       {
         method:"POST",
-
         headers:{
           "Content-Type":"application/json",
           "x-admin-password":adminPassword
         },
-
         body:JSON.stringify(payload)
       }
     );
@@ -1386,35 +1095,29 @@ async function manage(payload){
 
     if(!response.ok||!result.success){
       throw new Error(
-        result.error||
-        "No se pudo completar la operación."
+        result.error||"No se pudo completar la operación."
       );
     }
 
     await loadModels();
 
-    operationStatus.textContent=
-      "✓ Cambio guardado";
-
+    operationStatus.textContent="✓ Cambio guardado";
     setTimeout(hideOperation,1000);
 
     return true;
 
   }catch(error){
-    operationStatus.textContent=
-      "Error: "+error.message;
-
+    operationStatus.textContent="Error: "+error.message;
     setTimeout(hideOperation,4000);
-
     return false;
   }
 }
 
-/* =========================
-   CARGAR MODELOS
-========================= */
+/* CARGAR MODELOS */
 
 async function loadModels(){
+  models.innerHTML='<div class="loading">Cargando modelos...</div>';
+
   try{
     const response=await fetch(
       "/.netlify/functions/supabase?t="+Date.now(),
@@ -1425,46 +1128,81 @@ async function loadModels(){
 
     if(!response.ok||!result.success){
       throw new Error(
-        result.error||
-        "No se pudieron cargar los modelos."
+        result.error||"No se pudieron cargar los modelos."
       );
     }
 
-    renderModels(
+    allProducts=
       Array.isArray(result.productos)
         ?result.productos
-        :[]
-    );
+        :[];
+
+    allProducts.sort(function(a,b){
+      return String(a.modelo).localeCompare(
+        String(b.modelo),
+        undefined,
+        {numeric:true,sensitivity:"base"}
+      );
+    });
+
+    renderFilteredModels();
 
   }catch(error){
     models.innerHTML=
-      '<div class="empty">'+
-      escapeHtml(error.message)+
-      "</div>";
+      '<div class="empty">'+escapeHtml(error.message)+"</div>";
+    modelResultCount.textContent="Error";
   }
 }
 
-/* =========================
-   MOSTRAR MODELOS
-========================= */
+/* BUSCADOR MODELOS */
+
+function renderFilteredModels(){
+  const query=normalizeText(modelSearch.value);
+
+  clearModelSearch.classList.toggle("show",Boolean(query));
+
+  const filtered=allProducts.filter(function(product){
+    if(!query)return true;
+
+    const modelMatches=
+      normalizeText(product.modelo).includes(query);
+
+    const variants=
+      Array.isArray(product.variantes)
+        ?product.variantes
+        :[];
+
+    const colorMatches=variants.some(function(variant){
+      return normalizeText(variant.color).includes(query);
+    });
+
+    return modelMatches||colorMatches;
+  });
+
+  modelResultCount.textContent=
+    filtered.length+
+    " modelo"+
+    (filtered.length===1?"":"s");
+
+  renderModels(filtered);
+}
+
+modelSearch.oninput=renderFilteredModels;
+
+clearModelSearch.onclick=function(){
+  modelSearch.value="";
+  renderFilteredModels();
+  modelSearch.focus();
+};
+
+/* RENDER MODELOS */
 
 function renderModels(products){
   if(!products.length){
     models.innerHTML=
-      '<div class="empty">No hay modelos cargados.</div>';
+      '<div class="empty">No encontramos modelos con esa búsqueda.</div>';
     return;
   }
-
-  products.sort(function(a,b){
-    return String(a.modelo).localeCompare(
-      String(b.modelo),
-      undefined,
-      {
-        numeric:true,
-        sensitivity:"base"
-      }
-    );
-  });
 
   let html="";
 
@@ -1474,35 +1212,44 @@ function renderModels(products){
         ?product.variantes
         :[];
 
-    html+=
-      '<article class="model-card">'+
-      '<div class="model-header">'+
-      '<div class="model-title">'+
-      "<h3>Modelo "+
-      escapeHtml(product.modelo)+
-      "</h3>"+
-      '<span class="model-count">'+
-      variants.length+
-      (
-        variants.length===1
-          ?" color"
-          :" colores"
-      )+
-      "</span>"+
-      "</div>"+
-      '<div class="model-actions">'+
-      '<button type="button" class="edit-model" '+
-      'data-id="'+Number(product.id)+'" '+
-      'data-name="'+escapeAttribute(product.modelo)+'">'+
-      "✏️ Editar modelo"+
-      "</button>"+
-      '<button type="button" class="delete-model" '+
-      'data-id="'+Number(product.id)+'" '+
-      'data-name="'+escapeAttribute(product.modelo)+'">'+
-      "Eliminar modelo"+
-      "</button>"+
-      "</div>"+
-      "</div>";
+    html+=`
+      <article class="model-card">
+
+        <div class="model-header">
+
+          <div class="model-title">
+            <h3>Modelo ${escapeHtml(product.modelo)}</h3>
+
+            <span class="model-count">
+              ${variants.length}
+              ${variants.length===1?"color":"colores"}
+            </span>
+          </div>
+
+          <div class="model-actions">
+
+            <button
+              type="button"
+              class="edit-model"
+              data-id="${Number(product.id)}"
+              data-name="${escapeAttribute(product.modelo)}"
+            >
+              ✏️ Editar modelo
+            </button>
+
+            <button
+              type="button"
+              class="delete-model"
+              data-id="${Number(product.id)}"
+              data-name="${escapeAttribute(product.modelo)}"
+            >
+              Eliminar modelo
+            </button>
+
+          </div>
+
+        </div>
+    `;
 
     variants.forEach(function(variant){
       const images=
@@ -1512,12 +1259,9 @@ function renderModels(products){
 
       images.sort(function(a,b){
         const difference=
-          Number(a.orden||0)-
-          Number(b.orden||0);
+          Number(a.orden||0)-Number(b.orden||0);
 
-        if(difference!==0){
-          return difference;
-        }
+        if(difference!==0)return difference;
 
         return Number(a.id||0)-Number(b.id||0);
       });
@@ -1525,127 +1269,159 @@ function renderModels(products){
       let photosHtml="";
 
       images.forEach(function(image,index){
-        photosHtml+='<div class="photo-card">';
+        photosHtml+=`
+          <div class="photo-card">
 
-        if(index===0){
-          photosHtml+=
-            '<div class="primary-badge">PRINCIPAL</div>';
-        }
+            ${
+              index===0
+                ?'<div class="primary-badge">PRINCIPAL</div>'
+                :""
+            }
 
-        photosHtml+=
-          '<img src="'+
-          escapeAttribute(image.url||"")+
-          '" loading="lazy" alt="">'+
+            <img
+              src="${escapeAttribute(image.url||"")}"
+              loading="lazy"
+              alt=""
+            >
 
-          '<div class="photo-controls">'+
+            <div class="photo-controls">
 
-          '<button type="button" class="move-left" data-id="'+
-          Number(image.id)+
-          '">←</button>'+
+              <button
+                type="button"
+                class="move-left"
+                data-id="${Number(image.id)}"
+              >
+                ←
+              </button>
 
-          '<button type="button" class="move-right" data-id="'+
-          Number(image.id)+
-          '">→</button>'+
+              <button
+                type="button"
+                class="move-right"
+                data-id="${Number(image.id)}"
+              >
+                →
+              </button>
 
-          '<button type="button" class="delete-photo" data-id="'+
-          Number(image.id)+
-          '">🗑</button>'+
+              <button
+                type="button"
+                class="delete-photo"
+                data-id="${Number(image.id)}"
+              >
+                🗑
+              </button>
 
-          "</div>";
+            </div>
 
-        if(index!==0){
-          photosHtml+=
-            '<button type="button" class="make-primary" data-id="'+
-            Number(image.id)+
-            '">Hacer principal</button>';
-        }
+            ${
+              index!==0
+                ?`
+                  <button
+                    type="button"
+                    class="make-primary"
+                    data-id="${Number(image.id)}"
+                  >
+                    Hacer principal
+                  </button>
+                `
+                :""
+            }
 
-        photosHtml+="</div>";
+          </div>
+        `;
       });
 
       if(!images.length){
-        photosHtml=
-          '<span class="photo-count">Sin fotografías</span>';
+        photosHtml='<span class="photo-count">Sin fotografías</span>';
       }
 
-      html+=
-        '<div class="variant">'+
+      html+=`
+        <div class="variant">
 
-        '<div class="variant-header">'+
+          <div class="variant-header">
 
-        '<div class="variant-title">'+
+            <div class="variant-title">
 
-        '<span class="color-name">'+
-        escapeHtml(variant.color)+
-        "</span>"+
+              <span class="color-name">
+                ${escapeHtml(formatColor(variant.color))}
+              </span>
 
-        '<button type="button" class="edit-color" '+
-        'data-id="'+Number(variant.id)+'" '+
-        'data-color="'+escapeAttribute(variant.color)+'">'+
-        "✏️ Editar"+
-        "</button>"+
+              <button
+                type="button"
+                class="edit-color"
+                data-id="${Number(variant.id)}"
+                data-color="${escapeAttribute(variant.color)}"
+              >
+                ✏️ Editar
+              </button>
 
-        "</div>"+
+            </div>
 
-        '<span class="photo-count">'+
-        images.length+
-        (
-          images.length===1
-            ?" fotografía"
-            :" fotografías"
-        )+
-        "</span>"+
+            <span class="photo-count">
+              ${images.length}
+              ${images.length===1?"fotografía":"fotografías"}
+            </span>
 
-        "</div>"+
+          </div>
 
-        '<div class="photos">'+
-        photosHtml+
-        "</div>"+
+          <div class="photos">
+            ${photosHtml}
+          </div>
 
-        '<div class="variant-bottom">'+
+          <div class="variant-bottom">
 
-        '<div class="variant-actions">'+
+            <div class="variant-actions">
 
-        '<button type="button" class="add-photos" '+
-        'data-model="'+escapeAttribute(product.modelo)+'" '+
-        'data-color="'+escapeAttribute(variant.color)+'">'+
-        "+ Agregar fotos"+
-        "</button>"+
+              <button
+                type="button"
+                class="add-photos"
+                data-model="${escapeAttribute(product.modelo)}"
+                data-color="${escapeAttribute(variant.color)}"
+              >
+                + Agregar fotos
+              </button>
 
-        '<button type="button" class="delete-variant" '+
-        'data-id="'+Number(variant.id)+'" '+
-        'data-color="'+escapeAttribute(variant.color)+'">'+
-        "Eliminar color"+
-        "</button>"+
+              <button
+                type="button"
+                class="delete-variant"
+                data-id="${Number(variant.id)}"
+                data-color="${escapeAttribute(variant.color)}"
+              >
+                Eliminar color
+              </button>
 
-        "</div>"+
-        "</div>"+
-        "</div>";
+            </div>
+
+          </div>
+
+        </div>
+      `;
     });
 
-    html+=
-      '<div class="model-bottom">'+
+    html+=`
+        <div class="model-bottom">
 
-      '<button type="button" class="add-color" '+
-      'data-model="'+escapeAttribute(product.modelo)+'">'+
-      "+ Agregar nuevo color"+
-      "</button>"+
+          <button
+            type="button"
+            class="add-color"
+            data-model="${escapeAttribute(product.modelo)}"
+          >
+            + Agregar nuevo color
+          </button>
 
-      "</div>"+
-      "</article>";
+        </div>
+
+      </article>
+    `;
   });
 
   models.innerHTML=html;
 }
 
-/* =========================
-   CLICS CATÁLOGO
-========================= */
+/* CLICS CATÁLOGO */
 
 models.onclick=async function(event){
 
-  const addPhotos=
-    event.target.closest(".add-photos");
+  const addPhotos=event.target.closest(".add-photos");
 
   if(addPhotos){
     prepareExistingUpload(
@@ -1653,12 +1429,10 @@ models.onclick=async function(event){
       addPhotos.dataset.color||"",
       true
     );
-
     return;
   }
 
-  const addColor=
-    event.target.closest(".add-color");
+  const addColor=event.target.closest(".add-color");
 
   if(addColor){
     prepareExistingUpload(
@@ -1666,12 +1440,10 @@ models.onclick=async function(event){
       "",
       false
     );
-
     return;
   }
 
-  const editModel=
-    event.target.closest(".edit-model");
+  const editModel=event.target.closest(".edit-model");
 
   if(editModel){
     const oldName=editModel.dataset.name||"";
@@ -1686,9 +1458,7 @@ models.onclick=async function(event){
     const cleanName=newName.trim();
 
     if(!cleanName){
-      alert(
-        "El nombre del modelo no puede quedar vacío."
-      );
+      alert("El nombre del modelo no puede quedar vacío.");
       return;
     }
 
@@ -1703,8 +1473,7 @@ models.onclick=async function(event){
     return;
   }
 
-  const editColor=
-    event.target.closest(".edit-color");
+  const editColor=event.target.closest(".edit-color");
 
   if(editColor){
     const oldColor=editColor.dataset.color||"";
@@ -1726,9 +1495,7 @@ models.onclick=async function(event){
     if(
       normalizeText(cleanColor)===
       normalizeText(oldColor)
-    ){
-      return;
-    }
+    )return;
 
     await manage({
       action:"rename-variant",
@@ -1739,8 +1506,7 @@ models.onclick=async function(event){
     return;
   }
 
-  const left=
-    event.target.closest(".move-left");
+  const left=event.target.closest(".move-left");
 
   if(left){
     await manage({
@@ -1748,12 +1514,10 @@ models.onclick=async function(event){
       imageId:Number(left.dataset.id),
       direction:"left"
     });
-
     return;
   }
 
-  const right=
-    event.target.closest(".move-right");
+  const right=event.target.closest(".move-right");
 
   if(right){
     await manage({
@@ -1761,31 +1525,23 @@ models.onclick=async function(event){
       imageId:Number(right.dataset.id),
       direction:"right"
     });
-
     return;
   }
 
-  const primary=
-    event.target.closest(".make-primary");
+  const primary=event.target.closest(".make-primary");
 
   if(primary){
     await manage({
       action:"make-primary",
       imageId:Number(primary.dataset.id)
     });
-
     return;
   }
 
-  const deletePhoto=
-    event.target.closest(".delete-photo");
+  const deletePhoto=event.target.closest(".delete-photo");
 
   if(deletePhoto){
-    if(
-      !confirm(
-        "¿Eliminar esta fotografía definitivamente?"
-      )
-    ){
+    if(!confirm("¿Eliminar esta fotografía definitivamente?")){
       return;
     }
 
@@ -1797,22 +1553,18 @@ models.onclick=async function(event){
     return;
   }
 
-  const deleteVariant=
-    event.target.closest(".delete-variant");
+  const deleteVariant=event.target.closest(".delete-variant");
 
   if(deleteVariant){
-    const colorName=
-      deleteVariant.dataset.color||"";
+    const colorName=deleteVariant.dataset.color||"";
 
     if(
       !confirm(
         "¿Eliminar el color "+
-        colorName+
+        formatColor(colorName)+
         " y TODAS sus fotografías?"
       )
-    ){
-      return;
-    }
+    )return;
 
     await manage({
       action:"delete-variant",
@@ -1822,31 +1574,21 @@ models.onclick=async function(event){
     return;
   }
 
-  const deleteModel=
-    event.target.closest(".delete-model");
+  const deleteModel=event.target.closest(".delete-model");
 
   if(deleteModel){
     const name=deleteModel.dataset.name||"";
 
-    if(
-      !confirm(
-        "¿Eliminar COMPLETAMENTE el modelo "+
-        name+
-        "?"
-      )
-    ){
+    if(!confirm("¿Eliminar COMPLETAMENTE el modelo "+name+"?")){
       return;
     }
 
     if(
       !confirm(
         "Se eliminarán todos sus colores y fotografías.\n\n"+
-        "Esta acción no se puede deshacer.\n\n"+
-        "¿Confirmas?"
+        "Esta acción no se puede deshacer.\n\n¿Confirmas?"
       )
-    ){
-      return;
-    }
+    )return;
 
     await manage({
       action:"delete-model",
@@ -1857,21 +1599,13 @@ models.onclick=async function(event){
   }
 };
 
-/* =========================
-   PREPARAR AGREGAR FOTOS/COLOR
-========================= */
+/* AGREGAR FOTOS / COLOR */
 
-function prepareExistingUpload(
-  modelName,
-  colorName,
-  openPhotos
-){
+function prepareExistingUpload(modelName,colorName,openPhotos){
   modelo.value=modelName;
-
   colorBlocks.innerHTML="";
 
-  const block=
-    createColorBlock(colorName);
+  const block=createColorBlock(colorName);
 
   uploadSection.scrollIntoView({
     behavior:"smooth",
@@ -1880,20 +1614,14 @@ function prepareExistingUpload(
 
   setTimeout(function(){
     if(openPhotos){
-      block
-        .querySelector(".color-files")
-        .click();
+      block.querySelector(".color-files").click();
     }else{
-      block
-        .querySelector(".color-input")
-        .focus();
+      block.querySelector(".color-input").focus();
     }
   },400);
 }
 
-/* =========================
-   REGISTRO PEDIDOS
-========================= */
+/* PEDIDOS */
 
 async function loadOrders(){
   orders.innerHTML=
@@ -1904,11 +1632,9 @@ async function loadOrders(){
       "/.netlify/functions/admin-pedidos?t="+Date.now(),
       {
         method:"GET",
-
         headers:{
           "x-admin-password":adminPassword
         },
-
         cache:"no-store"
       }
     );
@@ -1917,8 +1643,7 @@ async function loadOrders(){
 
     if(!response.ok||!result.success){
       throw new Error(
-        result.error||
-        "No se pudo cargar el registro."
+        result.error||"No se pudo cargar el registro."
       );
     }
 
@@ -1928,46 +1653,65 @@ async function loadOrders(){
         :[];
 
     ordersLoaded=true;
-
     renderOrders();
 
   }catch(error){
     orders.innerHTML=
-      '<div class="empty">'+
-      escapeHtml(error.message)+
-      "</div>";
+      '<div class="empty">'+escapeHtml(error.message)+"</div>";
   }
 }
 
+function getFilteredOrders(){
+  const query=normalizeText(orderSearch.value);
+
+  if(!query)return allOrders;
+
+  return allOrders.filter(function(order){
+    if(normalizeText(order.cliente).includes(query))return true;
+    if(normalizeText(order.folio).includes(query))return true;
+
+    const details=
+      Array.isArray(order.pedido_detalles)
+        ?order.pedido_detalles
+        :[];
+
+    return details.some(function(item){
+      return (
+        normalizeText(item.modelo).includes(query) ||
+        normalizeText(item.color).includes(query) ||
+        normalizeText(formatColor(item.color)).includes(query)
+      );
+    });
+  });
+}
+
 function renderOrders(){
+  const visibleOrders=getFilteredOrders();
+
   const totalPairs=
-    allOrders.reduce(
-      function(sum,order){
-        return sum+
-          Number(order.total_pares||0);
-      },
-      0
-    );
+    allOrders.reduce(function(sum,order){
+      return sum+Number(order.total_pares||0);
+    },0);
 
-  document.getElementById(
-    "recordCount"
-  ).textContent=allOrders.length;
+  document.getElementById("recordCount").textContent=
+    allOrders.length;
 
-  document.getElementById(
-    "recordPairs"
-  ).textContent=totalPairs;
+  document.getElementById("recordPairs").textContent=
+    totalPairs;
 
-  if(!allOrders.length){
+  if(!visibleOrders.length){
     orders.innerHTML=
       '<div class="empty">'+
-      "Todavía no hay pedidos registrados."+
+      (allOrders.length
+        ?"No encontramos pedidos con esa búsqueda."
+        :"Todavía no hay pedidos registrados.")+
       "</div>";
-
     return;
   }
 
   orders.innerHTML=
-    allOrders.map(function(order){
+    visibleOrders.map(function(order){
+
       const details=
         Array.isArray(order.pedido_detalles)
           ?order.pedido_detalles
@@ -2042,46 +1786,9 @@ function renderOrders(){
     }).join("");
 }
 
-/* =========================
-   COLOR
-========================= */
+orderSearch.oninput=renderOrders;
 
-function formatColor(value){
-  const original=String(value||"").trim();
-
-  if(!original)return "";
-
-  const normalized=normalizeText(original);
-
-  const names={
-    "negro":"Negro",
-    "camel":"Camel",
-    "latte":"Latte",
-    "maquillaje":"Maquillaje",
-    "conac":"Coñac",
-    "cafe":"Café",
-    "capuchino":"Capuchino",
-    "espresso":"Espresso",
-    "shedron":"Shedrón"
-  };
-
-  if(names[normalized]){
-    return names[normalized];
-  }
-
-  return original
-    .toLowerCase()
-    .replace(
-      /(^|\s)\S/g,
-      function(letter){
-        return letter.toUpperCase();
-      }
-    );
-}
-
-/* =========================
-   FECHA
-========================= */
+/* FECHA */
 
 function formatDate(value){
   if(!value)return "";
@@ -2104,19 +1811,13 @@ function formatDate(value){
   ).format(date);
 }
 
-/* =========================
-   ACTUALIZAR
-========================= */
+/* ACTUALIZAR */
 
 refreshButton.onclick=loadModels;
 
-document.getElementById(
-  "refreshOrders"
-).onclick=loadOrders;
+document.getElementById("refreshOrders").onclick=loadOrders;
 
-/* =========================
-   JSON
-========================= */
+/* JSON */
 
 async function readJson(response){
   const text=await response.text();
@@ -2133,9 +1834,7 @@ async function readJson(response){
   }
 }
 
-/* =========================
-   SEGURIDAD HTML
-========================= */
+/* SEGURIDAD */
 
 function escapeHtml(value){
   return String(value||"")
@@ -2150,12 +1849,9 @@ function escapeAttribute(value){
   return escapeHtml(value);
 }
 
-/* =========================
-   INICIAR
-========================= */
+/* INICIAR */
 
 createColorBlock("");
-
 loadModels();
 
 </script>
