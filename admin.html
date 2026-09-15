@@ -2,25 +2,36 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
 <title>Administrador | CAROLA</title>
 
 <style>
 *{box-sizing:border-box}
 
+:root{
+  --pink:#f5dce7;
+  --pink2:#fff8fb;
+  --border:#f0dce5;
+  --text:#222;
+  --muted:#888;
+  --dark:#171717;
+  --danger:#a32d2d;
+  --green:#167344;
+}
+
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
-  background:#fff8fb;
-  color:#222;
+  background:var(--pink2);
+  color:var(--text);
 }
 
 header{
   background:#fff;
   text-align:center;
-  padding:30px 20px 24px;
-  border-bottom:1px solid #f0dce5;
+  padding:25px 20px 20px;
+  border-bottom:1px solid var(--border);
 }
 
 .logo{
@@ -31,16 +42,79 @@ header{
 
 header p{
   color:#888;
-  margin:8px 0 0;
+  margin:7px 0 0;
 }
+
+/* =========================
+   NAVEGACIÓN
+========================= */
+
+.tabs-wrap{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(15px);
+  border-bottom:1px solid var(--border);
+}
+
+.tabs{
+  width:min(1050px,94%);
+  margin:auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  padding:10px 0;
+}
+
+.tab{
+  position:relative;
+  padding:13px;
+  border:0;
+  border-radius:13px;
+  background:#f7edf1;
+  color:#555;
+  font-weight:800;
+}
+
+.tab.active{
+  background:var(--dark);
+  color:#fff;
+}
+
+.order-badge{
+  display:none;
+  min-width:21px;
+  height:21px;
+  padding:0 6px;
+  margin-left:6px;
+  border-radius:999px;
+  align-items:center;
+  justify-content:center;
+  background:#e94265;
+  color:white;
+  font-size:11px;
+}
+
+/* ========================= */
 
 main{
   width:min(1050px,94%);
-  margin:35px auto 80px;
+  margin:30px auto 80px;
+}
+
+.panel{
+  display:none;
+}
+
+.panel.active{
+  display:block;
 }
 
 .card,
-.model-card{
+.model-card,
+.order-card,
+.metric{
   background:#fff;
   border-radius:22px;
   box-shadow:0 8px 30px rgba(0,0,0,.05);
@@ -146,11 +220,16 @@ button{
   color:#a32d2d;
 }
 
+/* =========================
+   CATÁLOGO
+========================= */
+
 .catalog{
   margin-top:55px;
 }
 
-.catalog-header{
+.catalog-header,
+.orders-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -158,12 +237,14 @@ button{
   margin-bottom:20px;
 }
 
-.catalog-header h2{
+.catalog-header h2,
+.orders-header h2{
   font-size:29px;
   margin:0 0 5px;
 }
 
-.catalog-header p{
+.catalog-header p,
+.orders-header p{
   margin:0;
   color:#888;
 }
@@ -172,6 +253,7 @@ button{
   background:#f5e6ed;
   padding:11px 16px;
   border-radius:12px;
+  flex:none;
 }
 
 #models{
@@ -362,6 +444,212 @@ button{
   font-size:14px;
 }
 
+/* =========================
+   PEDIDOS
+========================= */
+
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-bottom:28px;
+}
+
+.metric{
+  padding:20px;
+}
+
+.metric-label{
+  font-size:12px;
+  color:#888;
+  font-weight:700;
+  margin-bottom:7px;
+}
+
+.metric-value{
+  font-size:30px;
+  font-weight:900;
+}
+
+.metric-sub{
+  margin-top:4px;
+  font-size:11px;
+  color:#aaa;
+}
+
+.order-filters{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:20px;
+  -webkit-overflow-scrolling:touch;
+}
+
+.order-filter{
+  flex:none;
+  background:#fff;
+  border:1px solid #eadde3;
+  border-radius:999px;
+  padding:10px 15px;
+}
+
+.order-filter.active{
+  background:#171717;
+  color:#fff;
+  border-color:#171717;
+}
+
+#orders{
+  display:grid;
+  gap:16px;
+}
+
+.order-card{
+  overflow:hidden;
+}
+
+.order-top{
+  padding:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:15px;
+}
+
+.order-folio{
+  font-size:12px;
+  color:#999;
+  font-weight:800;
+  letter-spacing:.3px;
+}
+
+.order-client{
+  font-size:21px;
+  font-weight:900;
+  margin-top:5px;
+}
+
+.order-date{
+  font-size:12px;
+  color:#999;
+  margin-top:5px;
+}
+
+.order-total{
+  text-align:right;
+  flex:none;
+}
+
+.order-total strong{
+  display:block;
+  font-size:26px;
+}
+
+.order-total span{
+  color:#888;
+  font-size:11px;
+}
+
+.status-pill{
+  display:inline-block;
+  margin-top:10px;
+  padding:7px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+}
+
+.status-nuevo{
+  background:#ffe8ef;
+  color:#a82850;
+}
+
+.status-confirmado{
+  background:#fff4d7;
+  color:#886300;
+}
+
+.status-surtido{
+  background:#e8f0ff;
+  color:#2453a6;
+}
+
+.status-enviado{
+  background:#e4f7ea;
+  color:#146b34;
+}
+
+.status-cancelado{
+  background:#eee;
+  color:#666;
+}
+
+.order-items{
+  border-top:1px solid #f1e9ec;
+  border-bottom:1px solid #f1e9ec;
+  padding:12px 20px;
+  background:#fffafb;
+}
+
+.order-line{
+  display:grid;
+  grid-template-columns:60px 1fr;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid #f3e9ed;
+}
+
+.order-line:last-child{
+  border-bottom:0;
+}
+
+.order-qty{
+  font-weight:900;
+  font-size:17px;
+}
+
+.order-product{
+  font-weight:700;
+}
+
+.order-product span{
+  color:#888;
+  font-weight:400;
+  margin-left:5px;
+}
+
+.order-actions{
+  padding:16px 20px 20px;
+}
+
+.order-actions label{
+  font-size:12px;
+  margin:0 0 7px;
+  color:#777;
+}
+
+.order-actions-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:9px;
+}
+
+.order-status{
+  width:100%;
+  padding:13px;
+  border:1px solid #ddd;
+  background:#fff;
+  border-radius:12px;
+  font-size:15px;
+}
+
+.delete-order{
+  padding:12px 15px;
+  border-radius:12px;
+  background:#fff0f0;
+  color:#a32d2d;
+}
+
 .loading,
 .empty{
   background:#fff;
@@ -396,7 +684,7 @@ footer{
 
 @media(max-width:650px){
 
-  main{width:94%}
+  main{width:94%;margin-top:20px}
 
   .card,
   .model-card{
@@ -425,6 +713,29 @@ footer{
     height:115px;
   }
 
+  .metrics{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .metric:last-child{
+    grid-column:1/-1;
+  }
+
+  .metric{
+    padding:16px;
+  }
+
+  .metric-value{
+    font-size:25px;
+  }
+
+  .order-top{
+    padding:17px;
+  }
+
+  .order-client{
+    font-size:19px;
+  }
 }
 </style>
 </head>
@@ -433,18 +744,58 @@ footer{
 
 <header>
   <div class="logo">CAROLA</div>
-  <p>Administrador de catálogo</p>
+  <p>Administrador</p>
 </header>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+
+    <button
+      id="catalogTab"
+      class="tab active"
+      type="button"
+    >
+      CATÁLOGO
+    </button>
+
+    <button
+      id="ordersTab"
+      class="tab"
+      type="button"
+    >
+      PEDIDOS
+      <span
+        id="orderBadge"
+        class="order-badge"
+      ></span>
+    </button>
+
+  </div>
+</div>
 
 <main>
 
-<section class="card" id="uploadSection">
+<!-- =========================
+     CATÁLOGO
+========================= -->
+
+<div
+  id="catalogPanel"
+  class="panel active"
+>
+
+<section
+  class="card"
+  id="uploadSection"
+>
 
   <h2>Agregar fotografías</h2>
 
   <form id="uploadForm">
 
-    <label for="modelo">Modelo</label>
+    <label for="modelo">
+      Modelo
+    </label>
 
     <input
       id="modelo"
@@ -453,7 +804,9 @@ footer{
       autocomplete="off"
     >
 
-    <label for="color">Color</label>
+    <label for="color">
+      Color
+    </label>
 
     <input
       id="color"
@@ -462,7 +815,10 @@ footer{
       autocomplete="off"
     >
 
-    <label class="file-label" for="imagenes">
+    <label
+      class="file-label"
+      for="imagenes"
+    >
       📷 Seleccionar fotografías
     </label>
 
@@ -479,7 +835,10 @@ footer{
       Ninguna fotografía seleccionada
     </div>
 
-    <button id="uploadButton" type="submit">
+    <button
+      id="uploadButton"
+      type="submit"
+    >
       Subir al catálogo
     </button>
 
@@ -496,7 +855,9 @@ footer{
 
     <div>
       <h2>Modelos cargados</h2>
-      <p>Administra modelos, colores y fotografías.</p>
+      <p>
+        Administra modelos, colores y fotografías.
+      </p>
     </div>
 
     <button
@@ -516,6 +877,156 @@ footer{
   </div>
 
 </section>
+
+</div>
+
+
+<!-- =========================
+     PEDIDOS
+========================= -->
+
+<div
+  id="ordersPanel"
+  class="panel"
+>
+
+  <div class="orders-header">
+
+    <div>
+      <h2>Pedidos</h2>
+      <p>
+        Control de pedidos recibidos.
+      </p>
+    </div>
+
+    <button
+      id="refreshOrders"
+      class="refresh"
+      type="button"
+    >
+      Actualizar
+    </button>
+
+  </div>
+
+
+  <div class="metrics">
+
+    <div class="metric">
+      <div class="metric-label">
+        PEDIDOS NUEVOS
+      </div>
+
+      <div
+        id="metricNew"
+        class="metric-value"
+      >
+        0
+      </div>
+
+      <div class="metric-sub">
+        Pendientes de revisar
+      </div>
+    </div>
+
+
+    <div class="metric">
+      <div class="metric-label">
+        PARES PENDIENTES
+      </div>
+
+      <div
+        id="metricPending"
+        class="metric-value"
+      >
+        0
+      </div>
+
+      <div class="metric-sub">
+        Sin marcar como enviados
+      </div>
+    </div>
+
+
+    <div class="metric">
+      <div class="metric-label">
+        PARES ENVIADOS
+      </div>
+
+      <div
+        id="metricSent"
+        class="metric-value"
+      >
+        0
+      </div>
+
+      <div class="metric-sub">
+        Historial registrado
+      </div>
+    </div>
+
+  </div>
+
+
+  <div
+    id="orderFilters"
+    class="order-filters"
+  >
+
+    <button
+      class="order-filter active"
+      data-status="Todos"
+    >
+      Todos
+    </button>
+
+    <button
+      class="order-filter"
+      data-status="Nuevo"
+    >
+      Nuevos
+    </button>
+
+    <button
+      class="order-filter"
+      data-status="Confirmado"
+    >
+      Confirmados
+    </button>
+
+    <button
+      class="order-filter"
+      data-status="Surtido"
+    >
+      Surtidos
+    </button>
+
+    <button
+      class="order-filter"
+      data-status="Enviado"
+    >
+      Enviados
+    </button>
+
+    <button
+      class="order-filter"
+      data-status="Cancelado"
+    >
+      Cancelados
+    </button>
+
+  </div>
+
+
+  <div id="orders">
+
+    <div class="loading">
+      Abre PEDIDOS para cargar.
+    </div>
+
+  </div>
+
+</div>
 
 </main>
 
@@ -548,11 +1059,28 @@ if(adminPassword === null){
     "Acceso cancelado" +
     "</h2>";
 
-  throw new Error("Acceso cancelado");
+  throw new Error(
+    "Acceso cancelado"
+  );
 }
 
 adminPassword =
-  String(adminPassword || "").trim();
+  String(
+    adminPassword || ""
+  ).trim();
+
+
+/* =========================
+   VARIABLES
+========================= */
+
+let allOrders = [];
+
+let orderStatusFilter =
+  "Todos";
+
+let ordersLoaded =
+  false;
 
 
 /* =========================
@@ -560,47 +1088,154 @@ adminPassword =
 ========================= */
 
 const form =
-  document.getElementById("uploadForm");
+  document.getElementById(
+    "uploadForm"
+  );
 
 const modelo =
-  document.getElementById("modelo");
+  document.getElementById(
+    "modelo"
+  );
 
 const color =
-  document.getElementById("color");
+  document.getElementById(
+    "color"
+  );
 
 const imagenes =
-  document.getElementById("imagenes");
+  document.getElementById(
+    "imagenes"
+  );
 
 const preview =
-  document.getElementById("preview");
+  document.getElementById(
+    "preview"
+  );
 
 const count =
-  document.getElementById("count");
+  document.getElementById(
+    "count"
+  );
 
 const uploadButton =
-  document.getElementById("uploadButton");
+  document.getElementById(
+    "uploadButton"
+  );
 
 const statusBox =
-  document.getElementById("status");
+  document.getElementById(
+    "status"
+  );
 
 const models =
-  document.getElementById("models");
+  document.getElementById(
+    "models"
+  );
 
 const refreshButton =
-  document.getElementById("refreshButton");
+  document.getElementById(
+    "refreshButton"
+  );
 
 const uploadSection =
-  document.getElementById("uploadSection");
+  document.getElementById(
+    "uploadSection"
+  );
 
 const operationStatus =
-  document.getElementById("operationStatus");
+  document.getElementById(
+    "operationStatus"
+  );
+
+const catalogTab =
+  document.getElementById(
+    "catalogTab"
+  );
+
+const ordersTab =
+  document.getElementById(
+    "ordersTab"
+  );
+
+const catalogPanel =
+  document.getElementById(
+    "catalogPanel"
+  );
+
+const ordersPanel =
+  document.getElementById(
+    "ordersPanel"
+  );
+
+const orders =
+  document.getElementById(
+    "orders"
+  );
+
+const orderBadge =
+  document.getElementById(
+    "orderBadge"
+  );
+
+
+/* =========================
+   PESTAÑAS
+========================= */
+
+catalogTab.onclick =
+  function(){
+
+    catalogTab.classList.add(
+      "active"
+    );
+
+    ordersTab.classList.remove(
+      "active"
+    );
+
+    catalogPanel.classList.add(
+      "active"
+    );
+
+    ordersPanel.classList.remove(
+      "active"
+    );
+  };
+
+
+ordersTab.onclick =
+  async function(){
+
+    ordersTab.classList.add(
+      "active"
+    );
+
+    catalogTab.classList.remove(
+      "active"
+    );
+
+    ordersPanel.classList.add(
+      "active"
+    );
+
+    catalogPanel.classList.remove(
+      "active"
+    );
+
+    if(!ordersLoaded){
+      await loadOrders();
+    }
+  };
 
 
 /* =========================
    MENSAJES
 ========================= */
 
-function showStatus(message,type){
+function showStatus(
+  message,
+  type
+){
 
   statusBox.textContent =
     message;
@@ -610,7 +1245,9 @@ function showStatus(message,type){
 }
 
 
-function showOperation(message){
+function showOperation(
+  message
+){
 
   operationStatus.textContent =
     message;
@@ -631,40 +1268,49 @@ function hideOperation(){
    PREVISUALIZACIÓN
 ========================= */
 
-imagenes.onchange = function(){
+imagenes.onchange =
+  function(){
 
-  preview.innerHTML = "";
+    preview.innerHTML = "";
 
-  const files =
-    Array.from(
-      imagenes.files || []
-    );
+    const files =
+      Array.from(
+        imagenes.files || []
+      );
 
-  if(!files.length){
+    if(!files.length){
+
+      count.textContent =
+        "Ninguna fotografía seleccionada";
+
+      return;
+    }
 
     count.textContent =
-      "Ninguna fotografía seleccionada";
+      files.length === 1
+        ? "1 fotografía seleccionada"
+        : files.length +
+          " fotografías seleccionadas";
 
-    return;
-  }
+    files.forEach(
+      function(file){
 
-  count.textContent =
-    files.length === 1
-      ? "1 fotografía seleccionada"
-      : files.length +
-        " fotografías seleccionadas";
+        const img =
+          document.createElement(
+            "img"
+          );
 
-  files.forEach(function(file){
+        img.src =
+          URL.createObjectURL(
+            file
+          );
 
-    const img =
-      document.createElement("img");
-
-    img.src =
-      URL.createObjectURL(file);
-
-    preview.appendChild(img);
-  });
-};
+        preview.appendChild(
+          img
+        );
+      }
+    );
+  };
 
 
 /* =========================
@@ -679,51 +1325,62 @@ function fileToBase64(file){
       const reader =
         new FileReader();
 
-      reader.onload = function(){
+      reader.onload =
+        function(){
 
-        const result =
-          String(reader.result || "");
+          const result =
+            String(
+              reader.result || ""
+            );
 
-        const comma =
-          result.indexOf(",");
+          const comma =
+            result.indexOf(",");
 
-        if(comma === -1){
+          if(comma === -1){
+
+            reject(
+              new Error(
+                "No se pudo procesar " +
+                file.name
+              )
+            );
+
+            return;
+          }
+
+          resolve({
+            name:file.name,
+            type:
+              file.type ||
+              "image/jpeg",
+            data:
+              result.substring(
+                comma + 1
+              )
+          });
+        };
+
+      reader.onerror =
+        function(){
 
           reject(
             new Error(
-              "No se pudo procesar " +
+              "No se pudo leer " +
               file.name
             )
           );
+        };
 
-          return;
-        }
-
-        resolve({
-          name:file.name,
-          type:file.type || "image/jpeg",
-          data:result.substring(comma + 1)
-        });
-      };
-
-      reader.onerror = function(){
-
-        reject(
-          new Error(
-            "No se pudo leer " +
-            file.name
-          )
-        );
-      };
-
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(
+        file
+      );
     }
   );
 }
 
 
 /* =========================
-   SUBIR
+   SUBIR FOTOS
 ========================= */
 
 form.onsubmit =
@@ -772,7 +1429,8 @@ form.onsubmit =
       return false;
     }
 
-    uploadButton.disabled = true;
+    uploadButton.disabled =
+      true;
 
     uploadButton.textContent =
       "Subiendo...";
@@ -822,16 +1480,24 @@ form.onsubmit =
                 adminPassword
             },
 
-            body:JSON.stringify({
-              modelo:modelValue,
-              color:colorValue,
-              imagenes:converted
-            })
+            body:
+              JSON.stringify({
+                modelo:
+                  modelValue,
+
+                color:
+                  colorValue,
+
+                imagenes:
+                  converted
+              })
           }
         );
 
       const result =
-        await readJson(response);
+        await readJson(
+          response
+        );
 
       if(
         !response.ok ||
@@ -889,7 +1555,7 @@ form.onsubmit =
 
 
 /* =========================
-   ADMIN MANAGE
+   ADMIN CATÁLOGO
 ========================= */
 
 async function manage(payload){
@@ -915,12 +1581,16 @@ async function manage(payload){
           },
 
           body:
-            JSON.stringify(payload)
+            JSON.stringify(
+              payload
+            )
         }
       );
 
     const result =
-      await readJson(response);
+      await readJson(
+        response
+      );
 
     if(
       !response.ok ||
@@ -979,7 +1649,9 @@ async function loadModels(){
       );
 
     const result =
-      await readJson(response);
+      await readJson(
+        response
+      );
 
     if(
       !response.ok ||
@@ -993,7 +1665,9 @@ async function loadModels(){
     }
 
     renderModels(
-      Array.isArray(result.productos)
+      Array.isArray(
+        result.productos
+      )
         ? result.productos
         : []
     );
@@ -1002,7 +1676,9 @@ async function loadModels(){
 
     models.innerHTML =
       '<div class="empty">' +
-      escapeHtml(error.message) +
+      escapeHtml(
+        error.message
+      ) +
       "</div>";
   }
 }
@@ -1027,15 +1703,18 @@ function renderModels(products){
   products.sort(
     function(a,b){
 
-      return String(a.modelo)
-        .localeCompare(
-          String(b.modelo),
-          undefined,
-          {
-            numeric:true,
-            sensitivity:"base"
-          }
-        );
+      return String(
+        a.modelo
+      ).localeCompare(
+        String(
+          b.modelo
+        ),
+        undefined,
+        {
+          numeric:true,
+          sensitivity:"base"
+        }
+      );
     }
   );
 
@@ -1045,7 +1724,9 @@ function renderModels(products){
     function(product){
 
       const variants =
-        Array.isArray(product.variantes)
+        Array.isArray(
+          product.variantes
+        )
           ? product.variantes
           : [];
 
@@ -1057,7 +1738,9 @@ function renderModels(products){
         '<div class="model-title">' +
 
         "<h3>Modelo " +
-        escapeHtml(product.modelo) +
+        escapeHtml(
+          product.modelo
+        ) +
         "</h3>" +
 
         '<span class="model-count">' +
@@ -1073,26 +1756,28 @@ function renderModels(products){
 
         '<div class="model-actions">' +
 
-        '<button ' +
-        'type="button" ' +
+        '<button type="button" ' +
         'class="edit-model" ' +
         'data-id="' +
         Number(product.id) +
         '" ' +
         'data-name="' +
-        escapeAttribute(product.modelo) +
+        escapeAttribute(
+          product.modelo
+        ) +
         '">' +
         "✏️ Editar modelo" +
         "</button>" +
 
-        '<button ' +
-        'type="button" ' +
+        '<button type="button" ' +
         'class="delete-model" ' +
         'data-id="' +
         Number(product.id) +
         '" ' +
         'data-name="' +
-        escapeAttribute(product.modelo) +
+        escapeAttribute(
+          product.modelo
+        ) +
         '">' +
         "Eliminar modelo" +
         "</button>" +
@@ -1105,19 +1790,23 @@ function renderModels(products){
         function(variant){
 
           const images =
-            Array.isArray(variant.imagenes)
+            Array.isArray(
+              variant.imagenes
+            )
               ? variant.imagenes.slice()
               : [];
 
           images.sort(
             function(a,b){
 
-              const orderDifference =
+              const difference =
                 Number(a.orden || 0) -
                 Number(b.orden || 0);
 
-              if(orderDifference !== 0){
-                return orderDifference;
+              if(
+                difference !== 0
+              ){
+                return difference;
               }
 
               return (
@@ -1145,31 +1834,30 @@ function renderModels(products){
 
               photosHtml +=
                 '<img src="' +
-                escapeAttribute(image.url || "") +
+                escapeAttribute(
+                  image.url || ""
+                ) +
                 '" loading="lazy" alt="">' +
 
                 '<div class="photo-controls">' +
 
-                '<button ' +
-                'type="button" ' +
+                '<button type="button" ' +
                 'class="move-left" ' +
                 'data-id="' +
                 Number(image.id) +
-                '" title="Mover a la izquierda">' +
+                '">' +
                 "←" +
                 "</button>" +
 
-                '<button ' +
-                'type="button" ' +
+                '<button type="button" ' +
                 'class="move-right" ' +
                 'data-id="' +
                 Number(image.id) +
-                '" title="Mover a la derecha">' +
+                '">' +
                 "→" +
                 "</button>" +
 
-                '<button ' +
-                'type="button" ' +
+                '<button type="button" ' +
                 'class="delete-photo" ' +
                 'data-id="' +
                 Number(image.id) +
@@ -1182,8 +1870,7 @@ function renderModels(products){
               if(index !== 0){
 
                 photosHtml +=
-                  '<button ' +
-                  'type="button" ' +
+                  '<button type="button" ' +
                   'class="make-primary" ' +
                   'data-id="' +
                   Number(image.id) +
@@ -1213,17 +1900,20 @@ function renderModels(products){
             '<div class="variant-title">' +
 
             '<span class="color-name">' +
-            escapeHtml(variant.color) +
+            escapeHtml(
+              variant.color
+            ) +
             "</span>" +
 
-            '<button ' +
-            'type="button" ' +
+            '<button type="button" ' +
             'class="edit-color" ' +
             'data-id="' +
             Number(variant.id) +
             '" ' +
             'data-color="' +
-            escapeAttribute(variant.color) +
+            escapeAttribute(
+              variant.color
+            ) +
             '">' +
             "✏️ Editar" +
             "</button>" +
@@ -1249,26 +1939,30 @@ function renderModels(products){
 
             '<div class="variant-actions">' +
 
-            '<button ' +
-            'type="button" ' +
+            '<button type="button" ' +
             'class="add-photos" ' +
             'data-model="' +
-            escapeAttribute(product.modelo) +
+            escapeAttribute(
+              product.modelo
+            ) +
             '" ' +
             'data-color="' +
-            escapeAttribute(variant.color) +
+            escapeAttribute(
+              variant.color
+            ) +
             '">' +
             "+ Agregar fotos" +
             "</button>" +
 
-            '<button ' +
-            'type="button" ' +
+            '<button type="button" ' +
             'class="delete-variant" ' +
             'data-id="' +
             Number(variant.id) +
             '" ' +
             'data-color="' +
-            escapeAttribute(variant.color) +
+            escapeAttribute(
+              variant.color
+            ) +
             '">' +
             "Eliminar color" +
             "</button>" +
@@ -1281,19 +1975,15 @@ function renderModels(products){
         }
       );
 
-      /*
-       * AGREGAR COLOR:
-       * AHORA SOLO UNA VEZ POR MODELO
-       */
-
       html +=
         '<div class="model-bottom">' +
 
-        '<button ' +
-        'type="button" ' +
+        '<button type="button" ' +
         'class="add-color" ' +
         'data-model="' +
-        escapeAttribute(product.modelo) +
+        escapeAttribute(
+          product.modelo
+        ) +
         '">' +
         "+ Agregar nuevo color" +
         "</button>" +
@@ -1304,18 +1994,17 @@ function renderModels(products){
     }
   );
 
-  models.innerHTML = html;
+  models.innerHTML =
+    html;
 }
 
 
 /* =========================
-   CLICS
+   CLICS CATÁLOGO
 ========================= */
 
 models.onclick =
   async function(event){
-
-    /* AGREGAR FOTOS */
 
     const addPhotos =
       event.target.closest(
@@ -1325,10 +2014,12 @@ models.onclick =
     if(addPhotos){
 
       modelo.value =
-        addPhotos.dataset.model || "";
+        addPhotos.dataset.model ||
+        "";
 
       color.value =
-        addPhotos.dataset.color || "";
+        addPhotos.dataset.color ||
+        "";
 
       uploadSection.scrollIntoView({
         behavior:"smooth",
@@ -1346,8 +2037,6 @@ models.onclick =
     }
 
 
-    /* AGREGAR COLOR */
-
     const addColor =
       event.target.closest(
         ".add-color"
@@ -1356,7 +2045,8 @@ models.onclick =
     if(addColor){
 
       modelo.value =
-        addColor.dataset.model || "";
+        addColor.dataset.model ||
+        "";
 
       color.value = "";
 
@@ -1383,8 +2073,6 @@ models.onclick =
     }
 
 
-    /* EDITAR MODELO */
-
     const editModel =
       event.target.closest(
         ".edit-model"
@@ -1393,7 +2081,8 @@ models.onclick =
     if(editModel){
 
       const oldName =
-        editModel.dataset.name || "";
+        editModel.dataset.name ||
+        "";
 
       const newName =
         prompt(
@@ -1409,29 +2098,33 @@ models.onclick =
         newName.trim();
 
       if(!cleanName){
+
         alert(
           "El nombre del modelo no puede quedar vacío."
         );
+
         return;
       }
 
-      if(cleanName === oldName){
+      if(
+        cleanName === oldName
+      ){
         return;
       }
 
       await manage({
         action:"rename-model",
-        modelId:Number(
-          editModel.dataset.id
-        ),
-        newName:cleanName
+        modelId:
+          Number(
+            editModel.dataset.id
+          ),
+        newName:
+          cleanName
       });
 
       return;
     }
 
-
-    /* EDITAR COLOR */
 
     const editColor =
       event.target.closest(
@@ -1441,7 +2134,8 @@ models.onclick =
     if(editColor){
 
       const oldColor =
-        editColor.dataset.color || "";
+        editColor.dataset.color ||
+        "";
 
       const newColor =
         prompt(
@@ -1457,9 +2151,11 @@ models.onclick =
         newColor.trim();
 
       if(!cleanColor){
+
         alert(
           "El color no puede quedar vacío."
         );
+
         return;
       }
 
@@ -1472,17 +2168,17 @@ models.onclick =
 
       await manage({
         action:"rename-variant",
-        variantId:Number(
-          editColor.dataset.id
-        ),
-        newColor:cleanColor
+        variantId:
+          Number(
+            editColor.dataset.id
+          ),
+        newColor:
+          cleanColor
       });
 
       return;
     }
 
-
-    /* MOVER IZQUIERDA */
 
     const left =
       event.target.closest(
@@ -1493,17 +2189,16 @@ models.onclick =
 
       await manage({
         action:"move-image",
-        imageId:Number(
-          left.dataset.id
-        ),
+        imageId:
+          Number(
+            left.dataset.id
+          ),
         direction:"left"
       });
 
       return;
     }
 
-
-    /* MOVER DERECHA */
 
     const right =
       event.target.closest(
@@ -1514,17 +2209,16 @@ models.onclick =
 
       await manage({
         action:"move-image",
-        imageId:Number(
-          right.dataset.id
-        ),
+        imageId:
+          Number(
+            right.dataset.id
+          ),
         direction:"right"
       });
 
       return;
     }
 
-
-    /* HACER PRINCIPAL */
 
     const primary =
       event.target.closest(
@@ -1535,16 +2229,15 @@ models.onclick =
 
       await manage({
         action:"make-primary",
-        imageId:Number(
-          primary.dataset.id
-        )
+        imageId:
+          Number(
+            primary.dataset.id
+          )
       });
 
       return;
     }
 
-
-    /* ELIMINAR FOTO */
 
     const deletePhoto =
       event.target.closest(
@@ -1563,16 +2256,15 @@ models.onclick =
 
       await manage({
         action:"delete-image",
-        imageId:Number(
-          deletePhoto.dataset.id
-        )
+        imageId:
+          Number(
+            deletePhoto.dataset.id
+          )
       });
 
       return;
     }
 
-
-    /* ELIMINAR COLOR */
 
     const deleteVariant =
       event.target.closest(
@@ -1582,7 +2274,8 @@ models.onclick =
     if(deleteVariant){
 
       const colorName =
-        deleteVariant.dataset.color || "";
+        deleteVariant.dataset.color ||
+        "";
 
       if(
         !confirm(
@@ -1596,16 +2289,15 @@ models.onclick =
 
       await manage({
         action:"delete-variant",
-        variantId:Number(
-          deleteVariant.dataset.id
-        )
+        variantId:
+          Number(
+            deleteVariant.dataset.id
+          )
       });
 
       return;
     }
 
-
-    /* ELIMINAR MODELO */
 
     const deleteModel =
       event.target.closest(
@@ -1615,7 +2307,8 @@ models.onclick =
     if(deleteModel){
 
       const name =
-        deleteModel.dataset.name || "";
+        deleteModel.dataset.name ||
+        "";
 
       if(
         !confirm(
@@ -1639,14 +2332,711 @@ models.onclick =
 
       await manage({
         action:"delete-model",
-        modelId:Number(
-          deleteModel.dataset.id
-        )
+        modelId:
+          Number(
+            deleteModel.dataset.id
+          )
       });
 
       return;
     }
   };
+
+
+/* =========================
+   PEDIDOS - CARGAR
+========================= */
+
+async function loadOrders(){
+
+  orders.innerHTML =
+    '<div class="loading">' +
+    "Cargando pedidos..." +
+    "</div>";
+
+  try{
+
+    const response =
+      await fetch(
+        "/.netlify/functions/admin-pedidos?t=" +
+        Date.now(),
+        {
+          method:"GET",
+
+          headers:{
+            "x-admin-password":
+              adminPassword
+          },
+
+          cache:"no-store"
+        }
+      );
+
+    const result =
+      await readJson(
+        response
+      );
+
+    if(
+      !response.ok ||
+      !result.success
+    ){
+
+      throw new Error(
+        result.error ||
+        "No se pudieron cargar los pedidos."
+      );
+    }
+
+    allOrders =
+      Array.isArray(
+        result.pedidos
+      )
+        ? result.pedidos
+        : [];
+
+    ordersLoaded = true;
+
+    updateOrderMetrics();
+
+    renderOrders();
+
+  }catch(error){
+
+    orders.innerHTML =
+      '<div class="empty">' +
+      escapeHtml(
+        error.message
+      ) +
+      "</div>";
+  }
+}
+
+
+/* =========================
+   MÉTRICAS
+========================= */
+
+function updateOrderMetrics(){
+
+  const newOrders =
+    allOrders.filter(
+      order =>
+        order.estado ===
+        "Nuevo"
+    );
+
+  const pendingPairs =
+    allOrders
+      .filter(
+        order =>
+          order.estado !==
+            "Enviado" &&
+          order.estado !==
+            "Cancelado"
+      )
+      .reduce(
+        (total,order) =>
+          total +
+          Number(
+            order.total_pares ||
+            0
+          ),
+        0
+      );
+
+  const sentPairs =
+    allOrders
+      .filter(
+        order =>
+          order.estado ===
+          "Enviado"
+      )
+      .reduce(
+        (total,order) =>
+          total +
+          Number(
+            order.total_pares ||
+            0
+          ),
+        0
+      );
+
+  document.getElementById(
+    "metricNew"
+  ).textContent =
+    newOrders.length;
+
+  document.getElementById(
+    "metricPending"
+  ).textContent =
+    pendingPairs;
+
+  document.getElementById(
+    "metricSent"
+  ).textContent =
+    sentPairs;
+
+  if(newOrders.length){
+
+    orderBadge.textContent =
+      newOrders.length;
+
+    orderBadge.style.display =
+      "inline-flex";
+
+  }else{
+
+    orderBadge.style.display =
+      "none";
+  }
+}
+
+
+/* =========================
+   MOSTRAR PEDIDOS
+========================= */
+
+function renderOrders(){
+
+  const visible =
+    orderStatusFilter ===
+    "Todos"
+      ? allOrders
+      : allOrders.filter(
+          order =>
+            order.estado ===
+            orderStatusFilter
+        );
+
+  if(!visible.length){
+
+    orders.innerHTML =
+      '<div class="empty">' +
+      "No hay pedidos en esta sección." +
+      "</div>";
+
+    return;
+  }
+
+  orders.innerHTML =
+    visible.map(
+      function(order){
+
+        const details =
+          Array.isArray(
+            order.pedido_detalles
+          )
+            ? order.pedido_detalles
+            : [];
+
+        const lines =
+          details.length
+            ? details.map(
+                function(item){
+
+                  return `
+                    <div class="order-line">
+
+                      <div class="order-qty">
+                        ${Number(item.cantidad)}
+                      </div>
+
+                      <div class="order-product">
+
+                        ${escapeHtml(item.modelo)}
+
+                        <span>
+                          ${escapeHtml(item.color)}
+                        </span>
+
+                      </div>
+
+                    </div>
+                  `;
+                }
+              ).join("")
+            : `
+              <div class="order-line">
+                Sin productos registrados
+              </div>
+            `;
+
+        return `
+
+          <article
+            class="order-card"
+            data-order-id="${Number(order.id)}"
+          >
+
+            <div class="order-top">
+
+              <div>
+
+                <div class="order-folio">
+                  ${escapeHtml(order.folio)}
+                </div>
+
+                <div class="order-client">
+                  ${escapeHtml(order.cliente)}
+                </div>
+
+                <div class="order-date">
+                  ${escapeHtml(formatDate(order.creado_en))}
+                </div>
+
+                <span class="status-pill ${statusClass(order.estado)}">
+                  ${escapeHtml(order.estado)}
+                </span>
+
+              </div>
+
+              <div class="order-total">
+
+                <strong>
+                  ${Number(order.total_pares || 0)}
+                </strong>
+
+                <span>
+                  PARES
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div class="order-items">
+              ${lines}
+            </div>
+
+
+            <div class="order-actions">
+
+              <label>
+                Estado del pedido
+              </label>
+
+              <div class="order-actions-row">
+
+                <select
+                  class="order-status"
+                  data-id="${Number(order.id)}"
+                >
+
+                  ${statusOptions(order.estado)}
+
+                </select>
+
+                <button
+                  type="button"
+                  class="delete-order"
+                  data-id="${Number(order.id)}"
+                  data-folio="${escapeAttribute(order.folio)}"
+                >
+                  🗑
+                </button>
+
+              </div>
+
+            </div>
+
+          </article>
+        `;
+      }
+    ).join("");
+}
+
+
+/* =========================
+   ESTADOS
+========================= */
+
+function statusOptions(current){
+
+  const states = [
+    "Nuevo",
+    "Confirmado",
+    "Surtido",
+    "Enviado",
+    "Cancelado"
+  ];
+
+  return states.map(
+    state =>
+
+      '<option value="' +
+      escapeAttribute(state) +
+      '"' +
+      (
+        state === current
+          ? " selected"
+          : ""
+      ) +
+      ">" +
+      escapeHtml(state) +
+      "</option>"
+
+  ).join("");
+}
+
+
+function statusClass(status){
+
+  const value =
+    String(
+      status || ""
+    ).toLowerCase();
+
+  if(value === "nuevo"){
+    return "status-nuevo";
+  }
+
+  if(value === "confirmado"){
+    return "status-confirmado";
+  }
+
+  if(value === "surtido"){
+    return "status-surtido";
+  }
+
+  if(value === "enviado"){
+    return "status-enviado";
+  }
+
+  return "status-cancelado";
+}
+
+
+/* =========================
+   FILTROS PEDIDOS
+========================= */
+
+document.getElementById(
+  "orderFilters"
+).onclick =
+  function(event){
+
+    const button =
+      event.target.closest(
+        ".order-filter"
+      );
+
+    if(!button){
+      return;
+    }
+
+    orderStatusFilter =
+      button.dataset.status;
+
+    document
+      .querySelectorAll(
+        ".order-filter"
+      )
+      .forEach(
+        item =>
+          item.classList.remove(
+            "active"
+          )
+      );
+
+    button.classList.add(
+      "active"
+    );
+
+    renderOrders();
+  };
+
+
+/* =========================
+   ACCIONES PEDIDOS
+========================= */
+
+orders.onchange =
+  async function(event){
+
+    const select =
+      event.target.closest(
+        ".order-status"
+      );
+
+    if(!select){
+      return;
+    }
+
+    const pedidoId =
+      Number(
+        select.dataset.id
+      );
+
+    const order =
+      allOrders.find(
+        item =>
+          Number(item.id) ===
+          pedidoId
+      );
+
+    if(!order){
+      return;
+    }
+
+    const oldStatus =
+      order.estado;
+
+    const newStatus =
+      select.value;
+
+    if(
+      oldStatus ===
+      newStatus
+    ){
+      return;
+    }
+
+    select.disabled =
+      true;
+
+    showOperation(
+      "Actualizando pedido..."
+    );
+
+    try{
+
+      const response =
+        await fetch(
+          "/.netlify/functions/admin-pedidos",
+          {
+            method:"POST",
+
+            headers:{
+              "Content-Type":
+                "application/json",
+
+              "x-admin-password":
+                adminPassword
+            },
+
+            body:
+              JSON.stringify({
+                action:
+                  "change-status",
+
+                pedido_id:
+                  pedidoId,
+
+                estado:
+                  newStatus
+              })
+          }
+        );
+
+      const result =
+        await readJson(
+          response
+        );
+
+      if(
+        !response.ok ||
+        !result.success
+      ){
+
+        throw new Error(
+          result.error ||
+          "No se pudo cambiar el estado."
+        );
+      }
+
+      order.estado =
+        newStatus;
+
+      updateOrderMetrics();
+
+      renderOrders();
+
+      operationStatus.textContent =
+        "✓ Pedido actualizado";
+
+      setTimeout(
+        hideOperation,
+        1200
+      );
+
+    }catch(error){
+
+      order.estado =
+        oldStatus;
+
+      select.value =
+        oldStatus;
+
+      operationStatus.textContent =
+        "Error: " +
+        error.message;
+
+      setTimeout(
+        hideOperation,
+        4000
+      );
+
+    }finally{
+
+      select.disabled =
+        false;
+    }
+  };
+
+
+orders.onclick =
+  async function(event){
+
+    const button =
+      event.target.closest(
+        ".delete-order"
+      );
+
+    if(!button){
+      return;
+    }
+
+    const pedidoId =
+      Number(
+        button.dataset.id
+      );
+
+    const folio =
+      button.dataset.folio ||
+      "";
+
+    if(
+      !confirm(
+        "¿Eliminar el pedido " +
+        folio +
+        "?"
+      )
+    ){
+      return;
+    }
+
+    if(
+      !confirm(
+        "El pedido y todos sus productos se eliminarán definitivamente.\n\n¿Confirmas?"
+      )
+    ){
+      return;
+    }
+
+    showOperation(
+      "Eliminando pedido..."
+    );
+
+    try{
+
+      const response =
+        await fetch(
+          "/.netlify/functions/admin-pedidos",
+          {
+            method:"POST",
+
+            headers:{
+              "Content-Type":
+                "application/json",
+
+              "x-admin-password":
+                adminPassword
+            },
+
+            body:
+              JSON.stringify({
+                action:
+                  "delete-order",
+
+                pedido_id:
+                  pedidoId
+              })
+          }
+        );
+
+      const result =
+        await readJson(
+          response
+        );
+
+      if(
+        !response.ok ||
+        !result.success
+      ){
+
+        throw new Error(
+          result.error ||
+          "No se pudo eliminar el pedido."
+        );
+      }
+
+      allOrders =
+        allOrders.filter(
+          order =>
+            Number(order.id) !==
+            pedidoId
+        );
+
+      updateOrderMetrics();
+
+      renderOrders();
+
+      operationStatus.textContent =
+        "✓ Pedido eliminado";
+
+      setTimeout(
+        hideOperation,
+        1200
+      );
+
+    }catch(error){
+
+      operationStatus.textContent =
+        "Error: " +
+        error.message;
+
+      setTimeout(
+        hideOperation,
+        4000
+      );
+    }
+  };
+
+
+/* =========================
+   FECHA
+========================= */
+
+function formatDate(value){
+
+  if(!value){
+    return "";
+  }
+
+  const date =
+    new Date(value);
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ){
+    return value;
+  }
+
+  return new Intl.DateTimeFormat(
+    "es-MX",
+    {
+      day:"numeric",
+      month:"short",
+      year:"numeric",
+      hour:"numeric",
+      minute:"2-digit"
+    }
+  ).format(date);
+}
 
 
 /* =========================
@@ -1657,18 +3047,28 @@ refreshButton.onclick =
   loadModels;
 
 
+document.getElementById(
+  "refreshOrders"
+).onclick =
+  loadOrders;
+
+
 /* =========================
    LEER JSON
 ========================= */
 
-async function readJson(response){
+async function readJson(
+  response
+){
 
   const text =
     await response.text();
 
   try{
 
-    return JSON.parse(text);
+    return JSON.parse(
+      text
+    );
 
   }catch(error){
 
@@ -1676,7 +3076,10 @@ async function readJson(response){
       success:false,
       error:
         "Respuesta inválida del servidor: " +
-        text.substring(0,300)
+        text.substring(
+          0,
+          300
+        )
     };
   }
 }
@@ -1688,18 +3091,39 @@ async function readJson(response){
 
 function escapeHtml(value){
 
-  return String(value || "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+  return String(
+    value || ""
+  )
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 }
 
 
-function escapeAttribute(value){
+function escapeAttribute(
+  value
+){
 
-  return escapeHtml(value);
+  return escapeHtml(
+    value
+  );
 }
 
 
@@ -1708,6 +3132,14 @@ function escapeAttribute(value){
 ========================= */
 
 loadModels();
+
+/*
+ * Cargamos también los pedidos
+ * silenciosamente para mostrar
+ * el contador de NUEVOS.
+ */
+
+loadOrders();
 
 </script>
 
