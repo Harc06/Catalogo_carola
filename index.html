@@ -19,13 +19,9 @@
   --dark:#171717;
 }
 
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
-html{
-  scroll-behavior:smooth;
-}
+html{scroll-behavior:smooth}
 
 body{
   margin:0;
@@ -35,19 +31,9 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
-button,
-input{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-}
-
-a{
-  color:inherit;
-  text-decoration:none;
-}
+button,input{font:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
 
 /* HEADER */
 
@@ -101,7 +87,7 @@ a{
   display:flex;
   align-items:flex-end;
   background:
-    radial-gradient(circle at 85% 15%, #fff 0, transparent 30%),
+    radial-gradient(circle at 85% 15%,#fff 0,transparent 30%),
     linear-gradient(135deg,#f7dce8,#fff4f8);
   overflow:hidden;
   position:relative;
@@ -231,9 +217,7 @@ a{
   scrollbar-width:none;
 }
 
-.filters::-webkit-scrollbar{
-  display:none;
-}
+.filters::-webkit-scrollbar{display:none}
 
 .filter{
   flex:none;
@@ -251,7 +235,7 @@ a{
   border-color:var(--dark);
 }
 
-/* GRID */
+/* PRODUCTOS */
 
 .grid{
   display:grid;
@@ -314,9 +298,7 @@ a{
   font-size:17px;
 }
 
-.arrow{
-  font-size:18px;
-}
+.arrow{font-size:18px}
 
 .colors{
   display:flex;
@@ -324,6 +306,7 @@ a{
   gap:6px;
   margin-top:8px;
   min-height:20px;
+  flex-wrap:wrap;
 }
 
 .color-chip{
@@ -480,7 +463,10 @@ footer p{
 <section class="hero">
   <div class="hero-box">
     <div class="hero-content">
-      <span class="eyebrow">Calzado Carola</span>
+
+      <span class="eyebrow">
+        Calzado Carola
+      </span>
 
       <h1>
         Encuentra<br>
@@ -495,6 +481,7 @@ footer p{
       <a href="#catalogo" class="hero-button">
         Explorar modelos ↓
       </a>
+
     </div>
   </div>
 </section>
@@ -513,6 +500,7 @@ footer p{
   </div>
 
   <div class="search-box">
+
     <span class="search-icon">⌕</span>
 
     <input
@@ -521,6 +509,7 @@ footer p{
       placeholder="Buscar modelo..."
       autocomplete="off"
     >
+
   </div>
 
   <div id="filters" class="filters"></div>
@@ -544,11 +533,20 @@ footer p{
 let allProducts = [];
 let selectedColor = "todos";
 
-const grid = document.getElementById("grid");
-const filters = document.getElementById("filters");
-const search = document.getElementById("search");
-const productCount = document.getElementById("productCount");
+const grid =
+  document.getElementById("grid");
 
+const filters =
+  document.getElementById("filters");
+
+const search =
+  document.getElementById("search");
+
+const productCount =
+  document.getElementById("productCount");
+
+
+/* NORMALIZACIÓN */
 
 function normalize(value){
   return String(value || "")
@@ -559,35 +557,73 @@ function normalize(value){
 }
 
 
+/* NORMALIZAR MODELO */
+
+function normalizeModel(value){
+
+  const text = normalize(value);
+
+  const match =
+    text.match(/[a-z]*\s*\d+[a-z]*/i);
+
+  if(match){
+    return match[0]
+      .replace(/\s+/g,"");
+  }
+
+  return text;
+}
+
+
+/* VARIANTES CON FOTOS */
+
 function getVariants(product){
+
   return Array.isArray(product.variantes)
-    ? product.variantes.filter(v =>
-        Array.isArray(v.imagenes) &&
-        v.imagenes.length
+    ? product.variantes.filter(
+        variant =>
+          Array.isArray(variant.imagenes) &&
+          variant.imagenes.length
       )
     : [];
 }
 
 
+/* ORDENAR FOTOS */
+
 function sortImages(images){
-  return images.slice().sort((a,b) => {
-    const order =
-      Number(a.orden || 0) -
-      Number(b.orden || 0);
 
-    if(order !== 0) return order;
+  return images
+    .slice()
+    .sort((a,b) => {
 
-    return Number(a.id || 0) -
-           Number(b.id || 0);
-  });
+      const order =
+        Number(a.orden || 0) -
+        Number(b.orden || 0);
+
+      if(order !== 0){
+        return order;
+      }
+
+      return (
+        Number(a.id || 0) -
+        Number(b.id || 0)
+      );
+    });
 }
 
 
+/* FOTO PRINCIPAL */
+
 function getCover(product){
-  const variants = getVariants(product);
+
+  const variants =
+    getVariants(product);
 
   for(const variant of variants){
-    const images = sortImages(variant.imagenes);
+
+    const images =
+      sortImages(variant.imagenes);
 
     if(images.length){
       return images[0].url;
@@ -598,28 +634,46 @@ function getCover(product){
 }
 
 
+/* COLORES */
+
 function getColors(product){
+
   return getVariants(product)
-    .map(v => v.color)
+    .map(variant => variant.color)
     .filter(Boolean);
 }
 
+
+/* CARGAR CATÁLOGO */
 
 async function loadCatalog(){
 
   try{
 
-    const [supabaseResponse, treintaResponse] =
+    const [
+      supabaseResponse,
+      treintaResponse
+    ] =
       await Promise.all([
+
         fetch(
-          "/.netlify/functions/supabase?t=" + Date.now(),
-          {cache:"no-store"}
+          "/.netlify/functions/supabase?t=" +
+          Date.now(),
+          {
+            cache:"no-store"
+          }
         ),
+
         fetch(
-          "/.netlify/functions/treinta?t=" + Date.now(),
-          {cache:"no-store"}
+          "/.netlify/functions/treinta?t=" +
+          Date.now(),
+          {
+            cache:"no-store"
+          }
         )
+
       ]);
+
 
     const supabaseData =
       await supabaseResponse.json();
@@ -627,54 +681,105 @@ async function loadCatalog(){
     const treintaData =
       await treintaResponse.json();
 
-    if(!supabaseResponse.ok || !supabaseData.success){
-      throw new Error("No se pudo cargar el catálogo.");
+
+    if(
+      !supabaseResponse.ok ||
+      !supabaseData.success
+    ){
+      throw new Error(
+        "No se pudo cargar la información de los modelos."
+      );
     }
 
-    if(!treintaResponse.ok || !treintaData.success){
-      throw new Error("No se pudo comprobar disponibilidad.");
+
+    if(
+      !treintaResponse.ok ||
+      !treintaData.success
+    ){
+      throw new Error(
+        "No se pudo comprobar la disponibilidad."
+      );
     }
+
+
+    /*
+     * IMPORTANTE:
+     *
+     * Supabase devuelve:
+     * productos
+     *
+     * Treinta devuelve:
+     * products
+     */
 
     const treintaProducts =
-      Array.isArray(treintaData.productos)
-        ? treintaData.productos
+      Array.isArray(treintaData.products)
+        ? treintaData.products
         : [];
+
 
     const availableModels =
       new Set(
-        treintaProducts.map(item =>
-          normalizeModel(item.name)
+        treintaProducts.map(
+          item =>
+            normalizeModel(item.name)
         )
       );
+
 
     const supabaseProducts =
       Array.isArray(supabaseData.productos)
         ? supabaseData.productos
         : [];
 
+
     allProducts =
       supabaseProducts
+
+        /*
+         * SOLO SI EXISTE
+         * EN TREINTA
+         */
+
         .filter(product =>
           availableModels.has(
-            normalizeModel(product.modelo)
+            normalizeModel(
+              product.modelo
+            )
           )
         )
+
+        /*
+         * SOLO SI TIENE FOTO
+         */
+
         .filter(product =>
-          getCover(product)
-        )
-        .sort((a,b) =>
-          String(a.modelo).localeCompare(
-            String(b.modelo),
-            undefined,
-            {
-              numeric:true,
-              sensitivity:"base"
-            }
+          Boolean(
+            getCover(product)
           )
+        )
+
+        /*
+         * ORDEN NUMÉRICO
+         */
+
+        .sort((a,b) =>
+          String(a.modelo)
+            .localeCompare(
+              String(b.modelo),
+              undefined,
+              {
+                numeric:true,
+                sensitivity:"base"
+              }
+            )
         );
 
+
     buildFilters();
+
     renderProducts();
+
 
   }catch(error){
 
@@ -684,53 +789,63 @@ async function loadCatalog(){
 
     grid.innerHTML = `
       <div class="state">
-        No pudimos cargar el catálogo en este momento.<br>
-        Intenta nuevamente en unos minutos.
+        No pudimos cargar el catálogo en este momento.
+        <br><br>
+        Intenta nuevamente.
       </div>
     `;
   }
 }
 
 
-function normalizeModel(value){
-
-  const text = normalize(value);
-
-  const match =
-    text.match(/[a-z]*\s*\d+[a-z]*/i);
-
-  if(match){
-    return match[0].replace(/\s+/g,"");
-  }
-
-  return text;
-}
-
+/* CREAR FILTROS */
 
 function buildFilters(){
 
-  const map = new Map();
+  const map =
+    new Map();
 
-  allProducts.forEach(product => {
-    getColors(product).forEach(color => {
 
-      const key = normalize(color);
+  allProducts.forEach(
+    product => {
 
-      if(!map.has(key)){
-        map.set(key,color);
-      }
-    });
-  });
+      getColors(product)
+        .forEach(color => {
+
+          const key =
+            normalize(color);
+
+          /*
+           * Coñac y conac
+           * se consideran iguales.
+           */
+
+          if(!map.has(key)){
+            map.set(
+              key,
+              color
+            );
+          }
+
+        });
+    }
+  );
+
 
   const colorList =
-    Array.from(map.entries())
-      .sort((a,b) =>
-        a[1].localeCompare(
-          b[1],
-          "es",
-          {sensitivity:"base"}
-        )
-      );
+    Array.from(
+      map.entries()
+    )
+    .sort((a,b) =>
+      a[1].localeCompare(
+        b[1],
+        "es",
+        {
+          sensitivity:"base"
+        }
+      )
+    );
+
 
   let html = `
     <button
@@ -742,142 +857,213 @@ function buildFilters(){
     </button>
   `;
 
-  colorList.forEach(([key,label]) => {
-    html += `
-      <button
-        class="filter"
-        data-color="${escapeAttribute(key)}"
-        type="button"
-      >
-        ${escapeHtml(label)}
-      </button>
-    `;
-  });
 
-  filters.innerHTML = html;
+  colorList.forEach(
+    ([key,label]) => {
+
+      html += `
+        <button
+          class="filter"
+          data-color="${escapeAttribute(key)}"
+          type="button"
+        >
+          ${escapeHtml(label)}
+        </button>
+      `;
+
+    }
+  );
+
+
+  filters.innerHTML =
+    html;
 }
 
+
+/* MOSTRAR PRODUCTOS */
 
 function renderProducts(){
 
   const query =
-    normalize(search.value);
+    normalize(
+      search.value
+    );
+
 
   const visible =
-    allProducts.filter(product => {
+    allProducts.filter(
+      product => {
 
-      const matchesSearch =
-        !query ||
-        normalize(product.modelo)
-          .includes(query);
+        const matchesSearch =
+          !query ||
+          normalize(
+            product.modelo
+          ).includes(query);
 
-      const matchesColor =
-        selectedColor === "todos" ||
-        getColors(product).some(
-          color =>
-            normalize(color) ===
-            selectedColor
+
+        const matchesColor =
+          selectedColor === "todos" ||
+
+          getColors(product)
+            .some(color =>
+              normalize(color) ===
+              selectedColor
+            );
+
+
+        return (
+          matchesSearch &&
+          matchesColor
         );
+      }
+    );
 
-      return matchesSearch && matchesColor;
-    });
 
   productCount.textContent =
     visible.length === 1
       ? "1 modelo"
-      : `${visible.length} modelos`;
+      : visible.length +
+        " modelos";
+
 
   if(!visible.length){
 
     grid.innerHTML = `
       <div class="state">
-        No encontramos modelos con esos filtros.
+        No encontramos modelos
+        con esos filtros.
       </div>
     `;
 
     return;
   }
 
+
   grid.innerHTML =
-    visible.map(product => {
+    visible
+      .map(product => {
 
-      const cover =
-        getCover(product);
+        const cover =
+          getCover(product);
 
-      const colors =
-        getColors(product);
+        const colors =
+          getColors(product);
 
-      const colorsHtml =
-        colors.map((color,index) => `
-          ${index ? '<span class="color-separator">·</span>' : ""}
-          <span class="color-chip">
-            ${escapeHtml(color)}
-          </span>
-        `).join("");
 
-      return `
-        <a
-          class="product"
-          href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
-        >
+        const colorsHtml =
+          colors
+            .map(
+              (color,index) => `
 
-          <div class="image-wrap">
+                ${
+                  index
+                    ? '<span class="color-separator">·</span>'
+                    : ""
+                }
 
-            <img
-              src="${escapeAttribute(cover)}"
-              alt="Modelo ${escapeAttribute(product.modelo)}"
-              loading="lazy"
-            >
+                <span class="color-chip">
+                  ${escapeHtml(color)}
+                </span>
 
-            <span class="available">
-              DISPONIBLE
-            </span>
+              `
+            )
+            .join("");
 
-          </div>
 
-          <div class="product-info">
+        return `
 
-            <div class="product-row">
-              <h3>
-                Modelo ${escapeHtml(product.modelo)}
-              </h3>
+          <a
+            class="product"
+            href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
+          >
 
-              <span class="arrow">→</span>
+            <div class="image-wrap">
+
+              <img
+                src="${escapeAttribute(cover)}"
+                alt="Modelo ${escapeAttribute(product.modelo)}"
+                loading="lazy"
+              >
+
+              <span class="available">
+                DISPONIBLE
+              </span>
+
             </div>
 
-            <div class="colors">
-              ${colorsHtml}
+
+            <div class="product-info">
+
+              <div class="product-row">
+
+                <h3>
+                  Modelo ${escapeHtml(product.modelo)}
+                </h3>
+
+                <span class="arrow">
+                  →
+                </span>
+
+              </div>
+
+
+              <div class="colors">
+                ${colorsHtml}
+              </div>
+
             </div>
 
-          </div>
+          </a>
 
-        </a>
-      `;
-    }).join("");
+        `;
+
+      })
+      .join("");
 }
 
 
-filters.onclick = function(event){
+/* FILTROS */
 
-  const button =
-    event.target.closest(".filter");
+filters.onclick =
+  function(event){
 
-  if(!button) return;
+    const button =
+      event.target.closest(
+        ".filter"
+      );
 
-  selectedColor =
-    button.dataset.color || "todos";
+    if(!button){
+      return;
+    }
 
-  document
-    .querySelectorAll(".filter")
-    .forEach(item =>
-      item.classList.remove("active")
+
+    selectedColor =
+      button.dataset.color ||
+      "todos";
+
+
+    document
+      .querySelectorAll(
+        ".filter"
+      )
+      .forEach(
+        item =>
+          item.classList.remove(
+            "active"
+          )
+      );
+
+
+    button.classList.add(
+      "active"
     );
 
-  button.classList.add("active");
 
-  renderProducts();
-};
+    renderProducts();
+  };
 
+
+/* BUSCADOR */
 
 search.addEventListener(
   "input",
@@ -885,7 +1071,10 @@ search.addEventListener(
 );
 
 
+/* SEGURIDAD HTML */
+
 function escapeHtml(value){
+
   return String(value || "")
     .replaceAll("&","&amp;")
     .replaceAll("<","&lt;")
@@ -899,6 +1088,8 @@ function escapeAttribute(value){
   return escapeHtml(value);
 }
 
+
+/* INICIAR */
 
 loadCatalog();
 
