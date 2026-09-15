@@ -1,284 +1,128 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Administrador | CAROLA</title>
+  <title>Administrador | CAROLA</title>
 
-<style>
-*{box-sizing:border-box}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#fff8fb;
-  color:#222;
-}
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #fff8fb;
+      color: #222;
+    }
 
-header{
-  text-align:center;
-  padding:32px 20px 24px;
-  background:#fff;
-  border-bottom:1px solid #f1dce5;
-}
+    header {
+      background: white;
+      text-align: center;
+      padding: 35px 20px;
+      border-bottom: 1px solid #f0dce5;
+    }
 
-.logo{
-  font-size:30px;
-  font-weight:800;
-  letter-spacing:8px;
-}
+    .logo {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: 8px;
+    }
 
-header p{
-  color:#888;
-  margin:8px 0 0;
-}
+    header p {
+      color: #888;
+      margin-bottom: 0;
+    }
 
-main{
-  width:min(1000px,92%);
-  margin:35px auto 80px;
-}
+    main {
+      width: min(700px, 92%);
+      margin: 35px auto;
+    }
 
-.card,.model-card{
-  background:#fff;
-  border-radius:22px;
-  box-shadow:0 8px 30px rgba(0,0,0,.05);
-}
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 22px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.05);
+    }
 
-.card{padding:27px}
+    h2 {
+      margin-top: 0;
+    }
 
-h2{margin-top:0}
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 18px 0 8px;
+    }
 
-label{
-  display:block;
-  font-weight:700;
-  margin:18px 0 8px;
-}
+    input[type="text"] {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 13px;
+      font-size: 16px;
+    }
 
-input[type="text"]{
-  width:100%;
-  padding:15px;
-  border:1px solid #ddd;
-  border-radius:13px;
-  font-size:16px;
-}
+    .file-label {
+      display: block;
+      margin-top: 20px;
+      padding: 22px;
+      border: 2px dashed #e8bfd0;
+      border-radius: 16px;
+      text-align: center;
+      cursor: pointer;
+    }
 
-.file-box{
-  display:block;
-  margin-top:20px;
-  border:2px dashed #ecc5d5;
-  border-radius:16px;
-  padding:22px;
-  text-align:center;
-  background:#fffafb;
-  cursor:pointer;
-}
+    #imagenes {
+      display: none;
+    }
 
-.file-box input{display:none}
+    #preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
 
-.preview{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
-  gap:10px;
-  margin-top:15px;
-}
+    #preview img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 12px;
+    }
 
-.preview img{
-  width:100%;
-  aspect-ratio:1;
-  object-fit:cover;
-  border-radius:12px;
-}
+    #count {
+      text-align: center;
+      color: #888;
+      margin: 15px 0;
+    }
 
-.count{
-  text-align:center;
-  color:#888;
-  margin:13px 0;
-}
+    #uploadButton {
+      width: 100%;
+      border: 0;
+      border-radius: 14px;
+      background: #171717;
+      color: white;
+      padding: 17px;
+      font-size: 16px;
+      font-weight: 700;
+    }
 
-button{
-  border:0;
-  cursor:pointer;
-  font-weight:700;
-  font-family:inherit;
-}
-
-.upload-button{
-  width:100%;
-  padding:16px;
-  background:#171717;
-  color:#fff;
-  border-radius:14px;
-  font-size:16px;
-}
-
-.upload-button:disabled{
-  opacity:.55;
-}
-
-#status{
-  display:none;
-  margin-top:17px;
-  padding:16px;
-  border-radius:14px;
-  white-space:pre-wrap;
-  overflow-wrap:anywhere;
-}
-
-#status.success{
-  display:block;
-  background:#eaf8ef;
-  color:#176b36;
-}
-
-#status.error{
-  display:block;
-  background:#fff0f0;
-  color:#a32d2d;
-}
-
-#status.loading{
-  display:block;
-  background:#f7f1f4;
-  color:#555;
-}
-
-.catalog-section{
-  margin-top:55px;
-}
-
-.catalog-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-  margin-bottom:20px;
-}
-
-.catalog-header h2{
-  font-size:29px;
-  margin:0 0 5px;
-}
-
-.catalog-header p{
-  color:#888;
-  margin:0;
-}
-
-.refresh{
-  padding:11px 16px;
-  border-radius:12px;
-  background:#f5e6ed;
-}
-
-#models{
-  display:grid;
-  gap:18px;
-}
-
-.model-card{
-  padding:22px;
-}
-
-.model-title{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-  margin-bottom:10px;
-}
-
-.model-title h3{
-  margin:0;
-  font-size:24px;
-}
-
-.model-meta{
-  color:#aaa;
-  font-size:13px;
-}
-
-.variant{
-  padding:18px 0 10px;
-  border-top:1px solid #eee;
-}
-
-.variant-info{
-  display:flex;
-  justify-content:space-between;
-  gap:15px;
-}
-
-.color-name{
-  font-weight:700;
-  text-transform:capitalize;
-}
-
-.photo-count{
-  color:#888;
-  font-size:14px;
-}
-
-.photos{
-  display:flex;
-  gap:9px;
-  overflow-x:auto;
-  padding:13px 0 5px;
-}
-
-.photos img{
-  width:82px;
-  height:82px;
-  flex:0 0 auto;
-  object-fit:cover;
-  border-radius:12px;
-  background:#f5f5f5;
-}
-
-.actions{
-  display:flex;
-  gap:9px;
-  flex-wrap:wrap;
-  margin-top:13px;
-}
-
-.add-photos{
-  padding:11px 15px;
-  border-radius:12px;
-  background:#171717;
-  color:#fff;
-}
-
-.add-color{
-  padding:11px 15px;
-  border-radius:12px;
-  background:#f7e6ee;
-  color:#222;
-}
-
-.loading-models,.empty{
-  padding:35px;
-  text-align:center;
-  color:#888;
-  background:#fff;
-  border-radius:20px;
-}
-
-footer{
-  padding:30px;
-  text-align:center;
-  color:#aaa;
-  font-size:13px;
-}
-
-@media(max-width:600px){
-  main{width:94%}
-  .card{padding:20px}
-  .model-card{padding:18px}
-  .catalog-header h2{font-size:25px}
-  .actions button{flex:1}
-}
-</style>
+    #diagnostico {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 14px;
+      background: #e7f8ed;
+      color: #146b34;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
@@ -290,122 +134,87 @@ footer{
 
 <main>
 
-<section class="card" id="uploadSection">
+  <section class="card">
 
-  <h2>Agregar fotografías</h2>
+    <h2>Agregar fotografías</h2>
 
-  <label for="modelo">Modelo</label>
-  <input
-    id="modelo"
-    type="text"
-    placeholder="Ej. 519"
-    autocomplete="off"
-  >
+    <form id="uploadForm">
 
-  <label for="color">Color</label>
-  <input
-    id="color"
-    type="text"
-    placeholder="Ej. Negro"
-    autocomplete="off"
-  >
+      <label for="modelo">
+        Modelo
+      </label>
 
-  <label class="file-box" for="imagenes">
-    📷 Seleccionar fotografías
+      <input
+        id="modelo"
+        type="text"
+        placeholder="Ej. 519"
+      >
 
-    <input
-      id="imagenes"
-      type="file"
-      accept="image/jpeg,image/png,image/webp"
-      multiple
-    >
-  </label>
+      <label for="color">
+        Color
+      </label>
 
-  <div id="preview" class="preview"></div>
+      <input
+        id="color"
+        type="text"
+        placeholder="Ej. Negro"
+      >
 
-  <div id="count" class="count">
-    Ninguna fotografía seleccionada
-  </div>
+      <label
+        for="imagenes"
+        class="file-label"
+      >
+        📷 Seleccionar fotografías
+      </label>
 
-  <button
-    id="uploadButton"
-    class="upload-button"
-    type="button"
-  >
-    Subir al catálogo
-  </button>
+      <input
+        id="imagenes"
+        type="file"
+        accept="image/*"
+        multiple
+      >
 
-  <div id="status"></div>
+      <div id="preview"></div>
 
-</section>
+      <div id="count">
+        Ninguna fotografía seleccionada
+      </div>
 
+      <button
+        id="uploadButton"
+        type="submit"
+      >
+        Subir al catálogo
+      </button>
 
-<section class="catalog-section">
+    </form>
 
-  <div class="catalog-header">
-    <div>
-      <h2>Modelos cargados</h2>
-      <p>Fotografías y colores guardados en Carola.</p>
+    <div id="diagnostico">
+      BOTÓN FUNCIONANDO ✓
     </div>
 
-    <button
-      id="refreshButton"
-      class="refresh"
-      type="button"
-    >
-      Actualizar
-    </button>
-  </div>
-
-  <div id="models">
-    <div class="loading-models">
-      Cargando modelos...
-    </div>
-  </div>
-
-</section>
+  </section>
 
 </main>
 
-<footer>
-  Panel interno de Calzado Carola
-</footer>
-
 
 <script>
-(function(){
 
   /*
    * CONTRASEÑA
    */
 
-  let adminPassword = "";
-
-  while (!adminPassword) {
-
-    const answer = prompt(
-      "Contraseña de administrador de Calzado Carola:"
-    );
-
-    if (answer === null) {
-      document.body.innerHTML =
-        "<h2 style='text-align:center;margin-top:80px'>Acceso cancelado</h2>";
-      return;
-    }
-
-    adminPassword = answer.trim();
-  }
+  let adminPassword = prompt(
+    "Contraseña de administrador de Calzado Carola:"
+  );
 
 
   /*
    * ELEMENTOS
    */
 
-  const modelo =
-    document.getElementById("modelo");
-
-  const color =
-    document.getElementById("color");
+  const form =
+    document.getElementById("uploadForm");
 
   const imagenes =
     document.getElementById("imagenes");
@@ -416,75 +225,22 @@ footer{
   const count =
     document.getElementById("count");
 
-  const uploadButton =
-    document.getElementById("uploadButton");
-
-  const status =
-    document.getElementById("status");
-
-  const models =
-    document.getElementById("models");
-
-  const refreshButton =
-    document.getElementById("refreshButton");
-
-  const uploadSection =
-    document.getElementById("uploadSection");
+  const diagnostico =
+    document.getElementById("diagnostico");
 
 
   /*
-   * MENSAJES
+   * PREVISUALIZAR FOTOS
    */
 
-  function showStatus(message,type){
-
-    status.textContent = message;
-    status.className = type;
-
-    status.scrollIntoView({
-      behavior:"smooth",
-      block:"nearest"
-    });
-  }
-
-  function clearStatus(){
-    status.textContent = "";
-    status.className = "";
-    status.style.display = "none";
-  }
-
-
-  /*
-   * SEGURIDAD DE TEXTO
-   */
-
-  function escapeHtml(value){
-
-    return String(value ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-
-  function escapeAttribute(value){
-    return escapeHtml(value);
-  }
-
-
-  /*
-   * PREVISUALIZACIÓN
-   */
-
-  imagenes.addEventListener("change",function(){
+  imagenes.onchange = function () {
 
     preview.innerHTML = "";
 
     const files =
-      Array.from(imagenes.files || []);
+      Array.from(imagenes.files);
 
-    if(!files.length){
+    if (files.length === 0) {
 
       count.textContent =
         "Ninguna fotografía seleccionada";
@@ -492,656 +248,52 @@ footer{
       return;
     }
 
+
     count.textContent =
       files.length === 1
         ? "1 fotografía seleccionada"
-        : files.length + " fotografías seleccionadas";
+        : files.length +
+          " fotografías seleccionadas";
 
-    files.forEach(function(file){
+
+    files.forEach(function (file) {
 
       const img =
         document.createElement("img");
 
-      const objectURL =
+      img.src =
         URL.createObjectURL(file);
 
-      img.src = objectURL;
-
-      img.onload = function(){
-        URL.revokeObjectURL(objectURL);
-      };
-
       preview.appendChild(img);
-    });
-  });
 
-
-  /*
-   * CONVERTIR IMAGEN
-   */
-
-  function fileToBase64(file){
-
-    return new Promise(function(resolve,reject){
-
-      const reader =
-        new FileReader();
-
-      reader.onload = function(){
-
-        try{
-
-          const result =
-            String(reader.result);
-
-          const comma =
-            result.indexOf(",");
-
-          if(comma === -1){
-            reject(
-              new Error(
-                "No se pudo procesar " + file.name
-              )
-            );
-            return;
-          }
-
-          resolve({
-            name:file.name,
-            type:file.type || "image/jpeg",
-            data:result.substring(comma + 1)
-          });
-
-        }catch(error){
-          reject(error);
-        }
-      };
-
-      reader.onerror = function(){
-        reject(
-          new Error(
-            "No se pudo leer " + file.name
-          )
-        );
-      };
-
-      reader.readAsDataURL(file);
-    });
-  }
-
-
-  /*
-   * SUBIR
-   */
-
-  uploadButton.addEventListener(
-    "click",
-    async function(){
-
-      clearStatus();
-
-      const modeloValue =
-        modelo.value.trim();
-
-      const colorValue =
-        color.value.trim();
-
-      const files =
-        Array.from(imagenes.files || []);
-
-      if(!modeloValue){
-
-        showStatus(
-          "Falta escribir el modelo.",
-          "error"
-        );
-
-        return;
-      }
-
-      if(!colorValue){
-
-        showStatus(
-          "Falta escribir el color.",
-          "error"
-        );
-
-        return;
-      }
-
-      if(!files.length){
-
-        showStatus(
-          "Selecciona al menos una fotografía.",
-          "error"
-        );
-
-        return;
-      }
-
-      uploadButton.disabled = true;
-      uploadButton.textContent = "Subiendo...";
-
-      showStatus(
-        "Preparando " +
-        files.length +
-        (files.length === 1
-          ? " fotografía..."
-          : " fotografías..."),
-        "loading"
-      );
-
-      try{
-
-        const convertedImages = [];
-
-        for(
-          let i = 0;
-          i < files.length;
-          i++
-        ){
-
-          showStatus(
-            "Preparando fotografía " +
-            (i + 1) +
-            " de " +
-            files.length +
-            "...",
-            "loading"
-          );
-
-          const converted =
-            await fileToBase64(files[i]);
-
-          convertedImages.push(converted);
-        }
-
-        showStatus(
-          "Enviando fotografías al catálogo...",
-          "loading"
-        );
-
-        const response =
-          await fetch(
-            "/.netlify/functions/admin-upload",
-            {
-              method:"POST",
-
-              headers:{
-                "Content-Type":
-                  "application/json",
-
-                "x-admin-password":
-                  adminPassword
-              },
-
-              body:JSON.stringify({
-                modelo:modeloValue,
-                color:colorValue,
-                imagenes:convertedImages
-              })
-            }
-          );
-
-
-        /*
-         * LEEMOS TEXTO PRIMERO.
-         * ASÍ PODEMOS MOSTRAR ERRORES
-         * AUNQUE NETLIFY NO DEVUELVA JSON.
-         */
-
-        const rawResponse =
-          await response.text();
-
-        let result = null;
-
-        try{
-          result =
-            JSON.parse(rawResponse);
-        }catch(e){
-          result = null;
-        }
-
-
-        if(!response.ok){
-
-          let message =
-            "Error HTTP " +
-            response.status +
-            ".";
-
-          if(
-            result &&
-            result.error
-          ){
-            message +=
-              "\n" + result.error;
-          }
-          else if(rawResponse){
-            message +=
-              "\n" + rawResponse.substring(0,500);
-          }
-
-          throw new Error(message);
-        }
-
-
-        if(
-          !result ||
-          result.success !== true
-        ){
-
-          throw new Error(
-            result && result.error
-              ? result.error
-              : "El servidor respondió, pero no confirmó la subida."
-          );
-        }
-
-
-        showStatus(
-          "✓ Modelo " +
-          modeloValue +
-          " · " +
-          colorValue +
-          "\n" +
-          (
-            files.length === 1
-              ? "1 fotografía subida correctamente."
-              : files.length +
-                " fotografías subidas correctamente."
-          ),
-          "success"
-        );
-
-
-        /*
-         * LIMPIAMOS SOLO LAS FOTOS.
-         * CONSERVAMOS MODELO Y COLOR
-         * POR SI QUIERES SUBIR MÁS.
-         */
-
-        imagenes.value = "";
-        preview.innerHTML = "";
-
-        count.textContent =
-          "Ninguna fotografía seleccionada";
-
-
-        /*
-         * VOLVEMOS A CONSULTAR SUPABASE
-         * PARA MOSTRAR LAS MINIATURAS.
-         */
-
-        await loadModels(true);
-
-      }catch(error){
-
-        console.error(error);
-
-        showStatus(
-          "No se pudo completar la subida.\n\n" +
-          (
-            error && error.message
-              ? error.message
-              : String(error)
-          ),
-          "error"
-        );
-
-      }finally{
-
-        uploadButton.disabled = false;
-        uploadButton.textContent =
-          "Subir al catálogo";
-      }
-    }
-  );
-
-
-  /*
-   * CARGAR MODELOS
-   */
-
-  async function loadModels(forceRefresh){
-
-    try{
-
-      if(!forceRefresh){
-
-        models.innerHTML =
-          '<div class="loading-models">Cargando modelos...</div>';
-      }
-
-      /*
-       * EVITA QUE SAFARI/NETLIFY
-       * NOS ENTREGUEN UNA RESPUESTA
-       * ANTERIOR EN CACHÉ.
-       */
-
-      const url =
-        "/.netlify/functions/supabase?t=" +
-        Date.now();
-
-      const response =
-        await fetch(
-          url,
-          {
-            cache:"no-store"
-          }
-        );
-
-      const raw =
-        await response.text();
-
-      let result;
-
-      try{
-        result = JSON.parse(raw);
-      }catch(e){
-        throw new Error(
-          "La lista de modelos no devolvió datos válidos."
-        );
-      }
-
-      if(
-        !response.ok ||
-        !result.success
-      ){
-
-        throw new Error(
-          result.error ||
-          "No se pudieron cargar los modelos."
-        );
-      }
-
-      renderModels(
-        Array.isArray(result.productos)
-          ? result.productos
-          : []
-      );
-
-    }catch(error){
-
-      console.error(error);
-
-      models.innerHTML =
-        '<div class="empty">' +
-        escapeHtml(error.message) +
-        "</div>";
-    }
-  }
-
-
-  /*
-   * DIBUJAR MODELOS
-   */
-
-  function renderModels(products){
-
-    if(!products.length){
-
-      models.innerHTML =
-        '<div class="empty">Todavía no hay modelos cargados.</div>';
-
-      return;
-    }
-
-
-    products.sort(function(a,b){
-
-      return String(a.modelo)
-        .localeCompare(
-          String(b.modelo),
-          undefined,
-          {
-            numeric:true,
-            sensitivity:"base"
-          }
-        );
     });
 
-
-    let html = "";
-
-
-    products.forEach(function(product){
-
-      const variants =
-        Array.isArray(product.variantes)
-          ? product.variantes
-          : [];
+  };
 
 
-      html +=
-        '<article class="model-card">' +
+  /*
+   * PRUEBA DEL BOTÓN
+   */
 
-          '<div class="model-title">' +
+  form.onsubmit = function (event) {
 
-            "<h3>Modelo " +
-            escapeHtml(product.modelo) +
-            "</h3>" +
+    event.preventDefault();
 
-            '<span class="model-meta">' +
-            variants.length +
-            (
-              variants.length === 1
-                ? " color"
-                : " colores"
-            ) +
-            "</span>" +
+    diagnostico.style.display =
+      "block";
 
-          "</div>";
+    diagnostico.textContent =
+      "BOTÓN FUNCIONANDO ✓";
 
-
-      if(!variants.length){
-
-        html +=
-          '<div class="variant">' +
-          '<span class="photo-count">' +
-          "Sin colores cargados." +
-          "</span>" +
-          "</div>";
-      }
-
-
-      variants.forEach(function(variant){
-
-        const images =
-          Array.isArray(variant.imagenes)
-            ? [...variant.imagenes]
-            : [];
-
-        images.sort(function(a,b){
-          return (
-            Number(a.orden || 0) -
-            Number(b.orden || 0)
-          );
-        });
-
-
-        let photosHtml = "";
-
-        if(images.length){
-
-          images.forEach(function(image){
-
-            /*
-             * EL PARÁMETRO ?v= EVITA
-             * CACHÉ DE MINIATURAS.
-             */
-
-            const imageUrl =
-              String(image.url || "");
-
-            const separator =
-              imageUrl.includes("?")
-                ? "&"
-                : "?";
-
-            photosHtml +=
-              '<img src="' +
-              escapeAttribute(
-                imageUrl +
-                separator +
-                "v=" +
-                Date.now()
-              ) +
-              '" loading="lazy" alt="Modelo ' +
-              escapeAttribute(product.modelo) +
-              '">';
-          });
-
-        }else{
-
-          photosHtml =
-            '<span class="photo-count">' +
-            "Sin fotografías" +
-            "</span>";
-        }
-
-
-        html +=
-          '<div class="variant">' +
-
-            '<div class="variant-info">' +
-
-              '<span class="color-name">' +
-              escapeHtml(variant.color) +
-              "</span>" +
-
-              '<span class="photo-count">' +
-              images.length +
-              (
-                images.length === 1
-                  ? " fotografía"
-                  : " fotografías"
-              ) +
-              "</span>" +
-
-            "</div>" +
-
-            '<div class="photos">' +
-              photosHtml +
-            "</div>" +
-
-            '<div class="actions">' +
-
-              '<button type="button" ' +
-              'class="add-photos" ' +
-              'data-model="' +
-              escapeAttribute(product.modelo) +
-              '" data-color="' +
-              escapeAttribute(variant.color) +
-              '">' +
-              "+ Agregar fotos a " +
-              escapeHtml(variant.color) +
-              "</button>" +
-
-              '<button type="button" ' +
-              'class="add-color" ' +
-              'data-model="' +
-              escapeAttribute(product.modelo) +
-              '">' +
-              "+ Agregar otro color" +
-              "</button>" +
-
-            "</div>" +
-
-          "</div>";
-      });
-
-
-      html += "</article>";
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: "smooth"
     });
 
+    return false;
 
-    models.innerHTML = html;
-  }
+  };
 
-
-  /*
-   * BOTONES DE LOS MODELOS
-   */
-
-  models.addEventListener(
-    "click",
-    function(event){
-
-      const photosButton =
-        event.target.closest(
-          ".add-photos"
-        );
-
-      if(photosButton){
-
-        modelo.value =
-          photosButton.dataset.model || "";
-
-        color.value =
-          photosButton.dataset.color || "";
-
-        clearStatus();
-
-        uploadSection.scrollIntoView({
-          behavior:"smooth",
-          block:"start"
-        });
-
-        setTimeout(function(){
-          imagenes.click();
-        },500);
-
-        return;
-      }
-
-
-      const colorButton =
-        event.target.closest(
-          ".add-color"
-        );
-
-      if(colorButton){
-
-        modelo.value =
-          colorButton.dataset.model || "";
-
-        color.value = "";
-
-        clearStatus();
-
-        uploadSection.scrollIntoView({
-          behavior:"smooth",
-          block:"start"
-        });
-
-        setTimeout(function(){
-          color.focus();
-        },500);
-      }
-    }
-  );
-
-
-  /*
-   * ACTUALIZAR
-   */
-
-  refreshButton.addEventListener(
-    "click",
-    function(){
-      loadModels(false);
-    }
-  );
-
-
-  /*
-   * INICIO
-   */
-
-  loadModels(false);
-
-})();
 </script>
 
 </body>
