@@ -1,115 +1,186 @@
 const { createClient } = require("@supabase/supabase-js");
 
 exports.handler = async function (event) {
-
   const headers = {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers":
-      "Content-Type, x-admin-password",
-    "Access-Control-Allow-Methods":
-      "POST, OPTIONS"
+    "Access-Control-Allow-Headers": "Content-Type, x-admin-password",
+    "Access-Control-Allow-Methods": "POST, OPTIONS"
   };
 
+  const respond = (statusCode, data) => ({
+    statusCode,
+    headers,
+    body: JSON.stringify(data)
+  });
+
   if (event.httpMethod === "OPTIONS") {
-    return {
-      statusCode: 200,
-      headers,
-      body: ""
-    };
+    return respond(200, {});
   }
 
   if (event.httpMethod !== "POST") {
-    return response(405, {
+    return respond(405, {
       success: false,
       error: "Método no permitido"
     });
   }
 
-  const adminPassword =
-    process.env.ADMIN_PASSWORD;
-
+  const adminPassword = process.env.ADMIN_PASSWORD;
   const providedPassword =
     event.headers["x-admin-password"] ||
     event.headers["X-Admin-Password"];
 
-  if (
-    !adminPassword ||
-    providedPassword !== adminPassword
-  ) {
-    return response(401, {
+  if (!adminPassword || providedPassword !== adminPassword) {
+    return respond(401, {
       success: false,
       error: "Acceso no autorizado"
     });
   }
 
-  const supabaseUrl =
-    process.env.SUPABASE_URL;
-
-  const serviceRoleKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    return response(500, {
+  if (
+    !process.env.SUPABASE_URL ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
+    return respond(500, {
       success: false,
       error: "Faltan variables de Supabase."
     });
   }
 
-  const supabase =
-    createClient(
-      supabaseUrl,
-      serviceRoleKey,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false
-        }
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
       }
-    );
+    }
+  );
 
   try {
+    const body = JSON.parse(event.body || "{}");
+    const action = String(body.action || "");
 
-    const body =
-      JSON.parse(event.body || "{}");
+    /* EDITAR MODELO */
 
-    const action =
-      String(body.action || "");
+    if (action === "rename-model") {
+      const modelId = Number(body.modelId);
+      const newName = String(body.newName || "").trim();
 
-    /*
-     * ELIMINAR FOTO
-     */
+      if (!modelId || !newName) {
+        throw new Error("Modelo o nombre nuevo inválido.");
+      }
 
-    if (action === "delete-image") {
+      const { data: duplicates, error: duplicateError } =
+        await supabase
+          .from("modelos")
+          .select("id, modelo")
+          .ilike("modelo", newName);
 
-      const imageId =
-        Number(body.imageId);
+      if (duplicateError) {
+        throw new Error(duplicateError.message);
+      }
 
-      if (!imageId) {
+      const duplicate = (duplicates || []).find(
+        item => Number(item.id) !== modelId
+      );
+
+      if (duplicate) {
         throw new Error(
-          "Falta el ID de la fotografía."
+          "Ya existe otro modelo llamado " + newName + "."
         );
       }
+
+      const { error } =
+        await supabase
+          .from("modelos")
+          .update({ modelo: newName })
+          .eq("id", modelId);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return respond(200, {
+        success: true
+      });
+    }
+
+    /* EDITAR COLOR */
+
+    if (action === "rename-variant") {
+      const variantId = Number(body.variantId);
+      const newColor = String(body.newColor || "").trim();
+
+      if (!variantId || !newColor) {
+        throw new Error("Color inválido.");
+      }
+
+      const { data: variant, error: variantError } =
+        await supabase
+          .from("variantes")
+          .select("id, modelo_id, color")
+          .eq("id", variantId)
+          .single();
+
+      if (variantError || !variant) {
+        throw new Error("No se encontró el color.");
+      }
+
+      const { data: duplicates, error: duplicateError } =
+        await supabase
+          .from("variantes")
+          .select("id, color")
+          .eq("modelo_id", variant.modelo_id)
+          .ilike("color", newColor);
+
+      if (duplicateError) {
+        throw new Error(duplicateError.message);
+      }
+
+      const duplicate = (duplicates || []).find(
+        item => Number(item.id) !== variantId
+      );
+
+      if (duplicate) {
+        throw new Error(
+          "Ese modelo ya tiene el color " + newColor + "."
+        );
+      }
+
+      const { error } =
+        await supabase
+          .from("variantes")
+          .update({ color: newColor })
+          .eq("id", variantId);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return respond(200, {
+        success: true
+      });
+    }
+
+    /* ELIMINAR FOTO */
+
+    if (action === "delete-image") {
+      const imageId = Number(body.imageId);
 
       const { data: image, error } =
         await supabase
           .from("imagenes")
-          .select(
-            "id, variante_id, url, orden"
-          )
+          .select("id, variante_id, url")
           .eq("id", imageId)
           .single();
 
       if (error || !image) {
-        throw new Error(
-          "No se encontró la fotografía."
-        );
+        throw new Error("No se encontró la fotografía.");
       }
 
-      await removeStorageFile(
-        supabase,
-        image.url
-      );
+      await removeStorageFile(supabase, image.url);
 
       const { error: deleteError } =
         await supabase
@@ -118,10 +189,7 @@ exports.handler = async function (event) {
           .eq("id", imageId);
 
       if (deleteError) {
-        throw new Error(
-          "No se pudo eliminar la fotografía: " +
-          deleteError.message
-        );
+        throw new Error(deleteError.message);
       }
 
       await normalizeOrders(
@@ -129,275 +197,134 @@ exports.handler = async function (event) {
         image.variante_id
       );
 
-      return response(200, {
+      return respond(200, {
         success: true
       });
     }
 
-
-    /*
-     * MOVER FOTO
-     */
+    /* MOVER FOTO */
 
     if (action === "move-image") {
+      const imageId = Number(body.imageId);
+      const direction = String(body.direction || "");
 
-      const imageId =
-        Number(body.imageId);
-
-      const direction =
-        String(body.direction || "");
-
-      if (
-        !imageId ||
-        !["left", "right"].includes(direction)
-      ) {
-        throw new Error(
-          "Movimiento no válido."
-        );
+      if (!["left", "right"].includes(direction)) {
+        throw new Error("Movimiento inválido.");
       }
 
       const { data: image, error } =
         await supabase
           .from("imagenes")
-          .select(
-            "id, variante_id, orden"
-          )
+          .select("id, variante_id")
           .eq("id", imageId)
           .single();
 
       if (error || !image) {
-        throw new Error(
-          "No se encontró la fotografía."
-        );
+        throw new Error("No se encontró la fotografía.");
       }
 
       const { data: images, error: listError } =
         await supabase
           .from("imagenes")
           .select("id, orden")
-          .eq(
-            "variante_id",
-            image.variante_id
-          )
-          .order(
-            "orden",
-            { ascending: true }
-          )
-          .order(
-            "id",
-            { ascending: true }
-          );
+          .eq("variante_id", image.variante_id)
+          .order("orden", { ascending: true })
+          .order("id", { ascending: true });
 
       if (listError) {
-        throw new Error(
-          listError.message
-        );
+        throw new Error(listError.message);
       }
 
-      const index =
-        images.findIndex(
-          item =>
-            Number(item.id) === imageId
-        );
+      const ids = (images || []).map(
+        item => Number(item.id)
+      );
+
+      const index = ids.indexOf(imageId);
 
       if (index === -1) {
-        throw new Error(
-          "No se encontró la posición."
-        );
+        throw new Error("No se encontró la posición.");
       }
 
-      const targetIndex =
+      const target =
         direction === "left"
           ? index - 1
           : index + 1;
 
-      if (
-        targetIndex < 0 ||
-        targetIndex >= images.length
-      ) {
-        return response(200, {
+      if (target < 0 || target >= ids.length) {
+        return respond(200, {
           success: true
         });
       }
 
-      const target =
-        images[targetIndex];
+      [ids[index], ids[target]] =
+        [ids[target], ids[index]];
 
-      /*
-       * Usamos un orden temporal para
-       * intercambiar sin conflictos.
-       */
+      await setOrders(supabase, ids);
 
-      const temporaryOrder =
-        -1000000 - imageId;
-
-      let update =
-        await supabase
-          .from("imagenes")
-          .update({
-            orden: temporaryOrder
-          })
-          .eq("id", image.id);
-
-      if (update.error) {
-        throw new Error(
-          update.error.message
-        );
-      }
-
-      update =
-        await supabase
-          .from("imagenes")
-          .update({
-            orden: image.orden
-          })
-          .eq("id", target.id);
-
-      if (update.error) {
-        throw new Error(
-          update.error.message
-        );
-      }
-
-      update =
-        await supabase
-          .from("imagenes")
-          .update({
-            orden: target.orden
-          })
-          .eq("id", image.id);
-
-      if (update.error) {
-        throw new Error(
-          update.error.message
-        );
-      }
-
-      await normalizeOrders(
-        supabase,
-        image.variante_id
-      );
-
-      return response(200, {
+      return respond(200, {
         success: true
       });
     }
 
-
-    /*
-     * PONER COMO PRINCIPAL
-     */
+    /* HACER PRINCIPAL */
 
     if (action === "make-primary") {
-
-      const imageId =
-        Number(body.imageId);
-
-      if (!imageId) {
-        throw new Error(
-          "Falta la fotografía."
-        );
-      }
+      const imageId = Number(body.imageId);
 
       const { data: image, error } =
         await supabase
           .from("imagenes")
-          .select(
-            "id, variante_id"
-          )
+          .select("id, variante_id")
           .eq("id", imageId)
           .single();
 
       if (error || !image) {
-        throw new Error(
-          "No se encontró la fotografía."
-        );
+        throw new Error("No se encontró la fotografía.");
       }
 
       const { data: images, error: listError } =
         await supabase
           .from("imagenes")
           .select("id, orden")
-          .eq(
-            "variante_id",
-            image.variante_id
-          )
-          .order(
-            "orden",
-            { ascending: true }
-          )
-          .order(
-            "id",
-            { ascending: true }
-          );
+          .eq("variante_id", image.variante_id)
+          .order("orden", { ascending: true })
+          .order("id", { ascending: true });
 
       if (listError) {
-        throw new Error(
-          listError.message
-        );
+        throw new Error(listError.message);
       }
 
-      const ordered = [
+      const ids = [
         imageId,
-        ...images
+        ...(images || [])
           .map(item => Number(item.id))
           .filter(id => id !== imageId)
       ];
 
-      await setOrders(
-        supabase,
-        ordered
-      );
+      await setOrders(supabase, ids);
 
-      return response(200, {
+      return respond(200, {
         success: true
       });
     }
 
-
-    /*
-     * ELIMINAR COLOR
-     */
+    /* ELIMINAR COLOR */
 
     if (action === "delete-variant") {
-
-      const variantId =
-        Number(body.variantId);
+      const variantId = Number(body.variantId);
 
       if (!variantId) {
-        throw new Error(
-          "Falta el color."
-        );
-      }
-
-      const { data: variant, error } =
-        await supabase
-          .from("variantes")
-          .select(
-            "id, modelo_id, color"
-          )
-          .eq("id", variantId)
-          .single();
-
-      if (error || !variant) {
-        throw new Error(
-          "No se encontró el color."
-        );
+        throw new Error("Color inválido.");
       }
 
       const { data: images, error: imageError } =
         await supabase
           .from("imagenes")
           .select("id, url")
-          .eq(
-            "variante_id",
-            variantId
-          );
+          .eq("variante_id", variantId);
 
       if (imageError) {
-        throw new Error(
-          imageError.message
-        );
+        throw new Error(imageError.message);
       }
 
       for (const image of images || []) {
@@ -411,15 +338,10 @@ exports.handler = async function (event) {
         await supabase
           .from("imagenes")
           .delete()
-          .eq(
-            "variante_id",
-            variantId
-          );
+          .eq("variante_id", variantId);
 
       if (deleteImagesError) {
-        throw new Error(
-          deleteImagesError.message
-        );
+        throw new Error(deleteImagesError.message);
       }
 
       const { error: deleteVariantError } =
@@ -429,80 +351,46 @@ exports.handler = async function (event) {
           .eq("id", variantId);
 
       if (deleteVariantError) {
-        throw new Error(
-          deleteVariantError.message
-        );
+        throw new Error(deleteVariantError.message);
       }
 
-      return response(200, {
+      return respond(200, {
         success: true
       });
     }
 
-
-    /*
-     * ELIMINAR MODELO COMPLETO
-     */
+    /* ELIMINAR MODELO */
 
     if (action === "delete-model") {
-
-      const modelId =
-        Number(body.modelId);
+      const modelId = Number(body.modelId);
 
       if (!modelId) {
-        throw new Error(
-          "Falta el modelo."
-        );
-      }
-
-      const { data: model, error } =
-        await supabase
-          .from("modelos")
-          .select("id, modelo")
-          .eq("id", modelId)
-          .single();
-
-      if (error || !model) {
-        throw new Error(
-          "No se encontró el modelo."
-        );
+        throw new Error("Modelo inválido.");
       }
 
       const { data: variants, error: variantError } =
         await supabase
           .from("variantes")
           .select("id")
-          .eq(
-            "modelo_id",
-            modelId
-          );
+          .eq("modelo_id", modelId);
 
       if (variantError) {
-        throw new Error(
-          variantError.message
-        );
+        throw new Error(variantError.message);
       }
 
-      const variantIds =
-        (variants || []).map(
-          item => item.id
-        );
+      const variantIds = (variants || []).map(
+        item => Number(item.id)
+      );
 
-      if (variantIds.length > 0) {
-
+      if (variantIds.length) {
         const { data: images, error: imageError } =
           await supabase
             .from("imagenes")
             .select("id, url")
-            .in(
-              "variante_id",
-              variantIds
-            );
+            .in("variante_id", variantIds);
 
         if (imageError) {
-          throw new Error(
-            imageError.message
-          );
+          throw new Error(imageError.message);
         }
 
         for (const image of images || []) {
@@ -516,30 +404,20 @@ exports.handler = async function (event) {
           await supabase
             .from("imagenes")
             .delete()
-            .in(
-              "variante_id",
-              variantIds
-            );
+            .in("variante_id", variantIds);
 
         if (deleteImagesError) {
-          throw new Error(
-            deleteImagesError.message
-          );
+          throw new Error(deleteImagesError.message);
         }
 
         const { error: deleteVariantsError } =
           await supabase
             .from("variantes")
             .delete()
-            .eq(
-              "modelo_id",
-              modelId
-            );
+            .eq("modelo_id", modelId);
 
         if (deleteVariantsError) {
-          throw new Error(
-            deleteVariantsError.message
-          );
+          throw new Error(deleteVariantsError.message);
         }
       }
 
@@ -550,30 +428,20 @@ exports.handler = async function (event) {
           .eq("id", modelId);
 
       if (deleteModelError) {
-        throw new Error(
-          deleteModelError.message
-        );
+        throw new Error(deleteModelError.message);
       }
 
-      return response(200, {
+      return respond(200, {
         success: true
       });
     }
 
-
-    throw new Error(
-      "Acción no reconocida."
-    );
-
+    throw new Error("Acción no reconocida.");
 
   } catch (error) {
+    console.error("ADMIN MANAGE ERROR:", error);
 
-    console.error(
-      "ADMIN MANAGE ERROR:",
-      error
-    );
-
-    return response(500, {
+    return respond(500, {
       success: false,
       error:
         error && error.message
@@ -581,52 +449,25 @@ exports.handler = async function (event) {
           : String(error)
     });
   }
-
-
-  /*
-   * RESPUESTA
-   */
-
-  function response(statusCode, data) {
-    return {
-      statusCode,
-      headers,
-      body: JSON.stringify(data)
-    };
-  }
 };
 
 
-/*
- * NORMALIZAR ORDEN
- */
+/* ORDENAR 1,2,3... */
 
 async function normalizeOrders(
   supabase,
   variantId
 ) {
-
   const { data, error } =
     await supabase
       .from("imagenes")
       .select("id, orden")
-      .eq(
-        "variante_id",
-        variantId
-      )
-      .order(
-        "orden",
-        { ascending: true }
-      )
-      .order(
-        "id",
-        { ascending: true }
-      );
+      .eq("variante_id", variantId)
+      .order("orden", { ascending: true })
+      .order("id", { ascending: true });
 
   if (error) {
-    throw new Error(
-      error.message
-    );
+    throw new Error(error.message);
   }
 
   await setOrders(
@@ -638,129 +479,75 @@ async function normalizeOrders(
 }
 
 
-/*
- * ASIGNAR ÓRDENES
- */
-
 async function setOrders(
   supabase,
-  imageIds
+  ids
 ) {
-
-  /*
-   * Primero ponemos órdenes
-   * temporales negativos.
-   */
-
-  for (
-    let i = 0;
-    i < imageIds.length;
-    i++
-  ) {
-
+  for (let i = 0; i < ids.length; i++) {
     const { error } =
       await supabase
         .from("imagenes")
         .update({
           orden: -100000 - i
         })
-        .eq(
-          "id",
-          imageIds[i]
-        );
+        .eq("id", ids[i]);
 
     if (error) {
-      throw new Error(
-        error.message
-      );
+      throw new Error(error.message);
     }
   }
 
-  /*
-   * Después 1, 2, 3...
-   */
-
-  for (
-    let i = 0;
-    i < imageIds.length;
-    i++
-  ) {
-
+  for (let i = 0; i < ids.length; i++) {
     const { error } =
       await supabase
         .from("imagenes")
         .update({
           orden: i + 1
         })
-        .eq(
-          "id",
-          imageIds[i]
-        );
+        .eq("id", ids[i]);
 
     if (error) {
-      throw new Error(
-        error.message
-      );
+      throw new Error(error.message);
     }
   }
 }
 
 
-/*
- * BORRAR ARCHIVO DE STORAGE
- */
+/* BORRAR DE STORAGE */
 
 async function removeStorageFile(
   supabase,
   publicUrl
 ) {
+  if (!publicUrl) return;
 
-  if (!publicUrl) {
-    return;
-  }
+  const marker =
+    "/storage/v1/object/public/Productos/";
 
-  try {
+  const position =
+    publicUrl.indexOf(marker);
 
-    const marker =
-      "/storage/v1/object/public/Productos/";
+  if (position === -1) return;
 
-    const position =
-      publicUrl.indexOf(marker);
-
-    if (position === -1) {
-      return;
-    }
-
-    let path =
-      publicUrl.substring(
-        position + marker.length
-      );
-
-    path =
-      path.split("?")[0];
-
-    path =
-      decodeURIComponent(path);
-
-    const { error } =
-      await supabase.storage
-        .from("Productos")
-        .remove([path]);
-
-    if (error) {
-      throw new Error(
-        "No se pudo borrar el archivo de Storage: " +
-        error.message
-      );
-    }
-
-  } catch (error) {
-
-    console.error(
-      "STORAGE DELETE ERROR:",
-      error
+  let path =
+    publicUrl.substring(
+      position + marker.length
     );
 
-    throw error;
+  path =
+    decodeURIComponent(
+      path.split("?")[0]
+    );
+
+  const { error } =
+    await supabase.storage
+      .from("Productos")
+      .remove([path]);
+
+  if (error) {
+    throw new Error(
+      "No se pudo eliminar el archivo: " +
+      error.message
+    );
   }
 }
