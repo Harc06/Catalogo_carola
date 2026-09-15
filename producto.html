@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Calzado Carola</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #fff8fb;
+      color: #222;
+    }
+
+    header {
+      background: white;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid #f1dce6;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 6px;
+    }
+
+    .back {
+      display: block;
+      max-width: 1100px;
+      margin: 25px auto 10px;
+      padding: 0 20px;
+      color: #555;
+      text-decoration: none;
+    }
+
+    .product {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .title {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 32px;
+    }
+
+    .main-image-container {
+      background: white;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,.06);
+    }
+
+    .main-image {
+      display: block;
+      width: 100%;
+      max-height: 750px;
+      object-fit: contain;
+    }
+
+    .gallery {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      overflow-x: auto;
+      padding-bottom: 5px;
+    }
+
+    .thumbnail {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 12px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      flex-shrink: 0;
+    }
+
+    .thumbnail.active {
+      border-color: #222;
+    }
+
+    .colors-section {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .colors-title {
+      font-size: 14px;
+      color: #777;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .colors {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .color-button {
+      border: 1px solid #ead4df;
+      background: white;
+      padding: 10px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 14px;
+      text-transform: capitalize;
+    }
+
+    .color-button.active {
+      background: #222;
+      color: white;
+      border-color: #222;
+    }
+
+    .loading,
+    .error {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    @media (max-width: 600px) {
+      .product {
+        padding: 12px;
+      }
+
+      .title {
+        font-size: 26px;
+      }
+
+      .main-image-container {
+        border-radius: 16px;
+      }
+
+      .thumbnail {
+        width: 75px;
+        height: 75px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">CAROLA</div>
+</header>
+
+<a href="/" class="back">← Volver al catálogo</a>
+
+<main id="product-content">
+  <div class="loading">
+    Cargando modelo...
+  </div>
+</main>
+
+<script>
+
+const productContent =
+  document.getElementById("product-content");
+
+const params =
+  new URLSearchParams(window.location.search);
+
+const modeloBuscado =
+  params.get("modelo");
+
+
+async function cargarProducto() {
+
+  try {
+
+    if (!modeloBuscado) {
+      throw new Error("No se especificó un modelo");
+    }
+
+
+    const response = await fetch(
+      "/.netlify/functions/supabase"
+    );
+
+
+    if (!response.ok) {
+      throw new Error(
+        "No se pudo consultar el catálogo"
+      );
+    }
+
+
+    const data =
+      await response.json();
+
+
+    if (
+      !data.success ||
+      !Array.isArray(data.productos)
+    ) {
+      throw new Error(
+        "Respuesta incorrecta"
+      );
+    }
+
+
+    const producto =
+      data.productos.find(
+        p =>
+          String(p.modelo).trim().toLowerCase() ===
+          String(modeloBuscado).trim().toLowerCase()
+      );
+
+
+    if (!producto) {
+      throw new Error(
+        "Modelo no encontrado"
+      );
+    }
+
+
+    const variantes =
+      producto.variantes.filter(
+        variante =>
+          Array.isArray(variante.imagenes) &&
+          variante.imagenes.length > 0
+      );
+
+
+    if (variantes.length === 0) {
+      throw new Error(
+        "Este modelo todavía no tiene imágenes"
+      );
+    }
+
+
+    productContent.innerHTML = `
+
+      <section class="product">
+
+        <h1 class="title">
+          Modelo ${producto.modelo}
+        </h1>
+
+
+        <div class="main-image-container">
+
+          <img
+            id="main-image"
+            class="main-image"
+            src=""
+            alt="Modelo ${producto.modelo}"
+          >
+
+        </div>
+
+
+        <div
+          id="gallery"
+          class="gallery"
+        ></div>
+
+
+        <div class="colors-section">
+
+          <div class="colors-title">
+            Colores disponibles
+          </div>
+
+          <div
+            id="colors"
+            class="colors"
+          ></div>
+
+        </div>
+
+      </section>
+    `;
+
+
+    const mainImage =
+      document.getElementById("main-image");
+
+    const gallery =
+      document.getElementById("gallery");
+
+    const colors =
+      document.getElementById("colors");
+
+
+    function mostrarVariante(variante) {
+
+      gallery.innerHTML = "";
+
+
+      const imagenes =
+        [...variante.imagenes].sort(
+          (a, b) =>
+            (a.orden ?? 999) -
+            (b.orden ?? 999)
+        );
+
+
+      mainImage.src =
+        imagenes[0].url;
+
+
+      imagenes.forEach(
+        (imagen, index) => {
+
+          const thumbnail =
+            document.createElement("img");
+
+
+          thumbnail.src =
+            imagen.url;
+
+
+          thumbnail.className =
+            "thumbnail" +
+            (index === 0
+              ? " active"
+              : "");
+
+
+          thumbnail.addEventListener(
+            "click",
+            () => {
+
+              mainImage.src =
+                imagen.url;
+
+
+              document
+                .querySelectorAll(
+                  ".thumbnail"
+                )
+                .forEach(
+                  img =>
+                    img.classList.remove(
+                      "active"
+                    )
+                );
+
+
+              thumbnail.classList.add(
+                "active"
+              );
+
+            }
+          );
+
+
+          gallery.appendChild(
+            thumbnail
+          );
+
+        }
+      );
+
+
+      document
+        .querySelectorAll(
+          ".color-button"
+        )
+        .forEach(
+          button =>
+            button.classList.remove(
+              "active"
+            )
+        );
+
+
+      const activeButton =
+        document.querySelector(
+          `[data-variant="${variante.id}"]`
+        );
+
+
+      if (activeButton) {
+        activeButton.classList.add(
+          "active"
+        );
+      }
+
+    }
+
+
+    variantes.forEach(
+      variante => {
+
+        const button =
+          document.createElement(
+            "button"
+          );
+
+
+        button.className =
+          "color-button";
+
+
+        button.dataset.variant =
+          variante.id;
+
+
+        button.textContent =
+          variante.color;
+
+
+        button.addEventListener(
+          "click",
+          () =>
+            mostrarVariante(
+              variante
+            )
+        );
+
+
+        colors.appendChild(
+          button
+        );
+
+      }
+    );
+
+
+    mostrarVariante(
+      variantes[0]
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    productContent.innerHTML = `
+
+      <div class="error">
+
+        <h2>
+          No pudimos mostrar este modelo
+        </h2>
+
+        <p style="margin-top:10px;">
+          ${error.message}
+        </p>
+
+        <p style="margin-top:25px;">
+          <a href="/">
+            Volver al catálogo
+          </a>
+        </p>
+
+      </div>
+    `;
+
+  }
+
+}
+
+
+cargarProducto();
+
+</script>
+
+</body>
+</html>
