@@ -45,7 +45,9 @@ header p{
   margin:7px 0 0;
 }
 
-/* NAVEGACIÓN */
+/* =========================
+   NAVEGACIÓN
+========================= */
 
 .tabs-wrap{
   position:sticky;
@@ -73,7 +75,6 @@ header p{
   background:#f7edf1;
   color:#555;
   font-weight:800;
-  cursor:pointer;
 }
 
 .tab.active{
@@ -81,20 +82,17 @@ header p{
   color:#fff;
 }
 
-/* GENERAL */
+/* =========================
+   GENERAL
+========================= */
 
 main{
   width:min(1050px,94%);
   margin:30px auto 80px;
 }
 
-.panel{
-  display:none;
-}
-
-.panel.active{
-  display:block;
-}
+.panel{display:none}
+.panel.active{display:block}
 
 .card,
 .model-card,
@@ -104,12 +102,19 @@ main{
   box-shadow:0 8px 30px rgba(0,0,0,.05);
 }
 
-.card{
-  padding:26px;
+.card{padding:26px}
+
+h2{margin-top:0}
+
+button,
+input{
+  font-family:inherit;
 }
 
-h2{
-  margin-top:0;
+button{
+  border:0;
+  cursor:pointer;
+  font-weight:700;
 }
 
 label{
@@ -124,53 +129,114 @@ input[type="text"]{
   border:1px solid #ddd;
   border-radius:13px;
   font-size:16px;
+  outline:none;
+}
+
+input[type="text"]:focus{
+  border-color:#dcaabd;
+}
+
+/* =========================
+   NUEVO CARGADOR
+========================= */
+
+.upload-intro{
+  color:#777;
+  line-height:1.5;
+  margin-top:-4px;
+}
+
+.model-input-wrap{
+  padding-bottom:22px;
+  border-bottom:1px solid #eee;
+}
+
+#colorBlocks{
+  display:grid;
+  gap:16px;
+  margin-top:22px;
+}
+
+.color-block{
+  position:relative;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  background:#fffafb;
+}
+
+.color-block-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.color-number{
+  font-size:12px;
+  color:#999;
+  font-weight:900;
+  letter-spacing:.5px;
+}
+
+.remove-color-block{
+  background:#fff0f0;
+  color:var(--danger);
+  border-radius:10px;
+  padding:8px 11px;
+  font-size:12px;
 }
 
 .file-label{
   display:block;
-  margin-top:20px;
-  padding:22px;
+  margin-top:16px;
+  padding:20px;
   border:2px dashed #e8bfd0;
-  border-radius:16px;
+  border-radius:14px;
   text-align:center;
   cursor:pointer;
-  background:#fffafb;
+  background:white;
   font-weight:700;
 }
 
-#imagenes{
+.color-files{
   display:none;
 }
 
-#preview{
+.color-preview{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
-  gap:10px;
-  margin-top:15px;
+  grid-template-columns:repeat(auto-fill,minmax(85px,1fr));
+  gap:9px;
+  margin-top:13px;
 }
 
-#preview img{
+.color-preview img{
   width:100%;
   aspect-ratio:1;
   object-fit:cover;
-  border-radius:12px;
+  border-radius:11px;
+  background:#f5f5f5;
 }
 
-#count{
+.file-count{
   text-align:center;
   color:#888;
-  margin:15px 0;
+  margin-top:12px;
+  font-size:13px;
 }
 
-button{
-  border:0;
-  font-family:inherit;
-  cursor:pointer;
-  font-weight:700;
+#addColorBlock{
+  width:100%;
+  margin-top:16px;
+  padding:15px;
+  border-radius:14px;
+  background:#f7e6ee;
+  color:#222;
 }
 
 #uploadButton{
   width:100%;
+  margin-top:18px;
   border-radius:14px;
   background:#171717;
   color:#fff;
@@ -208,7 +274,9 @@ button{
   color:#a32d2d;
 }
 
-/* CATÁLOGO */
+/* =========================
+   CATÁLOGO
+========================= */
 
 .catalog{
   margin-top:55px;
@@ -430,7 +498,9 @@ button{
   font-size:14px;
 }
 
-/* REGISTRO DE PEDIDOS */
+/* =========================
+   REGISTRO
+========================= */
 
 .record-summary{
   display:flex;
@@ -458,6 +528,17 @@ button{
   font-weight:700;
 }
 
+.record-note{
+  margin-bottom:20px;
+  padding:14px 16px;
+  border-radius:14px;
+  background:#fff;
+  color:#777;
+  font-size:12px;
+  line-height:1.5;
+  border:1px solid var(--border);
+}
+
 #orders{
   display:grid;
   gap:16px;
@@ -479,7 +560,6 @@ button{
   font-size:12px;
   color:#999;
   font-weight:800;
-  letter-spacing:.3px;
 }
 
 .order-client{
@@ -542,17 +622,6 @@ button{
   margin-left:5px;
 }
 
-.record-note{
-  margin-bottom:20px;
-  padding:14px 16px;
-  border-radius:14px;
-  background:#fff;
-  color:#777;
-  font-size:12px;
-  line-height:1.5;
-  border:1px solid var(--border);
-}
-
 .loading,
 .empty{
   background:#fff;
@@ -586,7 +655,6 @@ footer{
 }
 
 @media(max-width:650px){
-
   main{
     width:94%;
     margin-top:20px;
@@ -648,91 +716,57 @@ footer{
 
 <div class="tabs-wrap">
   <div class="tabs">
-
-    <button
-      id="catalogTab"
-      class="tab active"
-      type="button"
-    >
+    <button id="catalogTab" class="tab active" type="button">
       CATÁLOGO
     </button>
 
-    <button
-      id="ordersTab"
-      class="tab"
-      type="button"
-    >
+    <button id="ordersTab" class="tab" type="button">
       REGISTRO
     </button>
-
   </div>
 </div>
 
 <main>
 
-<!-- CATÁLOGO -->
+<div id="catalogPanel" class="panel active">
 
-<div
-  id="catalogPanel"
-  class="panel active"
->
+<section class="card" id="uploadSection">
 
-<section
-  class="card"
-  id="uploadSection"
->
+  <h2>Agregar modelo</h2>
 
-  <h2>Agregar fotografías</h2>
+  <p class="upload-intro">
+    Escribe el modelo y agrega todos sus colores con sus fotografías.
+  </p>
 
   <form id="uploadForm">
 
-    <label for="modelo">
-      Modelo
-    </label>
+    <div class="model-input-wrap">
+      <label for="modelo">
+        Modelo
+      </label>
 
-    <input
-      id="modelo"
-      type="text"
-      placeholder="Ej. 519"
-      autocomplete="off"
-    >
-
-    <label for="color">
-      Color
-    </label>
-
-    <input
-      id="color"
-      type="text"
-      placeholder="Ej. Negro"
-      autocomplete="off"
-    >
-
-    <label
-      class="file-label"
-      for="imagenes"
-    >
-      📷 Seleccionar fotografías
-    </label>
-
-    <input
-      id="imagenes"
-      type="file"
-      accept="image/jpeg,image/png,image/webp"
-      multiple
-    >
-
-    <div id="preview"></div>
-
-    <div id="count">
-      Ninguna fotografía seleccionada
+      <input
+        id="modelo"
+        type="text"
+        placeholder="Ej. 519"
+        autocomplete="off"
+      >
     </div>
+
+    <div id="colorBlocks"></div>
+
+    <button
+      id="addColorBlock"
+      type="button"
+    >
+      + Agregar otro color
+    </button>
 
     <button
       id="uploadButton"
       type="submit"
     >
-      Subir al catálogo
+      Subir modelo al catálogo
     </button>
 
   </form>
@@ -747,9 +781,7 @@ footer{
 
     <div>
       <h2>Modelos cargados</h2>
-      <p>
-        Administra modelos, colores y fotografías.
-      </p>
+      <p>Administra modelos, colores y fotografías.</p>
     </div>
 
     <button
@@ -772,20 +804,13 @@ footer{
 
 </div>
 
-<!-- REGISTRO -->
-
-<div
-  id="ordersPanel"
-  class="panel"
->
+<div id="ordersPanel" class="panel">
 
   <div class="orders-header">
 
     <div>
       <h2>Registro de pedidos</h2>
-      <p>
-        Historial generado desde el catálogo.
-      </p>
+      <p>Historial generado desde el catálogo.</p>
     </div>
 
     <button
@@ -817,11 +842,9 @@ footer{
   </div>
 
   <div id="orders">
-
     <div class="loading">
       Abre REGISTRO para cargar.
     </div>
-
   </div>
 
 </div>
@@ -838,389 +861,423 @@ footer{
 
 <script>
 
-/* CONTRASEÑA */
+/* =========================
+   CONTRASEÑA
+========================= */
 
-let adminPassword=
-  prompt(
-    "Contraseña de administrador de Calzado Carola:"
-  );
+let adminPassword=prompt(
+  "Contraseña de administrador de Calzado Carola:"
+);
 
 if(adminPassword===null){
-
   document.body.innerHTML=
-    "<h2 style='text-align:center;margin-top:80px'>"+
-    "Acceso cancelado"+
-    "</h2>";
+    "<h2 style='text-align:center;margin-top:80px'>Acceso cancelado</h2>";
 
-  throw new Error(
-    "Acceso cancelado"
-  );
+  throw new Error("Acceso cancelado");
 }
 
-adminPassword=
-  String(
-    adminPassword||""
-  ).trim();
+adminPassword=String(adminPassword||"").trim();
 
-/* VARIABLES */
+/* =========================
+   VARIABLES
+========================= */
 
 let allOrders=[];
 let ordersLoaded=false;
+let colorBlockCounter=0;
 
-/* ELEMENTOS */
+/* =========================
+   ELEMENTOS
+========================= */
 
-const form=
-  document.getElementById(
-    "uploadForm"
-  );
+const form=document.getElementById("uploadForm");
+const modelo=document.getElementById("modelo");
+const colorBlocks=document.getElementById("colorBlocks");
+const uploadButton=document.getElementById("uploadButton");
+const statusBox=document.getElementById("status");
+const models=document.getElementById("models");
+const refreshButton=document.getElementById("refreshButton");
+const uploadSection=document.getElementById("uploadSection");
+const operationStatus=document.getElementById("operationStatus");
+const catalogTab=document.getElementById("catalogTab");
+const ordersTab=document.getElementById("ordersTab");
+const catalogPanel=document.getElementById("catalogPanel");
+const ordersPanel=document.getElementById("ordersPanel");
+const orders=document.getElementById("orders");
 
-const modelo=
-  document.getElementById(
-    "modelo"
-  );
+/* =========================
+   PESTAÑAS
+========================= */
 
-const color=
-  document.getElementById(
-    "color"
-  );
+catalogTab.onclick=function(){
+  catalogTab.classList.add("active");
+  ordersTab.classList.remove("active");
+  catalogPanel.classList.add("active");
+  ordersPanel.classList.remove("active");
+};
 
-const imagenes=
-  document.getElementById(
-    "imagenes"
-  );
+ordersTab.onclick=async function(){
+  ordersTab.classList.add("active");
+  catalogTab.classList.remove("active");
+  ordersPanel.classList.add("active");
+  catalogPanel.classList.remove("active");
 
-const preview=
-  document.getElementById(
-    "preview"
-  );
+  if(!ordersLoaded){
+    await loadOrders();
+  }
+};
 
-const count=
-  document.getElementById(
-    "count"
-  );
+/* =========================
+   MENSAJES
+========================= */
 
-const uploadButton=
-  document.getElementById(
-    "uploadButton"
-  );
-
-const statusBox=
-  document.getElementById(
-    "status"
-  );
-
-const models=
-  document.getElementById(
-    "models"
-  );
-
-const refreshButton=
-  document.getElementById(
-    "refreshButton"
-  );
-
-const uploadSection=
-  document.getElementById(
-    "uploadSection"
-  );
-
-const operationStatus=
-  document.getElementById(
-    "operationStatus"
-  );
-
-const catalogTab=
-  document.getElementById(
-    "catalogTab"
-  );
-
-const ordersTab=
-  document.getElementById(
-    "ordersTab"
-  );
-
-const catalogPanel=
-  document.getElementById(
-    "catalogPanel"
-  );
-
-const ordersPanel=
-  document.getElementById(
-    "ordersPanel"
-  );
-
-const orders=
-  document.getElementById(
-    "orders"
-  );
-
-/* PESTAÑAS */
-
-catalogTab.onclick=
-  function(){
-
-    catalogTab.classList.add(
-      "active"
-    );
-
-    ordersTab.classList.remove(
-      "active"
-    );
-
-    catalogPanel.classList.add(
-      "active"
-    );
-
-    ordersPanel.classList.remove(
-      "active"
-    );
-  };
-
-ordersTab.onclick=
-  async function(){
-
-    ordersTab.classList.add(
-      "active"
-    );
-
-    catalogTab.classList.remove(
-      "active"
-    );
-
-    ordersPanel.classList.add(
-      "active"
-    );
-
-    catalogPanel.classList.remove(
-      "active"
-    );
-
-    if(!ordersLoaded){
-      await loadOrders();
-    }
-  };
-
-/* MENSAJES */
-
-function showStatus(
-  message,
-  type
-){
-
-  statusBox.textContent=
-    message;
-
-  statusBox.className=
-    type;
+function showStatus(message,type){
+  statusBox.textContent=message;
+  statusBox.className=type;
 }
 
-function showOperation(
-  message
-){
-
-  operationStatus.textContent=
-    message;
-
-  operationStatus.style.display=
-    "block";
+function showOperation(message){
+  operationStatus.textContent=message;
+  operationStatus.style.display="block";
 }
 
 function hideOperation(){
-
-  operationStatus.style.display=
-    "none";
+  operationStatus.style.display="none";
 }
 
-/* PREVISUALIZACIÓN */
+/* =========================
+   BLOQUES DE COLOR
+========================= */
 
-imagenes.onchange=
-  function(){
+function createColorBlock(colorValue=""){
+  colorBlockCounter++;
 
-    preview.innerHTML="";
+  const id=colorBlockCounter;
 
-    const files=
-      Array.from(
-        imagenes.files||[]
-      );
+  const block=document.createElement("div");
+  block.className="color-block";
+  block.dataset.blockId=id;
 
-    if(!files.length){
+  block.innerHTML=`
+    <div class="color-block-top">
 
-      count.textContent=
-        "Ninguna fotografía seleccionada";
+      <span class="color-number">
+        COLOR
+      </span>
 
+      <button
+        type="button"
+        class="remove-color-block"
+      >
+        Eliminar
+      </button>
+
+    </div>
+
+    <label>
+      Color
+    </label>
+
+    <input
+      type="text"
+      class="color-input"
+      placeholder="Ej. Negro"
+      autocomplete="off"
+      value="${escapeAttribute(colorValue)}"
+    >
+
+    <label
+      class="file-label"
+      for="colorFiles${id}"
+    >
+      📷 Seleccionar fotografías de este color
+    </label>
+
+    <input
+      id="colorFiles${id}"
+      class="color-files"
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      multiple
+    >
+
+    <div class="color-preview"></div>
+
+    <div class="file-count">
+      Ninguna fotografía seleccionada
+    </div>
+  `;
+
+  colorBlocks.appendChild(block);
+
+  updateColorBlockLabels();
+
+  const input=block.querySelector(".color-files");
+
+  input.onchange=function(){
+    renderColorPreview(block);
+  };
+
+  block.querySelector(".remove-color-block").onclick=function(){
+    const blocks=colorBlocks.querySelectorAll(".color-block");
+
+    if(blocks.length<=1){
+      alert("Debe existir al menos un color.");
       return;
     }
 
-    count.textContent=
-      files.length===1
-        ?"1 fotografía seleccionada"
-        :files.length+
-          " fotografías seleccionadas";
-
-    files.forEach(
-      function(file){
-
-        const img=
-          document.createElement(
-            "img"
-          );
-
-        img.src=
-          URL.createObjectURL(
-            file
-          );
-
-        preview.appendChild(
-          img
-        );
-      }
-    );
+    block.remove();
+    updateColorBlockLabels();
   };
 
-/* BASE64 */
-
-function fileToBase64(file){
-
-  return new Promise(
-    function(resolve,reject){
-
-      const reader=
-        new FileReader();
-
-      reader.onload=
-        function(){
-
-          const result=
-            String(
-              reader.result||""
-            );
-
-          const comma=
-            result.indexOf(",");
-
-          if(comma===-1){
-
-            reject(
-              new Error(
-                "No se pudo procesar "+
-                file.name
-              )
-            );
-
-            return;
-          }
-
-          resolve({
-            name:file.name,
-            type:
-              file.type||
-              "image/jpeg",
-            data:
-              result.substring(
-                comma+1
-              )
-          });
-        };
-
-      reader.onerror=
-        function(){
-
-          reject(
-            new Error(
-              "No se pudo leer "+
-              file.name
-            )
-          );
-        };
-
-      reader.readAsDataURL(
-        file
-      );
-    }
-  );
+  return block;
 }
 
-/* SUBIR FOTOS */
+function updateColorBlockLabels(){
+  const blocks=[
+    ...colorBlocks.querySelectorAll(".color-block")
+  ];
 
-form.onsubmit=
-  async function(event){
+  blocks.forEach((block,index)=>{
+    block.querySelector(".color-number").textContent=
+      "COLOR "+(index+1);
 
-    event.preventDefault();
+    const removeButton=
+      block.querySelector(".remove-color-block");
 
-    const modelValue=
-      modelo.value.trim();
+    removeButton.style.display=
+      blocks.length===1
+        ?"none"
+        :"inline-block";
+  });
+}
+
+function renderColorPreview(block){
+  const input=block.querySelector(".color-files");
+  const preview=block.querySelector(".color-preview");
+  const counter=block.querySelector(".file-count");
+
+  preview.innerHTML="";
+
+  const files=Array.from(input.files||[]);
+
+  if(!files.length){
+    counter.textContent=
+      "Ninguna fotografía seleccionada";
+    return;
+  }
+
+  counter.textContent=
+    files.length===1
+      ?"1 fotografía seleccionada"
+      :files.length+" fotografías seleccionadas";
+
+  files.forEach(file=>{
+    const img=document.createElement("img");
+    img.src=URL.createObjectURL(file);
+    preview.appendChild(img);
+  });
+}
+
+document.getElementById("addColorBlock").onclick=function(){
+  const block=createColorBlock("");
+
+  setTimeout(()=>{
+    block.querySelector(".color-input").focus();
+  },100);
+};
+
+/* =========================
+   BASE64
+========================= */
+
+function fileToBase64(file){
+  return new Promise(function(resolve,reject){
+    const reader=new FileReader();
+
+    reader.onload=function(){
+      const result=String(reader.result||"");
+      const comma=result.indexOf(",");
+
+      if(comma===-1){
+        reject(
+          new Error(
+            "No se pudo procesar "+file.name
+          )
+        );
+        return;
+      }
+
+      resolve({
+        name:file.name,
+        type:file.type||"image/jpeg",
+        data:result.substring(comma+1)
+      });
+    };
+
+    reader.onerror=function(){
+      reject(
+        new Error(
+          "No se pudo leer "+file.name
+        )
+      );
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+/* =========================
+   VALIDAR COLORES REPETIDOS
+========================= */
+
+function normalizeText(value){
+  return String(value||"")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"");
+}
+
+/* =========================
+   SUBIR MODELO
+========================= */
+
+form.onsubmit=async function(event){
+  event.preventDefault();
+
+  const modelValue=modelo.value.trim();
+
+  if(!modelValue){
+    showStatus(
+      "Falta escribir el modelo.",
+      "error"
+    );
+    modelo.focus();
+    return false;
+  }
+
+  const blocks=[
+    ...colorBlocks.querySelectorAll(".color-block")
+  ];
+
+  if(!blocks.length){
+    showStatus(
+      "Agrega al menos un color.",
+      "error"
+    );
+    return false;
+  }
+
+  const entries=[];
+
+  for(let i=0;i<blocks.length;i++){
+    const block=blocks[i];
+
+    const colorInput=
+      block.querySelector(".color-input");
+
+    const fileInput=
+      block.querySelector(".color-files");
 
     const colorValue=
-      color.value.trim();
+      colorInput.value.trim();
 
     const files=
-      Array.from(
-        imagenes.files||[]
-      );
-
-    if(!modelValue){
-
-      showStatus(
-        "Falta escribir el modelo.",
-        "error"
-      );
-
-      return false;
-    }
+      Array.from(fileInput.files||[]);
 
     if(!colorValue){
-
       showStatus(
-        "Falta escribir el color.",
+        "Falta escribir el nombre del color "+(i+1)+".",
         "error"
       );
 
+      colorInput.focus();
       return false;
     }
 
     if(!files.length){
-
       showStatus(
-        "Selecciona al menos una fotografía.",
+        "Selecciona fotografías para el color "+colorValue+".",
         "error"
       );
 
       return false;
     }
 
-    uploadButton.disabled=true;
-    uploadButton.textContent="Subiendo...";
+    entries.push({
+      color:colorValue,
+      files
+    });
+  }
 
-    try{
+  const normalizedColors=
+    entries.map(item=>normalizeText(item.color));
 
+  const uniqueColors=
+    new Set(normalizedColors);
+
+  if(uniqueColors.size!==normalizedColors.length){
+    showStatus(
+      "Hay un color repetido. Cada color debe agregarse una sola vez.",
+      "error"
+    );
+    return false;
+  }
+
+  uploadButton.disabled=true;
+  document.getElementById("addColorBlock").disabled=true;
+
+  try{
+    let totalFiles=0;
+
+    entries.forEach(entry=>{
+      totalFiles+=entry.files.length;
+    });
+
+    let preparedFiles=0;
+
+    for(let i=0;i<entries.length;i++){
+      const entry=entries[i];
       const converted=[];
 
-      for(
-        let i=0;
-        i<files.length;
-        i++
-      ){
+      for(let j=0;j<entry.files.length;j++){
+        preparedFiles++;
 
         showStatus(
           "Preparando fotografía "+
-          (i+1)+
+          preparedFiles+
           " de "+
-          files.length+
-          "...",
+          totalFiles+
+          "...\n"+
+          "Color: "+
+          entry.color,
           "loading"
         );
 
         converted.push(
-          await fileToBase64(
-            files[i]
-          )
+          await fileToBase64(entry.files[j])
         );
       }
 
       showStatus(
-        "Subiendo fotografías...",
+        "Subiendo color "+
+        (i+1)+
+        " de "+
+        entries.length+
+        "...\n"+
+        modelValue+
+        " · "+
+        entry.color,
         "loading"
       );
+
+      uploadButton.textContent=
+        "Subiendo "+
+        (i+1)+
+        " de "+
+        entries.length+
+        "...";
 
       const response=
         await fetch(
@@ -1229,120 +1286,105 @@ form.onsubmit=
             method:"POST",
 
             headers:{
-              "Content-Type":
-                "application/json",
-
-              "x-admin-password":
-                adminPassword
+              "Content-Type":"application/json",
+              "x-admin-password":adminPassword
             },
 
-            body:
-              JSON.stringify({
-                modelo:modelValue,
-                color:colorValue,
-                imagenes:converted
-              })
+            body:JSON.stringify({
+              modelo:modelValue,
+              color:entry.color,
+              imagenes:converted
+            })
           }
         );
 
       const result=
-        await readJson(
-          response
-        );
+        await readJson(response);
 
-      if(
-        !response.ok||
-        !result.success
-      ){
-
+      if(!response.ok||!result.success){
         throw new Error(
-          result.error||
-          "No se pudieron subir las fotografías."
+          "Error en "+entry.color+": "+
+          (
+            result.error||
+            "No se pudieron subir las fotografías."
+          )
         );
       }
-
-      showStatus(
-        "✓ Modelo "+
-        modelValue+
-        " · "+
-        colorValue+
-        "\n"+
-        files.length+
-        (
-          files.length===1
-            ?" fotografía subida correctamente."
-            :" fotografías subidas correctamente."
-        ),
-        "success"
-      );
-
-      imagenes.value="";
-      preview.innerHTML="";
-
-      count.textContent=
-        "Ninguna fotografía seleccionada";
-
-      await loadModels();
-
-    }catch(error){
-
-      showStatus(
-        error.message,
-        "error"
-      );
-
-    }finally{
-
-      uploadButton.disabled=false;
-
-      uploadButton.textContent=
-        "Subir al catálogo";
     }
 
-    return false;
-  };
+    showStatus(
+      "✓ Modelo "+
+      modelValue+
+      " cargado correctamente.\n"+
+      entries.length+
+      (
+        entries.length===1
+          ?" color · "
+          :" colores · "
+      )+
+      totalFiles+
+      (
+        totalFiles===1
+          ?" fotografía."
+          :" fotografías."
+      ),
+      "success"
+    );
 
-/* ADMIN CATÁLOGO */
+    resetUploadForm();
+
+    await loadModels();
+
+  }catch(error){
+    showStatus(
+      error.message,
+      "error"
+    );
+  }finally{
+    uploadButton.disabled=false;
+
+    document.getElementById(
+      "addColorBlock"
+    ).disabled=false;
+
+    uploadButton.textContent=
+      "Subir modelo al catálogo";
+  }
+
+  return false;
+};
+
+function resetUploadForm(){
+  modelo.value="";
+  colorBlocks.innerHTML="";
+  createColorBlock("");
+}
+
+/* =========================
+   ADMIN CATÁLOGO
+========================= */
 
 async function manage(payload){
-
-  showOperation(
-    "Guardando cambio..."
-  );
+  showOperation("Guardando cambio...");
 
   try{
+    const response=await fetch(
+      "/.netlify/functions/admin-manage",
+      {
+        method:"POST",
 
-    const response=
-      await fetch(
-        "/.netlify/functions/admin-manage",
-        {
-          method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "x-admin-password":adminPassword
+        },
 
-          headers:{
-            "Content-Type":
-              "application/json",
+        body:JSON.stringify(payload)
+      }
+    );
 
-            "x-admin-password":
-              adminPassword
-          },
+    const result=await readJson(response);
 
-          body:
-            JSON.stringify(
-              payload
-            )
-        }
-      );
-
-    const result=
-      await readJson(
-        response
-      );
-
-    if(
-      !response.ok||
-      !result.success
-    ){
-
+    if(!response.ok||!result.success){
       throw new Error(
         result.error||
         "No se pudo completar la operación."
@@ -1354,53 +1396,34 @@ async function manage(payload){
     operationStatus.textContent=
       "✓ Cambio guardado";
 
-    setTimeout(
-      hideOperation,
-      1000
-    );
+    setTimeout(hideOperation,1000);
 
     return true;
 
   }catch(error){
-
     operationStatus.textContent=
-      "Error: "+
-      error.message;
+      "Error: "+error.message;
 
-    setTimeout(
-      hideOperation,
-      4000
-    );
+    setTimeout(hideOperation,4000);
 
     return false;
   }
 }
 
-/* CARGAR MODELOS */
+/* =========================
+   CARGAR MODELOS
+========================= */
 
 async function loadModels(){
-
   try{
+    const response=await fetch(
+      "/.netlify/functions/supabase?t="+Date.now(),
+      {cache:"no-store"}
+    );
 
-    const response=
-      await fetch(
-        "/.netlify/functions/supabase?t="+
-        Date.now(),
-        {
-          cache:"no-store"
-        }
-      );
+    const result=await readJson(response);
 
-    const result=
-      await readJson(
-        response
-      );
-
-    if(
-      !response.ok||
-      !result.success
-    ){
-
+    if(!response.ok||!result.success){
       throw new Error(
         result.error||
         "No se pudieron cargar los modelos."
@@ -1408,698 +1431,491 @@ async function loadModels(){
     }
 
     renderModels(
-      Array.isArray(
-        result.productos
-      )
+      Array.isArray(result.productos)
         ?result.productos
         :[]
     );
 
   }catch(error){
-
     models.innerHTML=
       '<div class="empty">'+
-      escapeHtml(
-        error.message
-      )+
+      escapeHtml(error.message)+
       "</div>";
   }
 }
 
-/* MOSTRAR MODELOS */
+/* =========================
+   MOSTRAR MODELOS
+========================= */
 
 function renderModels(products){
-
   if(!products.length){
-
     models.innerHTML=
-      '<div class="empty">'+
-      "No hay modelos cargados."+
-      "</div>";
-
+      '<div class="empty">No hay modelos cargados.</div>';
     return;
   }
 
-  products.sort(
-    function(a,b){
-
-      return String(
-        a.modelo
-      ).localeCompare(
-        String(
-          b.modelo
-        ),
-        undefined,
-        {
-          numeric:true,
-          sensitivity:"base"
-        }
-      );
-    }
-  );
+  products.sort(function(a,b){
+    return String(a.modelo).localeCompare(
+      String(b.modelo),
+      undefined,
+      {
+        numeric:true,
+        sensitivity:"base"
+      }
+    );
+  });
 
   let html="";
 
-  products.forEach(
-    function(product){
+  products.forEach(function(product){
+    const variants=
+      Array.isArray(product.variantes)
+        ?product.variantes
+        :[];
 
-      const variants=
-        Array.isArray(
-          product.variantes
-        )
-          ?product.variantes
+    html+=
+      '<article class="model-card">'+
+      '<div class="model-header">'+
+      '<div class="model-title">'+
+      "<h3>Modelo "+
+      escapeHtml(product.modelo)+
+      "</h3>"+
+      '<span class="model-count">'+
+      variants.length+
+      (
+        variants.length===1
+          ?" color"
+          :" colores"
+      )+
+      "</span>"+
+      "</div>"+
+      '<div class="model-actions">'+
+      '<button type="button" class="edit-model" '+
+      'data-id="'+Number(product.id)+'" '+
+      'data-name="'+escapeAttribute(product.modelo)+'">'+
+      "✏️ Editar modelo"+
+      "</button>"+
+      '<button type="button" class="delete-model" '+
+      'data-id="'+Number(product.id)+'" '+
+      'data-name="'+escapeAttribute(product.modelo)+'">'+
+      "Eliminar modelo"+
+      "</button>"+
+      "</div>"+
+      "</div>";
+
+    variants.forEach(function(variant){
+      const images=
+        Array.isArray(variant.imagenes)
+          ?variant.imagenes.slice()
           :[];
 
+      images.sort(function(a,b){
+        const difference=
+          Number(a.orden||0)-
+          Number(b.orden||0);
+
+        if(difference!==0){
+          return difference;
+        }
+
+        return Number(a.id||0)-Number(b.id||0);
+      });
+
+      let photosHtml="";
+
+      images.forEach(function(image,index){
+        photosHtml+='<div class="photo-card">';
+
+        if(index===0){
+          photosHtml+=
+            '<div class="primary-badge">PRINCIPAL</div>';
+        }
+
+        photosHtml+=
+          '<img src="'+
+          escapeAttribute(image.url||"")+
+          '" loading="lazy" alt="">'+
+
+          '<div class="photo-controls">'+
+
+          '<button type="button" class="move-left" data-id="'+
+          Number(image.id)+
+          '">←</button>'+
+
+          '<button type="button" class="move-right" data-id="'+
+          Number(image.id)+
+          '">→</button>'+
+
+          '<button type="button" class="delete-photo" data-id="'+
+          Number(image.id)+
+          '">🗑</button>'+
+
+          "</div>";
+
+        if(index!==0){
+          photosHtml+=
+            '<button type="button" class="make-primary" data-id="'+
+            Number(image.id)+
+            '">Hacer principal</button>';
+        }
+
+        photosHtml+="</div>";
+      });
+
+      if(!images.length){
+        photosHtml=
+          '<span class="photo-count">Sin fotografías</span>';
+      }
+
       html+=
-        '<article class="model-card">'+
+        '<div class="variant">'+
 
-        '<div class="model-header">'+
+        '<div class="variant-header">'+
 
-        '<div class="model-title">'+
+        '<div class="variant-title">'+
 
-        "<h3>Modelo "+
-        escapeHtml(
-          product.modelo
-        )+
-        "</h3>"+
+        '<span class="color-name">'+
+        escapeHtml(variant.color)+
+        "</span>"+
 
-        '<span class="model-count">'+
-        variants.length+
+        '<button type="button" class="edit-color" '+
+        'data-id="'+Number(variant.id)+'" '+
+        'data-color="'+escapeAttribute(variant.color)+'">'+
+        "✏️ Editar"+
+        "</button>"+
+
+        "</div>"+
+
+        '<span class="photo-count">'+
+        images.length+
         (
-          variants.length===1
-            ?" color"
-            :" colores"
+          images.length===1
+            ?" fotografía"
+            :" fotografías"
         )+
         "</span>"+
 
         "</div>"+
 
-        '<div class="model-actions">'+
+        '<div class="photos">'+
+        photosHtml+
+        "</div>"+
 
-        '<button type="button" '+
-        'class="edit-model" '+
-        'data-id="'+
-        Number(product.id)+
-        '" '+
-        'data-name="'+
-        escapeAttribute(
-          product.modelo
-        )+
-        '">'+
-        "✏️ Editar modelo"+
+        '<div class="variant-bottom">'+
+
+        '<div class="variant-actions">'+
+
+        '<button type="button" class="add-photos" '+
+        'data-model="'+escapeAttribute(product.modelo)+'" '+
+        'data-color="'+escapeAttribute(variant.color)+'">'+
+        "+ Agregar fotos"+
         "</button>"+
 
-        '<button type="button" '+
-        'class="delete-model" '+
-        'data-id="'+
-        Number(product.id)+
-        '" '+
-        'data-name="'+
-        escapeAttribute(
-          product.modelo
-        )+
-        '">'+
-        "Eliminar modelo"+
+        '<button type="button" class="delete-variant" '+
+        'data-id="'+Number(variant.id)+'" '+
+        'data-color="'+escapeAttribute(variant.color)+'">'+
+        "Eliminar color"+
         "</button>"+
 
         "</div>"+
-
+        "</div>"+
         "</div>";
+    });
 
-      variants.forEach(
-        function(variant){
+    html+=
+      '<div class="model-bottom">'+
 
-          const images=
-            Array.isArray(
-              variant.imagenes
-            )
-              ?variant.imagenes.slice()
-              :[];
+      '<button type="button" class="add-color" '+
+      'data-model="'+escapeAttribute(product.modelo)+'">'+
+      "+ Agregar nuevo color"+
+      "</button>"+
 
-          images.sort(
-            function(a,b){
-
-              const difference=
-                Number(a.orden||0)-
-                Number(b.orden||0);
-
-              if(difference!==0){
-                return difference;
-              }
-
-              return (
-                Number(a.id||0)-
-                Number(b.id||0)
-              );
-            }
-          );
-
-          let photosHtml="";
-
-          images.forEach(
-            function(image,index){
-
-              photosHtml+=
-                '<div class="photo-card">';
-
-              if(index===0){
-
-                photosHtml+=
-                  '<div class="primary-badge">'+
-                  "PRINCIPAL"+
-                  "</div>";
-              }
-
-              photosHtml+=
-                '<img src="'+
-                escapeAttribute(
-                  image.url||""
-                )+
-                '" loading="lazy" alt="">'+
-
-                '<div class="photo-controls">'+
-
-                '<button type="button" '+
-                'class="move-left" '+
-                'data-id="'+
-                Number(image.id)+
-                '">'+
-                "←"+
-                "</button>"+
-
-                '<button type="button" '+
-                'class="move-right" '+
-                'data-id="'+
-                Number(image.id)+
-                '">'+
-                "→"+
-                "</button>"+
-
-                '<button type="button" '+
-                'class="delete-photo" '+
-                'data-id="'+
-                Number(image.id)+
-                '">'+
-                "🗑"+
-                "</button>"+
-
-                "</div>";
-
-              if(index!==0){
-
-                photosHtml+=
-                  '<button type="button" '+
-                  'class="make-primary" '+
-                  'data-id="'+
-                  Number(image.id)+
-                  '">'+
-                  "Hacer principal"+
-                  "</button>";
-              }
-
-              photosHtml+=
-                "</div>";
-            }
-          );
-
-          if(!images.length){
-
-            photosHtml=
-              '<span class="photo-count">'+
-              "Sin fotografías"+
-              "</span>";
-          }
-
-          html+=
-            '<div class="variant">'+
-
-            '<div class="variant-header">'+
-
-            '<div class="variant-title">'+
-
-            '<span class="color-name">'+
-            escapeHtml(
-              variant.color
-            )+
-            "</span>"+
-
-            '<button type="button" '+
-            'class="edit-color" '+
-            'data-id="'+
-            Number(variant.id)+
-            '" '+
-            'data-color="'+
-            escapeAttribute(
-              variant.color
-            )+
-            '">'+
-            "✏️ Editar"+
-            "</button>"+
-
-            "</div>"+
-
-            '<span class="photo-count">'+
-            images.length+
-            (
-              images.length===1
-                ?" fotografía"
-                :" fotografías"
-            )+
-            "</span>"+
-
-            "</div>"+
-
-            '<div class="photos">'+
-            photosHtml+
-            "</div>"+
-
-            '<div class="variant-bottom">'+
-
-            '<div class="variant-actions">'+
-
-            '<button type="button" '+
-            'class="add-photos" '+
-            'data-model="'+
-            escapeAttribute(
-              product.modelo
-            )+
-            '" '+
-            'data-color="'+
-            escapeAttribute(
-              variant.color
-            )+
-            '">'+
-            "+ Agregar fotos"+
-            "</button>"+
-
-            '<button type="button" '+
-            'class="delete-variant" '+
-            'data-id="'+
-            Number(variant.id)+
-            '" '+
-            'data-color="'+
-            escapeAttribute(
-              variant.color
-            )+
-            '">'+
-            "Eliminar color"+
-            "</button>"+
-
-            "</div>"+
-
-            "</div>"+
-
-            "</div>";
-        }
-      );
-
-      html+=
-        '<div class="model-bottom">'+
-
-        '<button type="button" '+
-        'class="add-color" '+
-        'data-model="'+
-        escapeAttribute(
-          product.modelo
-        )+
-        '">'+
-        "+ Agregar nuevo color"+
-        "</button>"+
-
-        "</div>"+
-
-        "</article>";
-    }
-  );
+      "</div>"+
+      "</article>";
+  });
 
   models.innerHTML=html;
 }
 
-/* CLICS CATÁLOGO */
+/* =========================
+   CLICS CATÁLOGO
+========================= */
 
-models.onclick=
-  async function(event){
+models.onclick=async function(event){
 
-    const addPhotos=
-      event.target.closest(
-        ".add-photos"
+  const addPhotos=
+    event.target.closest(".add-photos");
+
+  if(addPhotos){
+    prepareExistingUpload(
+      addPhotos.dataset.model||"",
+      addPhotos.dataset.color||"",
+      true
+    );
+
+    return;
+  }
+
+  const addColor=
+    event.target.closest(".add-color");
+
+  if(addColor){
+    prepareExistingUpload(
+      addColor.dataset.model||"",
+      "",
+      false
+    );
+
+    return;
+  }
+
+  const editModel=
+    event.target.closest(".edit-model");
+
+  if(editModel){
+    const oldName=editModel.dataset.name||"";
+
+    const newName=prompt(
+      "Nuevo nombre/número del modelo:",
+      oldName
+    );
+
+    if(newName===null)return;
+
+    const cleanName=newName.trim();
+
+    if(!cleanName){
+      alert(
+        "El nombre del modelo no puede quedar vacío."
       );
-
-    if(addPhotos){
-
-      modelo.value=
-        addPhotos.dataset.model||
-        "";
-
-      color.value=
-        addPhotos.dataset.color||
-        "";
-
-      uploadSection.scrollIntoView({
-        behavior:"smooth",
-        block:"start"
-      });
-
-      setTimeout(
-        function(){
-          imagenes.click();
-        },
-        400
-      );
-
       return;
     }
 
-    const addColor=
-      event.target.closest(
-        ".add-color"
-      );
+    if(cleanName===oldName)return;
 
-    if(addColor){
+    await manage({
+      action:"rename-model",
+      modelId:Number(editModel.dataset.id),
+      newName:cleanName
+    });
 
-      modelo.value=
-        addColor.dataset.model||
-        "";
+    return;
+  }
 
-      color.value="";
-      imagenes.value="";
-      preview.innerHTML="";
+  const editColor=
+    event.target.closest(".edit-color");
 
-      count.textContent=
-        "Ninguna fotografía seleccionada";
+  if(editColor){
+    const oldColor=editColor.dataset.color||"";
 
-      uploadSection.scrollIntoView({
-        behavior:"smooth",
-        block:"start"
-      });
+    const newColor=prompt(
+      "Nuevo nombre del color:",
+      oldColor
+    );
 
-      setTimeout(
-        function(){
-          color.focus();
-        },
-        400
-      );
+    if(newColor===null)return;
 
+    const cleanColor=newColor.trim();
+
+    if(!cleanColor){
+      alert("El color no puede quedar vacío.");
       return;
     }
-
-    const editModel=
-      event.target.closest(
-        ".edit-model"
-      );
-
-    if(editModel){
-
-      const oldName=
-        editModel.dataset.name||
-        "";
-
-      const newName=
-        prompt(
-          "Nuevo nombre/número del modelo:",
-          oldName
-        );
-
-      if(newName===null){
-        return;
-      }
-
-      const cleanName=
-        newName.trim();
-
-      if(!cleanName){
-
-        alert(
-          "El nombre del modelo no puede quedar vacío."
-        );
-
-        return;
-      }
-
-      if(cleanName===oldName){
-        return;
-      }
-
-      await manage({
-        action:"rename-model",
-        modelId:
-          Number(
-            editModel.dataset.id
-          ),
-        newName:
-          cleanName
-      });
-
-      return;
-    }
-
-    const editColor=
-      event.target.closest(
-        ".edit-color"
-      );
-
-    if(editColor){
-
-      const oldColor=
-        editColor.dataset.color||
-        "";
-
-      const newColor=
-        prompt(
-          "Nuevo nombre del color:",
-          oldColor
-        );
-
-      if(newColor===null){
-        return;
-      }
-
-      const cleanColor=
-        newColor.trim();
-
-      if(!cleanColor){
-
-        alert(
-          "El color no puede quedar vacío."
-        );
-
-        return;
-      }
-
-      if(
-        cleanColor.toLowerCase()===
-        oldColor.toLowerCase()
-      ){
-        return;
-      }
-
-      await manage({
-        action:"rename-variant",
-        variantId:
-          Number(
-            editColor.dataset.id
-          ),
-        newColor:
-          cleanColor
-      });
-
-      return;
-    }
-
-    const left=
-      event.target.closest(
-        ".move-left"
-      );
-
-    if(left){
-
-      await manage({
-        action:"move-image",
-        imageId:
-          Number(
-            left.dataset.id
-          ),
-        direction:"left"
-      });
-
-      return;
-    }
-
-    const right=
-      event.target.closest(
-        ".move-right"
-      );
-
-    if(right){
-
-      await manage({
-        action:"move-image",
-        imageId:
-          Number(
-            right.dataset.id
-          ),
-        direction:"right"
-      });
-
-      return;
-    }
-
-    const primary=
-      event.target.closest(
-        ".make-primary"
-      );
-
-    if(primary){
-
-      await manage({
-        action:"make-primary",
-        imageId:
-          Number(
-            primary.dataset.id
-          )
-      });
-
-      return;
-    }
-
-    const deletePhoto=
-      event.target.closest(
-        ".delete-photo"
-      );
-
-    if(deletePhoto){
-
-      if(
-        !confirm(
-          "¿Eliminar esta fotografía definitivamente?"
-        )
-      ){
-        return;
-      }
-
-      await manage({
-        action:"delete-image",
-        imageId:
-          Number(
-            deletePhoto.dataset.id
-          )
-      });
-
-      return;
-    }
-
-    const deleteVariant=
-      event.target.closest(
-        ".delete-variant"
-      );
-
-    if(deleteVariant){
-
-      const colorName=
-        deleteVariant.dataset.color||
-        "";
-
-      if(
-        !confirm(
-          "¿Eliminar el color "+
-          colorName+
-          " y TODAS sus fotografías?"
-        )
-      ){
-        return;
-      }
-
-      await manage({
-        action:"delete-variant",
-        variantId:
-          Number(
-            deleteVariant.dataset.id
-          )
-      });
-
-      return;
-    }
-
-    const deleteModel=
-      event.target.closest(
-        ".delete-model"
-      );
-
-    if(deleteModel){
-
-      const name=
-        deleteModel.dataset.name||
-        "";
-
-      if(
-        !confirm(
-          "¿Eliminar COMPLETAMENTE el modelo "+
-          name+
-          "?"
-        )
-      ){
-        return;
-      }
-
-      if(
-        !confirm(
-          "Se eliminarán todos sus colores y fotografías.\n\n"+
-          "Esta acción no se puede deshacer.\n\n"+
-          "¿Confirmas?"
-        )
-      ){
-        return;
-      }
-
-      await manage({
-        action:"delete-model",
-        modelId:
-          Number(
-            deleteModel.dataset.id
-          )
-      });
-
-      return;
-    }
-  };
-
-/* REGISTRO DE PEDIDOS */
-
-async function loadOrders(){
-
-  orders.innerHTML=
-    '<div class="loading">'+
-    "Cargando registro..."+
-    "</div>";
-
-  try{
-
-    const response=
-      await fetch(
-        "/.netlify/functions/admin-pedidos?t="+
-        Date.now(),
-        {
-          method:"GET",
-
-          headers:{
-            "x-admin-password":
-              adminPassword
-          },
-
-          cache:"no-store"
-        }
-      );
-
-    const result=
-      await readJson(
-        response
-      );
 
     if(
-      !response.ok||
-      !result.success
+      normalizeText(cleanColor)===
+      normalizeText(oldColor)
     ){
+      return;
+    }
 
+    await manage({
+      action:"rename-variant",
+      variantId:Number(editColor.dataset.id),
+      newColor:cleanColor
+    });
+
+    return;
+  }
+
+  const left=
+    event.target.closest(".move-left");
+
+  if(left){
+    await manage({
+      action:"move-image",
+      imageId:Number(left.dataset.id),
+      direction:"left"
+    });
+
+    return;
+  }
+
+  const right=
+    event.target.closest(".move-right");
+
+  if(right){
+    await manage({
+      action:"move-image",
+      imageId:Number(right.dataset.id),
+      direction:"right"
+    });
+
+    return;
+  }
+
+  const primary=
+    event.target.closest(".make-primary");
+
+  if(primary){
+    await manage({
+      action:"make-primary",
+      imageId:Number(primary.dataset.id)
+    });
+
+    return;
+  }
+
+  const deletePhoto=
+    event.target.closest(".delete-photo");
+
+  if(deletePhoto){
+    if(
+      !confirm(
+        "¿Eliminar esta fotografía definitivamente?"
+      )
+    ){
+      return;
+    }
+
+    await manage({
+      action:"delete-image",
+      imageId:Number(deletePhoto.dataset.id)
+    });
+
+    return;
+  }
+
+  const deleteVariant=
+    event.target.closest(".delete-variant");
+
+  if(deleteVariant){
+    const colorName=
+      deleteVariant.dataset.color||"";
+
+    if(
+      !confirm(
+        "¿Eliminar el color "+
+        colorName+
+        " y TODAS sus fotografías?"
+      )
+    ){
+      return;
+    }
+
+    await manage({
+      action:"delete-variant",
+      variantId:Number(deleteVariant.dataset.id)
+    });
+
+    return;
+  }
+
+  const deleteModel=
+    event.target.closest(".delete-model");
+
+  if(deleteModel){
+    const name=deleteModel.dataset.name||"";
+
+    if(
+      !confirm(
+        "¿Eliminar COMPLETAMENTE el modelo "+
+        name+
+        "?"
+      )
+    ){
+      return;
+    }
+
+    if(
+      !confirm(
+        "Se eliminarán todos sus colores y fotografías.\n\n"+
+        "Esta acción no se puede deshacer.\n\n"+
+        "¿Confirmas?"
+      )
+    ){
+      return;
+    }
+
+    await manage({
+      action:"delete-model",
+      modelId:Number(deleteModel.dataset.id)
+    });
+
+    return;
+  }
+};
+
+/* =========================
+   PREPARAR AGREGAR FOTOS/COLOR
+========================= */
+
+function prepareExistingUpload(
+  modelName,
+  colorName,
+  openPhotos
+){
+  modelo.value=modelName;
+
+  colorBlocks.innerHTML="";
+
+  const block=
+    createColorBlock(colorName);
+
+  uploadSection.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+
+  setTimeout(function(){
+    if(openPhotos){
+      block
+        .querySelector(".color-files")
+        .click();
+    }else{
+      block
+        .querySelector(".color-input")
+        .focus();
+    }
+  },400);
+}
+
+/* =========================
+   REGISTRO PEDIDOS
+========================= */
+
+async function loadOrders(){
+  orders.innerHTML=
+    '<div class="loading">Cargando registro...</div>';
+
+  try{
+    const response=await fetch(
+      "/.netlify/functions/admin-pedidos?t="+Date.now(),
+      {
+        method:"GET",
+
+        headers:{
+          "x-admin-password":adminPassword
+        },
+
+        cache:"no-store"
+      }
+    );
+
+    const result=await readJson(response);
+
+    if(!response.ok||!result.success){
       throw new Error(
         result.error||
         "No se pudo cargar el registro."
@@ -2107,9 +1923,7 @@ async function loadOrders(){
     }
 
     allOrders=
-      Array.isArray(
-        result.pedidos
-      )
+      Array.isArray(result.pedidos)
         ?result.pedidos
         :[];
 
@@ -2118,42 +1932,32 @@ async function loadOrders(){
     renderOrders();
 
   }catch(error){
-
     orders.innerHTML=
       '<div class="empty">'+
-      escapeHtml(
-        error.message
-      )+
+      escapeHtml(error.message)+
       "</div>";
   }
 }
 
 function renderOrders(){
-
   const totalPairs=
     allOrders.reduce(
       function(sum,order){
-
         return sum+
-          Number(
-            order.total_pares||0
-          );
+          Number(order.total_pares||0);
       },
       0
     );
 
   document.getElementById(
     "recordCount"
-  ).textContent=
-    allOrders.length;
+  ).textContent=allOrders.length;
 
   document.getElementById(
     "recordPairs"
-  ).textContent=
-    totalPairs;
+  ).textContent=totalPairs;
 
   if(!allOrders.length){
-
     orders.innerHTML=
       '<div class="empty">'+
       "Todavía no hay pedidos registrados."+
@@ -2163,114 +1967,91 @@ function renderOrders(){
   }
 
   orders.innerHTML=
-    allOrders.map(
-      function(order){
+    allOrders.map(function(order){
+      const details=
+        Array.isArray(order.pedido_detalles)
+          ?order.pedido_detalles
+          :[];
 
-        const details=
-          Array.isArray(
-            order.pedido_detalles
-          )
-            ?order.pedido_detalles
-            :[];
+      const lines=
+        details.length
+          ?details.map(function(item){
+              return `
+                <div class="order-line">
 
-        const lines=
-          details.length
-            ?details.map(
-                function(item){
+                  <div class="order-qty">
+                    ${Number(item.cantidad)}
+                  </div>
 
-                  return `
-                    <div class="order-line">
+                  <div class="order-product">
+                    Modelo ${escapeHtml(item.modelo)}
 
-                      <div class="order-qty">
-                        ${Number(item.cantidad)}
-                      </div>
+                    <span>
+                      ${escapeHtml(formatColor(item.color))}
+                    </span>
+                  </div>
 
-                      <div class="order-product">
-
-                        Modelo ${escapeHtml(item.modelo)}
-
-                        <span>
-                          ${escapeHtml(formatColor(item.color))}
-                        </span>
-
-                      </div>
-
-                    </div>
-                  `;
-                }
-              ).join("")
-            :`
-              <div class="order-line">
-                Sin productos registrados
-              </div>
-            `;
-
-        return `
-
-          <article class="order-card">
-
-            <div class="order-top">
-
-              <div>
-
-                <div class="order-folio">
-                  ${escapeHtml(order.folio)}
                 </div>
+              `;
+            }).join("")
+          :`
+            <div class="order-line">
+              Sin productos registrados
+            </div>
+          `;
 
-                <div class="order-client">
-                  ${escapeHtml(order.cliente)}
-                </div>
+      return `
+        <article class="order-card">
 
-                <div class="order-date">
-                  ${escapeHtml(formatDate(order.creado_en))}
-                </div>
+          <div class="order-top">
 
+            <div>
+
+              <div class="order-folio">
+                ${escapeHtml(order.folio)}
               </div>
 
-              <div class="order-total">
+              <div class="order-client">
+                ${escapeHtml(order.cliente)}
+              </div>
 
-                <strong>
-                  ${Number(order.total_pares||0)}
-                </strong>
-
-                <span>
-                  PARES
-                </span>
-
+              <div class="order-date">
+                ${escapeHtml(formatDate(order.creado_en))}
               </div>
 
             </div>
 
-            <div class="order-items">
-              ${lines}
+            <div class="order-total">
+
+              <strong>
+                ${Number(order.total_pares||0)}
+              </strong>
+
+              <span>PARES</span>
+
             </div>
 
-          </article>
-        `;
-      }
-    ).join("");
+          </div>
+
+          <div class="order-items">
+            ${lines}
+          </div>
+
+        </article>
+      `;
+    }).join("");
 }
 
-/* PRESENTACIÓN DE COLOR */
+/* =========================
+   COLOR
+========================= */
 
 function formatColor(value){
+  const original=String(value||"").trim();
 
-  const original=
-    String(value||"")
-      .trim();
+  if(!original)return "";
 
-  if(!original){
-    return "";
-  }
-
-  const normalized=
-    original
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(
-        /[\u0300-\u036f]/g,
-        ""
-      );
+  const normalized=normalizeText(original);
 
   const names={
     "negro":"Negro",
@@ -2298,22 +2079,16 @@ function formatColor(value){
     );
 }
 
-/* FECHA */
+/* =========================
+   FECHA
+========================= */
 
 function formatDate(value){
+  if(!value)return "";
 
-  if(!value){
-    return "";
-  }
+  const date=new Date(value);
 
-  const date=
-    new Date(value);
-
-  if(
-    Number.isNaN(
-      date.getTime()
-    )
-  ){
+  if(Number.isNaN(date.getTime())){
     return value;
   }
 
@@ -2329,50 +2104,41 @@ function formatDate(value){
   ).format(date);
 }
 
-/* ACTUALIZAR */
+/* =========================
+   ACTUALIZAR
+========================= */
 
-refreshButton.onclick=
-  loadModels;
+refreshButton.onclick=loadModels;
 
 document.getElementById(
   "refreshOrders"
-).onclick=
-  loadOrders;
+).onclick=loadOrders;
 
-/* LEER JSON */
+/* =========================
+   JSON
+========================= */
 
 async function readJson(response){
-
-  const text=
-    await response.text();
+  const text=await response.text();
 
   try{
-
-    return JSON.parse(
-      text
-    );
-
+    return JSON.parse(text);
   }catch(error){
-
     return {
       success:false,
       error:
         "Respuesta inválida del servidor: "+
-        text.substring(
-          0,
-          300
-        )
+        text.substring(0,300)
     };
   }
 }
 
-/* SEGURIDAD HTML */
+/* =========================
+   SEGURIDAD HTML
+========================= */
 
 function escapeHtml(value){
-
-  return String(
-    value||""
-  )
+  return String(value||"")
     .replaceAll("&","&amp;")
     .replaceAll("<","&lt;")
     .replaceAll(">","&gt;")
@@ -2381,13 +2147,14 @@ function escapeHtml(value){
 }
 
 function escapeAttribute(value){
-
-  return escapeHtml(
-    value
-  );
+  return escapeHtml(value);
 }
 
-/* INICIAR */
+/* =========================
+   INICIAR
+========================= */
+
+createColorBlock("");
 
 loadModels();
 
