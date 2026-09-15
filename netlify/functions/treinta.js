@@ -9,126 +9,52 @@ exports.handler = async function () {
     const nextAction =
       "40bb5b0ade1fd3be32128e7b8b012934e5391db5b1";
 
-    const limit = 12;
-    const allProducts = [];
-
-    // Recorremos las páginas de Treinta.
-    // Dejamos un máximo de 100 como protección.
-    for (let page = 1; page <= 100; page++) {
-      const body = JSON.stringify([
-        {
-          storeId,
-          page,
-          limit,
-          category: "undefined",
-          search: "undefined",
-          orderBy: "name-asc",
-          excludeOutOfStock: true
-        }
-      ]);
-
-      const response = await fetch(
-        `${catalogUrl}?sort=name-asc`,
-        {
-          method: "POST",
-          headers: {
-            "User-Agent": "Mozilla/5.0",
-            "Accept": "text/x-component",
-            "Content-Type": "text/plain;charset=UTF-8",
-            "next-action": nextAction
-          },
-          body
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `Treinta respondió ${response.status} en página ${page}`
-        );
+    const body = JSON.stringify([
+      {
+        storeId,
+        page: 2,
+        limit: 12,
+        category: "undefined",
+        search: "undefined",
+        orderBy: "name-asc",
+        excludeOutOfStock: true
       }
+    ]);
 
-      const text = await response.text();
-
-      /*
-       * La respuesta de una Server Action de Next.js no es
-       * JSON puro. Buscamos dentro de ella los objetos de
-       * producto que contienen id, name, stock, etc.
-       */
-      const productRegex =
-        /"id":"([^"]+)"[\s\S]*?"name":"([^"]+)"[\s\S]*?"isVisible":(\d+)[\s\S]*?"stock":(-?\d+)/g;
-
-      const pageProducts = [];
-      let match;
-
-      while ((match = productRegex.exec(text)) !== null) {
-        const id = match[1];
-        const name = match[2];
-        const isVisible = Number(match[3]);
-        const stock = Number(match[4]);
-
-        if (
-          isVisible === 1 &&
-          stock > 0 &&
-          !pageProducts.some(
-            product => product.id === id
-          )
-        ) {
-          pageProducts.push({
-            id,
-            name,
-            stock
-          });
-        }
+    const response = await fetch(
+      `${catalogUrl}?sort=name-asc`,
+      {
+        method: "POST",
+        headers: {
+          "User-Agent": "Mozilla/5.0",
+          "Accept": "text/x-component",
+          "Content-Type": "text/plain;charset=UTF-8",
+          "next-action": nextAction
+        },
+        body
       }
+    );
 
-      // Si Treinta ya no devuelve productos,
-      // terminamos la paginación.
-      if (pageProducts.length === 0) {
-        break;
-      }
-
-      for (const product of pageProducts) {
-        if (
-          !allProducts.some(
-            existing => existing.id === product.id
-          )
-        ) {
-          allProducts.push(product);
-        }
-      }
-
-      // Una página incompleta normalmente indica
-      // que llegamos al final.
-      if (pageProducts.length < limit) {
-        break;
-      }
-    }
+    const text = await response.text();
 
     return {
       statusCode: 200,
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "no-store"
+        "Content-Type": "text/plain; charset=utf-8",
+        "Access-Control-Allow-Origin": "*"
       },
-      body: JSON.stringify({
-        success: true,
-        count: allProducts.length,
-        products: allProducts
-      })
+      body:
+        `HTTP TREINTA: ${response.status}\n\n` +
+        text
     };
 
   } catch (error) {
     return {
       statusCode: 500,
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
+        "Content-Type": "text/plain; charset=utf-8"
       },
-      body: JSON.stringify({
-        success: false,
-        error: error.message
-      })
+      body: `ERROR: ${error.message}`
     };
   }
 };
