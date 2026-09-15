@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
 <title>Modelo | CAROLA</title>
 
@@ -17,7 +17,9 @@
   --dark:#171717;
 }
 
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
@@ -40,16 +42,21 @@ a{
 /* HEADER */
 
 .header{
-  height:72px;
+  position:sticky;
+  top:0;
+  z-index:100;
+  height:70px;
   border-bottom:1px solid var(--border);
-  background:#fff;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
 }
 
 .header-inner{
   max-width:1250px;
   height:100%;
   margin:auto;
-  padding:0 24px;
+  padding:0 20px;
   display:grid;
   grid-template-columns:1fr auto 1fr;
   align-items:center;
@@ -58,12 +65,12 @@ a{
 .back{
   justify-self:start;
   font-size:14px;
-  font-weight:700;
+  font-weight:800;
 }
 
 .brand{
   font-size:24px;
-  font-weight:800;
+  font-weight:900;
   letter-spacing:7px;
 }
 
@@ -74,8 +81,9 @@ a{
   color:#fff;
   padding:10px 15px;
   border-radius:999px;
-  font-weight:750;
+  font-weight:800;
   font-size:13px;
+  white-space:nowrap;
 }
 
 /* PRODUCTO */
@@ -106,15 +114,16 @@ a{
 .main-image{
   width:100%;
   height:100%;
-  object-fit:cover;
   display:block;
+  object-fit:cover;
 }
 
 .thumbnails{
   display:flex;
   gap:10px;
+  margin-top:12px;
   overflow-x:auto;
-  padding:12px 0 5px;
+  padding-bottom:5px;
   scrollbar-width:none;
 }
 
@@ -125,7 +134,7 @@ a{
 .thumbnail{
   width:88px;
   height:105px;
-  flex:none;
+  flex:0 0 auto;
   padding:0;
   border:2px solid transparent;
   border-radius:13px;
@@ -154,7 +163,7 @@ a{
   font-size:11px;
   letter-spacing:2px;
   text-transform:uppercase;
-  font-weight:800;
+  font-weight:900;
   color:#8d8589;
 }
 
@@ -173,7 +182,7 @@ h1{
   background:#eff8f1;
   border-radius:999px;
   font-size:12px;
-  font-weight:700;
+  font-weight:800;
 }
 
 .available::before{
@@ -193,7 +202,7 @@ h1{
 .label{
   display:block;
   font-size:13px;
-  font-weight:800;
+  font-weight:900;
   margin-bottom:12px;
 }
 
@@ -210,7 +219,7 @@ h1{
   background:#fff;
   padding:12px 17px;
   border-radius:999px;
-  font-weight:650;
+  font-weight:700;
 }
 
 .color-button.active{
@@ -224,12 +233,12 @@ h1{
 .quantity-selector{
   display:flex;
   align-items:center;
-  gap:14px;
+  gap:16px;
 }
 
 .quantity-selector button{
-  width:46px;
-  height:46px;
+  width:48px;
+  height:48px;
   border:1px solid var(--border);
   background:#fff;
   border-radius:13px;
@@ -243,7 +252,7 @@ h1{
 
 .quantity-value strong{
   display:block;
-  font-size:21px;
+  font-size:23px;
 }
 
 .quantity-value span{
@@ -262,9 +271,10 @@ h1{
   color:#fff;
   padding:17px 20px;
   border-radius:15px;
-  font-weight:800;
+  font-weight:900;
   margin-top:28px;
   font-size:15px;
+  transition:.2s;
 }
 
 .add-cart.added{
@@ -274,9 +284,9 @@ h1{
 .continue{
   display:block;
   text-align:center;
-  margin-top:15px;
+  margin-top:16px;
   font-size:13px;
-  font-weight:700;
+  font-weight:800;
 }
 
 .note{
@@ -286,7 +296,7 @@ h1{
   margin-top:11px;
 }
 
-/* ESTADOS */
+/* CARGA */
 
 .loading{
   grid-column:1/-1;
@@ -309,13 +319,21 @@ h1{
 }
 
 @keyframes spin{
-  to{transform:rotate(360deg)}
+  to{
+    transform:rotate(360deg);
+  }
 }
+
+/* ERROR */
 
 .error{
   grid-column:1/-1;
   text-align:center;
   padding:80px 20px;
+}
+
+.error h2{
+  font-size:30px;
 }
 
 .error a{
@@ -325,6 +343,32 @@ h1{
   color:#fff;
   padding:13px 20px;
   border-radius:999px;
+}
+
+/* TOAST */
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:25px;
+  z-index:800;
+  transform:translate(-50%,30px);
+  background:#171717;
+  color:#fff;
+  padding:12px 18px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:800;
+  opacity:0;
+  visibility:hidden;
+  transition:.25s;
+  white-space:nowrap;
+}
+
+.toast.show{
+  opacity:1;
+  visibility:visible;
+  transform:translate(-50%,0);
 }
 
 /* MÓVIL */
@@ -345,7 +389,7 @@ h1{
 @media(max-width:520px){
 
   .header{
-    height:64px;
+    height:62px;
   }
 
   .header-inner{
@@ -404,7 +448,6 @@ h1{
       ← Catálogo
     </a>
 
-
     <a
       href="/"
       class="brand"
@@ -412,13 +455,12 @@ h1{
       CAROLA
     </a>
 
-
     <a
       href="/?carrito=1"
       id="cartLink"
       class="cart-link"
     >
-      Pedido · 0
+      Pedido · 0 pares
     </a>
 
   </div>
@@ -442,37 +484,58 @@ h1{
 </main>
 
 
+<div
+  id="toast"
+  class="toast"
+>
+  ✓ Agregado al pedido
+</div>
+
+
 <script>
 
-/* ==========================
+/* =========================
    CONFIGURACIÓN
-========================== */
+========================= */
 
 const CART_KEY =
+  "carola_cart_v2";
+
+const OLD_CART_KEY =
   "carola_cart_v1";
 
+
+/* =========================
+   URL
+========================= */
 
 const params =
   new URLSearchParams(
     window.location.search
   );
 
-
 const requestedModel =
   params.get("modelo");
 
+
+/* =========================
+   ELEMENTOS
+========================= */
 
 const productPage =
   document.getElementById(
     "productPage"
   );
 
-
 const cartLink =
   document.getElementById(
     "cartLink"
   );
 
+
+/* =========================
+   VARIABLES
+========================= */
 
 let currentProduct = null;
 
@@ -481,9 +544,9 @@ let currentVariant = null;
 let quantity = 6;
 
 
-/* ==========================
-   NORMALIZAR
-========================== */
+/* =========================
+   NORMALIZACIÓN
+========================= */
 
 function normalize(value){
 
@@ -511,16 +574,19 @@ function normalizeModel(value){
   if(match){
 
     return match[0]
-      .replace(/\s+/g,"");
+      .replace(
+        /\s+/g,
+        ""
+      );
   }
 
   return text;
 }
 
 
-/* ==========================
+/* =========================
    FOTOS
-========================== */
+========================= */
 
 function sortImages(images){
 
@@ -544,23 +610,55 @@ function sortImages(images){
 }
 
 
-/* ==========================
+function getVariantCover(
+  variant
+){
+
+  const images =
+    sortImages(
+      variant?.imagenes
+    );
+
+  return images[0]?.url || "";
+}
+
+
+/* =========================
    CARRITO
-========================== */
+========================= */
 
 function loadCart(){
 
   try{
 
-    const saved =
-      JSON.parse(
-        localStorage.getItem(
-          CART_KEY
-        ) || "[]"
+    let raw =
+      localStorage.getItem(
+        CART_KEY
       );
 
-    return Array.isArray(saved)
-      ? saved
+
+    /*
+     * MIGRAR CARRITO
+     * DE LA VERSIÓN ANTERIOR
+     */
+
+    if(!raw){
+
+      raw =
+        localStorage.getItem(
+          OLD_CART_KEY
+        );
+    }
+
+
+    const data =
+      JSON.parse(
+        raw || "[]"
+      );
+
+
+    return Array.isArray(data)
+      ? data
       : [];
 
   }catch(error){
@@ -600,11 +698,17 @@ function updateCartCount(){
   const total =
     getCartTotal();
 
+
   cartLink.textContent =
     "Pedido · " +
-    total;
+    total +
+    " pares";
 }
 
+
+/* =========================
+   AGREGAR AL CARRITO
+========================= */
 
 function addToCart(){
 
@@ -621,21 +725,23 @@ function addToCart(){
 
 
   /*
-   * MISMO MODELO + MISMO COLOR
-   * = SUMAR CANTIDADES
-   *
-   * Coñac = conac
+   * BUSCAR MISMO
+   * MODELO + COLOR
    */
 
   const existing =
     cart.find(
       item =>
+
         normalizeModel(
           item.modelo
         ) ===
         normalizeModel(
           currentProduct.modelo
-        ) &&
+        )
+
+        &&
+
         normalize(
           item.color
         ) ===
@@ -645,6 +751,17 @@ function addToCart(){
     );
 
 
+  const image =
+    getVariantCover(
+      currentVariant
+    );
+
+
+  /*
+   * SI YA EXISTE:
+   * SUMAR CANTIDAD
+   */
+
   if(existing){
 
     existing.cantidad =
@@ -653,9 +770,17 @@ function addToCart(){
       ) +
       quantity;
 
+
+    if(!existing.image){
+
+      existing.image =
+        image;
+    }
+
   }else{
 
     cart.push({
+
       modelo:
         String(
           currentProduct.modelo
@@ -667,12 +792,23 @@ function addToCart(){
         ),
 
       cantidad:
-        quantity
+        quantity,
+
+      image:
+        image
+
     });
   }
 
 
   saveCart(cart);
+
+
+  showToast(
+    "✓ " +
+    quantity +
+    " pares agregados"
+  );
 
 
   const button =
@@ -683,43 +819,45 @@ function addToCart(){
 
   if(button){
 
-    const original =
-      button.textContent;
-
-    button.textContent =
-      "✓ Agregado al pedido";
-
     button.classList.add(
       "added"
     );
 
 
+    button.textContent =
+      "✓ Agregado al pedido";
+
+
     setTimeout(
       function(){
-
-        button.textContent =
-          original;
 
         button.classList.remove(
           "added"
         );
 
+        button.textContent =
+          "Agregar " +
+          quantity +
+          " pares al pedido";
+
       },
-      1400
+      1300
     );
   }
 }
 
 
-/* ==========================
+/* =========================
    CARGAR PRODUCTO
-========================== */
+========================= */
 
 async function loadProduct(){
 
   if(!requestedModel){
 
-    showError();
+    showError(
+      "No encontramos este modelo."
+    );
 
     return;
   }
@@ -763,7 +901,10 @@ async function loadProduct(){
       !supabaseResponse.ok ||
       !supabaseData.success
     ){
-      throw new Error();
+
+      throw new Error(
+        "Supabase error"
+      );
     }
 
 
@@ -771,9 +912,14 @@ async function loadProduct(){
       !treintaResponse.ok ||
       !treintaData.success
     ){
-      throw new Error();
+
+      throw new Error(
+        "Treinta error"
+      );
     }
 
+
+    /* SUPABASE */
 
     const products =
       Array.isArray(
@@ -786,9 +932,11 @@ async function loadProduct(){
     currentProduct =
       products.find(
         product =>
+
           normalizeModel(
             product.modelo
           ) ===
+
           normalizeModel(
             requestedModel
           )
@@ -797,15 +945,15 @@ async function loadProduct(){
 
     if(!currentProduct){
 
-      showError();
+      showError(
+        "No encontramos este modelo."
+      );
 
       return;
     }
 
 
-    /*
-     * TREINTA USA "products"
-     */
+    /* TREINTA */
 
     const treintaProducts =
       Array.isArray(
@@ -818,9 +966,11 @@ async function loadProduct(){
     const available =
       treintaProducts.some(
         item =>
+
           normalizeModel(
             item.name
           ) ===
+
           normalizeModel(
             currentProduct.modelo
           )
@@ -837,6 +987,8 @@ async function loadProduct(){
     }
 
 
+    /* VARIANTES CON FOTOS */
+
     currentProduct.variantes =
       (
         Array.isArray(
@@ -847,9 +999,13 @@ async function loadProduct(){
       )
       .filter(
         variant =>
+
           Array.isArray(
             variant.imagenes
-          ) &&
+          )
+
+          &&
+
           variant.imagenes.length
       );
 
@@ -886,6 +1042,7 @@ async function loadProduct(){
 
     console.error(error);
 
+
     showError(
       "No pudimos cargar este modelo."
     );
@@ -893,9 +1050,9 @@ async function loadProduct(){
 }
 
 
-/* ==========================
-   MOSTRAR PRODUCTO
-========================== */
+/* =========================
+   RENDER PRODUCTO
+========================= */
 
 function renderProduct(){
 
@@ -907,7 +1064,9 @@ function renderProduct(){
 
   if(!images.length){
 
-    showError();
+    showError(
+      "Este color no tiene fotografías."
+    );
 
     return;
   }
@@ -983,7 +1142,9 @@ function renderProduct(){
 
 
       <div class="thumbnails">
+
         ${thumbnails}
+
       </div>
 
     </section>
@@ -1010,12 +1171,14 @@ function renderProduct(){
 
 
       <span class="label">
-        Color
+        Selecciona un color
       </span>
 
 
       <div class="color-buttons">
+
         ${colorButtons}
+
       </div>
 
 
@@ -1065,7 +1228,9 @@ function renderProduct(){
         class="add-cart"
         type="button"
       >
+
         Agregar ${quantity} pares al pedido
+
       </button>
 
 
@@ -1073,12 +1238,16 @@ function renderProduct(){
         href="/"
         class="continue"
       >
+
         ← Seguir viendo modelos
+
       </a>
 
 
       <div class="note">
+
         Venta en múltiplos de 6 pares.
+
       </div>
 
     </section>
@@ -1087,15 +1256,15 @@ function renderProduct(){
 }
 
 
-/* ==========================
+/* =========================
    INTERACCIONES
-========================== */
+========================= */
 
 productPage.onclick =
   function(event){
 
 
-    /* FOTO */
+    /* CAMBIAR FOTO */
 
     const thumbnail =
       event.target.closest(
@@ -1139,7 +1308,7 @@ productPage.onclick =
     }
 
 
-    /* COLOR */
+    /* CAMBIAR COLOR */
 
     const colorButton =
       event.target.closest(
@@ -1160,12 +1329,12 @@ productPage.onclick =
           .variantes
           .find(
             item =>
-              Number(item.id) ===
-              id
+              Number(item.id) === id
           );
 
 
       if(!variant){
+
         return;
       }
 
@@ -1181,7 +1350,7 @@ productPage.onclick =
     }
 
 
-    /* +6 */
+    /* SUMAR 6 */
 
     if(
       event.target.closest(
@@ -1191,13 +1360,15 @@ productPage.onclick =
 
       quantity += 6;
 
+
       updateQuantity();
+
 
       return;
     }
 
 
-    /* -6 */
+    /* RESTAR 6 */
 
     if(
       event.target.closest(
@@ -1214,6 +1385,7 @@ productPage.onclick =
 
       updateQuantity();
 
+
       return;
     }
 
@@ -1228,10 +1400,16 @@ productPage.onclick =
 
       addToCart();
 
+
       return;
     }
+
   };
 
+
+/* =========================
+   ACTUALIZAR CANTIDAD
+========================= */
 
 function updateQuantity(){
 
@@ -1264,9 +1442,43 @@ function updateQuantity(){
 }
 
 
-/* ==========================
+/* =========================
+   TOAST
+========================= */
+
+function showToast(text){
+
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+
+  toast.textContent =
+    text;
+
+
+  toast.classList.add(
+    "show"
+  );
+
+
+  setTimeout(
+    function(){
+
+      toast.classList.remove(
+        "show"
+      );
+
+    },
+    1600
+  );
+}
+
+
+/* =========================
    ERROR
-========================== */
+========================= */
 
 function showError(
   message =
@@ -1281,10 +1493,12 @@ function showError(
         ${escapeHtml(message)}
       </h2>
 
+
       <p>
         Regresa al catálogo para ver
         los modelos disponibles.
       </p>
+
 
       <a href="/">
         Ver catálogo
@@ -1296,18 +1510,33 @@ function showError(
 }
 
 
-/* ==========================
-   SEGURIDAD
-========================== */
+/* =========================
+   SEGURIDAD HTML
+========================= */
 
 function escapeHtml(value){
 
   return String(value || "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 }
 
 
@@ -1317,9 +1546,9 @@ function escapeAttribute(value){
 }
 
 
-/* ==========================
+/* =========================
    INICIAR
-========================== */
+========================= */
 
 updateCartCount();
 
