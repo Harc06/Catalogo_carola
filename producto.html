@@ -1,475 +1,883 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  <title>Calzado Carola</title>
+<title>Modelo | CAROLA</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+:root{
+  --pink:#f5dce7;
+  --pink2:#fff5f8;
+  --pink3:#e8b8cc;
+  --text:#191919;
+  --muted:#858085;
+  --border:#eee5e9;
+  --dark:#171717;
+}
 
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #fff8fb;
-      color: #222;
-    }
+*{
+  box-sizing:border-box;
+}
 
-    header {
-      background: white;
-      padding: 20px;
-      text-align: center;
-      border-bottom: 1px solid #f1dce6;
-    }
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  color:var(--text);
+  background:#fff;
+  -webkit-font-smoothing:antialiased;
+}
 
-    .logo {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: 6px;
-    }
+button{
+  font:inherit;
+  cursor:pointer;
+}
 
-    .back {
-      display: block;
-      max-width: 1100px;
-      margin: 25px auto 10px;
-      padding: 0 20px;
-      color: #555;
-      text-decoration: none;
-    }
+a{
+  color:inherit;
+  text-decoration:none;
+}
 
-    .product {
-      max-width: 1100px;
-      margin: auto;
-      padding: 20px;
-    }
+/* HEADER */
 
-    .title {
-      text-align: center;
-      margin-bottom: 25px;
-      font-size: 32px;
-    }
+.header{
+  height:72px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  background:#fff;
+}
 
-    .main-image-container {
-      background: white;
-      border-radius: 22px;
-      overflow: hidden;
-      box-shadow: 0 8px 30px rgba(0,0,0,.06);
-    }
+.header-inner{
+  width:min(1250px,100%);
+  padding:0 24px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+}
 
-    .main-image {
-      display: block;
-      width: 100%;
-      max-height: 750px;
-      object-fit: contain;
-    }
+.back{
+  justify-self:start;
+  font-size:14px;
+  font-weight:700;
+}
 
-    .gallery {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-      overflow-x: auto;
-      padding-bottom: 5px;
-    }
+.brand{
+  font-size:24px;
+  font-weight:800;
+  letter-spacing:7px;
+}
 
-    .thumbnail {
-      width: 90px;
-      height: 90px;
-      object-fit: cover;
-      border-radius: 12px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      flex-shrink: 0;
-    }
+.share{
+  justify-self:end;
+  border:0;
+  background:var(--pink2);
+  padding:10px 15px;
+  border-radius:999px;
+  font-weight:700;
+}
 
-    .thumbnail.active {
-      border-color: #222;
-    }
+/* PRODUCTO */
 
-    .colors-section {
-      text-align: center;
-      margin-top: 30px;
-    }
+.product-page{
+  max-width:1250px;
+  margin:auto;
+  padding:40px 24px 100px;
+  display:grid;
+  grid-template-columns:minmax(0,1.3fr) minmax(320px,.7fr);
+  gap:55px;
+}
 
-    .colors-title {
-      font-size: 14px;
-      color: #777;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+/* GALERÍA */
 
-    .colors {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+.gallery{
+  min-width:0;
+}
 
-    .color-button {
-      border: 1px solid #ead4df;
-      background: white;
-      padding: 10px 18px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 14px;
-      text-transform: capitalize;
-    }
+.main-image-wrap{
+  width:100%;
+  aspect-ratio:4/5;
+  border-radius:26px;
+  overflow:hidden;
+  background:#f6f3f4;
+}
 
-    .color-button.active {
-      background: #222;
-      color: white;
-      border-color: #222;
-    }
+.main-image{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
 
-    .loading,
-    .error {
-      text-align: center;
-      padding: 80px 20px;
-    }
+.thumbnails{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  overflow-x:auto;
+  padding-bottom:5px;
+  scrollbar-width:none;
+}
 
-    @media (max-width: 600px) {
-      .product {
-        padding: 12px;
-      }
+.thumbnails::-webkit-scrollbar{
+  display:none;
+}
 
-      .title {
-        font-size: 26px;
-      }
+.thumbnail{
+  width:88px;
+  height:105px;
+  flex:0 0 auto;
+  padding:0;
+  border:2px solid transparent;
+  border-radius:13px;
+  overflow:hidden;
+  background:#f5f5f5;
+}
 
-      .main-image-container {
-        border-radius: 16px;
-      }
+.thumbnail.active{
+  border-color:#222;
+}
 
-      .thumbnail {
-        width: 75px;
-        height: 75px;
-      }
-    }
-  </style>
+.thumbnail img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* INFO */
+
+.info{
+  padding-top:25px;
+}
+
+.eyebrow{
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  font-weight:800;
+  color:#8d8589;
+}
+
+h1{
+  margin:10px 0 0;
+  font-size:45px;
+  letter-spacing:-2px;
+}
+
+.available{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  margin-top:14px;
+  padding:8px 12px;
+  background:#eff8f1;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+}
+
+.available::before{
+  content:"";
+  width:7px;
+  height:7px;
+  background:#39a15b;
+  border-radius:50%;
+}
+
+.divider{
+  height:1px;
+  background:var(--border);
+  margin:28px 0;
+}
+
+.label{
+  display:block;
+  font-size:13px;
+  font-weight:800;
+  margin-bottom:13px;
+}
+
+.color-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+}
+
+.color-button{
+  border:1px solid var(--border);
+  background:#fff;
+  padding:12px 17px;
+  border-radius:999px;
+  font-weight:650;
+}
+
+.color-button.active{
+  background:var(--dark);
+  border-color:var(--dark);
+  color:#fff;
+}
+
+/* WHATSAPP */
+
+.whatsapp{
+  display:flex;
+  width:100%;
+  justify-content:center;
+  align-items:center;
+  gap:9px;
+  margin-top:30px;
+  padding:17px 20px;
+  border-radius:15px;
+  background:#171717;
+  color:#fff;
+  font-weight:800;
+  font-size:15px;
+}
+
+.whatsapp:hover{
+  opacity:.92;
+}
+
+.help{
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  margin-top:12px;
+}
+
+/* CARGA */
+
+.loading{
+  grid-column:1/-1;
+  min-height:400px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+}
+
+.loader{
+  width:30px;
+  height:30px;
+  margin-bottom:15px;
+  border:3px solid #eadde3;
+  border-top-color:#222;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+.error{
+  grid-column:1/-1;
+  text-align:center;
+  padding:80px 20px;
+}
+
+.error h2{
+  font-size:30px;
+}
+
+.error a{
+  display:inline-block;
+  margin-top:15px;
+  background:#171717;
+  color:#fff;
+  padding:13px 20px;
+  border-radius:999px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:800px){
+
+  .product-page{
+    grid-template-columns:1fr;
+    gap:15px;
+    padding-top:18px;
+  }
+
+  .info{
+    padding-top:15px;
+  }
+}
+
+@media(max-width:520px){
+
+  .header{
+    height:64px;
+  }
+
+  .header-inner{
+    padding:0 14px;
+  }
+
+  .brand{
+    font-size:19px;
+    letter-spacing:5px;
+  }
+
+  .back{
+    font-size:0;
+  }
+
+  .back::before{
+    content:"←";
+    font-size:23px;
+  }
+
+  .share{
+    padding:9px 12px;
+    font-size:12px;
+  }
+
+  .product-page{
+    padding:14px 14px 75px;
+  }
+
+  .main-image-wrap{
+    border-radius:20px;
+  }
+
+  .thumbnail{
+    width:70px;
+    height:84px;
+  }
+
+  h1{
+    font-size:36px;
+  }
+}
+</style>
 </head>
 
 <body>
 
-<header>
-  <div class="logo">CAROLA</div>
+<header class="header">
+  <div class="header-inner">
+
+    <a href="/" class="back">
+      ← Catálogo
+    </a>
+
+    <a href="/" class="brand">
+      CAROLA
+    </a>
+
+    <button
+      id="shareButton"
+      class="share"
+      type="button"
+    >
+      Compartir
+    </button>
+
+  </div>
 </header>
 
-<a href="/" class="back">← Volver al catálogo</a>
+<main id="productPage" class="product-page">
 
-<main id="product-content">
   <div class="loading">
+    <div class="loader"></div>
     Cargando modelo...
   </div>
+
 </main>
 
 <script>
 
-const productContent =
-  document.getElementById("product-content");
+const WHATSAPP_NUMBER = "524775218819";
 
 const params =
-  new URLSearchParams(window.location.search);
+  new URLSearchParams(
+    window.location.search
+  );
 
-const modeloBuscado =
+const requestedModel =
   params.get("modelo");
 
+const productPage =
+  document.getElementById("productPage");
 
-async function cargarProducto() {
+const shareButton =
+  document.getElementById("shareButton");
 
-  try {
+let currentProduct = null;
+let currentVariant = null;
 
-    if (!modeloBuscado) {
-      throw new Error("No se especificó un modelo");
-    }
 
+/* NORMALIZAR */
 
-    const response = await fetch(
-      "/.netlify/functions/supabase"
-    );
-
-
-    if (!response.ok) {
-      throw new Error(
-        "No se pudo consultar el catálogo"
-      );
-    }
-
-
-    const data =
-      await response.json();
-
-
-    if (
-      !data.success ||
-      !Array.isArray(data.productos)
-    ) {
-      throw new Error(
-        "Respuesta incorrecta"
-      );
-    }
-
-
-    const producto =
-      data.productos.find(
-        p =>
-          String(p.modelo).trim().toLowerCase() ===
-          String(modeloBuscado).trim().toLowerCase()
-      );
-
-
-    if (!producto) {
-      throw new Error(
-        "Modelo no encontrado"
-      );
-    }
-
-
-    const variantes =
-      producto.variantes.filter(
-        variante =>
-          Array.isArray(variante.imagenes) &&
-          variante.imagenes.length > 0
-      );
-
-
-    if (variantes.length === 0) {
-      throw new Error(
-        "Este modelo todavía no tiene imágenes"
-      );
-    }
-
-
-    productContent.innerHTML = `
-
-      <section class="product">
-
-        <h1 class="title">
-          Modelo ${producto.modelo}
-        </h1>
-
-
-        <div class="main-image-container">
-
-          <img
-            id="main-image"
-            class="main-image"
-            src=""
-            alt="Modelo ${producto.modelo}"
-          >
-
-        </div>
-
-
-        <div
-          id="gallery"
-          class="gallery"
-        ></div>
-
-
-        <div class="colors-section">
-
-          <div class="colors-title">
-            Colores disponibles
-          </div>
-
-          <div
-            id="colors"
-            class="colors"
-          ></div>
-
-        </div>
-
-      </section>
-    `;
-
-
-    const mainImage =
-      document.getElementById("main-image");
-
-    const gallery =
-      document.getElementById("gallery");
-
-    const colors =
-      document.getElementById("colors");
-
-
-    function mostrarVariante(variante) {
-
-      gallery.innerHTML = "";
-
-
-      const imagenes =
-        [...variante.imagenes].sort(
-          (a, b) =>
-            (a.orden ?? 999) -
-            (b.orden ?? 999)
-        );
-
-
-      mainImage.src =
-        imagenes[0].url;
-
-
-      imagenes.forEach(
-        (imagen, index) => {
-
-          const thumbnail =
-            document.createElement("img");
-
-
-          thumbnail.src =
-            imagen.url;
-
-
-          thumbnail.className =
-            "thumbnail" +
-            (index === 0
-              ? " active"
-              : "");
-
-
-          thumbnail.addEventListener(
-            "click",
-            () => {
-
-              mainImage.src =
-                imagen.url;
-
-
-              document
-                .querySelectorAll(
-                  ".thumbnail"
-                )
-                .forEach(
-                  img =>
-                    img.classList.remove(
-                      "active"
-                    )
-                );
-
-
-              thumbnail.classList.add(
-                "active"
-              );
-
-            }
-          );
-
-
-          gallery.appendChild(
-            thumbnail
-          );
-
-        }
-      );
-
-
-      document
-        .querySelectorAll(
-          ".color-button"
-        )
-        .forEach(
-          button =>
-            button.classList.remove(
-              "active"
-            )
-        );
-
-
-      const activeButton =
-        document.querySelector(
-          `[data-variant="${variante.id}"]`
-        );
-
-
-      if (activeButton) {
-        activeButton.classList.add(
-          "active"
-        );
-      }
-
-    }
-
-
-    variantes.forEach(
-      variante => {
-
-        const button =
-          document.createElement(
-            "button"
-          );
-
-
-        button.className =
-          "color-button";
-
-
-        button.dataset.variant =
-          variante.id;
-
-
-        button.textContent =
-          variante.color;
-
-
-        button.addEventListener(
-          "click",
-          () =>
-            mostrarVariante(
-              variante
-            )
-        );
-
-
-        colors.appendChild(
-          button
-        );
-
-      }
-    );
-
-
-    mostrarVariante(
-      variantes[0]
-    );
-
-  }
-
-  catch (error) {
-
-    console.error(error);
-
-    productContent.innerHTML = `
-
-      <div class="error">
-
-        <h2>
-          No pudimos mostrar este modelo
-        </h2>
-
-        <p style="margin-top:10px;">
-          ${error.message}
-        </p>
-
-        <p style="margin-top:25px;">
-          <a href="/">
-            Volver al catálogo
-          </a>
-        </p>
-
-      </div>
-    `;
-
-  }
-
+function normalize(value){
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"");
 }
 
 
-cargarProducto();
+/* IMÁGENES */
+
+function sortImages(images){
+  return (images || [])
+    .slice()
+    .sort((a,b) => {
+
+      const difference =
+        Number(a.orden || 0) -
+        Number(b.orden || 0);
+
+      if(difference !== 0){
+        return difference;
+      }
+
+      return Number(a.id || 0) -
+             Number(b.id || 0);
+    });
+}
+
+
+/* CARGAR */
+
+async function loadProduct(){
+
+  if(!requestedModel){
+    showError();
+    return;
+  }
+
+  try{
+
+    const [supabaseResponse, treintaResponse] =
+      await Promise.all([
+        fetch(
+          "/.netlify/functions/supabase?t=" +
+          Date.now(),
+          {cache:"no-store"}
+        ),
+        fetch(
+          "/.netlify/functions/treinta?t=" +
+          Date.now(),
+          {cache:"no-store"}
+        )
+      ]);
+
+    const supabaseData =
+      await supabaseResponse.json();
+
+    const treintaData =
+      await treintaResponse.json();
+
+    if(
+      !supabaseResponse.ok ||
+      !supabaseData.success
+    ){
+      throw new Error();
+    }
+
+    if(
+      !treintaResponse.ok ||
+      !treintaData.success
+    ){
+      throw new Error();
+    }
+
+    const products =
+      Array.isArray(supabaseData.productos)
+        ? supabaseData.productos
+        : [];
+
+    currentProduct =
+      products.find(product =>
+        normalize(product.modelo) ===
+        normalize(requestedModel)
+      );
+
+    if(!currentProduct){
+      showError();
+      return;
+    }
+
+    /*
+      CONFIRMAMOS QUE SIGUE
+      DISPONIBLE EN TREINTA
+    */
+
+    const treintaProducts =
+      Array.isArray(treintaData.productos)
+        ? treintaData.productos
+        : [];
+
+    const available =
+      treintaProducts.some(item =>
+        normalizeModel(item.name) ===
+        normalizeModel(currentProduct.modelo)
+      );
+
+    if(!available){
+      showError(
+        "Este modelo no está disponible actualmente."
+      );
+      return;
+    }
+
+    currentProduct.variantes =
+      (
+        Array.isArray(currentProduct.variantes)
+          ? currentProduct.variantes
+          : []
+      ).filter(variant =>
+        Array.isArray(variant.imagenes) &&
+        variant.imagenes.length
+      );
+
+    if(!currentProduct.variantes.length){
+      showError();
+      return;
+    }
+
+    currentVariant =
+      currentProduct.variantes[0];
+
+    document.title =
+      `Modelo ${currentProduct.modelo} | CAROLA`;
+
+    renderProduct();
+
+  }catch(error){
+
+    console.error(error);
+
+    showError(
+      "No pudimos cargar este modelo."
+    );
+  }
+}
+
+
+function normalizeModel(value){
+
+  const text = normalize(value);
+
+  const match =
+    text.match(/[a-z]*\s*\d+[a-z]*/i);
+
+  if(match){
+    return match[0]
+      .replace(/\s+/g,"");
+  }
+
+  return text;
+}
+
+
+/* RENDER */
+
+function renderProduct(){
+
+  const images =
+    sortImages(
+      currentVariant.imagenes
+    );
+
+  const mainImage =
+    images[0];
+
+  const thumbnails =
+    images.map((image,index) => `
+      <button
+        type="button"
+        class="thumbnail ${index === 0 ? "active" : ""}"
+        data-url="${escapeAttribute(image.url)}"
+      >
+        <img
+          src="${escapeAttribute(image.url)}"
+          alt=""
+        >
+      </button>
+    `).join("");
+
+  const colorButtons =
+    currentProduct.variantes
+      .map(variant => `
+        <button
+          type="button"
+          class="color-button ${
+            Number(variant.id) ===
+            Number(currentVariant.id)
+              ? "active"
+              : ""
+          }"
+          data-variant="${Number(variant.id)}"
+        >
+          ${escapeHtml(variant.color)}
+        </button>
+      `).join("");
+
+  productPage.innerHTML = `
+
+    <section class="gallery">
+
+      <div class="main-image-wrap">
+        <img
+          id="mainImage"
+          class="main-image"
+          src="${escapeAttribute(mainImage.url)}"
+          alt="Modelo ${escapeAttribute(currentProduct.modelo)} ${escapeAttribute(currentVariant.color)}"
+        >
+      </div>
+
+      <div class="thumbnails">
+        ${thumbnails}
+      </div>
+
+    </section>
+
+
+    <section class="info">
+
+      <span class="eyebrow">
+        Calzado Carola
+      </span>
+
+      <h1>
+        Modelo ${escapeHtml(currentProduct.modelo)}
+      </h1>
+
+      <span class="available">
+        Disponible
+      </span>
+
+      <div class="divider"></div>
+
+      <span class="label">
+        Selecciona un color
+      </span>
+
+      <div class="color-buttons">
+        ${colorButtons}
+      </div>
+
+      <a
+        id="whatsappButton"
+        class="whatsapp"
+        href="${buildWhatsApp()}"
+        target="_blank"
+        rel="noopener"
+      >
+        Pedir este modelo
+      </a>
+
+      <div class="help">
+        Te atenderemos directamente por WhatsApp.
+      </div>
+
+    </section>
+  `;
+}
+
+
+/* WHATSAPP */
+
+function buildWhatsApp(){
+
+  const message =
+    `Hola, me interesa el modelo ${currentProduct.modelo} ` +
+    `en color ${currentVariant.color}. ¿Me das información para hacer mi pedido?`;
+
+  return (
+    "https://wa.me/" +
+    WHATSAPP_NUMBER +
+    "?text=" +
+    encodeURIComponent(message)
+  );
+}
+
+
+/* CLICS DEL PRODUCTO */
+
+productPage.onclick =
+  function(event){
+
+    /* MINIATURA */
+
+    const thumbnail =
+      event.target.closest(
+        ".thumbnail"
+      );
+
+    if(thumbnail){
+
+      const mainImage =
+        document.getElementById(
+          "mainImage"
+        );
+
+      if(mainImage){
+        mainImage.src =
+          thumbnail.dataset.url;
+      }
+
+      document
+        .querySelectorAll(
+          ".thumbnail"
+        )
+        .forEach(item =>
+          item.classList.remove(
+            "active"
+          )
+        );
+
+      thumbnail.classList.add(
+        "active"
+      );
+
+      return;
+    }
+
+
+    /* COLOR */
+
+    const colorButton =
+      event.target.closest(
+        ".color-button"
+      );
+
+    if(colorButton){
+
+      const id =
+        Number(
+          colorButton.dataset.variant
+        );
+
+      const variant =
+        currentProduct.variantes.find(
+          item =>
+            Number(item.id) === id
+        );
+
+      if(!variant){
+        return;
+      }
+
+      currentVariant =
+        variant;
+
+      renderProduct();
+
+      return;
+    }
+  };
+
+
+/* COMPARTIR */
+
+shareButton.onclick =
+  async function(){
+
+    const shareData = {
+      title:
+        currentProduct
+          ? `Modelo ${currentProduct.modelo} | CAROLA`
+          : "CAROLA",
+
+      text:
+        currentProduct
+          ? `Mira el modelo ${currentProduct.modelo} de Calzado Carola`
+          : "Catálogo Calzado Carola",
+
+      url:
+        window.location.href
+    };
+
+    try{
+
+      if(navigator.share){
+
+        await navigator.share(
+          shareData
+        );
+
+      }else{
+
+        await navigator.clipboard.writeText(
+          window.location.href
+        );
+
+        const original =
+          shareButton.textContent;
+
+        shareButton.textContent =
+          "Copiado ✓";
+
+        setTimeout(
+          () =>
+            shareButton.textContent =
+              original,
+          1500
+        );
+      }
+
+    }catch(error){
+      /*
+        Cancelar compartir no es error.
+      */
+    }
+  };
+
+
+/* ERROR */
+
+function showError(
+  message =
+    "No encontramos este modelo."
+){
+
+  productPage.innerHTML = `
+    <div class="error">
+
+      <h2>
+        ${escapeHtml(message)}
+      </h2>
+
+      <p>
+        Regresa al catálogo para ver
+        los modelos disponibles.
+      </p>
+
+      <a href="/">
+        Ver catálogo
+      </a>
+
+    </div>
+  `;
+}
+
+
+/* SEGURIDAD */
+
+function escapeHtml(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+
+function escapeAttribute(value){
+  return escapeHtml(value);
+}
+
+
+loadProduct();
 
 </script>
 
