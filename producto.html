@@ -17,9 +17,7 @@
   --dark:#171717;
 }
 
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -44,15 +42,14 @@ a{
 .header{
   height:72px;
   border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
   background:#fff;
 }
 
 .header-inner{
-  width:min(1250px,100%);
-  padding:0 24px;
+  max-width:1250px;
+  height:100%;
   margin:auto;
+  padding:0 24px;
   display:grid;
   grid-template-columns:1fr auto 1fr;
   align-items:center;
@@ -70,13 +67,15 @@ a{
   letter-spacing:7px;
 }
 
-.share{
+.cart-link{
   justify-self:end;
   border:0;
-  background:var(--pink2);
+  background:#171717;
+  color:#fff;
   padding:10px 15px;
   border-radius:999px;
-  font-weight:700;
+  font-weight:750;
+  font-size:13px;
 }
 
 /* PRODUCTO */
@@ -107,16 +106,15 @@ a{
 .main-image{
   width:100%;
   height:100%;
-  display:block;
   object-fit:cover;
+  display:block;
 }
 
 .thumbnails{
   display:flex;
   gap:10px;
-  margin-top:12px;
   overflow-x:auto;
-  padding-bottom:5px;
+  padding:12px 0 5px;
   scrollbar-width:none;
 }
 
@@ -127,7 +125,7 @@ a{
 .thumbnail{
   width:88px;
   height:105px;
-  flex:0 0 auto;
+  flex:none;
   padding:0;
   border:2px solid transparent;
   border-radius:13px;
@@ -136,7 +134,7 @@ a{
 }
 
 .thumbnail.active{
-  border-color:#222;
+  border-color:#171717;
 }
 
 .thumbnail img{
@@ -146,7 +144,7 @@ a{
   display:block;
 }
 
-/* INFORMACIÓN */
+/* INFO */
 
 .info{
   padding-top:25px;
@@ -189,15 +187,17 @@ h1{
 .divider{
   height:1px;
   background:var(--border);
-  margin:28px 0;
+  margin:27px 0;
 }
 
 .label{
   display:block;
   font-size:13px;
   font-weight:800;
-  margin-bottom:13px;
+  margin-bottom:12px;
 }
+
+/* COLORES */
 
 .color-buttons{
   display:flex;
@@ -214,36 +214,79 @@ h1{
 }
 
 .color-button.active{
-  background:var(--dark);
-  border-color:var(--dark);
-  color:#fff;
-}
-
-/* WHATSAPP */
-
-.whatsapp{
-  display:flex;
-  width:100%;
-  justify-content:center;
-  align-items:center;
-  gap:9px;
-  margin-top:30px;
-  padding:17px 20px;
-  border-radius:15px;
   background:#171717;
   color:#fff;
+  border-color:#171717;
+}
+
+/* CANTIDAD */
+
+.quantity-selector{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.quantity-selector button{
+  width:46px;
+  height:46px;
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:13px;
+  font-size:24px;
+}
+
+.quantity-value{
+  min-width:90px;
+  text-align:center;
+}
+
+.quantity-value strong{
+  display:block;
+  font-size:21px;
+}
+
+.quantity-value span{
+  display:block;
+  margin-top:2px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+/* AGREGAR */
+
+.add-cart{
+  width:100%;
+  border:0;
+  background:#171717;
+  color:#fff;
+  padding:17px 20px;
+  border-radius:15px;
   font-weight:800;
+  margin-top:28px;
   font-size:15px;
 }
 
-.help{
-  text-align:center;
-  color:var(--muted);
-  font-size:12px;
-  margin-top:12px;
+.add-cart.added{
+  background:#2e7d49;
 }
 
-/* CARGA */
+.continue{
+  display:block;
+  text-align:center;
+  margin-top:15px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.note{
+  text-align:center;
+  color:var(--muted);
+  font-size:11px;
+  margin-top:11px;
+}
+
+/* ESTADOS */
 
 .loading{
   grid-column:1/-1;
@@ -266,21 +309,13 @@ h1{
 }
 
 @keyframes spin{
-  to{
-    transform:rotate(360deg);
-  }
+  to{transform:rotate(360deg)}
 }
-
-/* ERROR */
 
 .error{
   grid-column:1/-1;
   text-align:center;
   padding:80px 20px;
-}
-
-.error h2{
-  font-size:30px;
 }
 
 .error a{
@@ -292,7 +327,7 @@ h1{
   border-radius:999px;
 }
 
-/* RESPONSIVE */
+/* MÓVIL */
 
 @media(max-width:800px){
 
@@ -318,8 +353,8 @@ h1{
   }
 
   .brand{
-    font-size:19px;
-    letter-spacing:5px;
+    font-size:18px;
+    letter-spacing:4px;
   }
 
   .back{
@@ -331,13 +366,13 @@ h1{
     font-size:23px;
   }
 
-  .share{
-    padding:9px 12px;
-    font-size:12px;
+  .cart-link{
+    padding:9px 11px;
+    font-size:11px;
   }
 
   .product-page{
-    padding:14px 14px 75px;
+    padding:14px 14px 70px;
   }
 
   .main-image-wrap{
@@ -362,25 +397,34 @@ h1{
 
   <div class="header-inner">
 
-    <a href="/" class="back">
+    <a
+      href="/"
+      class="back"
+    >
       ← Catálogo
     </a>
 
-    <a href="/" class="brand">
+
+    <a
+      href="/"
+      class="brand"
+    >
       CAROLA
     </a>
 
-    <button
-      id="shareButton"
-      class="share"
-      type="button"
+
+    <a
+      href="/?carrito=1"
+      id="cartLink"
+      class="cart-link"
     >
-      Compartir
-    </button>
+      Pedido · 0
+    </a>
 
   </div>
 
 </header>
+
 
 <main
   id="productPage"
@@ -397,19 +441,22 @@ h1{
 
 </main>
 
+
 <script>
 
-/* WHATSAPP CAROLA */
+/* ==========================
+   CONFIGURACIÓN
+========================== */
 
-const WHATSAPP_NUMBER = "524775971996";
+const CART_KEY =
+  "carola_cart_v1";
 
-
-/* OBTENER MODELO DE LA URL */
 
 const params =
   new URLSearchParams(
     window.location.search
   );
+
 
 const requestedModel =
   params.get("modelo");
@@ -420,17 +467,23 @@ const productPage =
     "productPage"
   );
 
-const shareButton =
+
+const cartLink =
   document.getElementById(
-    "shareButton"
+    "cartLink"
   );
 
 
 let currentProduct = null;
+
 let currentVariant = null;
 
+let quantity = 6;
 
-/* NORMALIZAR TEXTO */
+
+/* ==========================
+   NORMALIZAR
+========================== */
 
 function normalize(value){
 
@@ -445,8 +498,6 @@ function normalize(value){
 }
 
 
-/* NORMALIZAR MODELO */
-
 function normalizeModel(value){
 
   const text =
@@ -460,17 +511,16 @@ function normalizeModel(value){
   if(match){
 
     return match[0]
-      .replace(
-        /\s+/g,
-        ""
-      );
+      .replace(/\s+/g,"");
   }
 
   return text;
 }
 
 
-/* ORDENAR FOTOGRAFÍAS */
+/* ==========================
+   FOTOS
+========================== */
 
 function sortImages(images){
 
@@ -494,7 +544,176 @@ function sortImages(images){
 }
 
 
-/* CARGAR PRODUCTO */
+/* ==========================
+   CARRITO
+========================== */
+
+function loadCart(){
+
+  try{
+
+    const saved =
+      JSON.parse(
+        localStorage.getItem(
+          CART_KEY
+        ) || "[]"
+      );
+
+    return Array.isArray(saved)
+      ? saved
+      : [];
+
+  }catch(error){
+
+    return [];
+  }
+}
+
+
+function saveCart(cart){
+
+  localStorage.setItem(
+    CART_KEY,
+    JSON.stringify(cart)
+  );
+
+  updateCartCount();
+}
+
+
+function getCartTotal(){
+
+  return loadCart()
+    .reduce(
+      (total,item) =>
+        total +
+        Number(
+          item.cantidad || 0
+        ),
+      0
+    );
+}
+
+
+function updateCartCount(){
+
+  const total =
+    getCartTotal();
+
+  cartLink.textContent =
+    "Pedido · " +
+    total;
+}
+
+
+function addToCart(){
+
+  if(
+    !currentProduct ||
+    !currentVariant
+  ){
+    return;
+  }
+
+
+  const cart =
+    loadCart();
+
+
+  /*
+   * MISMO MODELO + MISMO COLOR
+   * = SUMAR CANTIDADES
+   *
+   * Coñac = conac
+   */
+
+  const existing =
+    cart.find(
+      item =>
+        normalizeModel(
+          item.modelo
+        ) ===
+        normalizeModel(
+          currentProduct.modelo
+        ) &&
+        normalize(
+          item.color
+        ) ===
+        normalize(
+          currentVariant.color
+        )
+    );
+
+
+  if(existing){
+
+    existing.cantidad =
+      Number(
+        existing.cantidad || 0
+      ) +
+      quantity;
+
+  }else{
+
+    cart.push({
+      modelo:
+        String(
+          currentProduct.modelo
+        ),
+
+      color:
+        String(
+          currentVariant.color
+        ),
+
+      cantidad:
+        quantity
+    });
+  }
+
+
+  saveCart(cart);
+
+
+  const button =
+    document.getElementById(
+      "addCartButton"
+    );
+
+
+  if(button){
+
+    const original =
+      button.textContent;
+
+    button.textContent =
+      "✓ Agregado al pedido";
+
+    button.classList.add(
+      "added"
+    );
+
+
+    setTimeout(
+      function(){
+
+        button.textContent =
+          original;
+
+        button.classList.remove(
+          "added"
+        );
+
+      },
+      1400
+    );
+  }
+}
+
+
+/* ==========================
+   CARGAR PRODUCTO
+========================== */
 
 async function loadProduct(){
 
@@ -544,10 +763,7 @@ async function loadProduct(){
       !supabaseResponse.ok ||
       !supabaseData.success
     ){
-
-      throw new Error(
-        "No se pudo cargar Supabase."
-      );
+      throw new Error();
     }
 
 
@@ -555,17 +771,9 @@ async function loadProduct(){
       !treintaResponse.ok ||
       !treintaData.success
     ){
-
-      throw new Error(
-        "No se pudo comprobar Treinta."
-      );
+      throw new Error();
     }
 
-
-    /*
-     * SUPABASE DEVUELVE:
-     * productos
-     */
 
     const products =
       Array.isArray(
@@ -589,17 +797,14 @@ async function loadProduct(){
 
     if(!currentProduct){
 
-      showError(
-        "No encontramos este modelo."
-      );
+      showError();
 
       return;
     }
 
 
     /*
-     * TREINTA DEVUELVE:
-     * products
+     * TREINTA USA "products"
      */
 
     const treintaProducts =
@@ -609,10 +814,6 @@ async function loadProduct(){
         ? treintaData.products
         : [];
 
-
-    /*
-     * COMPROBAR DISPONIBILIDAD
-     */
 
     const available =
       treintaProducts.some(
@@ -635,11 +836,6 @@ async function loadProduct(){
       return;
     }
 
-
-    /*
-     * SOLO COLORES
-     * QUE TENGAN FOTOGRAFÍAS
-     */
 
     currentProduct.variantes =
       (
@@ -697,7 +893,9 @@ async function loadProduct(){
 }
 
 
-/* MOSTRAR PRODUCTO */
+/* ==========================
+   MOSTRAR PRODUCTO
+========================== */
 
 function renderProduct(){
 
@@ -709,16 +907,10 @@ function renderProduct(){
 
   if(!images.length){
 
-    showError(
-      "Este color no tiene fotografías."
-    );
+    showError();
 
     return;
   }
-
-
-  const mainImage =
-    images[0];
 
 
   const thumbnails =
@@ -783,7 +975,7 @@ function renderProduct(){
         <img
           id="mainImage"
           class="main-image"
-          src="${escapeAttribute(mainImage.url)}"
+          src="${escapeAttribute(images[0].url)}"
           alt="Modelo ${escapeAttribute(currentProduct.modelo)} ${escapeAttribute(currentVariant.color)}"
         >
 
@@ -791,9 +983,7 @@ function renderProduct(){
 
 
       <div class="thumbnails">
-
         ${thumbnails}
-
       </div>
 
     </section>
@@ -820,34 +1010,75 @@ function renderProduct(){
 
 
       <span class="label">
-        Selecciona un color
+        Color
       </span>
 
 
       <div class="color-buttons">
-
         ${colorButtons}
+      </div>
+
+
+      <div class="divider"></div>
+
+
+      <span class="label">
+        Cantidad
+      </span>
+
+
+      <div class="quantity-selector">
+
+        <button
+          id="minusQuantity"
+          type="button"
+        >
+          −
+        </button>
+
+
+        <div class="quantity-value">
+
+          <strong id="quantityValue">
+            ${quantity}
+          </strong>
+
+          <span>
+            pares
+          </span>
+
+        </div>
+
+
+        <button
+          id="plusQuantity"
+          type="button"
+        >
+          +
+        </button>
 
       </div>
 
 
-      <a
-        id="whatsappButton"
-        class="whatsapp"
-        href="${buildWhatsApp()}"
-        target="_blank"
-        rel="noopener"
+      <button
+        id="addCartButton"
+        class="add-cart"
+        type="button"
       >
+        Agregar ${quantity} pares al pedido
+      </button>
 
-        Pedir este modelo
 
+      <a
+        href="/"
+        class="continue"
+      >
+        ← Seguir viendo modelos
       </a>
 
 
-      <div class="help">
-
-        Te atenderemos directamente por WhatsApp.
-
+      <div class="note">
+        Venta en múltiplos de 6 pares.
       </div>
 
     </section>
@@ -856,36 +1087,15 @@ function renderProduct(){
 }
 
 
-/* CREAR ENLACE WHATSAPP */
-
-function buildWhatsApp(){
-
-  const message =
-    "Hola, me interesa el modelo " +
-    currentProduct.modelo +
-    " en color " +
-    currentVariant.color +
-    ". ¿Me das información para hacer mi pedido?";
-
-
-  return (
-    "https://wa.me/" +
-    WHATSAPP_NUMBER +
-    "?text=" +
-    encodeURIComponent(
-      message
-    )
-  );
-}
-
-
-/* INTERACCIONES */
+/* ==========================
+   INTERACCIONES
+========================== */
 
 productPage.onclick =
   function(event){
 
 
-    /* CAMBIAR FOTOGRAFÍA */
+    /* FOTO */
 
     const thumbnail =
       event.target.closest(
@@ -905,7 +1115,6 @@ productPage.onclick =
 
         mainImage.src =
           thumbnail.dataset.url;
-
       }
 
 
@@ -930,7 +1139,7 @@ productPage.onclick =
     }
 
 
-    /* CAMBIAR COLOR */
+    /* COLOR */
 
     const colorButton =
       event.target.closest(
@@ -951,14 +1160,13 @@ productPage.onclick =
           .variantes
           .find(
             item =>
-              Number(item.id) === id
+              Number(item.id) ===
+              id
           );
 
 
       if(!variant){
-
         return;
-
       }
 
 
@@ -966,104 +1174,99 @@ productPage.onclick =
         variant;
 
 
-      /*
-       * AL CAMBIAR COLOR:
-       *
-       * cambia foto principal
-       * cambian miniaturas
-       * cambia botón seleccionado
-       * cambia mensaje de WhatsApp
-       */
-
       renderProduct();
 
+
+      return;
+    }
+
+
+    /* +6 */
+
+    if(
+      event.target.closest(
+        "#plusQuantity"
+      )
+    ){
+
+      quantity += 6;
+
+      updateQuantity();
+
+      return;
+    }
+
+
+    /* -6 */
+
+    if(
+      event.target.closest(
+        "#minusQuantity"
+      )
+    ){
+
+      quantity =
+        Math.max(
+          6,
+          quantity - 6
+        );
+
+
+      updateQuantity();
+
+      return;
+    }
+
+
+    /* AGREGAR */
+
+    if(
+      event.target.closest(
+        "#addCartButton"
+      )
+    ){
+
+      addToCart();
 
       return;
     }
   };
 
 
-/* COMPARTIR */
+function updateQuantity(){
 
-shareButton.onclick =
-  async function(){
-
-
-    const shareData = {
-
-      title:
-        currentProduct
-          ? "Modelo " +
-            currentProduct.modelo +
-            " | CAROLA"
-          : "CAROLA",
-
-      text:
-        currentProduct
-          ? "Mira el modelo " +
-            currentProduct.modelo +
-            " de Calzado Carola"
-          : "Catálogo Calzado Carola",
-
-      url:
-        window.location.href
-    };
+  const value =
+    document.getElementById(
+      "quantityValue"
+    );
 
 
-    try{
-
-      if(
-        navigator.share
-      ){
-
-        await navigator.share(
-          shareData
-        );
-
-      }
-
-      else if(
-        navigator.clipboard
-      ){
-
-        await navigator
-          .clipboard
-          .writeText(
-            window.location.href
-          );
+  const button =
+    document.getElementById(
+      "addCartButton"
+    );
 
 
-        const original =
-          shareButton.textContent;
+  if(value){
+
+    value.textContent =
+      quantity;
+  }
 
 
-        shareButton.textContent =
-          "Copiado ✓";
+  if(button){
+
+    button.textContent =
+      "Agregar " +
+      quantity +
+      " pares al pedido";
+  }
+}
 
 
-        setTimeout(
-          function(){
-
-            shareButton.textContent =
-              original;
-
-          },
-          1500
-        );
-      }
-
-    }catch(error){
-
-      /*
-       * Si se cancela compartir,
-       * no hacemos nada.
-       */
-
-    }
-  };
-
-
-/* MOSTRAR ERROR */
+/* ==========================
+   ERROR
+========================== */
 
 function showError(
   message =
@@ -1075,24 +1278,16 @@ function showError(
     <div class="error">
 
       <h2>
-
         ${escapeHtml(message)}
-
       </h2>
 
-
       <p>
-
         Regresa al catálogo para ver
         los modelos disponibles.
-
       </p>
 
-
       <a href="/">
-
         Ver catálogo
-
       </a>
 
     </div>
@@ -1101,42 +1296,32 @@ function showError(
 }
 
 
-/* SEGURIDAD HTML */
+/* ==========================
+   SEGURIDAD
+========================== */
 
 function escapeHtml(value){
 
   return String(value || "")
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 
 function escapeAttribute(value){
 
   return escapeHtml(value);
-
 }
 
 
-/* INICIAR */
+/* ==========================
+   INICIAR
+========================== */
+
+updateCartCount();
 
 loadProduct();
 
