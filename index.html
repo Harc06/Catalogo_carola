@@ -221,6 +221,9 @@ const CART_KEY="carola_cart_v2";
 const OLD_CART_KEY="carola_cart_v1";
 const NAME_KEY="carola_customer_name_v1";
 
+/* NUEVO: último pedido enviado */
+const LAST_ORDER_KEY="carola_last_order_v1";
+
 let products=[];
 let selectedFilter="todos";
 let cart=loadCart();
@@ -280,7 +283,106 @@ function cover(product){
   return variant?variantCover(variant):"";
 }
 
-/* CARRITO */
+/* =========================
+   IDENTIDAD DEL PEDIDO
+========================= */
+
+function buildOrderFingerprint(name,items){
+
+  const normalizedItems=(items||[])
+    .map(item=>({
+      modelo:normalizeModel(item.modelo),
+      color:normalize(item.color),
+      cantidad:Number(item.cantidad||0)
+    }))
+    .sort((a,b)=>{
+
+      const modelCompare=
+        a.modelo.localeCompare(
+          b.modelo,
+          undefined,
+          {
+            numeric:true,
+            sensitivity:"base"
+          }
+        );
+
+      if(modelCompare!==0){
+        return modelCompare;
+      }
+
+      const colorCompare=
+        a.color.localeCompare(
+          b.color,
+          undefined,
+          {
+            sensitivity:"base"
+          }
+        );
+
+      if(colorCompare!==0){
+        return colorCompare;
+      }
+
+      return a.cantidad-b.cantidad;
+    });
+
+  return JSON.stringify({
+    cliente:normalize(name),
+    items:normalizedItems
+  });
+}
+
+function getLastOrder(){
+
+  try{
+
+    const raw=
+      localStorage.getItem(
+        LAST_ORDER_KEY
+      );
+
+    if(!raw){
+      return null;
+    }
+
+    const data=
+      JSON.parse(raw);
+
+    if(
+      !data ||
+      !data.fingerprint ||
+      !data.folio
+    ){
+      return null;
+    }
+
+    return data;
+
+  }catch{
+
+    return null;
+  }
+}
+
+function saveLastOrder(
+  fingerprint,
+  folio
+){
+
+  localStorage.setItem(
+    LAST_ORDER_KEY,
+    JSON.stringify({
+      fingerprint,
+      folio:String(folio),
+      savedAt:Date.now()
+    })
+  );
+}
+
+/* =========================
+   CARRITO
+========================= */
 
 function loadCart(){
   try{
@@ -499,7 +601,9 @@ function closePanels(){
   document.body.style.overflow="";
 }
 
-/* COMPRA RÁPIDA */
+/* =========================
+   COMPRA RÁPIDA
+========================= */
 
 function openQuick(product){
 
@@ -548,7 +652,9 @@ function updateSheetQty(){
     "Agregar "+quickQty+" pares";
 }
 
-/* CARGAR PRODUCTOS */
+/* =========================
+   CARGAR PRODUCTOS
+========================= */
 
 async function loadProducts(){
 
@@ -642,7 +748,9 @@ async function loadProducts(){
   }
 }
 
-/* FILTROS */
+/* =========================
+   FILTROS
+========================= */
 
 function buildFilters(){
 
@@ -792,7 +900,9 @@ function renderProducts(){
     `).join("");
 }
 
-/* EVENTOS CATÁLOGO */
+/* =========================
+   EVENTOS CATÁLOGO
+========================= */
 
 grid.onclick=function(event){
 
@@ -837,7 +947,9 @@ filters.onclick=function(event){
 
 search.oninput=renderProducts;
 
-/* EVENTOS COMPRA RÁPIDA */
+/* =========================
+   EVENTOS COMPRA RÁPIDA
+========================= */
 
 document.getElementById("sheetColors").onclick=
 function(event){
@@ -895,7 +1007,9 @@ function(){
   closePanels();
 };
 
-/* EVENTOS CARRITO */
+/* =========================
+   EVENTOS CARRITO
+========================= */
 
 cartBody.onclick=function(event){
 
@@ -936,7 +1050,9 @@ document.getElementById("closeCart").onclick=
 
 overlay.onclick=closePanels;
 
-/* NOMBRE */
+/* =========================
+   NOMBRE
+========================= */
 
 customerName.oninput=function(){
 
@@ -946,7 +1062,9 @@ customerName.oninput=function(){
   );
 };
 
-/* VACIAR */
+/* =========================
+   VACIAR
+========================= */
 
 document.getElementById("clearCart").onclick=
 function(){
@@ -960,6 +1078,59 @@ function(){
     saveCart();
   }
 };
+
+/* =========================
+   CREAR MENSAJE WHATSAPP
+========================= */
+
+function createWhatsAppMessage(
+  folio,
+  name
+){
+
+  const lines=
+    cart.map(
+      item=>
+        item.cantidad+
+        " "+
+        item.modelo+
+        " "+
+        item.color
+    );
+
+  return `PEDIDO CAROLA
+
+Folio: ${folio}
+
+${name}
+
+${lines.join("\n")}
+
+Total de pares = ${cartTotal()}`;
+}
+
+function openWhatsApp(
+  folio,
+  name
+){
+
+  const message=
+    createWhatsAppMessage(
+      folio,
+      name
+    );
+
+  const whatsappURL=
+    "https://wa.me/"+
+    WHATSAPP_NUMBER+
+    "?text="+
+    encodeURIComponent(
+      message
+    );
+
+  window.location.href=
+    whatsappURL;
+}
 
 /* =========================
    GUARDAR + WHATSAPP
@@ -992,7 +1163,9 @@ async function(){
   }
 
   const button=
-    document.getElementById("sendOrder");
+    document.getElementById(
+      "sendOrder"
+    );
 
   const originalText=
     button.textContent;
@@ -1001,15 +1174,20 @@ async function(){
 
   try{
 
-    /* 1. VERIFICAR TREINTA */
+    /* =====================
+       1. VERIFICAR TREINTA
+    ===================== */
 
     button.textContent=
       "Verificando disponibilidad...";
 
     const treintaResponse=
       await fetch(
-        "/.netlify/functions/treinta?t="+Date.now(),
-        {cache:"no-store"}
+        "/.netlify/functions/treinta?t="+
+        Date.now(),
+        {
+          cache:"no-store"
+        }
       );
 
     const treintaData=
@@ -1019,6 +1197,7 @@ async function(){
       !treintaResponse.ok ||
       !treintaData.success
     ){
+
       throw new Error(
         "No se pudo verificar Treinta"
       );
@@ -1027,9 +1206,11 @@ async function(){
     const available=
       new Set(
         (
-          Array.isArray(treintaData.products)
-            ?treintaData.products
-            :[]
+          Array.isArray(
+            treintaData.products
+          )
+            ? treintaData.products
+            : []
         ).map(
           product=>
             normalizeModel(
@@ -1049,7 +1230,9 @@ async function(){
                 )
               )
           )
-          .map(item=>item.modelo)
+          .map(
+            item=>item.modelo
+          )
       )
     ];
 
@@ -1063,7 +1246,45 @@ async function(){
       return;
     }
 
-    /* 2. GUARDAR EN SUPABASE */
+    /* =====================
+       2. HUELLA DEL PEDIDO
+    ===================== */
+
+    const fingerprint=
+      buildOrderFingerprint(
+        name,
+        cart
+      );
+
+    const lastOrder=
+      getLastOrder();
+
+    /*
+     * Si es exactamente el mismo
+     * pedido, reutilizamos folio.
+     */
+
+    if(
+      lastOrder &&
+      lastOrder.fingerprint===
+        fingerprint &&
+      lastOrder.folio
+    ){
+
+      button.textContent=
+        "Abriendo WhatsApp...";
+
+      openWhatsApp(
+        lastOrder.folio,
+        name
+      );
+
+      return;
+    }
+
+    /* =====================
+       3. GUARDAR PEDIDO
+    ===================== */
 
     button.textContent=
       "Guardando pedido...";
@@ -1079,19 +1300,26 @@ async function(){
               "application/json"
           },
 
-          body:JSON.stringify({
-            cliente:name,
+          body:
+            JSON.stringify({
+              cliente:name,
 
-            items:cart.map(
-              item=>({
-                modelo:item.modelo,
-                color:item.color,
-                cantidad:Number(
-                  item.cantidad
+              items:
+                cart.map(
+                  item=>({
+                    modelo:
+                      item.modelo,
+
+                    color:
+                      item.color,
+
+                    cantidad:
+                      Number(
+                        item.cantidad
+                      )
+                  })
                 )
-              })
-            )
-          })
+            })
         }
       );
 
@@ -1118,44 +1346,26 @@ async function(){
     const folio=
       orderData.pedido.folio;
 
-    /* 3. CREAR MENSAJE */
+    /* =====================
+       4. RECORDAR PEDIDO
+    ===================== */
 
-    const lines=
-      cart.map(
-        item=>
-          item.cantidad+
-          " "+
-          item.modelo+
-          " "+
-          item.color
-      );
+    saveLastOrder(
+      fingerprint,
+      folio
+    );
 
-    const message=
-`PEDIDO CAROLA
-
-Folio: ${folio}
-
-${name}
-
-${lines.join("\n")}
-
-Total de pares = ${cartTotal()}`;
-
-    /* 4. ABRIR WHATSAPP */
+    /* =====================
+       5. WHATSAPP
+    ===================== */
 
     button.textContent=
       "Abriendo WhatsApp...";
 
-    const whatsappURL=
-      "https://wa.me/"+
-      WHATSAPP_NUMBER+
-      "?text="+
-      encodeURIComponent(
-        message
-      );
-
-    window.location.href=
-      whatsappURL;
+    openWhatsApp(
+      folio,
+      name
+    );
 
   }catch(error){
 
@@ -1174,26 +1384,37 @@ Total de pares = ${cartTotal()}`;
   }
 };
 
-/* TOAST */
+/* =========================
+   TOAST
+========================= */
 
 function showToast(text){
 
   const toast=
-    document.getElementById("toast");
+    document.getElementById(
+      "toast"
+    );
 
-  toast.textContent=text;
+  toast.textContent=
+    text;
 
-  toast.classList.add("show");
+  toast.classList.add(
+    "show"
+  );
 
   setTimeout(
     ()=>{
-      toast.classList.remove("show");
+      toast.classList.remove(
+        "show"
+      );
     },
     1600
   );
 }
 
-/* SEGURIDAD HTML */
+/* =========================
+   SEGURIDAD HTML
+========================= */
 
 function escapeHtml(value){
 
@@ -1209,7 +1430,9 @@ function escapeAttribute(value){
   return escapeHtml(value);
 }
 
-/* INICIAR */
+/* =========================
+   INICIAR
+========================= */
 
 renderCart();
 
