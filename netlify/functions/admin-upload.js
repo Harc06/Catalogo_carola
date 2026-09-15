@@ -1,276 +1,167 @@
 const { createClient } = require("@supabase/supabase-js");
 
 exports.handler = async function (event) {
-
   const headers = {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers":
-      "Content-Type, x-admin-password",
-    "Access-Control-Allow-Methods":
-      "POST, OPTIONS"
+    "Access-Control-Allow-Headers": "Content-Type, x-admin-password",
+    "Access-Control-Allow-Methods": "POST, OPTIONS"
   };
 
-
-  /*
-   * PREFLIGHT
-   */
+  const respond = (statusCode, data) => ({
+    statusCode,
+    headers,
+    body: JSON.stringify(data)
+  });
 
   if (event.httpMethod === "OPTIONS") {
-    return {
-      statusCode: 200,
-      headers,
-      body: ""
-    };
+    return respond(200, {});
   }
-
-
-  /*
-   * SOLO POST
-   */
 
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({
-        success: false,
-        error: "Método no permitido"
-      })
-    };
+    return respond(405, {
+      success: false,
+      error: "Método no permitido"
+    });
   }
-
-
-  /*
-   * CONTRASEÑA
-   */
-
-  const adminPassword =
-    process.env.ADMIN_PASSWORD;
 
   const providedPassword =
     event.headers["x-admin-password"] ||
     event.headers["X-Admin-Password"];
 
-
   if (
-    !adminPassword ||
-    providedPassword !== adminPassword
+    !process.env.ADMIN_PASSWORD ||
+    providedPassword !== process.env.ADMIN_PASSWORD
   ) {
-    return {
-      statusCode: 401,
-      headers,
-      body: JSON.stringify({
-        success: false,
-        error: "Acceso no autorizado"
-      })
-    };
+    return respond(401, {
+      success: false,
+      error: "Acceso no autorizado"
+    });
   }
 
-
-  /*
-   * VARIABLES SUPABASE
-   */
-
-  const supabaseUrl =
-    process.env.SUPABASE_URL;
-
-  const serviceRoleKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-
   if (
-    !supabaseUrl ||
-    !serviceRoleKey
+    !process.env.SUPABASE_URL ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
   ) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        success: false,
-        error:
-          "Faltan variables de Supabase en Netlify."
-      })
-    };
+    return respond(500, {
+      success: false,
+      error: "Faltan variables de Supabase."
+    });
   }
 
-
-  const supabase =
-    createClient(
-      supabaseUrl,
-      serviceRoleKey,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false
-        }
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
       }
-    );
-
+    }
+  );
 
   try {
+    const body = JSON.parse(event.body || "{}");
 
-    /*
-     * LEER BODY
-     */
+    const modelo = String(body.modelo || "").trim();
+    const color = String(body.color || "").trim();
 
-    let body;
-
-    try {
-      body =
-        JSON.parse(event.body || "{}");
-    } catch (error) {
-      throw new Error(
-        "El cuerpo de la solicitud no es válido."
-      );
-    }
-
-
-    const modelo =
-      String(body.modelo || "").trim();
-
-    const color =
-      String(body.color || "").trim();
-
-    const imagenes =
-      Array.isArray(body.imagenes)
-        ? body.imagenes
-        : [];
-
+    const imagenes = Array.isArray(body.imagenes)
+      ? body.imagenes
+      : [];
 
     if (!modelo) {
-      throw new Error(
-        "Falta el modelo."
-      );
+      throw new Error("Falta el modelo.");
     }
-
 
     if (!color) {
-      throw new Error(
-        "Falta el color."
-      );
+      throw new Error("Falta el color.");
     }
 
-
-    if (imagenes.length === 0) {
+    if (!imagenes.length) {
       throw new Error(
         "No se recibieron fotografías."
       );
     }
 
-
     /*
-     * 1. BUSCAR MODELO
+     * ============================
+     * BUSCAR O CREAR MODELO
+     * ============================
      */
 
-    let modeloId = null;
-
-
-    const {
-      data: modelosEncontrados,
-      error: buscarModeloError
-    } =
+    const { data: modelos, error: modelosError } =
       await supabase
         .from("modelos")
-        .select("id, modelo")
-        .ilike("modelo", modelo)
-        .limit(1);
+        .select("id, modelo");
 
-
-    if (buscarModeloError) {
-      throw new Error(
-        "Error buscando modelo: " +
-        buscarModeloError.message
-      );
+    if (modelosError) {
+      throw new Error(modelosError.message);
     }
 
+    let modeloEncontrado =
+      (modelos || []).find(
+        item =>
+          normalizeText(item.modelo) ===
+          normalizeText(modelo)
+      );
 
-    if (
-      modelosEncontrados &&
-      modelosEncontrados.length > 0
-    ) {
+    let modeloId;
 
-      modeloId =
-        modelosEncontrados[0].id;
-
+    if (modeloEncontrado) {
+      modeloId = Number(modeloEncontrado.id);
     } else {
-
-      /*
-       * CREAR MODELO
-       */
-
-      const {
-        data: nuevoModelo,
-        error: crearModeloError
-      } =
+      const { data: nuevoModelo, error } =
         await supabase
           .from("modelos")
           .insert({
             modelo: modelo,
             activo: true
           })
-          .select("id")
+          .select("id, modelo")
           .single();
 
-
-      if (crearModeloError) {
-        throw new Error(
-          "Error creando modelo: " +
-          crearModeloError.message
-        );
+      if (error) {
+        throw new Error(error.message);
       }
 
-
-      modeloId =
-        nuevoModelo.id;
+      modeloId = Number(nuevoModelo.id);
     }
-
 
     /*
-     * 2. BUSCAR VARIANTE
+     * ============================
+     * BUSCAR O CREAR COLOR
+     * ============================
      */
 
-    let varianteId = null;
-
-
-    const {
-      data: variantesEncontradas,
-      error: buscarVarianteError
-    } =
+    const { data: variantes, error: variantesError } =
       await supabase
         .from("variantes")
-        .select("id, color")
-        .eq("modelo_id", modeloId)
-        .ilike("color", color)
-        .limit(1);
+        .select("id, modelo_id, color")
+        .eq("modelo_id", modeloId);
 
-
-    if (buscarVarianteError) {
-      throw new Error(
-        "Error buscando color: " +
-        buscarVarianteError.message
-      );
+    if (variantesError) {
+      throw new Error(variantesError.message);
     }
 
+    let varianteEncontrada =
+      (variantes || []).find(
+        item =>
+          normalizeText(item.color) ===
+          normalizeText(color)
+      );
 
-    if (
-      variantesEncontradas &&
-      variantesEncontradas.length > 0
-    ) {
+    let varianteId;
+    let colorGuardado;
 
+    if (varianteEncontrada) {
       varianteId =
-        variantesEncontradas[0].id;
+        Number(varianteEncontrada.id);
 
+      colorGuardado =
+        varianteEncontrada.color;
     } else {
-
-      /*
-       * CREAR VARIANTE
-       */
-
-      const {
-        data: nuevaVariante,
-        error: crearVarianteError
-      } =
+      const { data: nuevaVariante, error } =
         await supabase
           .from("variantes")
           .insert({
@@ -278,168 +169,108 @@ exports.handler = async function (event) {
             color: color,
             activo: true
           })
-          .select("id")
+          .select("id, color")
           .single();
 
-
-      if (crearVarianteError) {
-        throw new Error(
-          "Error creando color: " +
-          crearVarianteError.message
-        );
+      if (error) {
+        throw new Error(error.message);
       }
 
-
       varianteId =
-        nuevaVariante.id;
-    }
+        Number(nuevaVariante.id);
 
+      colorGuardado =
+        nuevaVariante.color;
+    }
 
     /*
-     * 3. OBTENER ÚLTIMO ORDEN
+     * ============================
+     * OBTENER ÚLTIMO ORDEN
+     * ============================
      */
 
-    const {
-      data: ultimaImagen,
-      error: ordenError
-    } =
+    const { data: imagenesActuales, error: ordenError } =
       await supabase
         .from("imagenes")
-        .select("orden")
-        .eq(
-          "variante_id",
-          varianteId
-        )
-        .order(
-          "orden",
-          {
-            ascending: false
-          }
-        )
+        .select("id, orden")
+        .eq("variante_id", varianteId)
+        .order("orden", {
+          ascending: false
+        })
         .limit(1);
 
-
     if (ordenError) {
-      throw new Error(
-        "Error consultando orden: " +
-        ordenError.message
-      );
+      throw new Error(ordenError.message);
     }
-
 
     let siguienteOrden = 1;
 
-
     if (
-      ultimaImagen &&
-      ultimaImagen.length > 0
+      imagenesActuales &&
+      imagenesActuales.length
     ) {
-
       siguienteOrden =
         Number(
-          ultimaImagen[0].orden || 0
+          imagenesActuales[0].orden || 0
         ) + 1;
     }
 
-
     /*
-     * 4. SUBIR CADA FOTO
+     * ============================
+     * SUBIR FOTOGRAFÍAS
+     * ============================
      */
 
-    const resultados = [];
-
+    const uploaded = [];
 
     for (
       let i = 0;
       i < imagenes.length;
       i++
     ) {
+      const imagen = imagenes[i];
 
-      const imagen =
-        imagenes[i];
-
-
-      if (
-        !imagen ||
-        !imagen.data
-      ) {
+      if (!imagen || !imagen.data) {
         throw new Error(
-          "Una de las fotografías no contiene datos."
+          "Una fotografía no contiene datos válidos."
         );
       }
 
+      const originalName =
+        String(
+          imagen.name ||
+          `imagen-${i + 1}.jpg`
+        );
 
-      /*
-       * EXTENSIÓN
-       */
+      const contentType =
+        String(
+          imagen.type ||
+          "image/jpeg"
+        );
 
-      let extension = "jpg";
+      const extension =
+        getExtension(
+          originalName,
+          contentType
+        );
 
+      const safeModelo =
+        safePath(modelo);
 
-      if (
-        imagen.type === "image/png"
-      ) {
-        extension = "png";
-      }
-
-
-      if (
-        imagen.type === "image/webp"
-      ) {
-        extension = "webp";
-      }
-
-
-      if (
-        imagen.type === "image/jpeg"
-      ) {
-        extension = "jpg";
-      }
-
-
-      /*
-       * NOMBRE ÚNICO
-       */
+      const safeColor =
+        safePath(colorGuardado);
 
       const uniqueName =
         Date.now() +
         "-" +
-        i +
-        "-" +
         Math.random()
           .toString(36)
-          .substring(2, 8) +
+          .substring(2, 10) +
         "." +
         extension;
 
-
-      const safeModelo =
-        modelo.replace(
-          /[^a-zA-Z0-9_-]/g,
-          "_"
-        );
-
-
-      const safeColor =
-        color
-          .toLowerCase()
-          .replace(
-            /[^a-zA-Z0-9_-]/g,
-            "_"
-          );
-
-
       const storagePath =
-        safeModelo +
-        "/" +
-        safeColor +
-        "/" +
-        uniqueName;
-
-
-      /*
-       * BASE64 → BUFFER
-       */
+        `${safeModelo}/${safeColor}/${uniqueName}`;
 
       const buffer =
         Buffer.from(
@@ -447,270 +278,220 @@ exports.handler = async function (event) {
           "base64"
         );
 
-
-      if (!buffer.length) {
-        throw new Error(
-          "La fotografía está vacía."
-        );
-      }
-
-
       /*
        * SUBIR A STORAGE
        */
 
-      const {
-        error: uploadError
-      } =
+      const { error: uploadError } =
         await supabase.storage
           .from("Productos")
           .upload(
             storagePath,
             buffer,
             {
-              contentType:
-                imagen.type ||
-                "image/jpeg",
-
+              contentType,
               upsert: false
             }
           );
 
-
       if (uploadError) {
         throw new Error(
-          "Error subiendo fotografía: " +
+          "Error subiendo " +
+          originalName +
+          ": " +
           uploadError.message
         );
       }
-
 
       /*
        * OBTENER URL PÚBLICA
        */
 
-      const {
-        data: publicData
-      } =
+      const { data: publicData } =
         supabase.storage
           .from("Productos")
-          .getPublicUrl(
-            storagePath
-          );
-
+          .getPublicUrl(storagePath);
 
       const publicUrl =
         publicData &&
-        publicData.publicUrl
-          ? publicData.publicUrl
-          : "";
-
+        publicData.publicUrl;
 
       if (!publicUrl) {
-
-        /*
-         * Si no conseguimos URL,
-         * eliminamos el archivo.
-         */
-
         await supabase.storage
           .from("Productos")
-          .remove([
-            storagePath
-          ]);
-
+          .remove([storagePath]);
 
         throw new Error(
-          "No se pudo obtener la URL pública de la fotografía."
+          "No se pudo obtener la URL pública."
         );
       }
 
-
       /*
-       * 5. INSERTAR EN TABLA IMAGENES
-       *
-       * ESTE ES EL PASO QUE NOS
-       * INTERESA GARANTIZAR.
+       * GUARDAR EN BASE DE DATOS
        */
 
-      const orden =
-        siguienteOrden + i;
-
-
-      const {
-        data: imagenInsertada,
-        error: insertarImagenError
-      } =
+      const { data: insertedImage, error: insertError } =
         await supabase
           .from("imagenes")
           .insert({
-            variante_id:
-              varianteId,
-
-            url:
-              publicUrl,
-
-            orden:
-              orden
+            variante_id: varianteId,
+            url: publicUrl,
+            orden: siguienteOrden
           })
-          .select(
-            "id, variante_id, url, orden"
-          )
+          .select("id, variante_id, url, orden")
           .single();
 
-
-      if (insertarImagenError) {
-
-        /*
-         * Si falla la BD,
-         * borramos la foto de Storage
-         * para no dejar archivos huérfanos.
-         */
-
-        await supabase.storage
-          .from("Productos")
-          .remove([
-            storagePath
-          ]);
-
-
-        throw new Error(
-          "La fotografía llegó a Storage, " +
-          "pero no pudo registrarse en la tabla imagenes: " +
-          insertarImagenError.message
-        );
-      }
-
-
       /*
-       * COMPROBAR QUE REALMENTE
-       * RECIBIMOS EL REGISTRO.
+       * SI FALLA LA BD,
+       * BORRAMOS STORAGE
        */
 
-      if (
-        !imagenInsertada ||
-        !imagenInsertada.id
-      ) {
-
+      if (insertError) {
         await supabase.storage
           .from("Productos")
-          .remove([
-            storagePath
-          ]);
-
+          .remove([storagePath]);
 
         throw new Error(
-          "Supabase no confirmó el registro de la fotografía."
+          "La fotografía se subió pero no pudo registrarse: " +
+          insertError.message
         );
       }
 
+      uploaded.push(insertedImage);
 
-      resultados.push({
-        id:
-          imagenInsertada.id,
-
-        variante_id:
-          imagenInsertada.variante_id,
-
-        url:
-          imagenInsertada.url,
-
-        orden:
-          imagenInsertada.orden
-      });
-
+      siguienteOrden++;
     }
 
-
     /*
-     * 6. VERIFICACIÓN FINAL
+     * ============================
+     * VERIFICACIÓN FINAL
+     * ============================
      */
 
-    const {
-      data: verificacion,
-      error: verificarError
-    } =
+    const { data: verificacion, error: verifyError } =
       await supabase
         .from("imagenes")
-        .select(
-          "id, variante_id, url, orden"
-        )
-        .eq(
-          "variante_id",
-          varianteId
-        )
-        .order(
-          "orden",
-          {
-            ascending: true
-          }
-        );
+        .select("id, variante_id, url, orden")
+        .eq("variante_id", varianteId)
+        .order("orden", {
+          ascending: true
+        });
 
-
-    if (verificarError) {
+    if (verifyError) {
       throw new Error(
-        "Las fotografías se subieron, " +
-        "pero falló la verificación final: " +
-        verificarError.message
+        verifyError.message
       );
     }
 
-
-    /*
-     * ÉXITO SOLO DESPUÉS
-     * DE INSERTAR EN LA BD.
-     */
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        success: true,
-
-        modelo:
-          modelo,
-
-        color:
-          color,
-
-        modelo_id:
-          modeloId,
-
-        variante_id:
-          varianteId,
-
-        subidas:
-          resultados.length,
-
-        total_fotografias:
-          verificacion.length,
-
-        imagenes:
-          resultados
-      })
-    };
-
+    return respond(200, {
+      success: true,
+      modelo: modeloEncontrado
+        ? modeloEncontrado.modelo
+        : modelo,
+      color: colorGuardado,
+      modelo_id: modeloId,
+      variante_id: varianteId,
+      subidas: uploaded.length,
+      total_fotografias:
+        verificacion.length,
+      imagenes: verificacion
+    });
 
   } catch (error) {
-
     console.error(
       "ADMIN UPLOAD ERROR:",
       error
     );
 
-
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        success: false,
-
-        error:
-          error &&
-          error.message
-            ? error.message
-            : String(error)
-      })
-    };
+    return respond(500, {
+      success: false,
+      error:
+        error && error.message
+          ? error.message
+          : String(error)
+    });
   }
 };
+
+
+/*
+ * ===================================
+ * NORMALIZACIÓN
+ * ===================================
+ *
+ * Coñac = conac = COÑAC = CONAC
+ * Café  = cafe
+ * Negro = NEGRO
+ * Shedrón = shedron
+ */
+
+function normalizeText(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+
+/*
+ * ===================================
+ * NOMBRE SEGURO PARA STORAGE
+ * ===================================
+ */
+
+function safePath(value) {
+  return normalizeText(value)
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "") ||
+    "sin-nombre";
+}
+
+
+/*
+ * ===================================
+ * EXTENSIÓN
+ * ===================================
+ */
+
+function getExtension(
+  filename,
+  contentType
+) {
+  const clean =
+    String(filename || "")
+      .split("?")[0];
+
+  const parts =
+    clean.split(".");
+
+  if (parts.length > 1) {
+    const ext =
+      parts.pop()
+        .toLowerCase()
+        .replace(
+          /[^a-z0-9]/g,
+          ""
+        );
+
+    if (ext) {
+      return ext === "jpeg"
+        ? "jpg"
+        : ext;
+    }
+  }
+
+  if (
+    contentType.includes("png")
+  ) {
+    return "png";
+  }
+
+  if (
+    contentType.includes("webp")
+  ) {
+    return "webp";
+  }
+
+  return "jpg";
+}
