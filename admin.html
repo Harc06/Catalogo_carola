@@ -240,7 +240,21 @@ const uploadButton =
 
 const status =
   document.getElementById("status");
+let adminPassword = "";
 
+while (!adminPassword) {
+  adminPassword = prompt(
+    "Contraseña de administrador de Calzado Carola:"
+  );
+
+  if (adminPassword === null) {
+    document.body.innerHTML =
+      "<h2 style='text-align:center;margin-top:80px;'>Acceso cancelado</h2>";
+    throw new Error("Acceso cancelado");
+  }
+
+  adminPassword = adminPassword.trim();
+}
 
 imagenesInput.addEventListener(
   "change",
@@ -436,9 +450,9 @@ async function subirProducto() {
           method: "POST",
 
           headers: {
-            "Content-Type":
-              "application/json"
-          },
+  "Content-Type": "application/json",
+  "x-admin-password": adminPassword
+},
 
           body: JSON.stringify({
             modelo: modelo,
