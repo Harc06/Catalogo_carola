@@ -1,162 +1,173 @@
 exports.handler = async function () {
   try {
     const catalogUrl =
-      "https://catalogo.treinta.co/carola-2b7ca0";
+      "https://catalogo.treinta.co/carola-2b7ca0?sort=name-asc";
 
-    const storeId =
-      "312b3bda-3178-5a1c-9f03-5d7a9558176e";
+    const response = await fetch(catalogUrl, {
+      method: "GET",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " +
+          "AppleWebKit/537.36 (KHTML, like Gecko) " +
+          "Chrome/140.0.0.0 Safari/537.36",
+        "Accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language":
+          "es-MX,es;q=0.9,en;q=0.8"
+      }
+    });
 
-    const nextAction =
-      "40bb5b0ade1fd3be32128e7b8b012934e5391db5b1";
-
-    const routerState =
-      "%5B%22%22%2C%7B%22children%22%3A%5B%5B%22storeSlug%22%2C%22carola-2b7ca0%22%2C%22d%22%5D%2C%7B%22children%22%3A%5B%22(shop)%22%2C%7B%22children%22%3A%5B%22__PAGE__%22%2C%7B%7D%2Cnull%2Cnull%5D%7D%2Cnull%2Cnull%5D%2C%22modal%22%3A%5B%22__DEFAULT__%22%2C%7B%7D%2Cnull%2Cnull%5D%7D%2Cnull%2Cnull%5D%7D%2Cnull%2Cnull%2Ctrue%5D";
-
-    const limit = 12;
-    const allProducts = [];
-
-    // Máximo de páginas como protección.
-    const maxPages = 100;
-
-    for (let page = 1; page <= maxPages; page++) {
-
-      const body = JSON.stringify([
-        {
-          storeId: storeId,
-          page: page,
-          limit: limit,
-          category: "$undefined",
-          search: "$undefined",
-          orderBy: "name-asc",
-          excludeOutOfStock: true
-        }
-      ]);
-
-      const response = await fetch(
-        `${catalogUrl}?sort=name-asc`,
-        {
-          method: "POST",
-          headers: {
-            "User-Agent": "Mozilla/5.0",
-            "Accept": "text/x-component",
-            "Content-Type": "text/plain;charset=UTF-8",
-            "next-action": nextAction,
-            "next-router-state-tree": routerState
-          },
-          body: body
-        }
+    if (!response.ok) {
+      throw new Error(
+        `Treinta respondió HTTP ${response.status}`
       );
+    }
 
-      if (!response.ok) {
-        throw new Error(
-          `Treinta respondió HTTP ${response.status} en página ${page}`
-        );
-      }
+    const html = await response.text();
 
-      const text = await response.text();
+    /*
+     * Buscamos los productos directamente
+     * dentro del HTML público de Treinta.
+     *
+     * Actualmente los enlaces tienen esta forma:
+     *
+     * /carola-2b7ca0/product/UUID
+     */
 
-      /*
-       * Treinta responde usando el formato de
-       * React Server Components.
-       *
-       * Dentro de la respuesta existe una línea como:
-       *
-       * 1:{"data":[...],"total":46,...}
-       *
-       * Extraemos ese JSON.
-       */
+    const regex =
+      /<a[^>]+href=["']([^"']*\/product\/([a-f0-9-]+)[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
 
-      const lines = text.split("\n");
+    const found = new Map();
 
-      let result = null;
+    let match;
 
-      for (const line of lines) {
-        const colonIndex = line.indexOf(":");
+    while ((match = regex.exec(html)) !== null) {
+      const id = match[2];
 
-        if (colonIndex === -1) {
-          continue;
-        }
-
-        const possibleJson =
-          line.slice(colonIndex + 1);
-
-        try {
-          const parsed =
-            JSON.parse(possibleJson);
-
-          if (
-            parsed &&
-            Array.isArray(parsed.data)
-          ) {
-            result = parsed;
-            break;
-          }
-        } catch (error) {
-          // Esta línea no contiene el JSON
-          // de productos. Continuamos.
-        }
-      }
-
-      if (!result) {
-        throw new Error(
-          `No se pudieron interpretar los productos de la página ${page}`
-        );
-      }
-
-      const products =
-        result.data || [];
+      const block = match[3];
 
       /*
-       * Si ya no hay productos,
-       * terminamos.
+       * Eliminamos etiquetas HTML.
        */
-      if (products.length === 0) {
-        break;
+      let text = block
+        .replace(/<script[\s\S]*?<\/script>/gi, " ")
+        .replace(/<style[\s\S]*?<\/style>/gi, " ")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/&amp;/gi, "&")
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!text) {
+        continue;
       }
 
       /*
-       * Guardamos únicamente la información
-       * que nuestro catálogo necesita.
+       * Treinta muestra normalmente algo como:
        *
-       * NO guardamos ni devolvemos precios.
-       * Las imágenes vienen de Supabase.
+       * 117 $235
+       *
+       * Quitamos el precio porque CAROLA
+       * no muestra precios.
        */
-      for (const product of products) {
+      text = text
+        .replace(/\$\s*[\d.,]+.*$/i, "")
+        .trim();
 
-        if (!product.name) {
-          continue;
-        }
+      if (!text) {
+        continue;
+      }
+
+      /*
+       * Protección contra textos que no sean
+       * nombres reales de producto.
+       */
+      if (
+        text.length > 100 ||
+        /^(agregar|buscar|ver todos)$/i.test(text)
+      ) {
+        continue;
+      }
+
+      if (!found.has(id)) {
+        found.set(id, {
+          id: id,
+          name: text,
+
+          /*
+           * El catálogo público ya está mostrando
+           * productos disponibles.
+           *
+           * Nuestro frontend únicamente necesita
+           * un stock positivo para considerarlo
+           * disponible.
+           */
+          stock: 1
+        });
+      }
+    }
+
+    let products = Array.from(found.values());
+
+    /*
+     * Segundo método de lectura.
+     *
+     * Next.js suele incluir datos serializados
+     * dentro del HTML aunque la estructura visual
+     * cambie.
+     */
+    if (products.length === 0) {
+      const productPattern =
+        /"id"\s*:\s*"([a-f0-9-]{20,})"[\s\S]{0,1500}?"name"\s*:\s*"([^"]+)"/gi;
+
+      while ((match = productPattern.exec(html)) !== null) {
+        const id = match[1];
+
+        const name = decodeJsonText(match[2]);
 
         if (
-          product.isVisible !== 1 ||
-          Number(product.stock) <= 0
+          !id ||
+          !name ||
+          name.length > 100
         ) {
           continue;
         }
 
-        const alreadyExists =
-          allProducts.some(
-            existing =>
-              existing.id === product.id
-          );
-
-        if (!alreadyExists) {
-          allProducts.push({
-            id: product.id,
-            name: String(product.name).trim(),
-            stock: Number(product.stock)
+        if (!found.has(id)) {
+          found.set(id, {
+            id: id,
+            name: name.trim(),
+            stock: 1
           });
         }
       }
 
-      /*
-       * Treinta nos dice directamente
-       * si existe otra página.
-       */
-      if (result.hasNextPage === false) {
-        break;
-      }
+      products = Array.from(found.values());
     }
+
+    if (products.length === 0) {
+      throw new Error(
+        "Treinta respondió correctamente, pero no se pudieron encontrar productos."
+      );
+    }
+
+    /*
+     * Orden natural:
+     * 117 antes de 519,
+     * 519 antes de 1310, etc.
+     */
+    products.sort(function (a, b) {
+      return String(a.name).localeCompare(
+        String(b.name),
+        "es",
+        {
+          numeric: true,
+          sensitivity: "base"
+        }
+      );
+    });
 
     return {
       statusCode: 200,
@@ -168,19 +179,22 @@ exports.handler = async function () {
         "Access-Control-Allow-Origin":
           "*",
 
+        /*
+         * Caché corta para no consultar Treinta
+         * innecesariamente en cada visita.
+         */
         "Cache-Control":
-          "no-store"
+          "public, max-age=0, s-maxage=60, stale-while-revalidate=300"
       },
 
       body: JSON.stringify({
         success: true,
-        count: allProducts.length,
-        products: allProducts
+        count: products.length,
+        products: products
       })
     };
 
   } catch (error) {
-
     console.error(
       "Error sincronizando Treinta:",
       error
@@ -194,13 +208,38 @@ exports.handler = async function () {
           "application/json; charset=utf-8",
 
         "Access-Control-Allow-Origin":
-          "*"
+          "*",
+
+        "Cache-Control":
+          "no-store"
       },
 
       body: JSON.stringify({
         success: false,
-        error: error.message
+        error:
+          error && error.message
+            ? error.message
+            : "Error desconocido consultando Treinta"
       })
     };
   }
 };
+
+
+/* =========================
+   UTILIDAD JSON
+========================= */
+
+function decodeJsonText(value) {
+  try {
+    return JSON.parse(
+      '"' +
+      String(value)
+        .replace(/\\/g, "\\\\")
+        .replace(/"/g, '\\"') +
+      '"'
+    );
+  } catch (error) {
+    return String(value || "");
+  }
+}
