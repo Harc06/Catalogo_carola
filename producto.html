@@ -15,9 +15,16 @@
   --muted:#858085;
   --border:#eee5e9;
   --dark:#171717;
+  --green:#2e7d49;
 }
 
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
 
 body{
   margin:0;
@@ -30,14 +37,18 @@ body{
 button{
   font:inherit;
   cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
 }
 
 a{
   color:inherit;
   text-decoration:none;
+  -webkit-tap-highlight-color:transparent;
 }
 
-/* HEADER */
+/* =========================
+   HEADER
+========================= */
 
 .header{
   position:sticky;
@@ -75,7 +86,7 @@ a{
 .cart-link{
   justify-self:end;
   border:0;
-  background:#171717;
+  background:var(--dark);
   color:#fff;
   padding:10px 15px;
   border-radius:999px;
@@ -84,7 +95,9 @@ a{
   white-space:nowrap;
 }
 
-/* PRODUCTO */
+/* =========================
+   PRODUCTO
+========================= */
 
 .product-page{
   max-width:1250px;
@@ -95,7 +108,9 @@ a{
   gap:55px;
 }
 
-/* GALERÍA */
+/* =========================
+   GALERÍA
+========================= */
 
 .gallery{
   min-width:0;
@@ -107,6 +122,7 @@ a{
   border-radius:26px;
   overflow:hidden;
   background:#f6f3f4;
+  position:relative;
 }
 
 .main-image{
@@ -114,6 +130,21 @@ a{
   height:100%;
   display:block;
   object-fit:cover;
+  transition:opacity .18s ease;
+}
+
+.image-color{
+  position:absolute;
+  left:14px;
+  bottom:14px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  font-size:11px;
+  font-weight:900;
+  box-shadow:0 4px 15px rgba(0,0,0,.08);
 }
 
 .thumbnails{
@@ -121,8 +152,10 @@ a{
   gap:10px;
   margin-top:12px;
   overflow-x:auto;
-  padding-bottom:5px;
+  padding:2px 1px 7px;
   scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;
 }
 
 .thumbnails::-webkit-scrollbar{
@@ -138,6 +171,7 @@ a{
   border-radius:13px;
   overflow:hidden;
   background:#f5f5f5;
+  scroll-snap-align:start;
 }
 
 .thumbnail.active{
@@ -151,7 +185,9 @@ a{
   display:block;
 }
 
-/* INFO */
+/* =========================
+   INFORMACIÓN
+========================= */
 
 .info{
   padding-top:25px;
@@ -169,6 +205,7 @@ h1{
   margin:10px 0 0;
   font-size:45px;
   letter-spacing:-2px;
+  line-height:1.05;
 }
 
 .available{
@@ -204,7 +241,14 @@ h1{
   margin-bottom:12px;
 }
 
-/* COLORES */
+.selected-color{
+  color:var(--muted);
+  font-weight:600;
+}
+
+/* =========================
+   COLORES
+========================= */
 
 .color-buttons{
   display:flex;
@@ -217,7 +261,17 @@ h1{
   background:#fff;
   padding:12px 17px;
   border-radius:999px;
-  font-weight:700;
+  font-weight:750;
+  min-height:44px;
+  transition:
+    background .15s,
+    color .15s,
+    border-color .15s,
+    transform .1s;
+}
+
+.color-button:active{
+  transform:scale(.97);
 }
 
 .color-button.active{
@@ -226,7 +280,9 @@ h1{
   border-color:#171717;
 }
 
-/* CANTIDAD */
+/* =========================
+   CANTIDAD
+========================= */
 
 .quantity-selector{
   display:flex;
@@ -241,6 +297,13 @@ h1{
   background:#fff;
   border-radius:13px;
   font-size:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.quantity-selector button:active{
+  background:#f7f3f5;
 }
 
 .quantity-value{
@@ -260,7 +323,9 @@ h1{
   font-size:11px;
 }
 
-/* AGREGAR */
+/* =========================
+   AGREGAR
+========================= */
 
 .add-cart{
   width:100%;
@@ -275,8 +340,12 @@ h1{
   transition:.2s;
 }
 
+.add-cart:active{
+  transform:scale(.99);
+}
+
 .add-cart.added{
-  background:#2e7d49;
+  background:var(--green);
 }
 
 .continue{
@@ -294,7 +363,9 @@ h1{
   margin-top:11px;
 }
 
-/* CARGA */
+/* =========================
+   CARGA
+========================= */
 
 .loading{
   grid-column:1/-1;
@@ -317,10 +388,14 @@ h1{
 }
 
 @keyframes spin{
-  to{transform:rotate(360deg)}
+  to{
+    transform:rotate(360deg);
+  }
 }
 
-/* ERROR */
+/* =========================
+   ERROR
+========================= */
 
 .error{
   grid-column:1/-1;
@@ -332,6 +407,10 @@ h1{
   font-size:30px;
 }
 
+.error p{
+  color:var(--muted);
+}
+
 .error a{
   display:inline-block;
   margin-top:15px;
@@ -339,9 +418,12 @@ h1{
   color:#fff;
   padding:13px 20px;
   border-radius:999px;
+  font-weight:800;
 }
 
-/* TOAST */
+/* =========================
+   TOAST
+========================= */
 
 .toast{
   position:fixed;
@@ -359,6 +441,8 @@ h1{
   visibility:hidden;
   transition:.25s;
   white-space:nowrap;
+  max-width:90%;
+  text-align:center;
 }
 
 .toast.show{
@@ -367,7 +451,9 @@ h1{
   transform:translate(-50%,0);
 }
 
-/* MÓVIL */
+/* =========================
+   TABLET
+========================= */
 
 @media(max-width:800px){
 
@@ -381,6 +467,10 @@ h1{
     padding-top:15px;
   }
 }
+
+/* =========================
+   MÓVIL
+========================= */
 
 @media(max-width:520px){
 
@@ -426,6 +516,15 @@ h1{
 
   h1{
     font-size:36px;
+  }
+
+  .color-button{
+    padding:11px 15px;
+    font-size:13px;
+  }
+
+  .add-cart{
+    min-height:52px;
   }
 }
 </style>
@@ -541,21 +640,88 @@ function normalize(value){
     );
 }
 
-/*
- * IMPORTANTE:
- * El nombre COMPLETO del modelo
- * forma parte de su identidad.
- *
- * 1725
- * 1725 flores
- *
- * son modelos diferentes.
- */
-
 function normalizeModel(value){
 
   return normalize(value)
     .replace(/\s+/g," ");
+}
+
+/* =========================
+   PRESENTACIÓN DE COLOR
+========================= */
+
+function formatColor(value){
+
+  const original=
+    String(value||"")
+      .trim();
+
+  if(!original){
+    return "";
+  }
+
+  const normalized=
+    normalize(original);
+
+  const names={
+
+    "negro":"Negro",
+
+    "camel":"Camel",
+
+    "latte":"Latte",
+
+    "maquillaje":"Maquillaje",
+
+    "conac":"Coñac",
+
+    "cafe":"Café",
+
+    "capuchino":"Capuchino",
+
+    "espresso":"Espresso",
+
+    "shedron":"Shedrón",
+
+    "blanco":"Blanco",
+
+    "beige":"Beige",
+
+    "hueso":"Hueso",
+
+    "rojo":"Rojo",
+
+    "vino":"Vino",
+
+    "rosa":"Rosa",
+
+    "dorado":"Dorado",
+
+    "plata":"Plata",
+
+    "azul":"Azul",
+
+    "marino":"Marino",
+
+    "miel":"Miel",
+
+    "chocolate":"Chocolate",
+
+    "taupe":"Taupe"
+  };
+
+  if(names[normalized]){
+    return names[normalized];
+  }
+
+  return original
+    .toLowerCase()
+    .replace(
+      /(^|\s)\S/g,
+      function(letter){
+        return letter.toUpperCase();
+      }
+    );
 }
 
 /* =========================
@@ -566,21 +732,23 @@ function sortImages(images){
 
   return (images||[])
     .slice()
-    .sort((a,b)=>{
+    .sort(
+      function(a,b){
 
-      const difference=
-        Number(a.orden||0)-
-        Number(b.orden||0);
+        const difference=
+          Number(a.orden||0)-
+          Number(b.orden||0);
 
-      if(difference!==0){
-        return difference;
+        if(difference!==0){
+          return difference;
+        }
+
+        return (
+          Number(a.id||0)-
+          Number(b.id||0)
+        );
       }
-
-      return (
-        Number(a.id||0)-
-        Number(b.id||0)
-      );
-    });
+    );
 }
 
 function getVariantCover(
@@ -625,12 +793,6 @@ function loadCart(){
       return [];
     }
 
-    /*
-     * Limpiamos cantidades para
-     * mantener siempre múltiplos
-     * de 6.
-     */
-
     return data
       .filter(
         item=>
@@ -638,44 +800,47 @@ function loadCart(){
           item.modelo &&
           item.color
       )
-      .map(item=>{
+      .map(
+        function(item){
 
-        let cantidad=
-          Number(
-            item.cantidad||6
-          );
+          let cantidad=
+            Number(
+              item.cantidad||6
+            );
 
-        if(
-          !Number.isFinite(
-            cantidad
-          ) ||
-          cantidad<6
-        ){
-          cantidad=6;
+          if(
+            !Number.isFinite(
+              cantidad
+            ) ||
+            cantidad<6
+          ){
+            cantidad=6;
+          }
+
+          cantidad=
+            Math.ceil(
+              cantidad/6
+            )*6;
+
+          return {
+
+            modelo:
+              String(
+                item.modelo
+              ),
+
+            color:
+              String(
+                item.color
+              ),
+
+            cantidad,
+
+            image:
+              item.image||""
+          };
         }
-
-        cantidad=
-          Math.ceil(
-            cantidad/6
-          )*6;
-
-        return {
-          modelo:
-            String(
-              item.modelo
-            ),
-
-          color:
-            String(
-              item.color
-            ),
-
-          cantidad,
-
-          image:
-            item.image||""
-        };
-      });
+      );
 
   }catch(error){
 
@@ -697,11 +862,13 @@ function getCartTotal(){
 
   return loadCart()
     .reduce(
-      (total,item)=>
-        total+
-        Number(
-          item.cantidad||0
-        ),
+      function(total,item){
+
+        return total+
+          Number(
+            item.cantidad||0
+          );
+      },
       0
     );
 }
@@ -733,30 +900,29 @@ function addToCart(){
   const cart=
     loadCart();
 
-  /*
-   * Solo se combinan si coinciden
-   * modelo COMPLETO + color.
-   */
-
   const existing=
     cart.find(
-      item=>
+      function(item){
 
-        normalizeModel(
-          item.modelo
-        )===
-        normalizeModel(
-          currentProduct.modelo
-        )
+        return (
 
-        &&
+          normalizeModel(
+            item.modelo
+          )===
+          normalizeModel(
+            currentProduct.modelo
+          )
 
-        normalize(
-          item.color
-        )===
-        normalize(
-          currentVariant.color
-        )
+          &&
+
+          normalize(
+            item.color
+          )===
+          normalize(
+            currentVariant.color
+          )
+        );
+      }
     );
 
   const image=
@@ -803,7 +969,10 @@ function addToCart(){
   showToast(
     "✓ "+
     quantity+
-    " pares agregados"
+    " pares · "+
+    formatColor(
+      currentVariant.color
+    )
   );
 
   const button=
@@ -905,28 +1074,28 @@ async function loadProduct(){
       );
     }
 
-    /* =====================
-       BUSCAR EN SUPABASE
-    ===================== */
+    /* BUSCAR EN SUPABASE */
 
     const products=
       Array.isArray(
         supabaseData.productos
       )
-        ? supabaseData.productos
-        : [];
+        ?supabaseData.productos
+        :[];
 
     currentProduct=
       products.find(
-        product=>
+        function(product){
 
-          normalizeModel(
-            product.modelo
-          )===
-
-          normalizeModel(
-            requestedModel
-          )
+          return (
+            normalizeModel(
+              product.modelo
+            )===
+            normalizeModel(
+              requestedModel
+            )
+          );
+        }
       );
 
     if(!currentProduct){
@@ -938,28 +1107,28 @@ async function loadProduct(){
       return;
     }
 
-    /* =====================
-       VERIFICAR TREINTA
-    ===================== */
+    /* VERIFICAR TREINTA */
 
     const treintaProducts=
       Array.isArray(
         treintaData.products
       )
-        ? treintaData.products
-        : [];
+        ?treintaData.products
+        :[];
 
     const available=
       treintaProducts.some(
-        item=>
+        function(item){
 
-          normalizeModel(
-            item.name
-          )===
-
-          normalizeModel(
-            currentProduct.modelo
-          )
+          return (
+            normalizeModel(
+              item.name
+            )===
+            normalizeModel(
+              currentProduct.modelo
+            )
+          );
+        }
       );
 
     if(!available){
@@ -971,28 +1140,27 @@ async function loadProduct(){
       return;
     }
 
-    /* =====================
-       VARIANTES CON FOTOS
-    ===================== */
+    /* VARIANTES CON FOTOS */
 
     currentProduct.variantes=
       (
         Array.isArray(
           currentProduct.variantes
         )
-          ? currentProduct.variantes
-          : []
+          ?currentProduct.variantes
+          :[]
       )
       .filter(
-        variant=>
+        function(variant){
 
-          Array.isArray(
-            variant.imagenes
-          )
-
-          &&
-
-          variant.imagenes.length
+          return (
+            Array.isArray(
+              variant.imagenes
+            )
+            &&
+            variant.imagenes.length
+          );
+        }
       );
 
     if(
@@ -1021,7 +1189,9 @@ async function loadProduct(){
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
 
     showError(
       "No pudimos cargar este modelo."
@@ -1049,29 +1219,39 @@ function renderProduct(){
     return;
   }
 
+  const formattedColor=
+    formatColor(
+      currentVariant.color
+    );
+
   const thumbnails=
     images
       .map(
-        (image,index)=>`
+        function(image,index){
 
-          <button
-            type="button"
-            class="thumbnail ${
-              index===0
-                ?"active"
-                :""
-            }"
-            data-url="${escapeAttribute(image.url)}"
-          >
+          return `
 
-            <img
-              src="${escapeAttribute(image.url)}"
-              alt=""
+            <button
+              type="button"
+              class="thumbnail ${
+                index===0
+                  ?"active"
+                  :""
+              }"
+              data-url="${escapeAttribute(image.url)}"
+              aria-label="Ver fotografía ${index+1}"
             >
 
-          </button>
+              <img
+                src="${escapeAttribute(image.url)}"
+                alt="Modelo ${escapeAttribute(currentProduct.modelo)} ${escapeAttribute(formattedColor)}"
+                loading="${index===0?"eager":"lazy"}"
+              >
 
-        `
+            </button>
+
+          `;
+        }
       )
       .join("");
 
@@ -1079,24 +1259,31 @@ function renderProduct(){
     currentProduct
       .variantes
       .map(
-        variant=>`
+        function(variant){
 
-          <button
-            type="button"
-            class="color-button ${
-              Number(variant.id)===
-              Number(currentVariant.id)
-                ?"active"
-                :""
-            }"
-            data-variant="${Number(variant.id)}"
-          >
+          return `
 
-            ${escapeHtml(variant.color)}
+            <button
+              type="button"
+              class="color-button ${
+                Number(variant.id)===
+                Number(currentVariant.id)
+                  ?"active"
+                  :""
+              }"
+              data-variant="${Number(variant.id)}"
+            >
 
-          </button>
+              ${escapeHtml(
+                formatColor(
+                  variant.color
+                )
+              )}
 
-        `
+            </button>
+
+          `;
+        }
       )
       .join("");
 
@@ -1110,14 +1297,24 @@ function renderProduct(){
           id="mainImage"
           class="main-image"
           src="${escapeAttribute(images[0].url)}"
-          alt="Modelo ${escapeAttribute(currentProduct.modelo)} ${escapeAttribute(currentVariant.color)}"
+          alt="Modelo ${escapeAttribute(currentProduct.modelo)} ${escapeAttribute(formattedColor)}"
         >
 
+        <div class="image-color">
+          ${escapeHtml(formattedColor)}
+        </div>
+
       </div>
 
-      <div class="thumbnails">
-        ${thumbnails}
-      </div>
+      ${
+        images.length>1
+          ?`
+            <div class="thumbnails">
+              ${thumbnails}
+            </div>
+          `
+          :""
+      }
 
     </section>
 
@@ -1138,7 +1335,10 @@ function renderProduct(){
       <div class="divider"></div>
 
       <span class="label">
-        Selecciona un color
+        Color:
+        <span class="selected-color">
+          ${escapeHtml(formattedColor)}
+        </span>
       </span>
 
       <div class="color-buttons">
@@ -1156,6 +1356,7 @@ function renderProduct(){
         <button
           id="minusQuantity"
           type="button"
+          aria-label="Restar 6 pares"
         >
           −
         </button>
@@ -1175,6 +1376,7 @@ function renderProduct(){
         <button
           id="plusQuantity"
           type="button"
+          aria-label="Agregar 6 pares"
         >
           +
         </button>
@@ -1228,8 +1430,37 @@ productPage.onclick=
 
       if(mainImage){
 
-        mainImage.src=
+        mainImage.style.opacity=
+          ".45";
+
+        const nextUrl=
           thumbnail.dataset.url;
+
+        const tempImage=
+          new Image();
+
+        tempImage.onload=
+          function(){
+
+            mainImage.src=
+              nextUrl;
+
+            mainImage.style.opacity=
+              "1";
+          };
+
+        tempImage.onerror=
+          function(){
+
+            mainImage.src=
+              nextUrl;
+
+            mainImage.style.opacity=
+              "1";
+          };
+
+        tempImage.src=
+          nextUrl;
       }
 
       document
@@ -1237,10 +1468,12 @@ productPage.onclick=
           ".thumbnail"
         )
         .forEach(
-          item=>
+          function(item){
+
             item.classList.remove(
               "active"
-            )
+            );
+          }
         );
 
       thumbnail.classList.add(
@@ -1268,23 +1501,28 @@ productPage.onclick=
         currentProduct
           .variantes
           .find(
-            item=>
-              Number(item.id)===
-              id
+            function(item){
+
+              return (
+                Number(item.id)===
+                id
+              );
+            }
           );
 
       if(!variant){
         return;
       }
 
+      if(
+        Number(currentVariant.id)===
+        Number(variant.id)
+      ){
+        return;
+      }
+
       currentVariant=
         variant;
-
-      /*
-       * Al cambiar de color,
-       * mostramos inmediatamente
-       * las fotos de ese color.
-       */
 
       renderProduct();
 
@@ -1447,7 +1685,9 @@ function escapeHtml(value){
 
 function escapeAttribute(value){
 
-  return escapeHtml(value);
+  return escapeHtml(
+    value
+  );
 }
 
 /* =========================
