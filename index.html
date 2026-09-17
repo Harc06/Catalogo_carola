@@ -15,6 +15,7 @@
   --border:#eee5e9;
   --dark:#171717;
   --danger:#a32d2d;
+  --green:#2e7d49;
 }
 
 *{box-sizing:border-box}
@@ -32,7 +33,9 @@ button,input{font:inherit}
 button{cursor:pointer}
 a{color:inherit;text-decoration:none}
 
-/* HEADER */
+/* =========================
+   HEADER
+========================= */
 
 .header{
   position:sticky;
@@ -70,7 +73,9 @@ a{color:inherit;text-decoration:none}
   font-size:13px;
 }
 
-/* HERO */
+/* =========================
+   HERO
+========================= */
 
 .hero{
   max-width:1400px;
@@ -154,7 +159,9 @@ a{color:inherit;text-decoration:none}
   font-size:13px;
 }
 
-/* CATÁLOGO */
+/* =========================
+   CATÁLOGO
+========================= */
 
 .catalog{
   max-width:1400px;
@@ -181,7 +188,9 @@ a{color:inherit;text-decoration:none}
   font-size:12px;
 }
 
-/* CATEGORÍAS */
+/* =========================
+   CATEGORÍAS
+========================= */
 
 .category-section{
   margin-bottom:13px;
@@ -216,11 +225,6 @@ a{color:inherit;text-decoration:none}
   border-radius:999px;
   font-size:12px;
   font-weight:800;
-  transition:.15s;
-}
-
-.category-filter:hover{
-  background:#fff7fa;
 }
 
 .category-filter.active{
@@ -229,7 +233,9 @@ a{color:inherit;text-decoration:none}
   border-color:#171717;
 }
 
-/* BUSCADOR */
+/* =========================
+   BUSCADOR
+========================= */
 
 .search-area{
   position:relative;
@@ -277,7 +283,9 @@ a{color:inherit;text-decoration:none}
 
 .clear-search.show{display:flex}
 
-/* HERRAMIENTAS */
+/* =========================
+   HERRAMIENTAS
+========================= */
 
 .catalog-tools{
   display:flex;
@@ -334,9 +342,6 @@ a{color:inherit;text-decoration:none}
   background:transparent;
   color:#777;
   font-size:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
 }
 
 .view-button.active{
@@ -345,7 +350,9 @@ a{color:inherit;text-decoration:none}
   box-shadow:0 2px 7px rgba(0,0,0,.08);
 }
 
-/* PRODUCTOS */
+/* =========================
+   PRODUCTOS
+========================= */
 
 .grid{
   display:grid;
@@ -354,9 +361,7 @@ a{color:inherit;text-decoration:none}
   margin-top:15px;
 }
 
-.product-card{
-  min-width:0;
-}
+.product-card{min-width:0}
 
 .product-image{
   position:relative;
@@ -443,7 +448,6 @@ a{color:inherit;text-decoration:none}
   border-radius:9px;
   font-weight:800;
   font-size:10px;
-  transition:.15s;
 }
 
 .quick-add:hover,
@@ -461,7 +465,9 @@ a{color:inherit;text-decoration:none}
   border-radius:18px;
 }
 
-/* LISTA */
+/* =========================
+   LISTA
+========================= */
 
 .grid.list-view{
   display:flex;
@@ -477,12 +483,9 @@ a{color:inherit;text-decoration:none}
   padding:8px;
   border:1px solid var(--border);
   border-radius:14px;
-  background:#fff;
 }
 
-.grid.list-view .product-link{
-  display:contents;
-}
+.grid.list-view .product-link{display:contents}
 
 .grid.list-view .product-image{
   width:78px;
@@ -490,54 +493,42 @@ a{color:inherit;text-decoration:none}
   aspect-ratio:auto;
   border-radius:10px;
   grid-column:1;
-  grid-row:1;
 }
 
 .grid.list-view .badge{display:none}
 
 .grid.list-view .product-info{
   grid-column:2;
-  grid-row:1;
   padding:0;
-  min-width:0;
 }
 
-.grid.list-view .product-title h3{
-  font-size:14px;
-}
-
-.grid.list-view .product-arrow{
-  display:none;
-}
+.grid.list-view .product-arrow{display:none}
 
 .grid.list-view .colors{
-  font-size:10px;
   white-space:normal;
 }
 
 .grid.list-view .quick-add{
   grid-column:3;
-  grid-row:1;
   width:auto;
   min-width:95px;
   margin:0;
   padding:9px 12px;
 }
 
-.grid.list-view .state{
-  width:100%;
-}
-
-/* OVERLAY */
+/* =========================
+   OVERLAY
+========================= */
 
 .overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.4);
+  background:rgba(15,12,14,.46);
+  backdrop-filter:blur(2px);
   z-index:500;
   opacity:0;
   visibility:hidden;
-  transition:.2s;
+  transition:.22s;
 }
 
 .overlay.open{
@@ -545,20 +536,23 @@ a{color:inherit;text-decoration:none}
   visibility:visible;
 }
 
-/* CARRITO */
+/* =========================
+   CARRITO NUEVO
+========================= */
 
 .cart{
   position:fixed;
   right:0;
   top:0;
   bottom:0;
-  width:min(450px,100%);
+  width:min(480px,100%);
   background:#fff;
   z-index:501;
   transform:translateX(105%);
-  transition:.25s;
+  transition:transform .28s ease;
   display:flex;
   flex-direction:column;
+  box-shadow:-15px 0 50px rgba(0,0,0,.12);
 }
 
 .cart.open{
@@ -566,14 +560,27 @@ a{color:inherit;text-decoration:none}
 }
 
 .cart-header{
-  padding:20px;
+  padding:20px 20px 16px;
   border-bottom:1px solid var(--border);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
 }
 
-.cart-header h2{margin:0}
+.cart-header-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.cart-header h2{
+  margin:0;
+  font-size:25px;
+  letter-spacing:-1px;
+}
+
+.cart-subtitle{
+  color:var(--muted);
+  font-size:11px;
+  margin-top:5px;
+}
 
 .icon-btn{
   border:0;
@@ -584,98 +591,236 @@ a{color:inherit;text-decoration:none}
   font-size:20px;
 }
 
+.cart-summary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+  margin-top:15px;
+}
+
+.cart-stat{
+  background:#faf7f8;
+  border:1px solid #f2eaed;
+  border-radius:12px;
+  padding:10px;
+}
+
+.cart-stat strong{
+  display:block;
+  font-size:17px;
+}
+
+.cart-stat span{
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+  margin-top:2px;
+  text-transform:uppercase;
+  font-weight:800;
+  letter-spacing:.5px;
+}
+
 .cart-body{
   flex:1;
   overflow:auto;
-  padding:18px;
+  padding:7px 18px 20px;
 }
 
 .cart-empty{
+  min-height:340px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
   text-align:center;
-  padding:60px 10px;
   color:var(--muted);
+}
+
+.cart-empty-icon{
+  width:64px;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--pink-soft);
+  border-radius:50%;
+  font-size:25px;
+  margin-bottom:15px;
+}
+
+.cart-empty strong{
+  color:var(--text);
+  font-size:18px;
+}
+
+.cart-empty span{
+  margin-top:7px;
+  max-width:230px;
+  font-size:12px;
+  line-height:1.5;
 }
 
 .cart-item{
   display:grid;
-  grid-template-columns:75px 1fr;
+  grid-template-columns:82px minmax(0,1fr);
   gap:13px;
   padding:14px 0;
   border-bottom:1px solid var(--border);
 }
 
-.cart-thumb{
-  width:75px;
-  height:92px;
-  object-fit:cover;
-  border-radius:11px;
-  background:#f1edef;
+.cart-product-link{
+  display:block;
 }
 
-.cart-item h4{
-  margin:2px 0 4px;
+.cart-thumb{
+  width:82px;
+  height:100px;
+  object-fit:cover;
+  border-radius:12px;
+  background:#f1edef;
+  display:block;
+}
+
+.cart-content{
+  min-width:0;
+}
+
+.cart-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.cart-model{
+  font-size:15px;
+  font-weight:900;
+  margin:1px 0 3px;
+}
+
+.cart-model:hover{
+  text-decoration:underline;
 }
 
 .cart-color{
-  font-size:12px;
+  font-size:11px;
   color:var(--muted);
+}
+
+.cart-pairs{
+  flex:none;
+  font-size:11px;
+  font-weight:900;
+  background:var(--pink-soft);
+  color:#86536a;
+  padding:6px 8px;
+  border-radius:999px;
+  height:max-content;
 }
 
 .cart-actions{
   display:flex;
   align-items:center;
-  gap:9px;
-  margin-top:10px;
+  margin-top:13px;
 }
 
-.cart-actions button{
-  width:34px;
-  height:34px;
+.cart-quantity{
+  display:flex;
+  align-items:center;
   border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  height:36px;
+}
+
+.cart-quantity button{
+  width:36px;
+  height:34px;
+  border:0;
   background:#fff;
-  border-radius:9px;
+  font-size:18px;
+}
+
+.cart-quantity strong{
+  min-width:38px;
+  text-align:center;
+  font-size:13px;
 }
 
 .remove{
-  margin-left:auto!important;
-  width:auto!important;
-  border:0!important;
+  margin-left:auto;
+  border:0;
+  background:transparent;
   color:var(--danger);
-  font-size:12px;
+  padding:7px;
+  font-size:11px;
+  font-weight:700;
 }
 
 .cart-footer{
-  padding:18px;
-  padding-bottom:calc(18px + env(safe-area-inset-bottom));
+  padding:16px 18px;
+  padding-bottom:calc(16px + env(safe-area-inset-bottom));
   border-top:1px solid var(--border);
-  background:#fff;
+  background:rgba(255,255,255,.97);
 }
 
 .cart-total{
   display:flex;
   justify-content:space-between;
-  font-size:18px;
+  align-items:end;
+  margin-bottom:14px;
+}
+
+.cart-total-label{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.cart-total strong{
+  display:block;
+  font-size:27px;
+  letter-spacing:-1px;
+}
+
+.cart-total-pairs{
+  font-size:13px;
+  font-weight:800;
+  margin-bottom:4px;
+}
+
+.customer-label{
+  display:block;
+  font-size:10px;
   font-weight:900;
-  margin-bottom:13px;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  margin-bottom:6px;
 }
 
 .name-input{
   width:100%;
-  padding:14px;
+  padding:13px 14px;
   border:1px solid var(--border);
-  border-radius:12px;
+  background:#faf8f9;
+  border-radius:11px;
   outline:none;
   margin-bottom:9px;
 }
 
+.name-input:focus{
+  background:#fff;
+  border-color:#d8b4c3;
+}
+
 .send{
   width:100%;
-  padding:15px;
+  min-height:50px;
+  padding:14px;
   border:0;
-  border-radius:13px;
+  border-radius:12px;
   background:#171717;
   color:#fff;
   font-weight:900;
+  font-size:13px;
 }
 
 .send:disabled{
@@ -683,16 +828,27 @@ a{color:inherit;text-decoration:none}
   cursor:default;
 }
 
+.order-note{
+  text-align:center;
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.4;
+  margin-top:8px;
+}
+
 .clear{
   width:100%;
-  margin-top:10px;
+  margin-top:5px;
   border:0;
   background:#fff;
   color:var(--danger);
-  padding:9px;
+  padding:8px;
+  font-size:11px;
 }
 
-/* COMPRA RÁPIDA */
+/* =========================
+   COMPRA RÁPIDA
+========================= */
 
 .sheet{
   position:fixed;
@@ -780,7 +936,9 @@ a{color:inherit;text-decoration:none}
   font-weight:900;
 }
 
-/* TOAST */
+/* =========================
+   TOAST
+========================= */
 
 .toast{
   position:fixed;
@@ -806,9 +964,9 @@ a{color:inherit;text-decoration:none}
   transform:translate(-50%,0);
 }
 
-/* RESPONSIVE */
-
-/* PC + iPad horizontal = 5 productos */
+/* =========================
+   RESPONSIVE
+========================= */
 
 @media(min-width:900px){
   .grid{
@@ -816,15 +974,9 @@ a{color:inherit;text-decoration:none}
   }
 }
 
-/* iPad vertical / tablet = 4 productos */
-
 @media(min-width:651px) and (max-width:899px){
   .grid{
     grid-template-columns:repeat(4,minmax(0,1fr));
-  }
-
-  .hero-box{
-    min-height:155px;
   }
 }
 
@@ -857,7 +1009,6 @@ a{color:inherit;text-decoration:none}
 
   .hero-box:before{
     font-size:82px;
-    right:-5px;
     bottom:-9px;
     letter-spacing:-5px;
   }
@@ -866,66 +1017,27 @@ a{color:inherit;text-decoration:none}
     display:none;
   }
 
-  .eyebrow{
-    font-size:8px;
-    margin-bottom:6px;
-  }
-
   .hero h1{
     font-size:34px;
     letter-spacing:-2px;
-    margin-bottom:7px;
   }
 
   .hero p{
     font-size:11px;
-    max-width:280px;
   }
 
   .catalog{
     padding:13px 12px 70px;
   }
 
-  .catalog h2{
-    font-size:25px;
-  }
-
-  .search-area{
-    top:60px;
-  }
-
-  .category-filter{
-    padding:8px 13px;
-    font-size:11px;
-  }
-
-  .catalog-tools{
-    gap:7px;
-  }
-
   .grid{
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:18px 7px;
-    margin-top:12px;
-  }
-
-  .product-image{
-    border-radius:11px;
-  }
-
-  .product-title h3{
-    font-size:12px;
-  }
-
-  .quick-add{
-    font-size:10px;
-    padding:8px 5px;
   }
 
   .grid.list-view .product-card{
     grid-template-columns:65px minmax(0,1fr) auto;
     gap:9px;
-    padding:7px;
   }
 
   .grid.list-view .product-image{
@@ -936,11 +1048,19 @@ a{color:inherit;text-decoration:none}
   .grid.list-view .quick-add{
     min-width:74px;
     font-size:9px;
-    padding:8px 7px;
   }
 
-  .view-button{
-    width:32px;
+  .cart-header{
+    padding-top:calc(17px + env(safe-area-inset-top));
+  }
+
+  .cart-item{
+    grid-template-columns:72px minmax(0,1fr);
+  }
+
+  .cart-thumb{
+    width:72px;
+    height:88px;
   }
 }
 </style>
@@ -949,293 +1069,262 @@ a{color:inherit;text-decoration:none}
 <body>
 
 <header class="header">
-  <div class="header-inner">
+<div class="header-inner">
 
-    <a href="/" class="brand">
-      CAROLA
-    </a>
+<a href="/" class="brand">CAROLA</a>
 
-    <button
-      id="cartButton"
-      class="cart-button"
-      type="button"
-    >
-      Pedido · 0 pares
-    </button>
+<button id="cartButton" class="cart-button" type="button">
+Pedido · 0 pares
+</button>
 
-  </div>
+</div>
 </header>
 
 <section class="hero">
+<div class="hero-box">
+<div class="hero-content">
 
-  <div class="hero-box">
+<span class="eyebrow">Calzado Carola</span>
 
-    <div class="hero-content">
+<h1>Arma tu pedido.</h1>
 
-      <span class="eyebrow">
-        Calzado Carola
-      </span>
+<p>
+Selecciona tus modelos y colores.
+Venta por múltiplos de 6 pares.
+</p>
 
-      <h1>
-        Arma tu pedido.
-      </h1>
-
-      <p>
-        Selecciona tus modelos y colores.
-        Venta por múltiplos de 6 pares.
-      </p>
-
-    </div>
-
-  </div>
-
+</div>
+</div>
 </section>
 
 <main class="catalog">
 
-  <div class="catalog-top">
+<div class="catalog-top">
+<div>
+<h2>Catálogo</h2>
+<div class="muted">Modelos disponibles</div>
+</div>
 
-    <div>
+<div id="count" class="muted">
+Cargando...
+</div>
+</div>
 
-      <h2>Catálogo</h2>
+<div class="category-section">
 
-      <div class="muted">
-        Modelos disponibles
-      </div>
+<span class="filter-label">
+Categorías
+</span>
 
-    </div>
+<div id="categories" class="categories"></div>
 
-    <div
-      id="count"
-      class="muted"
-    >
-      Cargando...
-    </div>
+</div>
 
-  </div>
+<div class="search-area">
 
-  <div class="category-section">
+<div class="search-wrap">
 
-    <span class="filter-label">
-      Categorías
-    </span>
+<input
+id="search"
+class="search"
+type="search"
+placeholder="Buscar modelo, categoría o color..."
+>
 
-    <div
-      id="categories"
-      class="categories"
-    ></div>
+<button
+id="clearSearch"
+class="clear-search"
+type="button"
+>
+×
+</button>
 
-  </div>
+</div>
 
-  <div class="search-area">
+<div class="catalog-tools">
 
-    <div class="search-wrap">
+<div class="color-area">
+<div id="filters" class="filters"></div>
+</div>
 
-      <input
-        id="search"
-        class="search"
-        type="search"
-        inputmode="search"
-        autocomplete="off"
-        placeholder="Buscar modelo, categoría o color..."
-      >
+<div class="view-switch">
 
-      <button
-        id="clearSearch"
-        class="clear-search"
-        type="button"
-        aria-label="Limpiar búsqueda"
-      >
-        ×
-      </button>
+<button
+id="gridViewButton"
+class="view-button active"
+type="button"
+>
+▦
+</button>
 
-    </div>
+<button
+id="listViewButton"
+class="view-button"
+type="button"
+>
+☰
+</button>
 
-    <div class="catalog-tools">
+</div>
 
-      <div class="color-area">
+</div>
+</div>
 
-        <div
-          id="filters"
-          class="filters"
-        ></div>
-
-      </div>
-
-      <div
-        class="view-switch"
-        aria-label="Cambiar vista"
-      >
-
-        <button
-          id="gridViewButton"
-          class="view-button active"
-          type="button"
-          aria-label="Vista cuadrícula"
-          title="Cuadrícula"
-        >
-          ▦
-        </button>
-
-        <button
-          id="listViewButton"
-          class="view-button"
-          type="button"
-          aria-label="Vista lista"
-          title="Lista"
-        >
-          ☰
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-  <div
-    id="grid"
-    class="grid"
-  >
-    <div class="state">
-      Cargando catálogo...
-    </div>
-  </div>
+<div id="grid" class="grid">
+<div class="state">
+Cargando catálogo...
+</div>
+</div>
 
 </main>
 
-<div
-  id="overlay"
-  class="overlay"
-></div>
+<div id="overlay" class="overlay"></div>
 
-<aside
-  id="cart"
-  class="cart"
+<!-- CARRITO -->
+
+<aside id="cart" class="cart">
+
+<div class="cart-header">
+
+<div class="cart-header-row">
+
+<div>
+<h2>Tu pedido</h2>
+
+<div class="cart-subtitle">
+Revisa modelos, colores y cantidades
+</div>
+</div>
+
+<button
+id="closeCart"
+class="icon-btn"
+type="button"
+>
+×
+</button>
+
+</div>
+
+<div class="cart-summary">
+
+<div class="cart-stat">
+<strong id="cartModels">0</strong>
+<span>Modelos</span>
+</div>
+
+<div class="cart-stat">
+<strong id="cartColors">0</strong>
+<span>Renglones</span>
+</div>
+
+<div class="cart-stat">
+<strong id="cartPairs">0</strong>
+<span>Pares</span>
+</div>
+
+</div>
+
+</div>
+
+<div id="cartBody" class="cart-body"></div>
+
+<div class="cart-footer">
+
+<div class="cart-total">
+
+<div>
+<div class="cart-total-label">
+Total del pedido
+</div>
+
+<strong id="total">
+0
+</strong>
+</div>
+
+<div class="cart-total-pairs">
+pares
+</div>
+
+</div>
+
+<label
+for="customerName"
+class="customer-label"
+>
+Nombre del cliente
+</label>
+
+<input
+id="customerName"
+class="name-input"
+placeholder="Ej. María Rodríguez"
+autocomplete="name"
 >
 
-  <div class="cart-header">
+<button
+id="sendOrder"
+class="send"
+type="button"
+>
+Continuar por WhatsApp →
+</button>
 
-    <h2>Tu pedido</h2>
+<div class="order-note">
+Antes de enviarlo verificaremos nuevamente
+que los modelos sigan disponibles.
+</div>
 
-    <button
-      id="closeCart"
-      class="icon-btn"
-      type="button"
-    >
-      ×
-    </button>
+<button
+id="clearCart"
+class="clear"
+type="button"
+>
+Vaciar pedido
+</button>
 
-  </div>
-
-  <div
-    id="cartBody"
-    class="cart-body"
-  ></div>
-
-  <div class="cart-footer">
-
-    <div class="cart-total">
-
-      <span>Total de pares</span>
-
-      <span id="total">
-        0
-      </span>
-
-    </div>
-
-    <input
-      id="customerName"
-      class="name-input"
-      placeholder="Nombre del cliente"
-      autocomplete="name"
-    >
-
-    <button
-      id="sendOrder"
-      class="send"
-      type="button"
-    >
-      Enviar pedido por WhatsApp
-    </button>
-
-    <button
-      id="clearCart"
-      class="clear"
-      type="button"
-    >
-      Vaciar pedido
-    </button>
-
-  </div>
+</div>
 
 </aside>
 
-<section
-  id="sheet"
-  class="sheet"
+<!-- COMPRA RÁPIDA -->
+
+<section id="sheet" class="sheet">
+
+<div class="sheet-handle"></div>
+
+<h2 id="sheetTitle">Modelo</h2>
+
+<p>Selecciona color y cantidad</p>
+
+<div id="sheetColors" class="sheet-colors"></div>
+
+<div class="qty">
+
+<button id="sheetMinus" type="button">−</button>
+
+<strong id="sheetQty">6</strong>
+
+<button id="sheetPlus" type="button">+</button>
+
+</div>
+
+<button
+id="sheetAdd"
+class="sheet-add"
+type="button"
 >
-
-  <div class="sheet-handle"></div>
-
-  <h2 id="sheetTitle">
-    Modelo
-  </h2>
-
-  <p>
-    Selecciona color y cantidad
-  </p>
-
-  <div
-    id="sheetColors"
-    class="sheet-colors"
-  ></div>
-
-  <div class="qty">
-
-    <button
-      id="sheetMinus"
-      type="button"
-    >
-      −
-    </button>
-
-    <strong id="sheetQty">
-      6
-    </strong>
-
-    <button
-      id="sheetPlus"
-      type="button"
-    >
-      +
-    </button>
-
-  </div>
-
-  <button
-    id="sheetAdd"
-    class="sheet-add"
-    type="button"
-  >
-    Agregar 6 pares
-  </button>
+Agregar 6 pares
+</button>
 
 </section>
 
-<div
-  id="toast"
-  class="toast"
->
-  ✓ Agregado al pedido
+<div id="toast" class="toast">
+✓ Agregado al pedido
 </div>
 
 <script>
-
-/* =========================
-   CONFIGURACIÓN
-========================= */
 
 const WHATSAPP_NUMBER="524775971996";
 
@@ -1245,20 +1334,15 @@ const NAME_KEY="carola_customer_name_v1";
 const LAST_ORDER_KEY="carola_last_order_v1";
 const VIEW_KEY="carola_view_v1";
 
-const DUPLICATE_WINDOW=
-  30*60*1000;
+const DUPLICATE_WINDOW=30*60*1000;
 
 const CATEGORY_ORDER=[
-  "Bota",
-  "Botín",
-  "Mocasín",
-  "Escolar",
-  "Zapatilla"
+"Bota",
+"Botín",
+"Mocasín",
+"Escolar",
+"Zapatilla"
 ];
-
-/* =========================
-   VARIABLES
-========================= */
 
 let products=[];
 
@@ -1272,375 +1356,270 @@ let quickVariant=null;
 let quickQty=6;
 
 let currentView=
-  localStorage.getItem(VIEW_KEY)==="list"
-    ?"list"
-    :"grid";
+localStorage.getItem(VIEW_KEY)==="list"
+?"list"
+:"grid";
 
-/* =========================
-   ELEMENTOS
-========================= */
+const grid=document.getElementById("grid");
+const categories=document.getElementById("categories");
+const filters=document.getElementById("filters");
+const search=document.getElementById("search");
+const clearSearch=document.getElementById("clearSearch");
+const count=document.getElementById("count");
+const overlay=document.getElementById("overlay");
+const cartPanel=document.getElementById("cart");
+const cartBody=document.getElementById("cartBody");
+const total=document.getElementById("total");
+const cartButton=document.getElementById("cartButton");
+const customerName=document.getElementById("customerName");
+const sheet=document.getElementById("sheet");
+const gridViewButton=document.getElementById("gridViewButton");
+const listViewButton=document.getElementById("listViewButton");
 
-const grid=
-  document.getElementById("grid");
-
-const categories=
-  document.getElementById("categories");
-
-const filters=
-  document.getElementById("filters");
-
-const search=
-  document.getElementById("search");
-
-const clearSearch=
-  document.getElementById("clearSearch");
-
-const count=
-  document.getElementById("count");
-
-const overlay=
-  document.getElementById("overlay");
-
-const cartPanel=
-  document.getElementById("cart");
-
-const cartBody=
-  document.getElementById("cartBody");
-
-const total=
-  document.getElementById("total");
-
-const cartButton=
-  document.getElementById("cartButton");
-
-const customerName=
-  document.getElementById("customerName");
-
-const sheet=
-  document.getElementById("sheet");
-
-const gridViewButton=
-  document.getElementById("gridViewButton");
-
-const listViewButton=
-  document.getElementById("listViewButton");
+const cartModels=document.getElementById("cartModels");
+const cartColors=document.getElementById("cartColors");
+const cartPairs=document.getElementById("cartPairs");
 
 customerName.value=
-  localStorage.getItem(NAME_KEY)||"";
-
-/* =========================
-   NORMALIZACIÓN
-========================= */
+localStorage.getItem(NAME_KEY)||"";
 
 function normalize(value){
 
-  return String(value||"")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(
-      /[\u0300-\u036f]/g,
-      ""
-    );
+return String(value||"")
+.trim()
+.toLowerCase()
+.normalize("NFD")
+.replace(/[\u0300-\u036f]/g,"");
+
 }
 
 function normalizeModel(value){
 
-  return normalize(value)
-    .replace(/\s+/g," ");
-}
+return normalize(value)
+.replace(/\s+/g," ");
 
-/* =========================
-   PRESENTACIÓN COLOR
-========================= */
+}
 
 function formatColor(value){
 
-  const original=
-    String(value||"").trim();
+const original=String(value||"").trim();
 
-  if(!original){
-    return "";
-  }
+if(!original)return "";
 
-  const normalized=
-    normalize(original);
+const normalized=normalize(original);
 
-  const known={
-    "negro":"Negro",
-    "camel":"Camel",
-    "latte":"Latte",
-    "maquillaje":"Maquillaje",
-    "conac":"Coñac",
-    "cafe":"Café",
-    "capuchino":"Capuchino",
-    "espresso":"Espresso",
-    "shedron":"Shedrón",
-    "blanco":"Blanco",
-    "beige":"Beige",
-    "hueso":"Hueso",
-    "rojo":"Rojo",
-    "vino":"Vino",
-    "rosa":"Rosa",
-    "dorado":"Dorado",
-    "plata":"Plata",
-    "azul":"Azul",
-    "marino":"Marino",
-    "miel":"Miel",
-    "chocolate":"Chocolate",
-    "taupe":"Taupe"
-  };
+const known={
+"negro":"Negro",
+"camel":"Camel",
+"latte":"Latte",
+"maquillaje":"Maquillaje",
+"conac":"Coñac",
+"cafe":"Café",
+"capuchino":"Capuchino",
+"espresso":"Espresso",
+"shedron":"Shedrón",
+"blanco":"Blanco",
+"beige":"Beige",
+"hueso":"Hueso",
+"rojo":"Rojo",
+"vino":"Vino",
+"rosa":"Rosa",
+"dorado":"Dorado",
+"plata":"Plata",
+"azul":"Azul",
+"marino":"Marino",
+"miel":"Miel",
+"chocolate":"Chocolate",
+"taupe":"Taupe"
+};
 
-  if(known[normalized]){
-    return known[normalized];
-  }
-
-  return original
-    .toLowerCase()
-    .replace(
-      /(^|\s)\S/g,
-      letter=>
-        letter.toUpperCase()
-    );
+if(known[normalized]){
+return known[normalized];
 }
 
-/* =========================
-   CATEGORÍA
-========================= */
+return original
+.toLowerCase()
+.replace(
+/(^|\s)\S/g,
+letter=>letter.toUpperCase()
+);
+
+}
 
 function formatCategory(value){
 
-  const normalized=
-    normalize(value);
+const known={
+"bota":"Bota",
+"botin":"Botín",
+"mocasin":"Mocasín",
+"escolar":"Escolar",
+"zapatilla":"Zapatilla"
+};
 
-  const known={
-    "bota":"Bota",
-    "botin":"Botín",
-    "mocasin":"Mocasín",
-    "escolar":"Escolar",
-    "zapatilla":"Zapatilla"
-  };
+return known[normalize(value)]||"";
 
-  return known[normalized]||"";
 }
-
-/* =========================
-   IMÁGENES
-========================= */
 
 function sortImages(images){
 
-  return (images||[])
-    .slice()
-    .sort((a,b)=>{
+return (images||[])
+.slice()
+.sort((a,b)=>{
 
-      const order=
-        Number(a.orden||0)-
-        Number(b.orden||0);
+const order=
+Number(a.orden||0)-
+Number(b.orden||0);
 
-      if(order!==0){
-        return order;
-      }
+if(order!==0)return order;
 
-      return (
-        Number(a.id||0)-
-        Number(b.id||0)
-      );
-    });
+return Number(a.id||0)-Number(b.id||0);
+
+});
+
 }
 
 function variants(product){
 
-  return Array.isArray(
-    product?.variantes
-  )
-    ?product.variantes.filter(
-        variant=>
-          Array.isArray(
-            variant.imagenes
-          ) &&
-          variant.imagenes.length
-      )
-    :[];
+return Array.isArray(product?.variantes)
+?product.variantes.filter(
+variant=>
+Array.isArray(variant.imagenes) &&
+variant.imagenes.length
+)
+:[];
+
 }
 
 function variantCover(variant){
 
-  return (
-    sortImages(
-      variant?.imagenes
-    )[0]?.url||
-    ""
-  );
+return sortImages(variant?.imagenes)[0]?.url||"";
+
 }
 
 function cover(product){
 
-  const variant=
-    variants(product)[0];
+const variant=variants(product)[0];
 
-  return variant
-    ?variantCover(variant)
-    :"";
+return variant
+?variantCover(variant)
+:"";
+
 }
 
 /* =========================
-   IDENTIDAD PEDIDO
+   DUPLICADOS
 ========================= */
 
-function buildOrderFingerprint(
-  name,
-  items
-){
+function buildOrderFingerprint(name,items){
 
-  const normalizedItems=
-    (items||[])
-      .map(item=>({
+const normalizedItems=
+(items||[])
+.map(item=>({
 
-        modelo:
-          normalizeModel(
-            item.modelo
-          ),
+modelo:normalizeModel(item.modelo),
+color:normalize(item.color),
+cantidad:Number(item.cantidad||0)
 
-        color:
-          normalize(
-            item.color
-          ),
+}))
+.sort((a,b)=>{
 
-        cantidad:
-          Number(
-            item.cantidad||0
-          )
+const modelCompare=
+a.modelo.localeCompare(
+b.modelo,
+undefined,
+{
+numeric:true,
+sensitivity:"base"
+}
+);
 
-      }))
-      .sort((a,b)=>{
+if(modelCompare!==0){
+return modelCompare;
+}
 
-        const modelCompare=
-          a.modelo.localeCompare(
-            b.modelo,
-            undefined,
-            {
-              numeric:true,
-              sensitivity:"base"
-            }
-          );
+const colorCompare=
+a.color.localeCompare(
+b.color,
+undefined,
+{
+sensitivity:"base"
+}
+);
 
-        if(modelCompare!==0){
-          return modelCompare;
-        }
+if(colorCompare!==0){
+return colorCompare;
+}
 
-        const colorCompare=
-          a.color.localeCompare(
-            b.color,
-            undefined,
-            {
-              sensitivity:"base"
-            }
-          );
+return a.cantidad-b.cantidad;
 
-        if(colorCompare!==0){
-          return colorCompare;
-        }
+});
 
-        return (
-          a.cantidad-
-          b.cantidad
-        );
-      });
+return JSON.stringify({
 
-  return JSON.stringify({
+cliente:normalize(name),
+items:normalizedItems
 
-    cliente:
-      normalize(name),
+});
 
-    items:
-      normalizedItems
-
-  });
 }
 
 function getLastOrder(){
 
-  try{
+try{
 
-    const raw=
-      localStorage.getItem(
-        LAST_ORDER_KEY
-      );
+const raw=
+localStorage.getItem(LAST_ORDER_KEY);
 
-    if(!raw){
-      return null;
-    }
+if(!raw)return null;
 
-    const data=
-      JSON.parse(raw);
+const data=JSON.parse(raw);
 
-    if(
-      !data ||
-      !data.fingerprint ||
-      !data.folio ||
-      !data.savedAt
-    ){
-      return null;
-    }
-
-    return data;
-
-  }catch{
-
-    return null;
-  }
+if(
+!data ||
+!data.fingerprint ||
+!data.folio ||
+!data.savedAt
+){
+return null;
 }
 
-function saveLastOrder(
-  fingerprint,
-  folio
-){
+return data;
 
-  localStorage.setItem(
-    LAST_ORDER_KEY,
-    JSON.stringify({
+}catch{
 
-      fingerprint,
+return null;
 
-      folio:
-        String(folio),
-
-      savedAt:
-        Date.now()
-
-    })
-  );
 }
 
-function isRecentDuplicate(
-  lastOrder,
-  fingerprint
-){
+}
 
-  if(!lastOrder){
-    return false;
-  }
+function saveLastOrder(fingerprint,folio){
 
-  if(
-    lastOrder.fingerprint!==
-    fingerprint
-  ){
-    return false;
-  }
+localStorage.setItem(
+LAST_ORDER_KEY,
+JSON.stringify({
+fingerprint,
+folio:String(folio),
+savedAt:Date.now()
+})
+);
 
-  const savedAt=
-    Number(
-      lastOrder.savedAt||0
-    );
+}
 
-  if(!savedAt){
-    return false;
-  }
+function isRecentDuplicate(lastOrder,fingerprint){
 
-  return (
-    Date.now()-savedAt
-  )<DUPLICATE_WINDOW;
+if(!lastOrder)return false;
+
+if(lastOrder.fingerprint!==fingerprint){
+return false;
+}
+
+const savedAt=Number(lastOrder.savedAt||0);
+
+if(!savedAt)return false;
+
+return Date.now()-savedAt<DUPLICATE_WINDOW;
+
 }
 
 /* =========================
@@ -1649,367 +1628,341 @@ function isRecentDuplicate(
 
 function loadCart(){
 
-  try{
+try{
 
-    let raw=
-      localStorage.getItem(
-        CART_KEY
-      );
+let raw=
+localStorage.getItem(CART_KEY);
 
-    if(!raw){
+if(!raw){
+raw=localStorage.getItem(OLD_CART_KEY);
+}
 
-      raw=
-        localStorage.getItem(
-          OLD_CART_KEY
-        );
-    }
+const data=JSON.parse(raw||"[]");
 
-    const data=
-      JSON.parse(
-        raw||"[]"
-      );
+if(!Array.isArray(data)){
+return [];
+}
 
-    if(!Array.isArray(data)){
-      return [];
-    }
+return data
+.filter(
+item=>
+item &&
+item.modelo &&
+item.color
+)
+.map(item=>{
 
-    return data
-      .filter(
-        item=>
-          item &&
-          item.modelo &&
-          item.color
-      )
-      .map(item=>{
+let cantidad=
+Number(item.cantidad||6);
 
-        let cantidad=
-          Number(
-            item.cantidad||6
-          );
+if(
+!Number.isFinite(cantidad) ||
+cantidad<6
+){
+cantidad=6;
+}
 
-        if(
-          !Number.isFinite(
-            cantidad
-          ) ||
-          cantidad<6
-        ){
-          cantidad=6;
-        }
+cantidad=
+Math.ceil(cantidad/6)*6;
 
-        cantidad=
-          Math.ceil(
-            cantidad/6
-          )*6;
+return {
+modelo:String(item.modelo),
+color:String(item.color),
+cantidad,
+image:item.image||""
+};
 
-        return {
+});
 
-          modelo:
-            String(
-              item.modelo
-            ),
+}catch{
 
-          color:
-            String(
-              item.color
-            ),
+return [];
 
-          cantidad,
+}
 
-          image:
-            item.image||""
-
-        };
-      });
-
-  }catch{
-
-    return [];
-  }
 }
 
 function saveCart(){
 
-  localStorage.setItem(
-    CART_KEY,
-    JSON.stringify(cart)
-  );
+localStorage.setItem(
+CART_KEY,
+JSON.stringify(cart)
+);
 
-  renderCart();
+renderCart();
+
 }
 
 function cartTotal(){
 
-  return cart.reduce(
-    (sum,item)=>
-      sum+
-      Number(
-        item.cantidad||0
-      ),
-    0
-  );
+return cart.reduce(
+(sum,item)=>
+sum+Number(item.cantidad||0),
+0
+);
+
 }
 
-async function repairCartImages(){
+function uniqueModels(){
 
-  let changed=false;
+return new Set(
+cart.map(
+item=>normalizeModel(item.modelo)
+)
+).size;
 
-  for(const item of cart){
-
-    if(item.image){
-      continue;
-    }
-
-    const product=
-      products.find(
-        product=>
-          normalizeModel(
-            product.modelo
-          )===
-          normalizeModel(
-            item.modelo
-          )
-      );
-
-    if(!product){
-      continue;
-    }
-
-    const variant=
-      variants(product).find(
-        variant=>
-          normalize(
-            variant.color
-          )===
-          normalize(
-            item.color
-          )
-      );
-
-    if(!variant){
-      continue;
-    }
-
-    const image=
-      variantCover(variant);
-
-    if(image){
-
-      item.image=image;
-      changed=true;
-    }
-  }
-
-  if(changed){
-
-    localStorage.setItem(
-      CART_KEY,
-      JSON.stringify(cart)
-    );
-
-    renderCart();
-  }
 }
 
 function addItem(
-  modelo,
-  color,
-  cantidad,
-  image
+modelo,
+color,
+cantidad,
+image
 ){
 
-  const existing=
-    cart.find(
-      item=>
-        normalizeModel(
-          item.modelo
-        )===
-        normalizeModel(
-          modelo
-        ) &&
-        normalize(
-          item.color
-        )===
-        normalize(
-          color
-        )
-    );
+const existing=
+cart.find(
+item=>
+normalizeModel(item.modelo)===
+normalizeModel(modelo)
+&&
+normalize(item.color)===
+normalize(color)
+);
 
-  if(existing){
+if(existing){
 
-    existing.cantidad=
-      Number(
-        existing.cantidad
-      )+
-      Number(
-        cantidad
-      );
+existing.cantidad+=Number(cantidad);
 
-    if(!existing.image){
-      existing.image=image;
-    }
+if(!existing.image){
+existing.image=image;
+}
 
-  }else{
+}else{
 
-    cart.push({
+cart.push({
+modelo:String(modelo),
+color:String(color),
+cantidad:Number(cantidad),
+image:image||""
+});
 
-      modelo:
-        String(modelo),
+}
 
-      color:
-        String(color),
+saveCart();
 
-      cantidad:
-        Number(cantidad),
+showToast(
+"✓ "+cantidad+" pares agregados"
+);
 
-      image:
-        image||""
-
-    });
-  }
-
-  saveCart();
-
-  showToast(
-    "✓ "+
-    cantidad+
-    " pares agregados"
-  );
 }
 
 function renderCart(){
 
-  const pairs=
-    cartTotal();
+const pairs=cartTotal();
 
-  total.textContent=
-    pairs;
+total.textContent=pairs;
+cartPairs.textContent=pairs;
+cartColors.textContent=cart.length;
+cartModels.textContent=uniqueModels();
 
-  cartButton.textContent=
-    "Pedido · "+
-    pairs+
-    " pares";
+cartButton.textContent=
+"Pedido · "+pairs+" pares";
 
-  if(!cart.length){
+if(!cart.length){
 
-    cartBody.innerHTML=`
-      <div class="cart-empty">
+cartBody.innerHTML=`
 
-        <strong>
-          Tu pedido está vacío
-        </strong>
+<div class="cart-empty">
 
-        <br><br>
+<div class="cart-empty-icon">
+♡
+</div>
 
-        Agrega modelos del catálogo.
+<strong>
+Tu pedido está vacío
+</strong>
 
-      </div>
-    `;
+<span>
+Agrega los modelos y colores que quieras.
+Puedes combinar diferentes modelos en un mismo pedido.
+</span>
 
-    return;
-  }
+</div>
 
-  cartBody.innerHTML=
-    cart.map(
-      (item,index)=>`
+`;
 
-        <div class="cart-item">
+return;
 
-          ${
-            item.image
-              ?`
-                <img
-                  class="cart-thumb"
-                  src="${escapeAttribute(item.image)}"
-                  alt="Modelo ${escapeAttribute(item.modelo)}"
-                >
-              `
-              :`
-                <div class="cart-thumb"></div>
-              `
-          }
+}
 
-          <div>
+cartBody.innerHTML=
+cart.map((item,index)=>`
 
-            <h4>
-              Modelo ${escapeHtml(item.modelo)}
-            </h4>
+<div class="cart-item">
 
-            <div class="cart-color">
-              ${escapeHtml(formatColor(item.color))}
-            </div>
+<a
+class="cart-product-link"
+href="/producto.html?modelo=${encodeURIComponent(item.modelo)}"
+>
 
-            <div class="cart-actions">
+${
+item.image
+?`
+<img
+class="cart-thumb"
+src="${escapeAttribute(item.image)}"
+alt="Modelo ${escapeAttribute(item.modelo)}"
+>
+`
+:`
+<div class="cart-thumb"></div>
+`
+}
 
-              <button
-                data-action="minus"
-                data-index="${index}"
-              >
-                −
-              </button>
+</a>
 
-              <strong>
-                ${Number(item.cantidad)}
-              </strong>
+<div class="cart-content">
 
-              <button
-                data-action="plus"
-                data-index="${index}"
-              >
-                +
-              </button>
+<div class="cart-top">
 
-              <button
-                class="remove"
-                data-action="remove"
-                data-index="${index}"
-              >
-                Eliminar
-              </button>
+<div>
 
-            </div>
+<a
+class="cart-model"
+href="/producto.html?modelo=${encodeURIComponent(item.modelo)}"
+>
+Modelo ${escapeHtml(item.modelo)}
+</a>
 
-          </div>
+<div class="cart-color">
+${escapeHtml(formatColor(item.color))}
+</div>
 
-        </div>
+</div>
 
-      `
-    ).join("");
+<div class="cart-pairs">
+${Number(item.cantidad)} pares
+</div>
+
+</div>
+
+<div class="cart-actions">
+
+<div class="cart-quantity">
+
+<button
+data-action="minus"
+data-index="${index}"
+type="button"
+>
+−
+</button>
+
+<strong>
+${Number(item.cantidad)}
+</strong>
+
+<button
+data-action="plus"
+data-index="${index}"
+type="button"
+>
++
+</button>
+
+</div>
+
+<button
+class="remove"
+data-action="remove"
+data-index="${index}"
+type="button"
+>
+Eliminar
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`).join("");
+
+}
+
+async function repairCartImages(){
+
+let changed=false;
+
+for(const item of cart){
+
+if(item.image){
+continue;
+}
+
+const product=
+products.find(
+product=>
+normalizeModel(product.modelo)===
+normalizeModel(item.modelo)
+);
+
+if(!product)continue;
+
+const variant=
+variants(product).find(
+variant=>
+normalize(variant.color)===
+normalize(item.color)
+);
+
+if(!variant)continue;
+
+const image=
+variantCover(variant);
+
+if(image){
+
+item.image=image;
+changed=true;
+
+}
+
+}
+
+if(changed){
+
+localStorage.setItem(
+CART_KEY,
+JSON.stringify(cart)
+);
+
+renderCart();
+
+}
+
 }
 
 function openCart(){
 
-  overlay.classList.add(
-    "open"
-  );
+overlay.classList.add("open");
+cartPanel.classList.add("open");
+sheet.classList.remove("open");
 
-  cartPanel.classList.add(
-    "open"
-  );
+document.body.style.overflow="hidden";
 
-  sheet.classList.remove(
-    "open"
-  );
-
-  document.body.style.overflow=
-    "hidden";
 }
 
 function closePanels(){
 
-  overlay.classList.remove(
-    "open"
-  );
+overlay.classList.remove("open");
+cartPanel.classList.remove("open");
+sheet.classList.remove("open");
 
-  cartPanel.classList.remove(
-    "open"
-  );
+document.body.style.overflow="";
 
-  sheet.classList.remove(
-    "open"
-  );
-
-  document.body.style.overflow=
-    "";
 }
 
 /* =========================
@@ -2018,233 +1971,193 @@ function closePanels(){
 
 function openQuick(product){
 
-  quickProduct=product;
+quickProduct=product;
+quickVariant=variants(product)[0];
+quickQty=6;
 
-  quickVariant=
-    variants(product)[0];
+document.getElementById(
+"sheetTitle"
+).textContent=
+"Modelo "+product.modelo;
 
-  quickQty=6;
+renderSheetColors();
+updateSheetQty();
 
-  document.getElementById(
-    "sheetTitle"
-  ).textContent=
-    "Modelo "+
-    product.modelo;
+overlay.classList.add("open");
+sheet.classList.add("open");
+cartPanel.classList.remove("open");
 
-  renderSheetColors();
+document.body.style.overflow="hidden";
 
-  updateSheetQty();
-
-  overlay.classList.add(
-    "open"
-  );
-
-  sheet.classList.add(
-    "open"
-  );
-
-  cartPanel.classList.remove(
-    "open"
-  );
-
-  document.body.style.overflow=
-    "hidden";
 }
 
 function renderSheetColors(){
 
-  document.getElementById(
-    "sheetColors"
-  ).innerHTML=
+document.getElementById(
+"sheetColors"
+).innerHTML=
 
-    variants(quickProduct)
-      .map(
-        variant=>`
+variants(quickProduct)
+.map(variant=>`
 
-          <button
-            class="sheet-color ${
-              Number(variant.id)===
-              Number(quickVariant.id)
-                ?"active"
-                :""
-            }"
-            data-variant="${Number(variant.id)}"
-            type="button"
-          >
-            ${escapeHtml(formatColor(variant.color))}
-          </button>
+<button
+class="sheet-color ${
+Number(variant.id)===
+Number(quickVariant.id)
+?"active"
+:""
+}"
+data-variant="${Number(variant.id)}"
+type="button"
+>
+${escapeHtml(formatColor(variant.color))}
+</button>
 
-        `
-      )
-      .join("");
+`)
+.join("");
+
 }
 
 function updateSheetQty(){
 
-  document.getElementById(
-    "sheetQty"
-  ).textContent=
-    quickQty;
+document.getElementById(
+"sheetQty"
+).textContent=quickQty;
 
-  document.getElementById(
-    "sheetAdd"
-  ).textContent=
-    "Agregar "+
-    quickQty+
-    " pares";
+document.getElementById(
+"sheetAdd"
+).textContent=
+"Agregar "+quickQty+" pares";
+
 }
 
 /* =========================
-   CARGAR PRODUCTOS
+   CARGAR
 ========================= */
 
 async function loadProducts(){
 
-  try{
+try{
 
-    const [
-      supabaseResponse,
-      treintaResponse
-    ]=
-      await Promise.all([
+const [
+supabaseResponse,
+treintaResponse
+]=await Promise.all([
 
-        fetch(
-          "/.netlify/functions/supabase?t="+
-          Date.now(),
-          {
-            cache:"no-store"
-          }
-        ),
+fetch(
+"/.netlify/functions/supabase?t="+Date.now(),
+{cache:"no-store"}
+),
 
-        fetch(
-          "/.netlify/functions/treinta?t="+
-          Date.now(),
-          {
-            cache:"no-store"
-          }
-        )
+fetch(
+"/.netlify/functions/treinta?t="+Date.now(),
+{cache:"no-store"}
+)
 
-      ]);
+]);
 
-    const supabaseData=
-      await supabaseResponse.json();
+const supabaseData=
+await supabaseResponse.json();
 
-    const treintaData=
-      await treintaResponse.json();
+const treintaData=
+await treintaResponse.json();
 
-    if(
-      !supabaseResponse.ok ||
-      !supabaseData.success
-    ){
+if(
+!supabaseResponse.ok ||
+!supabaseData.success
+){
+throw new Error(
+"No se pudo cargar el catálogo."
+);
+}
 
-      throw new Error(
-        "No se pudo cargar el catálogo."
-      );
-    }
+if(
+!treintaResponse.ok ||
+!treintaData.success
+){
+throw new Error(
+"No se pudo verificar disponibilidad."
+);
+}
 
-    if(
-      !treintaResponse.ok ||
-      !treintaData.success
-    ){
+const available=
+new Set(
+(
+Array.isArray(treintaData.products)
+?treintaData.products
+:[]
+)
+.map(
+product=>
+normalizeModel(product.name)
+)
+);
 
-      throw new Error(
-        "No se pudo verificar disponibilidad."
-      );
-    }
+products=
+(
+Array.isArray(supabaseData.productos)
+?supabaseData.productos
+:[]
+)
+.filter(
+product=>
+available.has(
+normalizeModel(product.modelo)
+)
+)
+.filter(
+product=>cover(product)
+)
+.sort(
+(a,b)=>
+String(a.modelo).localeCompare(
+String(b.modelo),
+undefined,
+{
+numeric:true,
+sensitivity:"base"
+}
+)
+);
 
-    const available=
-      new Set(
-        (
-          Array.isArray(
-            treintaData.products
-          )
-            ?treintaData.products
-            :[]
-        )
-        .map(
-          product=>
-            normalizeModel(
-              product.name
-            )
-        )
-      );
+buildCategories();
+buildFilters();
+applyView();
+renderProducts();
 
-    products=
-      (
-        Array.isArray(
-          supabaseData.productos
-        )
-          ?supabaseData.productos
-          :[]
-      )
-      .filter(
-        product=>
-          available.has(
-            normalizeModel(
-              product.modelo
-            )
-          )
-      )
-      .filter(
-        product=>
-          cover(product)
-      )
-      .sort(
-        (a,b)=>
-          String(
-            a.modelo
-          ).localeCompare(
-            String(
-              b.modelo
-            ),
-            undefined,
-            {
-              numeric:true,
-              sensitivity:"base"
-            }
-          )
-      );
+await repairCartImages();
 
-    buildCategories();
-    buildFilters();
-    applyView();
-    renderProducts();
+const params=
+new URLSearchParams(
+window.location.search
+);
 
-    await repairCartImages();
+if(params.get("carrito")==="1"){
 
-    const params=
-      new URLSearchParams(
-        window.location.search
-      );
+openCart();
 
-    if(
-      params.get(
-        "carrito"
-      )==="1"
-    ){
+history.replaceState(
+{},
+document.title,
+window.location.pathname
+);
 
-      openCart();
+}
 
-      history.replaceState(
-        {},
-        document.title,
-        window.location.pathname
-      );
-    }
+}catch(error){
 
-  }catch(error){
+console.error(error);
 
-    console.error(error);
+grid.innerHTML=`
+<div class="state">
+No pudimos cargar el catálogo.
+</div>
+`;
 
-    grid.innerHTML=`
-      <div class="state">
-        No pudimos cargar el catálogo.
-      </div>
-    `;
+count.textContent="Error";
 
-    count.textContent=
-      "Error";
-  }
+}
+
 }
 
 /* =========================
@@ -2253,119 +2166,115 @@ async function loadProducts(){
 
 function buildCategories(){
 
-  categories.innerHTML=
+categories.innerHTML=
 
-    CATEGORY_ORDER.map(
-      category=>`
+CATEGORY_ORDER
+.map(category=>`
 
-        <button
-          class="category-filter ${
-            normalize(category)===
-            selectedCategory
-              ?"active"
-              :""
-          }"
-          data-category="${escapeAttribute(normalize(category))}"
-          type="button"
-        >
-          ${escapeHtml(category)}
-        </button>
+<button
+class="category-filter ${
+normalize(category)===
+selectedCategory
+?"active"
+:""
+}"
+data-category="${escapeAttribute(normalize(category))}"
+type="button"
+>
+${escapeHtml(category)}
+</button>
 
-      `
-    ).join("")+
+`)
+.join("")
 
-    `
++
 
-      <button
-        class="category-filter ${
-          selectedCategory==="todos"
-            ?"active"
-            :""
-        }"
-        data-category="todos"
-        type="button"
-      >
-        Todos
-      </button>
+`
 
-    `;
+<button
+class="category-filter ${
+selectedCategory==="todos"
+?"active"
+:""
+}"
+data-category="todos"
+type="button"
+>
+Todos
+</button>
+
+`;
+
 }
 
 /* =========================
-   FILTROS DE COLOR
+   COLORES
 ========================= */
 
 function buildFilters(){
 
-  const colors=
-    new Map();
+const colors=new Map();
 
-  products.forEach(
-    product=>{
+products.forEach(product=>{
 
-      variants(product)
-        .forEach(
-          variant=>{
+variants(product)
+.forEach(variant=>{
 
-            const key=
-              normalize(
-                variant.color
-              );
+const key=
+normalize(variant.color);
 
-            if(
-              !colors.has(key)
-            ){
+if(!colors.has(key)){
 
-              colors.set(
-                key,
-                formatColor(
-                  variant.color
-                )
-              );
-            }
-          }
-        );
-    }
-  );
+colors.set(
+key,
+formatColor(variant.color)
+);
 
-  const sortedColors=
-    [...colors.entries()]
-      .sort(
-        (a,b)=>
-          a[1].localeCompare(
-            b[1],
-            "es",
-            {
-              sensitivity:"base"
-            }
-          )
-      );
+}
 
-  filters.innerHTML=`
+});
 
-    <button
-      class="filter active"
-      data-color="todos"
-      type="button"
-    >
-      Todos los colores
-    </button>
+});
 
-  `+
+const sortedColors=
+[...colors.entries()]
+.sort(
+(a,b)=>
+a[1].localeCompare(
+b[1],
+"es",
+{sensitivity:"base"}
+)
+);
 
-  sortedColors.map(
-    ([key,color])=>`
+filters.innerHTML=`
 
-      <button
-        class="filter"
-        data-color="${escapeAttribute(key)}"
-        type="button"
-      >
-        ${escapeHtml(color)}
-      </button>
+<button
+class="filter active"
+data-color="todos"
+type="button"
+>
+Todos los colores
+</button>
 
-    `
-  ).join("");
+`
+
++
+
+sortedColors.map(
+([key,color])=>`
+
+<button
+class="filter"
+data-color="${escapeAttribute(key)}"
+type="button"
+>
+${escapeHtml(color)}
+</button>
+
+`
+).join("");
+
 }
 
 /* =========================
@@ -2374,561 +2283,466 @@ function buildFilters(){
 
 function applyView(){
 
-  const isList=
-    currentView==="list";
+const isList=
+currentView==="list";
 
-  grid.classList.toggle(
-    "list-view",
-    isList
-  );
+grid.classList.toggle(
+"list-view",
+isList
+);
 
-  gridViewButton.classList.toggle(
-    "active",
-    !isList
-  );
+gridViewButton.classList.toggle(
+"active",
+!isList
+);
 
-  listViewButton.classList.toggle(
-    "active",
-    isList
-  );
+listViewButton.classList.toggle(
+"active",
+isList
+);
+
 }
 
 gridViewButton.onclick=function(){
 
-  currentView="grid";
+currentView="grid";
 
-  localStorage.setItem(
-    VIEW_KEY,
-    currentView
-  );
+localStorage.setItem(
+VIEW_KEY,
+currentView
+);
 
-  applyView();
+applyView();
+
 };
 
 listViewButton.onclick=function(){
 
-  currentView="list";
+currentView="list";
 
-  localStorage.setItem(
-    VIEW_KEY,
-    currentView
-  );
+localStorage.setItem(
+VIEW_KEY,
+currentView
+);
 
-  applyView();
+applyView();
+
 };
 
 /* =========================
-   MOSTRAR PRODUCTOS
+   RENDER CATÁLOGO
 ========================= */
 
 function renderProducts(){
 
-  const query=
-    normalize(
-      search.value
-    );
+const query=
+normalize(search.value);
 
-  clearSearch.classList.toggle(
-    "show",
-    Boolean(query)
-  );
+clearSearch.classList.toggle(
+"show",
+Boolean(query)
+);
 
-  const visible=
-    products.filter(
-      product=>{
+const visible=
+products.filter(product=>{
 
-        const modelText=
-          normalize(
-            product.modelo
-          );
+const modelText=
+normalize(product.modelo);
 
-        const categoryText=
-          normalize(
-            product.categoria
-          );
+const categoryText=
+normalize(product.categoria);
 
-        const colorTexts=
-          variants(product)
-            .map(
-              variant=>
-                normalize(
-                  variant.color
-                )
-            );
+const colorTexts=
+variants(product)
+.map(
+variant=>normalize(variant.color)
+);
 
-        const searchOK=
-          !query ||
-          modelText.includes(
-            query
-          ) ||
-          categoryText.includes(
-            query
-          ) ||
-          colorTexts.some(
-            color=>
-              color.includes(
-                query
-              )
-          );
+const searchOK=
+!query ||
+modelText.includes(query) ||
+categoryText.includes(query) ||
+colorTexts.some(
+color=>color.includes(query)
+);
 
-        /*
-         * Los modelos sin categoría
-         * siguen apareciendo en TODOS.
-         */
+const categoryOK=
+selectedCategory==="todos" ||
+categoryText===selectedCategory;
 
-        const categoryOK=
-          selectedCategory===
-          "todos" ||
-          categoryText===
-          selectedCategory;
+const colorOK=
+selectedFilter==="todos" ||
+colorTexts.includes(selectedFilter);
 
-        const colorOK=
-          selectedFilter===
-          "todos" ||
-          colorTexts.includes(
-            selectedFilter
-          );
+return (
+searchOK &&
+categoryOK &&
+colorOK
+);
 
-        return (
-          searchOK &&
-          categoryOK &&
-          colorOK
-        );
-      }
-    );
+});
 
-  count.textContent=
-    visible.length+
-    " modelo"+
-    (
-      visible.length===1
-        ?""
-        :"s"
-    );
+count.textContent=
+visible.length+
+" modelo"+
+(visible.length===1?"":"s");
 
-  if(!visible.length){
+if(!visible.length){
 
-    grid.innerHTML=`
-      <div class="state">
+grid.innerHTML=`
 
-        <strong>
-          No encontramos modelos.
-        </strong>
+<div class="state">
 
-        <br><br>
+<strong>
+No encontramos modelos.
+</strong>
 
-        Prueba otra categoría, color o búsqueda.
+<br><br>
 
-      </div>
-    `;
+Prueba otra categoría, color o búsqueda.
 
-    return;
-  }
+</div>
 
-  grid.innerHTML=
-    visible.map(
-      product=>{
+`;
 
-        const category=
-          formatCategory(
-            product.categoria
-          );
+return;
 
-        return `
+}
 
-          <article class="product-card">
+grid.innerHTML=
+visible.map(product=>{
 
-            <a
-              class="product-link"
-              href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
-            >
+const category=
+formatCategory(product.categoria);
 
-              <div class="product-image">
+return `
 
-                <img
-                  src="${escapeAttribute(cover(product))}"
-                  loading="lazy"
-                  alt="Modelo ${escapeAttribute(product.modelo)}"
-                >
+<article class="product-card">
 
-                <span class="badge">
-                  DISPONIBLE
-                </span>
+<a
+class="product-link"
+href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
+>
 
-              </div>
+<div class="product-image">
 
-              <div class="product-info">
+<img
+src="${escapeAttribute(cover(product))}"
+loading="lazy"
+alt="Modelo ${escapeAttribute(product.modelo)}"
+>
 
-                <div class="product-title">
+<span class="badge">
+DISPONIBLE
+</span>
 
-                  <h3>
-                    Modelo ${escapeHtml(product.modelo)}
-                  </h3>
+</div>
 
-                  <span class="product-arrow">
-                    →
-                  </span>
+<div class="product-info">
 
-                </div>
+<div class="product-title">
 
-                ${
-                  category
-                    ?`
-                      <div class="product-category">
-                        ${escapeHtml(category)}
-                      </div>
-                    `
-                    :""
-                }
+<h3>
+Modelo ${escapeHtml(product.modelo)}
+</h3>
 
-                <div class="colors">
+<span class="product-arrow">
+→
+</span>
 
-                  ${
-                    variants(product)
-                      .map(
-                        variant=>
-                          escapeHtml(
-                            formatColor(
-                              variant.color
-                            )
-                          )
-                      )
-                      .join(" · ")
-                  }
+</div>
 
-                </div>
+${
+category
+?`
+<div class="product-category">
+${escapeHtml(category)}
+</div>
+`
+:""
+}
 
-              </div>
+<div class="colors">
 
-            </a>
+${
+variants(product)
+.map(
+variant=>
+escapeHtml(
+formatColor(variant.color)
+)
+)
+.join(" · ")
+}
 
-            <button
-              class="quick-add"
-              data-model="${escapeAttribute(product.modelo)}"
-              type="button"
-            >
-              + Agregar
-            </button>
+</div>
 
-          </article>
+</div>
 
-        `;
-      }
-    ).join("");
+</a>
+
+<button
+class="quick-add"
+data-model="${escapeAttribute(product.modelo)}"
+type="button"
+>
++ Agregar
+</button>
+
+</article>
+
+`;
+
+}).join("");
+
 }
 
 /* =========================
    EVENTOS CATÁLOGO
 ========================= */
 
-grid.onclick=
-function(event){
+grid.onclick=function(event){
 
-  const button=
-    event.target.closest(
-      ".quick-add"
-    );
+const button=
+event.target.closest(
+".quick-add"
+);
 
-  if(!button){
-    return;
-  }
+if(!button)return;
 
-  const product=
-    products.find(
-      item=>
-        String(
-          item.modelo
-        )===
-        String(
-          button.dataset.model
-        )
-    );
+const product=
+products.find(
+item=>
+String(item.modelo)===
+String(button.dataset.model)
+);
 
-  if(product){
-    openQuick(product);
-  }
+if(product){
+openQuick(product);
+}
+
 };
 
-categories.onclick=
-function(event){
+categories.onclick=function(event){
 
-  const button=
-    event.target.closest(
-      ".category-filter"
-    );
+const button=
+event.target.closest(
+".category-filter"
+);
 
-  if(!button){
-    return;
-  }
+if(!button)return;
 
-  selectedCategory=
-    button.dataset.category;
+selectedCategory=
+button.dataset.category;
 
-  document
-    .querySelectorAll(
-      ".category-filter"
-    )
-    .forEach(
-      item=>
-        item.classList.remove(
-          "active"
-        )
-    );
+document
+.querySelectorAll(
+".category-filter"
+)
+.forEach(
+item=>
+item.classList.remove("active")
+);
 
-  button.classList.add(
-    "active"
-  );
+button.classList.add("active");
 
-  /*
-   * Al cambiar de categoría,
-   * mantenemos el filtro de color.
-   */
+renderProducts();
 
-  renderProducts();
 };
 
-filters.onclick=
-function(event){
+filters.onclick=function(event){
 
-  const button=
-    event.target.closest(
-      ".filter"
-    );
+const button=
+event.target.closest(".filter");
 
-  if(!button){
-    return;
-  }
+if(!button)return;
 
-  selectedFilter=
-    button.dataset.color;
+selectedFilter=
+button.dataset.color;
 
-  document
-    .querySelectorAll(
-      ".filter"
-    )
-    .forEach(
-      item=>
-        item.classList.remove(
-          "active"
-        )
-    );
+document
+.querySelectorAll(".filter")
+.forEach(
+item=>
+item.classList.remove("active")
+);
 
-  button.classList.add(
-    "active"
-  );
+button.classList.add("active");
 
-  renderProducts();
+renderProducts();
+
 };
 
-search.oninput=
-  renderProducts;
+search.oninput=renderProducts;
 
-clearSearch.onclick=
-function(){
+clearSearch.onclick=function(){
 
-  search.value="";
+search.value="";
+renderProducts();
+search.focus();
 
-  renderProducts();
-
-  search.focus();
 };
 
 /* =========================
-   COMPRA RÁPIDA
+   QUICK ADD
 ========================= */
 
 document.getElementById(
-  "sheetColors"
-).onclick=
-function(event){
+"sheetColors"
+).onclick=function(event){
 
-  const button=
-    event.target.closest(
-      ".sheet-color"
-    );
+const button=
+event.target.closest(
+".sheet-color"
+);
 
-  if(!button){
-    return;
-  }
+if(!button)return;
 
-  quickVariant=
-    variants(
-      quickProduct
-    ).find(
-      variant=>
-        Number(
-          variant.id
-        )===
-        Number(
-          button.dataset.variant
-        )
-    );
+quickVariant=
+variants(quickProduct)
+.find(
+variant=>
+Number(variant.id)===
+Number(button.dataset.variant)
+);
 
-  renderSheetColors();
+renderSheetColors();
+
 };
 
 document.getElementById(
-  "sheetMinus"
-).onclick=
-function(){
+"sheetMinus"
+).onclick=function(){
 
-  quickQty=
-    Math.max(
-      6,
-      quickQty-6
-    );
+quickQty=
+Math.max(
+6,
+quickQty-6
+);
 
-  updateSheetQty();
+updateSheetQty();
+
 };
 
 document.getElementById(
-  "sheetPlus"
-).onclick=
-function(){
+"sheetPlus"
+).onclick=function(){
 
-  quickQty+=6;
+quickQty+=6;
+updateSheetQty();
 
-  updateSheetQty();
 };
 
 document.getElementById(
-  "sheetAdd"
-).onclick=
-function(){
+"sheetAdd"
+).onclick=function(){
 
-  if(
-    !quickProduct ||
-    !quickVariant
-  ){
-    return;
-  }
+if(
+!quickProduct ||
+!quickVariant
+){
+return;
+}
 
-  addItem(
-    quickProduct.modelo,
-    quickVariant.color,
-    quickQty,
-    variantCover(
-      quickVariant
-    )
-  );
+addItem(
+quickProduct.modelo,
+quickVariant.color,
+quickQty,
+variantCover(quickVariant)
+);
 
-  closePanels();
+closePanels();
+
 };
 
 /* =========================
-   CARRITO
+   EVENTOS CARRITO
 ========================= */
 
-cartBody.onclick=
-function(event){
+cartBody.onclick=function(event){
 
-  const button=
-    event.target.closest(
-      "[data-action]"
-    );
+const button=
+event.target.closest(
+"[data-action]"
+);
 
-  if(!button){
-    return;
-  }
+if(!button)return;
 
-  const index=
-    Number(
-      button.dataset.index
-    );
+const index=
+Number(button.dataset.index);
 
-  if(!cart[index]){
-    return;
-  }
+if(!cart[index])return;
 
-  if(
-    button.dataset.action===
-    "plus"
-  ){
+if(
+button.dataset.action==="plus"
+){
 
-    cart[index].cantidad+=6;
-  }
+cart[index].cantidad+=6;
 
-  if(
-    button.dataset.action===
-    "minus"
-  ){
+}
 
-    if(
-      cart[index].cantidad<=6
-    ){
+if(
+button.dataset.action==="minus"
+){
 
-      cart.splice(
-        index,
-        1
-      );
+if(cart[index].cantidad<=6){
 
-    }else{
+cart.splice(index,1);
 
-      cart[index].cantidad-=6;
-    }
-  }
+}else{
 
-  if(
-    button.dataset.action===
-    "remove"
-  ){
+cart[index].cantidad-=6;
 
-    cart.splice(
-      index,
-      1
-    );
-  }
+}
 
-  saveCart();
+}
+
+if(
+button.dataset.action==="remove"
+){
+
+cart.splice(index,1);
+
+}
+
+saveCart();
+
 };
 
-cartButton.onclick=
-  openCart;
+cartButton.onclick=openCart;
 
 document.getElementById(
-  "closeCart"
-).onclick=
-  closePanels;
+"closeCart"
+).onclick=closePanels;
 
-overlay.onclick=
-  closePanels;
+overlay.onclick=closePanels;
 
-/* =========================
-   NOMBRE
-========================= */
+customerName.oninput=function(){
 
-customerName.oninput=
-function(){
+localStorage.setItem(
+NAME_KEY,
+customerName.value
+);
 
-  localStorage.setItem(
-    NAME_KEY,
-    customerName.value
-  );
 };
 
-/* =========================
-   VACIAR
-========================= */
-
 document.getElementById(
-  "clearCart"
-).onclick=
-function(){
+"clearCart"
+).onclick=function(){
 
-  if(!cart.length){
-    return;
-  }
+if(!cart.length)return;
 
-  if(
-    confirm(
-      "¿Vaciar todo el pedido?"
-    )
-  ){
+if(
+confirm(
+"¿Vaciar todo el pedido?"
+)
+){
 
-    cart=[];
+cart=[];
+saveCart();
 
-    saveCart();
-  }
+}
+
 };
 
 /* =========================
@@ -2936,23 +2750,21 @@ function(){
 ========================= */
 
 function createWhatsAppMessage(
-  folio,
-  name
+folio,
+name
 ){
 
-  const lines=
-    cart.map(
-      item=>
-        item.cantidad+
-        " "+
-        item.modelo+
-        " "+
-        formatColor(
-          item.color
-        )
-    );
+const lines=
+cart.map(
+item=>
+item.cantidad+
+" "+
+item.modelo+
+" "+
+formatColor(item.color)
+);
 
-  return `PEDIDO CAROLA
+return `PEDIDO CAROLA
 
 Folio: ${folio}
 
@@ -2961,288 +2773,255 @@ ${name}
 ${lines.join("\n")}
 
 Total de pares = ${cartTotal()}`;
+
 }
 
 function openWhatsApp(
-  folio,
-  name
+folio,
+name
 ){
 
-  const message=
-    createWhatsAppMessage(
-      folio,
-      name
-    );
+const message=
+createWhatsAppMessage(
+folio,
+name
+);
 
-  const whatsappURL=
-    "https://wa.me/"+
-    WHATSAPP_NUMBER+
-    "?text="+
-    encodeURIComponent(
-      message
-    );
+const whatsappURL=
+"https://wa.me/"+
+WHATSAPP_NUMBER+
+"?text="+
+encodeURIComponent(message);
 
-  window.location.href=
-    whatsappURL;
+window.location.href=
+whatsappURL;
+
 }
 
 /* =========================
-   GUARDAR PEDIDO
+   ENVIAR PEDIDO
 ========================= */
 
 document.getElementById(
-  "sendOrder"
+"sendOrder"
 ).onclick=
 async function(){
 
-  const name=
-    customerName.value.trim();
+const name=
+customerName.value.trim();
 
-  if(!name){
+if(!name){
 
-    alert(
-      "Escribe el nombre del cliente."
-    );
+alert(
+"Escribe el nombre del cliente."
+);
 
-    customerName.focus();
+customerName.focus();
 
-    return;
-  }
+return;
 
-  if(!cart.length){
+}
 
-    alert(
-      "Tu pedido está vacío."
-    );
+if(!cart.length){
 
-    return;
-  }
+alert(
+"Tu pedido está vacío."
+);
 
-  const button=
-    document.getElementById(
-      "sendOrder"
-    );
+return;
 
-  const originalText=
-    button.textContent;
+}
 
-  button.disabled=true;
+const button=
+document.getElementById(
+"sendOrder"
+);
 
-  try{
+const originalText=
+button.textContent;
 
-    /*
-     * 1. TREINTA
-     */
+button.disabled=true;
 
-    button.textContent=
-      "Verificando disponibilidad...";
+try{
 
-    const treintaResponse=
-      await fetch(
-        "/.netlify/functions/treinta?t="+
-        Date.now(),
-        {
-          cache:"no-store"
-        }
-      );
+button.textContent=
+"Verificando disponibilidad...";
 
-    const treintaData=
-      await treintaResponse.json();
+const treintaResponse=
+await fetch(
+"/.netlify/functions/treinta?t="+Date.now(),
+{cache:"no-store"}
+);
 
-    if(
-      !treintaResponse.ok ||
-      !treintaData.success
-    ){
+const treintaData=
+await treintaResponse.json();
 
-      throw new Error(
-        "No se pudo verificar Treinta"
-      );
-    }
+if(
+!treintaResponse.ok ||
+!treintaData.success
+){
 
-    const available=
-      new Set(
-        (
-          Array.isArray(
-            treintaData.products
-          )
-            ?treintaData.products
-            :[]
-        )
-        .map(
-          product=>
-            normalizeModel(
-              product.name
-            )
-        )
-      );
+throw new Error(
+"No se pudo verificar Treinta"
+);
 
-    const unavailable=[
-      ...new Set(
-        cart
-          .filter(
-            item=>
-              !available.has(
-                normalizeModel(
-                  item.modelo
-                )
-              )
-          )
-          .map(
-            item=>
-              item.modelo
-          )
-      )
-    ];
+}
 
-    if(
-      unavailable.length
-    ){
+const available=
+new Set(
+(
+Array.isArray(treintaData.products)
+?treintaData.products
+:[]
+)
+.map(
+product=>
+normalizeModel(product.name)
+)
+);
 
-      alert(
-        "Revisa estos modelos antes de enviar: "+
-        unavailable.join(", ")
-      );
+const unavailable=[
+...new Set(
+cart
+.filter(
+item=>
+!available.has(
+normalizeModel(item.modelo)
+)
+)
+.map(
+item=>item.modelo
+)
+)
+];
 
-      return;
-    }
+if(unavailable.length){
 
-    /*
-     * 2. HUELLA
-     */
+alert(
+"Revisa estos modelos antes de enviar: "+
+unavailable.join(", ")
+);
 
-    const fingerprint=
-      buildOrderFingerprint(
-        name,
-        cart
-      );
+return;
 
-    const lastOrder=
-      getLastOrder();
+}
 
-    if(
-      isRecentDuplicate(
-        lastOrder,
-        fingerprint
-      ) &&
-      lastOrder.folio
-    ){
+const fingerprint=
+buildOrderFingerprint(
+name,
+cart
+);
 
-      button.textContent=
-        "Abriendo WhatsApp...";
+const lastOrder=
+getLastOrder();
 
-      openWhatsApp(
-        lastOrder.folio,
-        name
-      );
+if(
+isRecentDuplicate(
+lastOrder,
+fingerprint
+)
+&&
+lastOrder.folio
+){
 
-      return;
-    }
+button.textContent=
+"Abriendo WhatsApp...";
 
-    /*
-     * 3. GUARDAR
-     */
+openWhatsApp(
+lastOrder.folio,
+name
+);
 
-    button.textContent=
-      "Guardando pedido...";
+return;
 
-    const orderResponse=
-      await fetch(
-        "/.netlify/functions/pedidos",
-        {
-          method:"POST",
+}
 
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
+button.textContent=
+"Guardando pedido...";
 
-          body:
-            JSON.stringify({
+const orderResponse=
+await fetch(
+"/.netlify/functions/pedidos",
+{
 
-              cliente:
-                name,
+method:"POST",
 
-              items:
-                cart.map(
-                  item=>({
+headers:{
+"Content-Type":
+"application/json"
+},
 
-                    modelo:
-                      item.modelo,
+body:
+JSON.stringify({
 
-                    color:
-                      item.color,
+cliente:name,
 
-                    cantidad:
-                      Number(
-                        item.cantidad
-                      )
+items:
+cart.map(item=>({
 
-                  })
-                )
+modelo:item.modelo,
+color:item.color,
+cantidad:Number(item.cantidad)
 
-            })
-        }
-      );
+}))
 
-    const orderData=
-      await orderResponse.json();
+})
 
-    if(
-      !orderResponse.ok ||
-      !orderData.success ||
-      !orderData.pedido?.folio
-    ){
+}
+);
 
-      console.error(
-        "Pedido:",
-        orderData
-      );
+const orderData=
+await orderResponse.json();
 
-      throw new Error(
-        orderData.error ||
-        "No se pudo guardar el pedido"
-      );
-    }
+if(
+!orderResponse.ok ||
+!orderData.success ||
+!orderData.pedido?.folio
+){
 
-    const folio=
-      orderData.pedido.folio;
+console.error(
+"Pedido:",
+orderData
+);
 
-    /*
-     * 4. RECORDAR
-     */
+throw new Error(
+orderData.error ||
+"No se pudo guardar el pedido"
+);
 
-    saveLastOrder(
-      fingerprint,
-      folio
-    );
+}
 
-    /*
-     * 5. WHATSAPP
-     */
+const folio=
+orderData.pedido.folio;
 
-    button.textContent=
-      "Abriendo WhatsApp...";
+saveLastOrder(
+fingerprint,
+folio
+);
 
-    openWhatsApp(
-      folio,
-      name
-    );
+button.textContent=
+"Abriendo WhatsApp...";
 
-  }catch(error){
+openWhatsApp(
+folio,
+name
+);
 
-    console.error(error);
+}catch(error){
 
-    alert(
-      "No pudimos guardar el pedido. No se envió para evitar perder el registro. Intenta nuevamente."
-    );
+console.error(error);
 
-  }finally{
+alert(
+"No pudimos guardar el pedido. No se envió para evitar perder el registro. Intenta nuevamente."
+);
 
-    button.disabled=false;
+}finally{
 
-    button.textContent=
-      originalText;
-  }
+button.disabled=false;
+button.textContent=originalText;
+
+}
+
 };
 
 /* =========================
@@ -3251,64 +3030,39 @@ async function(){
 
 function showToast(text){
 
-  const toast=
-    document.getElementById(
-      "toast"
-    );
+const toast=
+document.getElementById("toast");
 
-  toast.textContent=
-    text;
+toast.textContent=text;
 
-  toast.classList.add(
-    "show"
-  );
+toast.classList.add("show");
 
-  setTimeout(
-    ()=>{
+setTimeout(
+()=>toast.classList.remove("show"),
+1600
+);
 
-      toast.classList.remove(
-        "show"
-      );
-
-    },
-    1600
-  );
 }
 
 /* =========================
-   SEGURIDAD HTML
+   SEGURIDAD
 ========================= */
 
 function escapeHtml(value){
 
-  return String(value||"")
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+return String(value||"")
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+
 }
 
 function escapeAttribute(value){
 
-  return escapeHtml(
-    value
-  );
+return escapeHtml(value);
+
 }
 
 /* =========================
