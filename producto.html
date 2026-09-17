@@ -8,23 +8,19 @@
 
 <style>
 :root{
-  --pink:#f5dce7;
-  --pink2:#fff5f8;
-  --pink3:#e8b8cc;
-  --text:#191919;
-  --muted:#858085;
+  --pink:#f2c9da;
+  --pink-soft:#fff5f8;
+  --pink-deep:#dca5bc;
+  --text:#181618;
+  --muted:#81797d;
   --border:#eee5e9;
   --dark:#171717;
   --green:#2e7d49;
 }
 
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
-html{
-  scroll-behavior:smooth;
-}
+html{scroll-behavior:smooth}
 
 body{
   margin:0;
@@ -46,26 +42,24 @@ a{
   -webkit-tap-highlight-color:transparent;
 }
 
-/* =========================
-   HEADER
-========================= */
+/* HEADER */
 
 .header{
   position:sticky;
   top:0;
   z-index:100;
-  height:70px;
+  height:66px;
   border-bottom:1px solid var(--border);
-  background:rgba(255,255,255,.96);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
 }
 
 .header-inner{
-  max-width:1250px;
+  max-width:1400px;
   height:100%;
   margin:auto;
-  padding:0 20px;
+  padding:0 22px;
   display:grid;
   grid-template-columns:1fr auto 1fr;
   align-items:center;
@@ -73,14 +67,14 @@ a{
 
 .back{
   justify-self:start;
-  font-size:14px;
+  font-size:13px;
   font-weight:800;
 }
 
 .brand{
-  font-size:24px;
+  font-size:23px;
   font-weight:900;
-  letter-spacing:7px;
+  letter-spacing:8px;
 }
 
 .cart-link{
@@ -88,38 +82,42 @@ a{
   border:0;
   background:var(--dark);
   color:#fff;
-  padding:10px 15px;
+  padding:10px 16px;
   border-radius:999px;
   font-weight:800;
-  font-size:13px;
+  font-size:12px;
   white-space:nowrap;
 }
 
-/* =========================
-   PRODUCTO
-========================= */
+/* PRODUCTO */
 
 .product-page{
-  max-width:1250px;
+  max-width:1400px;
   margin:auto;
-  padding:40px 24px 100px;
+  padding:25px 22px 90px;
   display:grid;
-  grid-template-columns:minmax(0,1.3fr) minmax(320px,.7fr);
-  gap:55px;
+  grid-template-columns:minmax(0,1.15fr) minmax(330px,.85fr);
+  gap:45px;
+  align-items:start;
 }
 
-/* =========================
-   GALERÍA
-========================= */
+/* GALERÍA */
 
 .gallery{
   min-width:0;
+  display:grid;
+  grid-template-columns:76px minmax(0,1fr);
+  gap:12px;
+  align-items:start;
 }
 
 .main-image-wrap{
+  grid-column:2;
+  grid-row:1;
   width:100%;
+  max-height:720px;
   aspect-ratio:4/5;
-  border-radius:26px;
+  border-radius:22px;
   overflow:hidden;
   background:#f6f3f4;
   position:relative;
@@ -135,27 +133,28 @@ a{
 
 .image-color{
   position:absolute;
-  left:14px;
-  bottom:14px;
-  padding:8px 12px;
+  left:12px;
+  bottom:12px;
+  padding:7px 11px;
   border-radius:999px;
   background:rgba(255,255,255,.92);
   backdrop-filter:blur(10px);
   -webkit-backdrop-filter:blur(10px);
-  font-size:11px;
+  font-size:10px;
   font-weight:900;
-  box-shadow:0 4px 15px rgba(0,0,0,.08);
+  box-shadow:0 4px 15px rgba(0,0,0,.07);
 }
 
 .thumbnails{
+  grid-column:1;
+  grid-row:1;
   display:flex;
-  gap:10px;
-  margin-top:12px;
-  overflow-x:auto;
-  padding:2px 1px 7px;
+  flex-direction:column;
+  gap:8px;
+  max-height:720px;
+  overflow-y:auto;
+  padding:1px 4px 1px 1px;
   scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
-  scroll-snap-type:x proximity;
 }
 
 .thumbnails::-webkit-scrollbar{
@@ -163,15 +162,14 @@ a{
 }
 
 .thumbnail{
-  width:88px;
-  height:105px;
+  width:72px;
+  height:86px;
   flex:0 0 auto;
   padding:0;
   border:2px solid transparent;
-  border-radius:13px;
+  border-radius:11px;
   overflow:hidden;
   background:#f5f5f5;
-  scroll-snap-align:start;
 }
 
 .thumbnail.active{
@@ -185,38 +183,59 @@ a{
   display:block;
 }
 
-/* =========================
-   INFORMACIÓN
-========================= */
+/* INFORMACIÓN */
 
 .info{
-  padding-top:25px;
+  padding:22px 8px 0;
+  position:sticky;
+  top:88px;
 }
 
 .eyebrow{
-  font-size:11px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:9px;
   letter-spacing:2px;
   text-transform:uppercase;
   font-weight:900;
   color:#8d8589;
 }
 
+.eyebrow:before{
+  content:"";
+  width:20px;
+  height:1px;
+  background:#171717;
+}
+
 h1{
   margin:10px 0 0;
-  font-size:45px;
-  letter-spacing:-2px;
-  line-height:1.05;
+  font-size:clamp(38px,4vw,55px);
+  letter-spacing:-3px;
+  line-height:.98;
+}
+
+.product-category{
+  display:inline-block;
+  margin-top:9px;
+  color:#a76d85;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:1.1px;
+  text-transform:uppercase;
 }
 
 .available{
-  display:inline-flex;
+  display:flex;
   align-items:center;
   gap:7px;
-  margin-top:14px;
-  padding:8px 12px;
+  width:max-content;
+  margin-top:13px;
+  padding:7px 11px;
   background:#eff8f1;
   border-radius:999px;
-  font-size:12px;
+  font-size:11px;
   font-weight:800;
 }
 
@@ -231,14 +250,14 @@ h1{
 .divider{
   height:1px;
   background:var(--border);
-  margin:27px 0;
+  margin:22px 0;
 }
 
 .label{
   display:block;
-  font-size:13px;
+  font-size:12px;
   font-weight:900;
-  margin-bottom:12px;
+  margin-bottom:11px;
 }
 
 .selected-color{
@@ -246,28 +265,28 @@ h1{
   font-weight:600;
 }
 
-/* =========================
-   COLORES
-========================= */
+/* COLORES */
 
 .color-buttons{
   display:flex;
   flex-wrap:wrap;
-  gap:9px;
+  gap:8px;
 }
 
 .color-button{
   border:1px solid var(--border);
   background:#fff;
-  padding:12px 17px;
+  padding:10px 15px;
   border-radius:999px;
   font-weight:750;
-  min-height:44px;
-  transition:
-    background .15s,
-    color .15s,
-    border-color .15s,
-    transform .1s;
+  min-height:41px;
+  font-size:13px;
+  transition:.15s;
+}
+
+.color-button:hover{
+  background:var(--pink-soft);
+  border-color:#e6c5d2;
 }
 
 .color-button:active{
@@ -280,64 +299,89 @@ h1{
   border-color:#171717;
 }
 
-/* =========================
-   CANTIDAD
-========================= */
+/* CANTIDAD */
+
+.quantity-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+}
+
+.quantity-copy{
+  min-width:0;
+}
+
+.quantity-copy .label{
+  margin:0 0 4px;
+}
+
+.quantity-help{
+  font-size:10px;
+  color:var(--muted);
+}
 
 .quantity-selector{
   display:flex;
   align-items:center;
-  gap:16px;
+  background:#faf8f9;
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:3px;
 }
 
 .quantity-selector button{
-  width:48px;
-  height:48px;
-  border:1px solid var(--border);
+  width:42px;
+  height:42px;
+  border:0;
   background:#fff;
-  border-radius:13px;
-  font-size:24px;
+  border-radius:10px;
+  font-size:21px;
   display:flex;
   align-items:center;
   justify-content:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
 }
 
 .quantity-selector button:active{
-  background:#f7f3f5;
+  background:#f3edf0;
 }
 
 .quantity-value{
-  min-width:90px;
+  min-width:70px;
   text-align:center;
 }
 
 .quantity-value strong{
-  display:block;
-  font-size:23px;
+  display:inline;
+  font-size:19px;
 }
 
 .quantity-value span{
-  display:block;
-  margin-top:2px;
+  display:inline;
+  margin-left:3px;
   color:var(--muted);
-  font-size:11px;
+  font-size:10px;
 }
 
-/* =========================
-   AGREGAR
-========================= */
+/* AGREGAR */
 
 .add-cart{
   width:100%;
   border:0;
   background:#171717;
   color:#fff;
-  padding:17px 20px;
-  border-radius:15px;
+  padding:16px 20px;
+  min-height:53px;
+  border-radius:14px;
   font-weight:900;
-  margin-top:28px;
-  font-size:15px;
-  transition:.2s;
+  margin-top:24px;
+  font-size:14px;
+  transition:.18s;
+}
+
+.add-cart:hover{
+  opacity:.92;
 }
 
 .add-cart:active{
@@ -348,24 +392,26 @@ h1{
   background:var(--green);
 }
 
+.order-note{
+  margin-top:10px;
+  padding:11px 13px;
+  background:var(--pink-soft);
+  border-radius:11px;
+  color:#755766;
+  font-size:10px;
+  line-height:1.45;
+  text-align:center;
+}
+
 .continue{
   display:block;
   text-align:center;
-  margin-top:16px;
-  font-size:13px;
+  margin-top:15px;
+  font-size:12px;
   font-weight:800;
 }
 
-.note{
-  text-align:center;
-  color:var(--muted);
-  font-size:11px;
-  margin-top:11px;
-}
-
-/* =========================
-   CARGA
-========================= */
+/* CARGA */
 
 .loading{
   grid-column:1/-1;
@@ -388,14 +434,10 @@ h1{
 }
 
 @keyframes spin{
-  to{
-    transform:rotate(360deg);
-  }
+  to{transform:rotate(360deg)}
 }
 
-/* =========================
-   ERROR
-========================= */
+/* ERROR */
 
 .error{
   grid-column:1/-1;
@@ -421,9 +463,7 @@ h1{
   font-weight:800;
 }
 
-/* =========================
-   TOAST
-========================= */
+/* TOAST */
 
 .toast{
   position:fixed;
@@ -451,35 +491,52 @@ h1{
   transform:translate(-50%,0);
 }
 
-/* =========================
-   TABLET
-========================= */
+/* TABLET VERTICAL */
 
 @media(max-width:800px){
 
   .product-page{
     grid-template-columns:1fr;
-    gap:15px;
+    gap:16px;
     padding-top:18px;
   }
 
+  .gallery{
+    grid-template-columns:1fr;
+    display:block;
+  }
+
+  .main-image-wrap{
+    max-height:none;
+  }
+
+  .thumbnails{
+    display:flex;
+    flex-direction:row;
+    max-height:none;
+    overflow-x:auto;
+    overflow-y:hidden;
+    gap:8px;
+    margin-top:10px;
+    padding:1px 1px 5px;
+  }
+
   .info{
-    padding-top:15px;
+    position:static;
+    padding:14px 3px 0;
   }
 }
 
-/* =========================
-   MÓVIL
-========================= */
+/* MÓVIL */
 
 @media(max-width:520px){
 
   .header{
-    height:62px;
+    height:60px;
   }
 
   .header-inner{
-    padding:0 14px;
+    padding:0 13px;
   }
 
   .brand{
@@ -493,38 +550,61 @@ h1{
 
   .back::before{
     content:"←";
-    font-size:23px;
+    font-size:22px;
   }
 
   .cart-link{
-    padding:9px 11px;
-    font-size:11px;
+    padding:9px 10px;
+    font-size:10px;
   }
 
   .product-page{
-    padding:14px 14px 70px;
+    padding:10px 12px 65px;
   }
 
   .main-image-wrap{
-    border-radius:20px;
+    border-radius:17px;
   }
 
   .thumbnail{
-    width:70px;
-    height:84px;
+    width:65px;
+    height:77px;
+  }
+
+  .info{
+    padding-top:10px;
   }
 
   h1{
-    font-size:36px;
+    font-size:34px;
+    letter-spacing:-2px;
+  }
+
+  .divider{
+    margin:18px 0;
   }
 
   .color-button{
-    padding:11px 15px;
-    font-size:13px;
+    padding:10px 14px;
+    font-size:12px;
+    min-height:40px;
+  }
+
+  .quantity-row{
+    gap:10px;
+  }
+
+  .quantity-selector button{
+    width:40px;
+    height:40px;
+  }
+
+  .quantity-value{
+    min-width:60px;
   }
 
   .add-cart{
-    min-height:52px;
+    margin-top:20px;
   }
 }
 </style>
@@ -533,7 +613,6 @@ h1{
 <body>
 
 <header class="header">
-
   <div class="header-inner">
 
     <a href="/" class="back">
@@ -553,80 +632,41 @@ h1{
     </a>
 
   </div>
-
 </header>
 
-<main
-  id="productPage"
-  class="product-page"
->
+<main id="productPage" class="product-page">
 
   <div class="loading">
-
     <div class="loader"></div>
-
     Cargando modelo...
-
   </div>
 
 </main>
 
-<div
-  id="toast"
-  class="toast"
->
+<div id="toast" class="toast">
   ✓ Agregado al pedido
 </div>
 
 <script>
 
-/* =========================
-   CONFIGURACIÓN
-========================= */
-
-const CART_KEY=
-  "carola_cart_v2";
-
-const OLD_CART_KEY=
-  "carola_cart_v1";
-
-/* =========================
-   URL
-========================= */
+const CART_KEY="carola_cart_v2";
+const OLD_CART_KEY="carola_cart_v1";
 
 const params=
-  new URLSearchParams(
-    window.location.search
-  );
+  new URLSearchParams(window.location.search);
 
 const requestedModel=
   params.get("modelo");
 
-/* =========================
-   ELEMENTOS
-========================= */
-
 const productPage=
-  document.getElementById(
-    "productPage"
-  );
+  document.getElementById("productPage");
 
 const cartLink=
-  document.getElementById(
-    "cartLink"
-  );
-
-/* =========================
-   VARIABLES
-========================= */
+  document.getElementById("cartLink");
 
 let currentProduct=null;
 let currentVariant=null;
 let quantity=6;
-
-/* =========================
-   NORMALIZACIÓN
-========================= */
 
 function normalize(value){
 
@@ -634,10 +674,7 @@ function normalize(value){
     .trim()
     .toLowerCase()
     .normalize("NFD")
-    .replace(
-      /[\u0300-\u036f]/g,
-      ""
-    );
+    .replace(/[\u0300-\u036f]/g,"");
 }
 
 function normalizeModel(value){
@@ -646,15 +683,10 @@ function normalizeModel(value){
     .replace(/\s+/g," ");
 }
 
-/* =========================
-   PRESENTACIÓN DE COLOR
-========================= */
-
 function formatColor(value){
 
   const original=
-    String(value||"")
-      .trim();
+    String(value||"").trim();
 
   if(!original){
     return "";
@@ -664,49 +696,27 @@ function formatColor(value){
     normalize(original);
 
   const names={
-
     "negro":"Negro",
-
     "camel":"Camel",
-
     "latte":"Latte",
-
     "maquillaje":"Maquillaje",
-
     "conac":"Coñac",
-
     "cafe":"Café",
-
     "capuchino":"Capuchino",
-
     "espresso":"Espresso",
-
     "shedron":"Shedrón",
-
     "blanco":"Blanco",
-
     "beige":"Beige",
-
     "hueso":"Hueso",
-
     "rojo":"Rojo",
-
     "vino":"Vino",
-
     "rosa":"Rosa",
-
     "dorado":"Dorado",
-
     "plata":"Plata",
-
     "azul":"Azul",
-
     "marino":"Marino",
-
     "miel":"Miel",
-
     "chocolate":"Chocolate",
-
     "taupe":"Taupe"
   };
 
@@ -724,9 +734,21 @@ function formatColor(value){
     );
 }
 
-/* =========================
-   FOTOS
-========================= */
+function formatCategory(value){
+
+  const normalized=
+    normalize(value);
+
+  const names={
+    "bota":"Bota",
+    "botin":"Botín",
+    "mocasin":"Mocasín",
+    "escolar":"Escolar",
+    "zapatilla":"Zapatilla"
+  };
+
+  return names[normalized]||"";
+}
 
 function sortImages(images){
 
@@ -743,51 +765,34 @@ function sortImages(images){
           return difference;
         }
 
-        return (
-          Number(a.id||0)-
-          Number(b.id||0)
-        );
+        return Number(a.id||0)-
+               Number(b.id||0);
       }
     );
 }
 
-function getVariantCover(
-  variant
-){
+function getVariantCover(variant){
 
   const images=
-    sortImages(
-      variant?.imagenes
-    );
+    sortImages(variant?.imagenes);
 
   return images[0]?.url||"";
 }
-
-/* =========================
-   CARRITO
-========================= */
 
 function loadCart(){
 
   try{
 
     let raw=
-      localStorage.getItem(
-        CART_KEY
-      );
+      localStorage.getItem(CART_KEY);
 
     if(!raw){
-
       raw=
-        localStorage.getItem(
-          OLD_CART_KEY
-        );
+        localStorage.getItem(OLD_CART_KEY);
     }
 
     const data=
-      JSON.parse(
-        raw||"[]"
-      );
+      JSON.parse(raw||"[]");
 
     if(!Array.isArray(data)){
       return [];
@@ -804,46 +809,28 @@ function loadCart(){
         function(item){
 
           let cantidad=
-            Number(
-              item.cantidad||6
-            );
+            Number(item.cantidad||6);
 
           if(
-            !Number.isFinite(
-              cantidad
-            ) ||
+            !Number.isFinite(cantidad) ||
             cantidad<6
           ){
             cantidad=6;
           }
 
           cantidad=
-            Math.ceil(
-              cantidad/6
-            )*6;
+            Math.ceil(cantidad/6)*6;
 
-          return {
-
-            modelo:
-              String(
-                item.modelo
-              ),
-
-            color:
-              String(
-                item.color
-              ),
-
+          return{
+            modelo:String(item.modelo),
+            color:String(item.color),
             cantidad,
-
-            image:
-              item.image||""
+            image:item.image||""
           };
         }
       );
 
   }catch(error){
-
     return [];
   }
 }
@@ -865,9 +852,7 @@ function getCartTotal(){
       function(total,item){
 
         return total+
-          Number(
-            item.cantidad||0
-          );
+          Number(item.cantidad||0);
       },
       0
     );
@@ -879,14 +864,8 @@ function updateCartCount(){
     getCartTotal();
 
   cartLink.textContent=
-    "Pedido · "+
-    total+
-    " pares";
+    "Pedido · "+total+" pares";
 }
-
-/* =========================
-   AGREGAR AL CARRITO
-========================= */
 
 function addToCart(){
 
@@ -904,38 +883,23 @@ function addToCart(){
     cart.find(
       function(item){
 
-        return (
-
-          normalizeModel(
-            item.modelo
-          )===
-          normalizeModel(
-            currentProduct.modelo
-          )
-
+        return(
+          normalizeModel(item.modelo)===
+          normalizeModel(currentProduct.modelo)
           &&
-
-          normalize(
-            item.color
-          )===
-          normalize(
-            currentVariant.color
-          )
+          normalize(item.color)===
+          normalize(currentVariant.color)
         );
       }
     );
 
   const image=
-    getVariantCover(
-      currentVariant
-    );
+    getVariantCover(currentVariant);
 
   if(existing){
 
     existing.cantidad=
-      Number(
-        existing.cantidad||0
-      )+
+      Number(existing.cantidad||0)+
       quantity;
 
     if(!existing.image){
@@ -945,22 +909,10 @@ function addToCart(){
   }else{
 
     cart.push({
-
-      modelo:
-        String(
-          currentProduct.modelo
-        ),
-
-      color:
-        String(
-          currentVariant.color
-        ),
-
-      cantidad:
-        quantity,
-
-      image:
-        image
+      modelo:String(currentProduct.modelo),
+      color:String(currentVariant.color),
+      cantidad:quantity,
+      image:image
     });
   }
 
@@ -970,9 +922,7 @@ function addToCart(){
     "✓ "+
     quantity+
     " pares · "+
-    formatColor(
-      currentVariant.color
-    )
+    formatColor(currentVariant.color)
   );
 
   const button=
@@ -982,34 +932,24 @@ function addToCart(){
 
   if(button){
 
-    button.classList.add(
-      "added"
-    );
-
+    button.classList.add("added");
     button.textContent=
       "✓ Agregado al pedido";
 
     setTimeout(
       function(){
 
-        button.classList.remove(
-          "added"
-        );
+        button.classList.remove("added");
 
         button.textContent=
           "Agregar "+
           quantity+
           " pares al pedido";
-
       },
       1300
     );
   }
 }
-
-/* =========================
-   CARGAR PRODUCTO
-========================= */
 
 async function loadProduct(){
 
@@ -1033,17 +973,13 @@ async function loadProduct(){
         fetch(
           "/.netlify/functions/supabase?t="+
           Date.now(),
-          {
-            cache:"no-store"
-          }
+          {cache:"no-store"}
         ),
 
         fetch(
           "/.netlify/functions/treinta?t="+
           Date.now(),
-          {
-            cache:"no-store"
-          }
+          {cache:"no-store"}
         )
 
       ]);
@@ -1058,23 +994,15 @@ async function loadProduct(){
       !supabaseResponse.ok ||
       !supabaseData.success
     ){
-
-      throw new Error(
-        "Supabase error"
-      );
+      throw new Error("Supabase error");
     }
 
     if(
       !treintaResponse.ok ||
       !treintaData.success
     ){
-
-      throw new Error(
-        "Treinta error"
-      );
+      throw new Error("Treinta error");
     }
-
-    /* BUSCAR EN SUPABASE */
 
     const products=
       Array.isArray(
@@ -1087,13 +1015,9 @@ async function loadProduct(){
       products.find(
         function(product){
 
-          return (
-            normalizeModel(
-              product.modelo
-            )===
-            normalizeModel(
-              requestedModel
-            )
+          return(
+            normalizeModel(product.modelo)===
+            normalizeModel(requestedModel)
           );
         }
       );
@@ -1107,8 +1031,6 @@ async function loadProduct(){
       return;
     }
 
-    /* VERIFICAR TREINTA */
-
     const treintaProducts=
       Array.isArray(
         treintaData.products
@@ -1120,13 +1042,9 @@ async function loadProduct(){
       treintaProducts.some(
         function(item){
 
-          return (
-            normalizeModel(
-              item.name
-            )===
-            normalizeModel(
-              currentProduct.modelo
-            )
+          return(
+            normalizeModel(item.name)===
+            normalizeModel(currentProduct.modelo)
           );
         }
       );
@@ -1140,8 +1058,6 @@ async function loadProduct(){
       return;
     }
 
-    /* VARIANTES CON FOTOS */
-
     currentProduct.variantes=
       (
         Array.isArray(
@@ -1153,7 +1069,7 @@ async function loadProduct(){
       .filter(
         function(variant){
 
-          return (
+          return(
             Array.isArray(
               variant.imagenes
             )
@@ -1164,9 +1080,7 @@ async function loadProduct(){
       );
 
     if(
-      !currentProduct
-        .variantes
-        .length
+      !currentProduct.variantes.length
     ){
 
       showError(
@@ -1177,8 +1091,7 @@ async function loadProduct(){
     }
 
     currentVariant=
-      currentProduct
-        .variantes[0];
+      currentProduct.variantes[0];
 
     document.title=
       "Modelo "+
@@ -1189,19 +1102,13 @@ async function loadProduct(){
 
   }catch(error){
 
-    console.error(
-      error
-    );
+    console.error(error);
 
     showError(
       "No pudimos cargar este modelo."
     );
   }
 }
-
-/* =========================
-   RENDER PRODUCTO
-========================= */
 
 function renderProduct(){
 
@@ -1224,13 +1131,17 @@ function renderProduct(){
       currentVariant.color
     );
 
+  const formattedCategory=
+    formatCategory(
+      currentProduct.categoria
+    );
+
   const thumbnails=
     images
       .map(
         function(image,index){
 
           return `
-
             <button
               type="button"
               class="thumbnail ${
@@ -1241,28 +1152,23 @@ function renderProduct(){
               data-url="${escapeAttribute(image.url)}"
               aria-label="Ver fotografía ${index+1}"
             >
-
               <img
                 src="${escapeAttribute(image.url)}"
                 alt="Modelo ${escapeAttribute(currentProduct.modelo)} ${escapeAttribute(formattedColor)}"
                 loading="${index===0?"eager":"lazy"}"
               >
-
             </button>
-
           `;
         }
       )
       .join("");
 
   const colorButtons=
-    currentProduct
-      .variantes
+    currentProduct.variantes
       .map(
         function(variant){
 
           return `
-
             <button
               type="button"
               class="color-button ${
@@ -1273,15 +1179,10 @@ function renderProduct(){
               }"
               data-variant="${Number(variant.id)}"
             >
-
               ${escapeHtml(
-                formatColor(
-                  variant.color
-                )
+                formatColor(variant.color)
               )}
-
             </button>
-
           `;
         }
       )
@@ -1290,6 +1191,16 @@ function renderProduct(){
   productPage.innerHTML=`
 
     <section class="gallery">
+
+      ${
+        images.length>1
+          ?`
+            <div class="thumbnails">
+              ${thumbnails}
+            </div>
+          `
+          :""
+      }
 
       <div class="main-image-wrap">
 
@@ -1306,16 +1217,6 @@ function renderProduct(){
 
       </div>
 
-      ${
-        images.length>1
-          ?`
-            <div class="thumbnails">
-              ${thumbnails}
-            </div>
-          `
-          :""
-      }
-
     </section>
 
     <section class="info">
@@ -1327,6 +1228,16 @@ function renderProduct(){
       <h1>
         Modelo ${escapeHtml(currentProduct.modelo)}
       </h1>
+
+      ${
+        formattedCategory
+          ?`
+            <div class="product-category">
+              ${escapeHtml(formattedCategory)}
+            </div>
+          `
+          :""
+      }
 
       <span class="available">
         Disponible
@@ -1347,39 +1258,46 @@ function renderProduct(){
 
       <div class="divider"></div>
 
-      <span class="label">
-        Cantidad
-      </span>
+      <div class="quantity-row">
 
-      <div class="quantity-selector">
+        <div class="quantity-copy">
 
-        <button
-          id="minusQuantity"
-          type="button"
-          aria-label="Restar 6 pares"
-        >
-          −
-        </button>
-
-        <div class="quantity-value">
-
-          <strong id="quantityValue">
-            ${quantity}
-          </strong>
-
-          <span>
-            pares
+          <span class="label">
+            Cantidad
           </span>
+
+          <div class="quantity-help">
+            En múltiplos de 6 pares
+          </div>
 
         </div>
 
-        <button
-          id="plusQuantity"
-          type="button"
-          aria-label="Agregar 6 pares"
-        >
-          +
-        </button>
+        <div class="quantity-selector">
+
+          <button
+            id="minusQuantity"
+            type="button"
+            aria-label="Restar 6 pares"
+          >
+            −
+          </button>
+
+          <div class="quantity-value">
+            <strong id="quantityValue">
+              ${quantity}
+            </strong>
+            <span>pares</span>
+          </div>
+
+          <button
+            id="plusQuantity"
+            type="button"
+            aria-label="Agregar 6 pares"
+          >
+            +
+          </button>
+
+        </div>
 
       </div>
 
@@ -1391,195 +1309,151 @@ function renderProduct(){
         Agregar ${quantity} pares al pedido
       </button>
 
-      <a
-        href="/"
-        class="continue"
-      >
+      <div class="order-note">
+        Puedes combinar diferentes modelos y colores en tu pedido.
+      </div>
+
+      <a href="/" class="continue">
         ← Seguir viendo modelos
       </a>
-
-      <div class="note">
-        Venta en múltiplos de 6 pares.
-      </div>
 
     </section>
 
   `;
 }
 
-/* =========================
-   INTERACCIONES
-========================= */
-
 productPage.onclick=
-  function(event){
+function(event){
 
-    /* CAMBIAR FOTO */
+  const thumbnail=
+    event.target.closest(
+      ".thumbnail"
+    );
 
-    const thumbnail=
-      event.target.closest(
-        ".thumbnail"
+  if(thumbnail){
+
+    const mainImage=
+      document.getElementById(
+        "mainImage"
       );
 
-    if(thumbnail){
+    if(mainImage){
 
-      const mainImage=
-        document.getElementById(
-          "mainImage"
-        );
+      mainImage.style.opacity=".45";
 
-      if(mainImage){
+      const nextUrl=
+        thumbnail.dataset.url;
 
-        mainImage.style.opacity=
-          ".45";
+      const tempImage=
+        new Image();
 
-        const nextUrl=
-          thumbnail.dataset.url;
+      tempImage.onload=
+      function(){
 
-        const tempImage=
-          new Image();
+        mainImage.src=nextUrl;
+        mainImage.style.opacity="1";
+      };
 
-        tempImage.onload=
-          function(){
+      tempImage.onerror=
+      function(){
 
-            mainImage.src=
-              nextUrl;
+        mainImage.src=nextUrl;
+        mainImage.style.opacity="1";
+      };
 
-            mainImage.style.opacity=
-              "1";
-          };
+      tempImage.src=nextUrl;
+    }
 
-        tempImage.onerror=
-          function(){
-
-            mainImage.src=
-              nextUrl;
-
-            mainImage.style.opacity=
-              "1";
-          };
-
-        tempImage.src=
-          nextUrl;
-      }
-
-      document
-        .querySelectorAll(
-          ".thumbnail"
-        )
-        .forEach(
-          function(item){
-
-            item.classList.remove(
-              "active"
-            );
-          }
-        );
-
-      thumbnail.classList.add(
-        "active"
+    document
+      .querySelectorAll(".thumbnail")
+      .forEach(
+        function(item){
+          item.classList.remove("active");
+        }
       );
 
-      return;
-    }
+    thumbnail.classList.add("active");
 
-    /* CAMBIAR COLOR */
+    return;
+  }
 
-    const colorButton=
-      event.target.closest(
-        ".color-button"
+  const colorButton=
+    event.target.closest(
+      ".color-button"
+    );
+
+  if(colorButton){
+
+    const id=
+      Number(
+        colorButton.dataset.variant
       );
 
-    if(colorButton){
+    const variant=
+      currentProduct.variantes.find(
+        function(item){
 
-      const id=
-        Number(
-          colorButton.dataset.variant
-        );
+          return Number(item.id)===id;
+        }
+      );
 
-      const variant=
-        currentProduct
-          .variantes
-          .find(
-            function(item){
-
-              return (
-                Number(item.id)===
-                id
-              );
-            }
-          );
-
-      if(!variant){
-        return;
-      }
-
-      if(
-        Number(currentVariant.id)===
-        Number(variant.id)
-      ){
-        return;
-      }
-
-      currentVariant=
-        variant;
-
-      renderProduct();
-
+    if(!variant){
       return;
     }
-
-    /* SUMAR 6 */
 
     if(
-      event.target.closest(
-        "#plusQuantity"
-      )
+      Number(currentVariant.id)===
+      Number(variant.id)
     ){
-
-      quantity+=6;
-
-      updateQuantity();
-
       return;
     }
 
-    /* RESTAR 6 */
+    currentVariant=variant;
 
-    if(
-      event.target.closest(
-        "#minusQuantity"
-      )
-    ){
+    renderProduct();
 
-      quantity=
-        Math.max(
-          6,
-          quantity-6
-        );
+    return;
+  }
 
-      updateQuantity();
+  if(
+    event.target.closest(
+      "#plusQuantity"
+    )
+  ){
 
-      return;
-    }
+    quantity+=6;
+    updateQuantity();
+    return;
+  }
 
-    /* AGREGAR */
+  if(
+    event.target.closest(
+      "#minusQuantity"
+    )
+  ){
 
-    if(
-      event.target.closest(
-        "#addCartButton"
-      )
-    ){
+    quantity=
+      Math.max(
+        6,
+        quantity-6
+      );
 
-      addToCart();
+    updateQuantity();
 
-      return;
-    }
-  };
+    return;
+  }
 
-/* =========================
-   ACTUALIZAR CANTIDAD
-========================= */
+  if(
+    event.target.closest(
+      "#addCartButton"
+    )
+  ){
+
+    addToCart();
+
+    return;
+  }
+};
 
 function updateQuantity(){
 
@@ -1594,9 +1468,7 @@ function updateQuantity(){
     );
 
   if(value){
-
-    value.textContent=
-      quantity;
+    value.textContent=quantity;
   }
 
   if(button){
@@ -1608,39 +1480,22 @@ function updateQuantity(){
   }
 }
 
-/* =========================
-   TOAST
-========================= */
-
 function showToast(text){
 
   const toast=
-    document.getElementById(
-      "toast"
-    );
+    document.getElementById("toast");
 
-  toast.textContent=
-    text;
+  toast.textContent=text;
 
-  toast.classList.add(
-    "show"
-  );
+  toast.classList.add("show");
 
   setTimeout(
     function(){
-
-      toast.classList.remove(
-        "show"
-      );
-
+      toast.classList.remove("show");
     },
     1600
   );
 }
-
-/* =========================
-   ERROR
-========================= */
 
 function showError(
   message=
@@ -1669,10 +1524,6 @@ function showError(
   `;
 }
 
-/* =========================
-   SEGURIDAD HTML
-========================= */
-
 function escapeHtml(value){
 
   return String(value||"")
@@ -1684,18 +1535,10 @@ function escapeHtml(value){
 }
 
 function escapeAttribute(value){
-
-  return escapeHtml(
-    value
-  );
+  return escapeHtml(value);
 }
 
-/* =========================
-   INICIAR
-========================= */
-
 updateCartCount();
-
 loadProduct();
 
 </script>
