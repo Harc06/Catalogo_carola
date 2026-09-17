@@ -46,9 +46,9 @@ a{color:inherit;text-decoration:none}
 }
 
 .header-inner{
-  max-width:1250px;
+  max-width:1400px;
   margin:auto;
-  min-height:70px;
+  min-height:68px;
   padding:0 20px;
   display:flex;
   align-items:center;
@@ -75,15 +75,15 @@ a{color:inherit;text-decoration:none}
 ========================= */
 
 .hero{
-  max-width:1250px;
+  max-width:1400px;
   margin:auto;
-  padding:35px 20px;
+  padding:24px 20px 20px;
 }
 
 .hero-box{
-  min-height:300px;
-  border-radius:30px;
-  padding:45px;
+  min-height:220px;
+  border-radius:27px;
+  padding:35px 40px;
   display:flex;
   align-items:flex-end;
   background:linear-gradient(135deg,#f7dce8,#fff5f8);
@@ -94,11 +94,11 @@ a{color:inherit;text-decoration:none}
 .hero-box:after{
   content:"C";
   position:absolute;
-  right:-20px;
-  top:-100px;
-  font-size:420px;
+  right:-5px;
+  top:-95px;
+  font-size:340px;
   font-weight:900;
-  color:rgba(255,255,255,.5);
+  color:rgba(255,255,255,.52);
 }
 
 .hero-content{
@@ -107,23 +107,24 @@ a{color:inherit;text-decoration:none}
 }
 
 .eyebrow{
-  font-size:11px;
+  font-size:10px;
   font-weight:900;
   letter-spacing:2px;
   text-transform:uppercase;
 }
 
 .hero h1{
-  font-size:clamp(42px,7vw,72px);
+  font-size:clamp(38px,6vw,62px);
   line-height:.95;
   letter-spacing:-3px;
-  margin:12px 0;
+  margin:10px 0;
 }
 
 .hero p{
   color:#655f62;
   max-width:500px;
-  line-height:1.5;
+  line-height:1.45;
+  margin-bottom:0;
 }
 
 /* =========================
@@ -131,9 +132,9 @@ a{color:inherit;text-decoration:none}
 ========================= */
 
 .catalog{
-  max-width:1250px;
+  max-width:1400px;
   margin:auto;
-  padding:25px 20px 90px;
+  padding:20px 20px 90px;
 }
 
 .catalog-top{
@@ -141,17 +142,65 @@ a{color:inherit;text-decoration:none}
   justify-content:space-between;
   align-items:end;
   gap:20px;
-  margin-bottom:20px;
+  margin-bottom:16px;
 }
 
 .catalog h2{
-  font-size:34px;
+  font-size:32px;
   margin:0;
 }
 
 .muted{
   color:var(--muted);
-  font-size:14px;
+  font-size:13px;
+}
+
+/* =========================
+   CATEGORÍAS
+========================= */
+
+.category-section{
+  margin-bottom:18px;
+}
+
+.filter-label{
+  display:block;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:1.5px;
+  color:#9a9296;
+  text-transform:uppercase;
+  margin-bottom:9px;
+}
+
+.categories{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:1px 0 5px;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+
+.categories::-webkit-scrollbar{
+  display:none;
+}
+
+.category-filter{
+  flex:none;
+  border:1px solid var(--border);
+  background:#fff;
+  padding:11px 17px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:800;
+  transition:.15s;
+}
+
+.category-filter.active{
+  background:#171717;
+  color:#fff;
+  border-color:#171717;
 }
 
 /* =========================
@@ -160,12 +209,13 @@ a{color:inherit;text-decoration:none}
 
 .search-area{
   position:sticky;
-  top:70px;
+  top:68px;
   z-index:90;
-  background:rgba(255,255,255,.96);
+  background:rgba(255,255,255,.97);
   backdrop-filter:blur(18px);
   -webkit-backdrop-filter:blur(18px);
-  padding:10px 0 4px;
+  padding:9px 0 7px;
+  border-bottom:1px solid rgba(238,229,233,.7);
 }
 
 .search-wrap{
@@ -174,12 +224,12 @@ a{color:inherit;text-decoration:none}
 
 .search{
   width:100%;
-  padding:16px 50px 16px 18px;
+  padding:14px 50px 14px 17px;
   border:1px solid var(--border);
   background:#faf8f9;
-  border-radius:16px;
+  border-radius:15px;
   outline:none;
-  font-size:16px;
+  font-size:15px;
 }
 
 .search:focus{
@@ -189,15 +239,15 @@ a{color:inherit;text-decoration:none}
 
 .clear-search{
   position:absolute;
-  right:9px;
+  right:8px;
   top:50%;
   transform:translateY(-50%);
-  width:36px;
-  height:36px;
+  width:34px;
+  height:34px;
   border:0;
   border-radius:50%;
   background:#eee8eb;
-  font-size:20px;
+  font-size:19px;
   display:none;
   align-items:center;
   justify-content:center;
@@ -208,14 +258,27 @@ a{color:inherit;text-decoration:none}
 }
 
 /* =========================
-   FILTROS
+   BARRA DE HERRAMIENTAS
 ========================= */
+
+.catalog-tools{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-top:9px;
+}
+
+.color-area{
+  min-width:0;
+  flex:1;
+}
 
 .filters{
   display:flex;
-  gap:8px;
+  gap:7px;
   overflow:auto;
-  padding:12px 0 14px;
+  padding:5px 0;
   scrollbar-width:none;
 }
 
@@ -227,16 +290,43 @@ a{color:inherit;text-decoration:none}
   flex:none;
   border:1px solid var(--border);
   background:white;
-  padding:9px 15px;
+  padding:8px 13px;
   border-radius:999px;
   font-weight:700;
-  font-size:13px;
+  font-size:11px;
 }
 
 .filter.active{
-  background:#171717;
-  color:white;
-  border-color:#171717;
+  background:#f5dce7;
+  border-color:#e8bfd0;
+  color:#5d3545;
+}
+
+.view-switch{
+  display:flex;
+  flex:none;
+  padding:3px;
+  background:#f4f0f2;
+  border-radius:11px;
+}
+
+.view-button{
+  width:38px;
+  height:34px;
+  border:0;
+  border-radius:8px;
+  background:transparent;
+  color:#777;
+  font-size:17px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.view-button.active{
+  background:#fff;
+  color:#171717;
+  box-shadow:0 2px 7px rgba(0,0,0,.08);
 }
 
 /* =========================
@@ -245,16 +335,20 @@ a{color:inherit;text-decoration:none}
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:28px 18px;
-  margin-top:12px;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:25px 13px;
+  margin-top:18px;
+}
+
+.product-card{
+  min-width:0;
 }
 
 .product-image{
   position:relative;
   aspect-ratio:4/5;
   background:#f6f3f4;
-  border-radius:19px;
+  border-radius:15px;
   overflow:hidden;
 }
 
@@ -272,46 +366,69 @@ a{color:inherit;text-decoration:none}
 
 .badge{
   position:absolute;
-  top:12px;
-  left:12px;
+  top:8px;
+  left:8px;
   background:rgba(255,255,255,.92);
-  padding:7px 9px;
+  padding:5px 7px;
   border-radius:999px;
-  font-size:9px;
+  font-size:7px;
   font-weight:900;
+  letter-spacing:.2px;
 }
 
 .product-info{
-  padding:12px 3px 0;
+  padding:9px 2px 0;
 }
 
 .product-title{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:10px;
+  gap:7px;
 }
 
 .product-title h3{
-  font-size:16px;
+  font-size:14px;
   margin:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.product-arrow{
+  font-size:13px;
+  flex:none;
+}
+
+.product-category{
+  display:inline-block;
+  color:#9a7685;
+  font-size:9px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+  margin-top:5px;
 }
 
 .colors{
-  font-size:11px;
+  font-size:10px;
   color:var(--muted);
-  margin-top:6px;
-  line-height:1.5;
+  margin-top:4px;
+  line-height:1.4;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 
 .quick-add{
   width:100%;
-  margin-top:11px;
-  padding:11px;
+  margin-top:8px;
+  padding:9px 7px;
   border:1px solid var(--dark);
   background:white;
-  border-radius:12px;
+  border-radius:10px;
   font-weight:800;
+  font-size:11px;
 }
 
 .quick-add:active{
@@ -322,10 +439,85 @@ a{color:inherit;text-decoration:none}
 .state{
   grid-column:1/-1;
   text-align:center;
-  padding:60px;
+  padding:55px 20px;
   color:var(--muted);
   background:#faf8f9;
   border-radius:20px;
+}
+
+/* =========================
+   VISTA LISTA
+========================= */
+
+.grid.list-view{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.grid.list-view .product-card{
+  display:grid;
+  grid-template-columns:82px minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  padding:9px;
+  border:1px solid var(--border);
+  border-radius:15px;
+  background:#fff;
+}
+
+.grid.list-view .product-link{
+  display:contents;
+}
+
+.grid.list-view .product-image{
+  width:82px;
+  height:94px;
+  aspect-ratio:auto;
+  border-radius:11px;
+  grid-column:1;
+  grid-row:1;
+}
+
+.grid.list-view .badge{
+  display:none;
+}
+
+.grid.list-view .product-info{
+  grid-column:2;
+  grid-row:1;
+  padding:0;
+  min-width:0;
+}
+
+.grid.list-view .product-title h3{
+  font-size:15px;
+}
+
+.grid.list-view .product-arrow{
+  display:none;
+}
+
+.grid.list-view .product-category{
+  margin-top:5px;
+}
+
+.grid.list-view .colors{
+  font-size:11px;
+  white-space:normal;
+}
+
+.grid.list-view .quick-add{
+  grid-column:3;
+  grid-row:1;
+  width:auto;
+  min-width:100px;
+  margin:0;
+  padding:10px 13px;
+}
+
+.grid.list-view .state{
+  width:100%;
 }
 
 /* =========================
@@ -377,9 +569,7 @@ a{color:inherit;text-decoration:none}
   align-items:center;
 }
 
-.cart-header h2{
-  margin:0;
-}
+.cart-header h2{margin:0}
 
 .icon-btn{
   border:0;
@@ -528,9 +718,7 @@ a{color:inherit;text-decoration:none}
   margin:0 auto 18px;
 }
 
-.sheet h2{
-  margin:0 0 5px;
-}
+.sheet h2{margin:0 0 5px}
 
 .sheet p{
   color:var(--muted);
@@ -622,13 +810,23 @@ a{color:inherit;text-decoration:none}
    RESPONSIVE
 ========================= */
 
-@media(max-width:800px){
+@media(max-width:1199px){
   .grid{
-    grid-template-columns:repeat(2,1fr);
+    grid-template-columns:repeat(4,minmax(0,1fr));
   }
 }
 
-@media(max-width:520px){
+@media(max-width:899px){
+  .grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+
+  .hero-box{
+    min-height:200px;
+  }
+}
+
+@media(max-width:650px){
 
   .header-inner{
     min-height:62px;
@@ -646,46 +844,96 @@ a{color:inherit;text-decoration:none}
   }
 
   .hero{
-    padding:15px 14px 25px;
+    padding:12px 14px 18px;
   }
 
   .hero-box{
-    min-height:270px;
-    padding:25px;
-    border-radius:23px;
+    min-height:190px;
+    padding:23px;
+    border-radius:21px;
+  }
+
+  .hero-box:after{
+    font-size:270px;
+    top:-75px;
   }
 
   .hero h1{
-    font-size:45px;
+    font-size:39px;
+    letter-spacing:-2px;
+  }
+
+  .hero p{
+    font-size:13px;
   }
 
   .catalog{
-    padding:20px 14px 70px;
+    padding:15px 14px 70px;
   }
 
   .catalog h2{
-    font-size:29px;
+    font-size:27px;
   }
 
   .search-area{
     top:62px;
   }
 
+  .category-filter{
+    padding:9px 14px;
+    font-size:12px;
+  }
+
+  .catalog-tools{
+    gap:8px;
+  }
+
   .grid{
-    gap:24px 9px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:20px 8px;
+    margin-top:14px;
   }
 
   .product-image{
-    border-radius:14px;
+    border-radius:12px;
   }
 
   .product-title h3{
-    font-size:14px;
+    font-size:13px;
+  }
+
+  .product-category{
+    font-size:8px;
+  }
+
+  .colors{
+    font-size:9px;
   }
 
   .quick-add{
-    font-size:12px;
-    padding:10px;
+    font-size:10px;
+    padding:9px 5px;
+  }
+
+  .grid.list-view .product-card{
+    grid-template-columns:68px minmax(0,1fr) auto;
+    gap:10px;
+    padding:7px;
+  }
+
+  .grid.list-view .product-image{
+    width:68px;
+    height:78px;
+  }
+
+  .grid.list-view .quick-add{
+    min-width:76px;
+    font-size:10px;
+    padding:9px 8px;
+  }
+
+  .view-button{
+    width:34px;
   }
 }
 </style>
@@ -759,6 +1007,19 @@ a{color:inherit;text-decoration:none}
 
   </div>
 
+  <div class="category-section">
+
+    <span class="filter-label">
+      Categorías
+    </span>
+
+    <div
+      id="categories"
+      class="categories"
+    ></div>
+
+  </div>
+
   <div class="search-area">
 
     <div class="search-wrap">
@@ -769,7 +1030,7 @@ a{color:inherit;text-decoration:none}
         type="search"
         inputmode="search"
         autocomplete="off"
-        placeholder="Buscar modelo o color..."
+        placeholder="Buscar modelo, categoría o color..."
       >
 
       <button
@@ -783,10 +1044,45 @@ a{color:inherit;text-decoration:none}
 
     </div>
 
-    <div
-      id="filters"
-      class="filters"
-    ></div>
+    <div class="catalog-tools">
+
+      <div class="color-area">
+
+        <div
+          id="filters"
+          class="filters"
+        ></div>
+
+      </div>
+
+      <div
+        class="view-switch"
+        aria-label="Cambiar vista"
+      >
+
+        <button
+          id="gridViewButton"
+          class="view-button active"
+          type="button"
+          aria-label="Vista cuadrícula"
+          title="Cuadrícula"
+        >
+          ▦
+        </button>
+
+        <button
+          id="listViewButton"
+          class="view-button"
+          type="button"
+          aria-label="Vista lista"
+          title="Lista"
+        >
+          ☰
+        </button>
+
+      </div>
+
+    </div>
 
   </div>
 
@@ -939,33 +1235,39 @@ const WHATSAPP_NUMBER="524775971996";
 const CART_KEY="carola_cart_v2";
 const OLD_CART_KEY="carola_cart_v1";
 const NAME_KEY="carola_customer_name_v1";
-
-const LAST_ORDER_KEY=
-  "carola_last_order_v1";
-
-/*
- * Durante 30 minutos,
- * el mismo pedido reutiliza
- * el mismo folio.
- *
- * Después de 30 minutos,
- * se considera un pedido nuevo.
- */
+const LAST_ORDER_KEY="carola_last_order_v1";
+const VIEW_KEY="carola_view_v1";
 
 const DUPLICATE_WINDOW=
   30*60*1000;
+
+const CATEGORY_ORDER=[
+  "Bota",
+  "Botín",
+  "Mocasín",
+  "Escolar",
+  "Zapatilla"
+];
 
 /* =========================
    VARIABLES
 ========================= */
 
 let products=[];
+
+let selectedCategory="todos";
 let selectedFilter="todos";
+
 let cart=loadCart();
 
 let quickProduct=null;
 let quickVariant=null;
 let quickQty=6;
+
+let currentView=
+  localStorage.getItem(VIEW_KEY)==="list"
+    ?"list"
+    :"grid";
 
 /* =========================
    ELEMENTOS
@@ -974,6 +1276,9 @@ let quickQty=6;
 const grid=
   document.getElementById("grid");
 
+const categories=
+  document.getElementById("categories");
+
 const filters=
   document.getElementById("filters");
 
@@ -981,9 +1286,7 @@ const search=
   document.getElementById("search");
 
 const clearSearch=
-  document.getElementById(
-    "clearSearch"
-  );
+  document.getElementById("clearSearch");
 
 const count=
   document.getElementById("count");
@@ -995,25 +1298,25 @@ const cartPanel=
   document.getElementById("cart");
 
 const cartBody=
-  document.getElementById(
-    "cartBody"
-  );
+  document.getElementById("cartBody");
 
 const total=
   document.getElementById("total");
 
 const cartButton=
-  document.getElementById(
-    "cartButton"
-  );
+  document.getElementById("cartButton");
 
 const customerName=
-  document.getElementById(
-    "customerName"
-  );
+  document.getElementById("customerName");
 
 const sheet=
   document.getElementById("sheet");
+
+const gridViewButton=
+  document.getElementById("gridViewButton");
+
+const listViewButton=
+  document.getElementById("listViewButton");
 
 customerName.value=
   localStorage.getItem(NAME_KEY)||"";
@@ -1065,7 +1368,20 @@ function formatColor(value){
     "cafe":"Café",
     "capuchino":"Capuchino",
     "espresso":"Espresso",
-    "shedron":"Shedrón"
+    "shedron":"Shedrón",
+    "blanco":"Blanco",
+    "beige":"Beige",
+    "hueso":"Hueso",
+    "rojo":"Rojo",
+    "vino":"Vino",
+    "rosa":"Rosa",
+    "dorado":"Dorado",
+    "plata":"Plata",
+    "azul":"Azul",
+    "marino":"Marino",
+    "miel":"Miel",
+    "chocolate":"Chocolate",
+    "taupe":"Taupe"
   };
 
   if(known[normalized]){
@@ -1079,6 +1395,26 @@ function formatColor(value){
       letter=>
         letter.toUpperCase()
     );
+}
+
+/* =========================
+   CATEGORÍA
+========================= */
+
+function formatCategory(value){
+
+  const normalized=
+    normalize(value);
+
+  const known={
+    "bota":"Bota",
+    "botin":"Botín",
+    "mocasin":"Mocasín",
+    "escolar":"Escolar",
+    "zapatilla":"Zapatilla"
+  };
+
+  return known[normalized]||"";
 }
 
 /* =========================
@@ -1862,8 +2198,9 @@ async function loadProducts(){
           )
       );
 
+    buildCategories();
     buildFilters();
-
+    applyView();
     renderProducts();
 
     await repairCartImages();
@@ -1904,7 +2241,51 @@ async function loadProducts(){
 }
 
 /* =========================
-   FILTROS
+   CATEGORÍAS
+========================= */
+
+function buildCategories(){
+
+  categories.innerHTML=
+
+    CATEGORY_ORDER.map(
+      category=>`
+
+        <button
+          class="category-filter ${
+            normalize(category)===
+            selectedCategory
+              ?"active"
+              :""
+          }"
+          data-category="${escapeAttribute(normalize(category))}"
+          type="button"
+        >
+          ${escapeHtml(category)}
+        </button>
+
+      `
+    ).join("")+
+
+    `
+
+      <button
+        class="category-filter ${
+          selectedCategory==="todos"
+            ?"active"
+            :""
+        }"
+        data-category="todos"
+        type="button"
+      >
+        Todos
+      </button>
+
+    `;
+}
+
+/* =========================
+   FILTROS DE COLOR
 ========================= */
 
 function buildFilters(){
@@ -1960,7 +2341,7 @@ function buildFilters(){
       data-color="todos"
       type="button"
     >
-      Todos
+      Todos los colores
     </button>
 
   `+
@@ -1979,6 +2360,55 @@ function buildFilters(){
     `
   ).join("");
 }
+
+/* =========================
+   VISTA
+========================= */
+
+function applyView(){
+
+  const isList=
+    currentView==="list";
+
+  grid.classList.toggle(
+    "list-view",
+    isList
+  );
+
+  gridViewButton.classList.toggle(
+    "active",
+    !isList
+  );
+
+  listViewButton.classList.toggle(
+    "active",
+    isList
+  );
+}
+
+gridViewButton.onclick=function(){
+
+  currentView="grid";
+
+  localStorage.setItem(
+    VIEW_KEY,
+    currentView
+  );
+
+  applyView();
+};
+
+listViewButton.onclick=function(){
+
+  currentView="list";
+
+  localStorage.setItem(
+    VIEW_KEY,
+    currentView
+  );
+
+  applyView();
+};
 
 /* =========================
    MOSTRAR PRODUCTOS
@@ -2005,6 +2435,11 @@ function renderProducts(){
             product.modelo
           );
 
+        const categoryText=
+          normalize(
+            product.categoria
+          );
+
         const colorTexts=
           variants(product)
             .map(
@@ -2019,12 +2454,26 @@ function renderProducts(){
           modelText.includes(
             query
           ) ||
+          categoryText.includes(
+            query
+          ) ||
           colorTexts.some(
             color=>
               color.includes(
                 query
               )
           );
+
+        /*
+         * Los modelos sin categoría
+         * siguen apareciendo en TODOS.
+         */
+
+        const categoryOK=
+          selectedCategory===
+          "todos" ||
+          categoryText===
+          selectedCategory;
 
         const colorOK=
           selectedFilter===
@@ -2035,6 +2484,7 @@ function renderProducts(){
 
         return (
           searchOK &&
+          categoryOK &&
           colorOK
         );
       }
@@ -2060,7 +2510,7 @@ function renderProducts(){
 
         <br><br>
 
-        Prueba con otro número o color.
+        Prueba otra categoría, color o búsqueda.
 
       </div>
     `;
@@ -2070,74 +2520,93 @@ function renderProducts(){
 
   grid.innerHTML=
     visible.map(
-      product=>`
+      product=>{
 
-        <article>
+        const category=
+          formatCategory(
+            product.categoria
+          );
 
-          <a
-            href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
-          >
+        return `
 
-            <div class="product-image">
+          <article class="product-card">
 
-              <img
-                src="${escapeAttribute(cover(product))}"
-                loading="lazy"
-                alt="Modelo ${escapeAttribute(product.modelo)}"
-              >
+            <a
+              class="product-link"
+              href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
+            >
 
-              <span class="badge">
-                DISPONIBLE
-              </span>
+              <div class="product-image">
 
-            </div>
+                <img
+                  src="${escapeAttribute(cover(product))}"
+                  loading="lazy"
+                  alt="Modelo ${escapeAttribute(product.modelo)}"
+                >
 
-            <div class="product-info">
-
-              <div class="product-title">
-
-                <h3>
-                  Modelo ${escapeHtml(product.modelo)}
-                </h3>
-
-                <span>
-                  →
+                <span class="badge">
+                  DISPONIBLE
                 </span>
 
               </div>
 
-              <div class="colors">
+              <div class="product-info">
+
+                <div class="product-title">
+
+                  <h3>
+                    Modelo ${escapeHtml(product.modelo)}
+                  </h3>
+
+                  <span class="product-arrow">
+                    →
+                  </span>
+
+                </div>
 
                 ${
-                  variants(product)
-                    .map(
-                      variant=>
-                        escapeHtml(
-                          formatColor(
-                            variant.color
-                          )
-                        )
-                    )
-                    .join(" · ")
+                  category
+                    ?`
+                      <div class="product-category">
+                        ${escapeHtml(category)}
+                      </div>
+                    `
+                    :""
                 }
+
+                <div class="colors">
+
+                  ${
+                    variants(product)
+                      .map(
+                        variant=>
+                          escapeHtml(
+                            formatColor(
+                              variant.color
+                            )
+                          )
+                      )
+                      .join(" · ")
+                  }
+
+                </div>
 
               </div>
 
-            </div>
+            </a>
 
-          </a>
+            <button
+              class="quick-add"
+              data-model="${escapeAttribute(product.modelo)}"
+              type="button"
+            >
+              + Agregar
+            </button>
 
-          <button
-            class="quick-add"
-            data-model="${escapeAttribute(product.modelo)}"
-            type="button"
-          >
-            + Agregar
-          </button>
+          </article>
 
-        </article>
-
-      `
+        `;
+      }
     ).join("");
 }
 
@@ -2171,6 +2640,44 @@ function(event){
   if(product){
     openQuick(product);
   }
+};
+
+categories.onclick=
+function(event){
+
+  const button=
+    event.target.closest(
+      ".category-filter"
+    );
+
+  if(!button){
+    return;
+  }
+
+  selectedCategory=
+    button.dataset.category;
+
+  document
+    .querySelectorAll(
+      ".category-filter"
+    )
+    .forEach(
+      item=>
+        item.classList.remove(
+          "active"
+        )
+    );
+
+  button.classList.add(
+    "active"
+  );
+
+  /*
+   * Al cambiar de categoría,
+   * mantenemos el filtro de color.
+   */
+
+  renderProducts();
 };
 
 filters.onclick=
@@ -2516,9 +3023,9 @@ async function(){
 
   try{
 
-    /* =====================
-       1. TREINTA
-    ===================== */
+    /*
+     * 1. TREINTA
+     */
 
     button.textContent=
       "Verificando disponibilidad...";
@@ -2592,9 +3099,9 @@ async function(){
       return;
     }
 
-    /* =====================
-       2. HUELLA
-    ===================== */
+    /*
+     * 2. HUELLA
+     */
 
     const fingerprint=
       buildOrderFingerprint(
@@ -2604,11 +3111,6 @@ async function(){
 
     const lastOrder=
       getLastOrder();
-
-    /*
-     * Evita doble registro
-     * durante 30 minutos.
-     */
 
     if(
       isRecentDuplicate(
@@ -2629,9 +3131,9 @@ async function(){
       return;
     }
 
-    /* =====================
-       3. GUARDAR
-    ===================== */
+    /*
+     * 3. GUARDAR
+     */
 
     button.textContent=
       "Guardando pedido...";
@@ -2698,18 +3200,18 @@ async function(){
     const folio=
       orderData.pedido.folio;
 
-    /* =====================
-       4. RECORDAR
-    ===================== */
+    /*
+     * 4. RECORDAR
+     */
 
     saveLastOrder(
       fingerprint,
       folio
     );
 
-    /* =====================
-       5. WHATSAPP
-    ===================== */
+    /*
+     * 5. WHATSAPP
+     */
 
     button.textContent=
       "Abriendo WhatsApp...";
@@ -2807,7 +3309,7 @@ function escapeAttribute(value){
 ========================= */
 
 renderCart();
-
+applyView();
 loadProducts();
 
 </script>
