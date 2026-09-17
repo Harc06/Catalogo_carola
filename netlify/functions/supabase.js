@@ -13,16 +13,31 @@ exports.handler = async function () {
       "Content-Type": "application/json"
     };
 
+    /*
+     * ============================
+     * MODELOS
+     * ============================
+     */
+
     const modelosResponse = await fetch(
-      `${supabaseUrl}/rest/v1/modelos?select=id,modelo,activo&activo=eq.true&order=modelo.asc`,
+      `${supabaseUrl}/rest/v1/modelos?select=id,modelo,categoria,activo&activo=eq.true&order=modelo.asc`,
       { headers }
     );
 
     if (!modelosResponse.ok) {
-      throw new Error(await modelosResponse.text());
+      throw new Error(
+        await modelosResponse.text()
+      );
     }
 
-    const modelos = await modelosResponse.json();
+    const modelos =
+      await modelosResponse.json();
+
+    /*
+     * ============================
+     * VARIANTES / COLORES
+     * ============================
+     */
 
     const variantesResponse = await fetch(
       `${supabaseUrl}/rest/v1/variantes?select=id,modelo_id,color,activo&activo=eq.true&order=id.asc`,
@@ -30,10 +45,19 @@ exports.handler = async function () {
     );
 
     if (!variantesResponse.ok) {
-      throw new Error(await variantesResponse.text());
+      throw new Error(
+        await variantesResponse.text()
+      );
     }
 
-    const variantes = await variantesResponse.json();
+    const variantes =
+      await variantesResponse.json();
+
+    /*
+     * ============================
+     * IMÁGENES
+     * ============================
+     */
 
     const imagenesResponse = await fetch(
       `${supabaseUrl}/rest/v1/imagenes?select=id,variante_id,url,orden&order=orden.asc`,
@@ -41,31 +65,77 @@ exports.handler = async function () {
     );
 
     if (!imagenesResponse.ok) {
-      throw new Error(await imagenesResponse.text());
+      throw new Error(
+        await imagenesResponse.text()
+      );
     }
 
-    const imagenes = await imagenesResponse.json();
+    const imagenes =
+      await imagenesResponse.json();
 
-    const productos = modelos.map(modelo => ({
-      id: modelo.id,
-      modelo: modelo.modelo,
-      variantes: variantes
-        .filter(v => Number(v.modelo_id) === Number(modelo.id))
-        .map(v => ({
-          id: v.id,
-          color: v.color,
-          imagenes: imagenes
-            .filter(i => Number(i.variante_id) === Number(v.id))
-            .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999))
-        }))
-    }));
+    /*
+     * ============================
+     * CONSTRUIR PRODUCTOS
+     * ============================
+     */
+
+    const productos = modelos.map(
+      modelo => ({
+        id: modelo.id,
+        modelo: modelo.modelo,
+
+        /*
+         * Puede ser null en modelos
+         * antiguos todavía sin categoría.
+         */
+        categoria:
+          modelo.categoria || null,
+
+        variantes: variantes
+          .filter(
+            v =>
+              Number(v.modelo_id) ===
+              Number(modelo.id)
+          )
+          .map(v => ({
+            id: v.id,
+            color: v.color,
+
+            imagenes: imagenes
+              .filter(
+                i =>
+                  Number(i.variante_id) ===
+                  Number(v.id)
+              )
+              .sort(
+                (a, b) =>
+                  (a.orden ?? 999) -
+                  (b.orden ?? 999)
+              )
+          }))
+      })
+    );
+
+    /*
+     * ============================
+     * RESPUESTA
+     * ============================
+     */
 
     return {
       statusCode: 200,
+
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
+        "Content-Type":
+          "application/json",
+
+        "Access-Control-Allow-Origin":
+          "*",
+
+        "Cache-Control":
+          "no-store"
       },
+
       body: JSON.stringify({
         success: true,
         count: productos.length,
@@ -74,14 +144,28 @@ exports.handler = async function () {
     };
 
   } catch (error) {
+    console.error(
+      "SUPABASE FUNCTION ERROR:",
+      error
+    );
+
     return {
       statusCode: 500,
+
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type":
+          "application/json",
+
+        "Access-Control-Allow-Origin":
+          "*"
       },
+
       body: JSON.stringify({
         success: false,
-        error: error.message
+        error:
+          error && error.message
+            ? error.message
+            : String(error)
       })
     };
   }
