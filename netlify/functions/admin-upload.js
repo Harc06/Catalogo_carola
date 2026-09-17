@@ -65,6 +65,7 @@ exports.handler = async function (event) {
 
     const modelo = String(body.modelo || "").trim();
     const color = String(body.color || "").trim();
+    const categoria = cleanCategory(body.categoria);
 
     const imagenes = Array.isArray(body.imagenes)
       ? body.imagenes
@@ -72,6 +73,12 @@ exports.handler = async function (event) {
 
     if (!modelo) {
       throw new Error("Falta el modelo.");
+    }
+
+    if (!categoria) {
+      throw new Error(
+        "Selecciona una categoría: Bota, Botín, Mocasín, Escolar o Zapatilla."
+      );
     }
 
     if (!color) {
@@ -93,7 +100,7 @@ exports.handler = async function (event) {
     const { data: modelos, error: modelosError } =
       await supabase
         .from("modelos")
-        .select("id, modelo");
+        .select("id, modelo, categoria");
 
     if (modelosError) {
       throw new Error(modelosError.message);
@@ -107,18 +114,55 @@ exports.handler = async function (event) {
       );
 
     let modeloId;
+    let modeloGuardado;
+    let categoriaGuardada;
 
     if (modeloEncontrado) {
       modeloId = Number(modeloEncontrado.id);
+      modeloGuardado = modeloEncontrado.modelo;
+
+      /*
+       * Si estamos agregando colores/fotos a
+       * un modelo existente, mantenemos también
+       * actualizada su categoría.
+       */
+      if (
+        normalizeText(modeloEncontrado.categoria) !==
+        normalizeText(categoria)
+      ) {
+        const { data: modeloActualizado, error: updateError } =
+          await supabase
+            .from("modelos")
+            .update({
+              categoria: categoria
+            })
+            .eq("id", modeloId)
+            .select("id, modelo, categoria")
+            .single();
+
+        if (updateError) {
+          throw new Error(
+            "No se pudo actualizar la categoría del modelo: " +
+            updateError.message
+          );
+        }
+
+        modeloGuardado = modeloActualizado.modelo;
+        categoriaGuardada = modeloActualizado.categoria;
+      } else {
+        categoriaGuardada = modeloEncontrado.categoria;
+      }
+
     } else {
       const { data: nuevoModelo, error } =
         await supabase
           .from("modelos")
           .insert({
             modelo: modelo,
+            categoria: categoria,
             activo: true
           })
-          .select("id, modelo")
+          .select("id, modelo, categoria")
           .single();
 
       if (error) {
@@ -126,6 +170,8 @@ exports.handler = async function (event) {
       }
 
       modeloId = Number(nuevoModelo.id);
+      modeloGuardado = nuevoModelo.modelo;
+      categoriaGuardada = nuevoModelo.categoria;
     }
 
     /*
@@ -160,6 +206,7 @@ exports.handler = async function (event) {
 
       colorGuardado =
         varianteEncontrada.color;
+
     } else {
       const { data: nuevaVariante, error } =
         await supabase
@@ -255,7 +302,7 @@ exports.handler = async function (event) {
         );
 
       const safeModelo =
-        safePath(modelo);
+        safePath(modeloGuardado);
 
       const safeColor =
         safePath(colorGuardado);
@@ -385,9 +432,8 @@ exports.handler = async function (event) {
 
     return respond(200, {
       success: true,
-      modelo: modeloEncontrado
-        ? modeloEncontrado.modelo
-        : modelo,
+      modelo: modeloGuardado,
+      categoria: categoriaGuardada,
       color: colorGuardado,
       modelo_id: modeloId,
       variante_id: varianteId,
@@ -412,6 +458,28 @@ exports.handler = async function (event) {
     });
   }
 };
+
+
+/*
+ * ===================================
+ * CATEGORÍA
+ * ===================================
+ */
+
+function cleanCategory(value) {
+  const normalized =
+    normalizeText(value);
+
+  const categories = {
+    "bota": "Bota",
+    "botin": "Botín",
+    "mocasin": "Mocasín",
+    "escolar": "Escolar",
+    "zapatilla": "Zapatilla"
+  };
+
+  return categories[normalized] || "";
+}
 
 
 /*
