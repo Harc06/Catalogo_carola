@@ -31,8 +31,7 @@ exports.handler = async function (event) {
 
   if (
     !process.env.ADMIN_PASSWORD ||
-    providedPassword !==
-      process.env.ADMIN_PASSWORD
+    providedPassword !== process.env.ADMIN_PASSWORD
   ) {
     return respond(401, {
       success: false,
@@ -62,11 +61,8 @@ exports.handler = async function (event) {
   );
 
   try {
-    const body =
-      JSON.parse(event.body || "{}");
-
-    const action =
-      String(body.action || "");
+    const body = JSON.parse(event.body || "{}");
+    const action = String(body.action || "");
 
     /*
      * =========================
@@ -75,13 +71,8 @@ exports.handler = async function (event) {
      */
 
     if (action === "rename-model") {
-      const modelId =
-        Number(body.modelId);
-
-      const newName =
-        String(
-          body.newName || ""
-        ).trim();
+      const modelId = Number(body.modelId);
+      const newName = String(body.newName || "").trim();
 
       if (!modelId || !newName) {
         throw new Error(
@@ -95,9 +86,7 @@ exports.handler = async function (event) {
           .select("id, modelo");
 
       if (error) {
-        throw new Error(
-          error.message
-        );
+        throw new Error(error.message);
       }
 
       const duplicate =
@@ -138,14 +127,63 @@ exports.handler = async function (event) {
 
     /*
      * =========================
+     * EDITAR CATEGORÍA
+     * =========================
+     */
+
+    if (action === "update-category") {
+      const modelId = Number(body.modelId);
+      const category = cleanCategory(
+        body.category
+      );
+
+      if (!modelId) {
+        throw new Error(
+          "Modelo inválido."
+        );
+      }
+
+      if (!category) {
+        throw new Error(
+          "Categoría inválida. Usa Bota, Botín, Mocasín, Escolar o Zapatilla."
+        );
+      }
+
+      const {
+        data: updatedModel,
+        error: updateError
+      } =
+        await supabase
+          .from("modelos")
+          .update({
+            categoria: category
+          })
+          .eq("id", modelId)
+          .select(
+            "id, modelo, categoria"
+          )
+          .single();
+
+      if (updateError) {
+        throw new Error(
+          updateError.message
+        );
+      }
+
+      return respond(200, {
+        success: true,
+        modelo: updatedModel
+      });
+    }
+
+
+    /*
+     * =========================
      * EDITAR COLOR
      * =========================
      */
 
-    if (
-      action ===
-      "rename-variant"
-    ) {
+    if (action === "rename-variant") {
       const variantId =
         Number(body.variantId);
 
@@ -204,14 +242,9 @@ exports.handler = async function (event) {
       const duplicate =
         (variantes || []).find(
           item =>
-            Number(item.id) !==
-              variantId &&
-            normalizeText(
-              item.color
-            ) ===
-              normalizeText(
-                newColor
-              )
+            Number(item.id) !== variantId &&
+            normalizeText(item.color) ===
+              normalizeText(newColor)
         );
 
       if (duplicate) {
@@ -250,10 +283,7 @@ exports.handler = async function (event) {
      * =========================
      */
 
-    if (
-      action ===
-      "delete-image"
-    ) {
+    if (action === "delete-image") {
       const imageId =
         Number(body.imageId);
 
@@ -274,11 +304,6 @@ exports.handler = async function (event) {
           "No se encontró la fotografía."
         );
       }
-
-      /*
-       * Primero eliminamos el registro.
-       * Después limpiamos Storage.
-       */
 
       const {
         error: deleteError
@@ -316,10 +341,7 @@ exports.handler = async function (event) {
      * =========================
      */
 
-    if (
-      action ===
-      "move-image"
-    ) {
+    if (action === "move-image") {
       const imageId =
         Number(body.imageId);
 
@@ -389,8 +411,7 @@ exports.handler = async function (event) {
 
       const ids =
         (images || []).map(
-          item =>
-            Number(item.id)
+          item => Number(item.id)
         );
 
       const index =
@@ -441,10 +462,7 @@ exports.handler = async function (event) {
      * =========================
      */
 
-    if (
-      action ===
-      "make-primary"
-    ) {
+    if (action === "make-primary") {
       const imageId =
         Number(body.imageId);
 
@@ -500,12 +518,10 @@ exports.handler = async function (event) {
         imageId,
         ...(images || [])
           .map(
-            item =>
-              Number(item.id)
+            item => Number(item.id)
           )
           .filter(
-            id =>
-              id !== imageId
+            id => id !== imageId
           )
       ];
 
@@ -526,10 +542,7 @@ exports.handler = async function (event) {
      * =========================
      */
 
-    if (
-      action ===
-      "delete-variant"
-    ) {
+    if (action === "delete-variant") {
       const variantId =
         Number(body.variantId);
 
@@ -556,10 +569,6 @@ exports.handler = async function (event) {
           imageError.message
         );
       }
-
-      /*
-       * Primero BD.
-       */
 
       const {
         error: deleteImagesError
@@ -595,13 +604,8 @@ exports.handler = async function (event) {
         );
       }
 
-      /*
-       * Después Storage.
-       */
-
       for (
-        const image of
-        images || []
+        const image of images || []
       ) {
         await removeStorageFile(
           supabase,
@@ -621,10 +625,7 @@ exports.handler = async function (event) {
      * =========================
      */
 
-    if (
-      action ===
-      "delete-model"
-    ) {
+    if (action === "delete-model") {
       const modelId =
         Number(body.modelId);
 
@@ -654,15 +655,12 @@ exports.handler = async function (event) {
 
       const variantIds =
         (variants || []).map(
-          item =>
-            Number(item.id)
+          item => Number(item.id)
         );
 
       let images = [];
 
-      if (
-        variantIds.length
-      ) {
+      if (variantIds.length) {
         const result =
           await supabase
             .from("imagenes")
@@ -682,8 +680,7 @@ exports.handler = async function (event) {
           result.data || [];
 
         const {
-          error:
-            deleteImagesError
+          error: deleteImagesError
         } =
           await supabase
             .from("imagenes")
@@ -702,8 +699,7 @@ exports.handler = async function (event) {
         }
 
         const {
-          error:
-            deleteVariantsError
+          error: deleteVariantsError
         } =
           await supabase
             .from("variantes")
@@ -739,10 +735,6 @@ exports.handler = async function (event) {
         );
       }
 
-      /*
-       * Limpiar Storage al final.
-       */
-
       for (
         const image of images
       ) {
@@ -777,6 +769,28 @@ exports.handler = async function (event) {
     });
   }
 };
+
+
+/*
+ * ===================================
+ * CATEGORÍA
+ * ===================================
+ */
+
+function cleanCategory(value) {
+  const normalized =
+    normalizeText(value);
+
+  const categories = {
+    "bota": "Bota",
+    "botin": "Botín",
+    "mocasin": "Mocasín",
+    "escolar": "Escolar",
+    "zapatilla": "Zapatilla"
+  };
+
+  return categories[normalized] || "";
+}
 
 
 /*
@@ -837,8 +851,7 @@ async function normalizeOrders(
   await setOrders(
     supabase,
     (data || []).map(
-      item =>
-        Number(item.id)
+      item => Number(item.id)
     )
   );
 }
@@ -855,7 +868,7 @@ async function setOrders(
   ids
 ) {
   /*
-   * Primero valores temporales.
+   * Primero usamos valores temporales.
    */
 
   for (
@@ -883,7 +896,7 @@ async function setOrders(
   }
 
   /*
-   * Después 1,2,3...
+   * Después establecemos 1,2,3...
    */
 
   for (
@@ -955,8 +968,8 @@ async function removeStorageFile(
       .remove([path]);
 
   /*
-   * Si falla limpiar Storage,
-   * no dejamos rota la BD.
+   * Si falla Storage no dejamos
+   * inconsistente la base de datos.
    */
 
   if (error) {
