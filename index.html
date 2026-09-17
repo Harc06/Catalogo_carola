@@ -811,19 +811,23 @@ a{color:inherit;text-decoration:none}
 
 /* RESPONSIVE */
 
-@media(max-width:1199px){
+/* PC + iPad horizontal = 5 productos */
+
+@media(min-width:900px){
   .grid{
-    grid-template-columns:repeat(4,minmax(0,1fr));
+    grid-template-columns:repeat(5,minmax(0,1fr));
   }
 }
 
-@media(max-width:899px){
-  .hero-box{
-    min-height:155px;
-  }
+/* iPad vertical / tablet = 4 productos */
 
+@media(min-width:651px) and (max-width:899px){
   .grid{
     grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+
+  .hero-box{
+    min-height:155px;
   }
 }
 
