@@ -963,7 +963,195 @@ a{color:inherit;text-decoration:none}
   visibility:visible;
   transform:translate(-50%,0);
 }
+/* =========================
+   SKELETONS DE CARGA
+========================= */
 
+.skeleton-card{
+  min-width:0;
+}
+
+.skeleton-image{
+  aspect-ratio:4/5;
+  border-radius:13px;
+  background:
+    linear-gradient(
+      90deg,
+      #f5f1f3 25%,
+      #fbf8f9 50%,
+      #f5f1f3 75%
+    );
+  background-size:200% 100%;
+  animation:skeletonMove 1.2s infinite linear;
+}
+
+.skeleton-line{
+  height:10px;
+  margin-top:10px;
+  border-radius:99px;
+  background:#f2edef;
+}
+
+.skeleton-line.short{
+  width:55%;
+}
+
+.skeleton-line.small{
+  width:75%;
+  height:7px;
+  margin-top:7px;
+}
+
+@keyframes skeletonMove{
+  0%{
+    background-position:200% 0;
+  }
+
+  100%{
+    background-position:-200% 0;
+  }
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer{
+  margin-top:30px;
+  background:#171717;
+  color:#fff;
+}
+
+.footer-inner{
+  max-width:1400px;
+  margin:auto;
+  padding:42px 20px 34px;
+}
+
+.footer-top{
+  display:flex;
+  justify-content:space-between;
+  gap:40px;
+  align-items:flex-start;
+}
+
+.footer-brand{
+  font-size:25px;
+  font-weight:900;
+  letter-spacing:8px;
+}
+
+.footer-description{
+  margin-top:12px;
+  max-width:370px;
+  color:#aaa4a7;
+  font-size:12px;
+  line-height:1.6;
+}
+
+.footer-info{
+  display:flex;
+  gap:45px;
+}
+
+.footer-column strong{
+  display:block;
+  font-size:11px;
+  margin-bottom:9px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+.footer-column span{
+  display:block;
+  color:#aaa4a7;
+  font-size:11px;
+  margin-top:6px;
+}
+
+.footer-bottom{
+  margin-top:35px;
+  padding-top:18px;
+  border-top:1px solid rgba(255,255,255,.1);
+  color:#777;
+  font-size:10px;
+}
+
+/* =========================
+   PEDIDO FLOTANTE CELULAR
+========================= */
+
+.mobile-cart{
+  display:none;
+  position:fixed;
+  left:12px;
+  right:12px;
+  bottom:calc(12px + env(safe-area-inset-bottom));
+  z-index:300;
+  min-height:52px;
+  border:0;
+  border-radius:15px;
+  background:#171717;
+  color:#fff;
+  padding:0 17px;
+  box-shadow:0 10px 35px rgba(0,0,0,.22);
+  align-items:center;
+  justify-content:space-between;
+  font-weight:900;
+}
+
+.mobile-cart-label{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.mobile-cart-count{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:25px;
+  height:25px;
+  padding:0 7px;
+  background:var(--pink);
+  color:#171717;
+  border-radius:999px;
+  font-size:10px;
+}
+
+.mobile-cart-total{
+  font-size:11px;
+  color:#ddd;
+}
+
+/* =========================
+   VOLVER ARRIBA
+========================= */
+
+.back-top{
+  position:fixed;
+  right:20px;
+  bottom:22px;
+  z-index:290;
+  width:43px;
+  height:43px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(10px);
+  border-radius:50%;
+  box-shadow:0 5px 20px rgba(0,0,0,.1);
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(10px);
+  transition:.2s;
+  font-size:18px;
+}
+
+.back-top.show{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
 /* =========================
    RESPONSIVE
 ========================= */
@@ -1062,6 +1250,39 @@ a{color:inherit;text-decoration:none}
     width:72px;
     height:88px;
   }
+    .footer-inner{
+    padding-bottom:95px;
+  }
+
+  .footer-top{
+    flex-direction:column;
+    gap:25px;
+  }
+
+  .footer-info{
+    width:100%;
+    justify-content:space-between;
+    gap:20px;
+  }
+
+  .footer-brand{
+    font-size:21px;
+    letter-spacing:6px;
+  }
+
+  .mobile-cart{
+    display:flex;
+  }
+
+  .back-top{
+    right:15px;
+    bottom:78px;
+  }
+
+  body.cart-open .mobile-cart{
+    display:none;
+  }
+}
 }
 </style>
 </head>
@@ -1171,12 +1392,128 @@ type="button"
 </div>
 
 <div id="grid" class="grid">
-<div class="state">
-Cargando catálogo...
+
+<div class="skeleton-card">
+  <div class="skeleton-image"></div>
+  <div class="skeleton-line short"></div>
+  <div class="skeleton-line small"></div>
 </div>
+
+<div class="skeleton-card">
+  <div class="skeleton-image"></div>
+  <div class="skeleton-line short"></div>
+  <div class="skeleton-line small"></div>
+</div>
+
+<div class="skeleton-card">
+  <div class="skeleton-image"></div>
+  <div class="skeleton-line short"></div>
+  <div class="skeleton-line small"></div>
+</div>
+
+<div class="skeleton-card">
+  <div class="skeleton-image"></div>
+  <div class="skeleton-line short"></div>
+  <div class="skeleton-line small"></div>
+</div>
+
+<div class="skeleton-card">
+  <div class="skeleton-image"></div>
+  <div class="skeleton-line short"></div>
+  <div class="skeleton-line small"></div>
+</div>
+
 </div>
 
 </main>
+
+<footer class="footer">
+
+<div class="footer-inner">
+
+<div class="footer-top">
+
+<div>
+
+<div class="footer-brand">
+CAROLA
+</div>
+
+<div class="footer-description">
+Calzado de mayoreo. Selecciona tus modelos y colores,
+arma tu pedido y envíalo directamente por WhatsApp.
+</div>
+
+</div>
+
+<div class="footer-info">
+
+<div class="footer-column">
+
+<strong>Mayoreo</strong>
+
+<span>Múltiplos de 6 pares</span>
+<span>Envíos a todo México</span>
+
+</div>
+
+<div class="footer-column">
+
+<strong>León, Gto.</strong>
+
+<span>Entregas locales</span>
+<span>Calzado Carola</span>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="footer-bottom">
+© CAROLA · Catálogo de mayoreo
+</div>
+
+</div>
+
+</footer>
+
+<button
+id="mobileCart"
+class="mobile-cart"
+type="button"
+>
+
+<span class="mobile-cart-label">
+
+Ver pedido
+
+<span
+id="mobileCartCount"
+class="mobile-cart-count"
+>
+0
+</span>
+
+</span>
+
+<span
+id="mobileCartTotal"
+class="mobile-cart-total"
+>
+0 pares
+</span>
+
+</button>
+
+<button
+id="backTop"
+class="back-top"
+type="button"
+aria-label="Volver arriba"
+>
+↑
+</button>
 
 <div id="overlay" class="overlay"></div>
 
@@ -1379,7 +1716,17 @@ const listViewButton=document.getElementById("listViewButton");
 const cartModels=document.getElementById("cartModels");
 const cartColors=document.getElementById("cartColors");
 const cartPairs=document.getElementById("cartPairs");
+const mobileCart=
+document.getElementById("mobileCart");
 
+const mobileCartCount=
+document.getElementById("mobileCartCount");
+
+const mobileCartTotal=
+document.getElementById("mobileCartTotal");
+
+const backTop=
+document.getElementById("backTop");
 customerName.value=
 localStorage.getItem(NAME_KEY)||"";
 
@@ -1951,6 +2298,8 @@ overlay.classList.add("open");
 cartPanel.classList.add("open");
 sheet.classList.remove("open");
 
+document.body.classList.add("cart-open");
+
 document.body.style.overflow="hidden";
 
 }
@@ -1960,6 +2309,8 @@ function closePanels(){
 overlay.classList.remove("open");
 cartPanel.classList.remove("open");
 sheet.classList.remove("open");
+
+document.body.classList.remove("cart-open");
 
 document.body.style.overflow="";
 
@@ -3064,7 +3415,36 @@ function escapeAttribute(value){
 return escapeHtml(value);
 
 }
+/* =========================
+   BOTONES FLOTANTES
+========================= */
 
+mobileCart.onclick=
+openCart;
+
+backTop.onclick=function(){
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+};
+
+window.addEventListener(
+"scroll",
+function(){
+
+backTop.classList.toggle(
+"show",
+window.scrollY>500
+);
+
+},
+{
+passive:true
+}
+);
 /* =========================
    INICIAR
 ========================= */
