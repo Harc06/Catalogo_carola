@@ -6,7 +6,10 @@
 <title>Administrador | CAROLA</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
+
 :root{
   --pink:#f5dce7;
   --pink2:#fff8fb;
@@ -17,20 +20,39 @@
   --danger:#a32d2d;
   --green:#167344;
 }
+
 body{
   margin:0;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
   background:var(--pink2);
   color:var(--text);
 }
+
+/* =========================================================
+   HEADER
+========================================================= */
+
 header{
   background:#fff;
   text-align:center;
   padding:25px 20px 20px;
   border-bottom:1px solid var(--border);
 }
-.logo{font-size:30px;font-weight:900;letter-spacing:8px}
-header p{color:#888;margin:7px 0 0}
+
+.logo{
+  font-size:30px;
+  font-weight:900;
+  letter-spacing:8px;
+}
+
+header p{
+  color:#888;
+  margin:7px 0 0;
+}
+
+/* =========================================================
+   PESTAÑAS
+========================================================= */
 
 .tabs-wrap{
   position:sticky;
@@ -41,6 +63,7 @@ header p{color:#888;margin:7px 0 0}
   -webkit-backdrop-filter:blur(15px);
   border-bottom:1px solid var(--border);
 }
+
 .tabs{
   width:min(1050px,94%);
   margin:auto;
@@ -49,6 +72,7 @@ header p{color:#888;margin:7px 0 0}
   gap:8px;
   padding:10px 0;
 }
+
 .tab{
   padding:13px;
   border:0;
@@ -57,24 +81,62 @@ header p{color:#888;margin:7px 0 0}
   color:#555;
   font-weight:800;
 }
-.tab.active{background:var(--dark);color:#fff}
+
+.tab.active{
+  background:var(--dark);
+  color:#fff;
+}
+
+/* =========================================================
+   GENERAL
+========================================================= */
 
 main{
   width:min(1050px,94%);
   margin:30px auto 80px;
 }
-.panel{display:none}
-.panel.active{display:block}
-.card,.model-card,.order-card{
+
+.panel{
+  display:none;
+}
+
+.panel.active{
+  display:block;
+}
+
+.card,
+.model-card,
+.order-card{
   background:#fff;
-  border-radius:22px;
+  border-radius:20px;
   box-shadow:0 8px 30px rgba(0,0,0,.05);
 }
-.card{padding:26px}
-h2{margin-top:0}
-button,input,select{font:inherit}
-button{border:0;cursor:pointer;font-weight:700}
-label{display:block;font-weight:700;margin:18px 0 8px}
+
+.card{
+  padding:26px;
+}
+
+h2{
+  margin-top:0;
+}
+
+button,
+input,
+select{
+  font:inherit;
+}
+
+button{
+  border:0;
+  cursor:pointer;
+  font-weight:700;
+}
+
+label{
+  display:block;
+  font-weight:700;
+  margin:18px 0 8px;
+}
 
 input[type="text"],
 input[type="search"],
@@ -87,32 +149,39 @@ select{
   outline:none;
   background:#fff;
 }
+
 input:focus,
 select:focus{
   border-color:#dcaabd;
 }
 
-/* CARGA */
+/* =========================================================
+   CARGA DE MODELOS
+========================================================= */
 
 .upload-intro{
   color:#777;
   line-height:1.5;
   margin-top:-4px;
 }
+
 .model-input-wrap{
   padding-bottom:22px;
   border-bottom:1px solid #eee;
 }
+
 .category-help{
   color:#999;
   font-size:12px;
   margin-top:7px;
 }
+
 #colorBlocks{
   display:grid;
   gap:16px;
   margin-top:22px;
 }
+
 .color-block{
   position:relative;
   border:1px solid var(--border);
@@ -120,18 +189,21 @@ select:focus{
   padding:18px;
   background:#fffafb;
 }
+
 .color-block-top{
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:12px;
 }
+
 .color-number{
   font-size:12px;
   color:#999;
   font-weight:900;
   letter-spacing:.5px;
 }
+
 .remove-color-block{
   background:#fff0f0;
   color:var(--danger);
@@ -139,6 +211,7 @@ select:focus{
   padding:8px 11px;
   font-size:12px;
 }
+
 .file-label{
   display:block;
   margin-top:16px;
@@ -150,13 +223,18 @@ select:focus{
   background:#fff;
   font-weight:700;
 }
-.color-files{display:none}
+
+.color-files{
+  display:none;
+}
+
 .color-preview{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(85px,1fr));
   gap:9px;
   margin-top:13px;
 }
+
 .color-preview img{
   width:100%;
   aspect-ratio:1;
@@ -164,12 +242,14 @@ select:focus{
   border-radius:11px;
   background:#f5f5f5;
 }
+
 .file-count{
   text-align:center;
   color:#888;
   margin-top:12px;
   font-size:13px;
 }
+
 #addColorBlock{
   width:100%;
   margin-top:16px;
@@ -177,6 +257,7 @@ select:focus{
   border-radius:14px;
   background:#f7e6ee;
 }
+
 #uploadButton{
   width:100%;
   margin-top:18px;
@@ -186,7 +267,11 @@ select:focus{
   padding:17px;
   font-size:16px;
 }
-#uploadButton:disabled{opacity:.5}
+
+#uploadButton:disabled{
+  opacity:.5;
+}
+
 #status{
   display:none;
   margin-top:18px;
@@ -194,31 +279,64 @@ select:focus{
   border-radius:14px;
   white-space:pre-line;
 }
-#status.loading{display:block;background:#f5eef1;color:#555}
-#status.success{display:block;background:#e7f8ed;color:#146b34}
-#status.error{display:block;background:#fff0f0;color:#a32d2d}
 
-/* CATÁLOGO */
+#status.loading{
+  display:block;
+  background:#f5eef1;
+  color:#555;
+}
 
-.catalog{margin-top:55px}
-.catalog-header,.orders-header{
+#status.success{
+  display:block;
+  background:#e7f8ed;
+  color:#146b34;
+}
+
+#status.error{
+  display:block;
+  background:#fff0f0;
+  color:#a32d2d;
+}
+
+/* =========================================================
+   CATÁLOGO
+========================================================= */
+
+.catalog{
+  margin-top:55px;
+}
+
+.catalog-header,
+.orders-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:15px;
   margin-bottom:18px;
 }
-.catalog-header h2,.orders-header h2{
+
+.catalog-header h2,
+.orders-header h2{
   font-size:29px;
   margin:0 0 5px;
 }
-.catalog-header p,.orders-header p{margin:0;color:#888}
+
+.catalog-header p,
+.orders-header p{
+  margin:0;
+  color:#888;
+}
+
 .refresh{
   background:#f5e6ed;
   padding:11px 16px;
   border-radius:12px;
   flex:none;
 }
+
+/* =========================================================
+   BUSCADOR
+========================================================= */
 
 .admin-search-area{
   position:sticky;
@@ -227,11 +345,16 @@ select:focus{
   padding:9px 0 14px;
   background:var(--pink2);
 }
-.admin-search-wrap{position:relative}
+
+.admin-search-wrap{
+  position:relative;
+}
+
 .admin-search{
   padding-right:48px!important;
   box-shadow:0 5px 18px rgba(0,0,0,.035);
 }
+
 .search-clear{
   position:absolute;
   right:9px;
@@ -244,7 +367,11 @@ select:focus{
   font-size:19px;
   display:none;
 }
-.search-clear.show{display:block}
+
+.search-clear.show{
+  display:block;
+}
+
 .search-meta{
   display:flex;
   justify-content:space-between;
@@ -255,225 +382,375 @@ select:focus{
   font-size:12px;
 }
 
-#models{display:grid;gap:20px}
-.model-card{padding:24px}
+/* =========================================================
+   GRID DE MODELOS
+   2 MODELOS POR FILA
+========================================================= */
+
+#models{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+
+.model-card{
+  padding:15px;
+  min-width:0;
+
+  /*
+    IMPORTANTE:
+    La tarjeta se convierte en grid.
+    Header, categoría y botón final ocupan las 2 columnas.
+    Cada .variant ocupa una columna.
+  */
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  column-gap:9px;
+  row-gap:9px;
+}
+
+/* =========================================================
+   HEADER DEL MODELO
+========================================================= */
+
 .model-header{
+  grid-column:1 / -1;
+
   display:flex;
   justify-content:space-between;
-  align-items:flex-start;
-  gap:20px;
+  align-items:center;
+  gap:8px;
+
+  margin:0;
 }
+
 .model-title{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:6px;
   flex-wrap:wrap;
+  min-width:0;
 }
+
 .model-title h3{
   margin:0;
-  font-size:25px;
+  font-size:19px;
+  line-height:1.1;
 }
+
 .model-count{
   color:#999;
-  font-size:13px;
+  font-size:10px;
 }
+
 .category-badge{
   display:inline-flex;
   align-items:center;
-  padding:7px 10px;
+  padding:5px 7px;
   border-radius:999px;
   background:#f7e6ee;
   color:#6d4354;
-  font-size:11px;
+  font-size:9px;
   font-weight:900;
   text-transform:uppercase;
   letter-spacing:.3px;
 }
+
 .category-badge.missing{
   background:#fff1dd;
   color:#9b651d;
 }
+
 .model-actions{
   display:flex;
-  gap:8px;
-  flex-wrap:wrap;
+  gap:5px;
+  flex-wrap:nowrap;
   justify-content:flex-end;
 }
-.edit-model,.edit-color{
+
+.edit-model,
+.edit-color{
   background:#f7e6ee;
   color:#222;
-  border-radius:10px;
-  padding:9px 12px;
-}
-.delete-model,.delete-variant{
-  background:#fff0f0;
-  color:#a32d2d;
-  border-radius:10px;
-  padding:9px 12px;
+  border-radius:9px;
 }
 
+.edit-model{
+  padding:7px 9px;
+  font-size:11px;
+  white-space:nowrap;
+}
+
+.delete-model,
+.delete-variant{
+  background:#fff0f0;
+  color:#a32d2d;
+  border-radius:9px;
+}
+
+.delete-model{
+  padding:7px 9px;
+  font-size:11px;
+  white-space:nowrap;
+}
+
+/* =========================================================
+   CATEGORÍA
+========================================================= */
+
 .category-editor{
+  grid-column:1 / -1;
+
   display:flex;
   align-items:center;
-  gap:10px;
-  margin-top:18px;
-  padding:13px;
-  border-radius:14px;
+  gap:6px;
+
+  margin:0;
+  padding:7px;
+
+  border-radius:11px;
   background:#fffafb;
   border:1px solid var(--border);
 }
+
 .category-editor label{
   margin:0;
   flex:none;
-  font-size:13px;
+  font-size:10px;
 }
+
 .category-editor select{
   margin:0;
-  padding:11px 13px;
-  font-size:14px;
+  padding:8px 9px;
+  height:34px;
+  font-size:11px;
   flex:1;
+  min-width:0;
 }
+
 .save-category{
   flex:none;
   background:#171717;
   color:#fff;
-  padding:11px 15px;
-  border-radius:11px;
+  padding:8px 10px;
+  height:34px;
+  border-radius:9px;
+  font-size:10px;
 }
 
-.variant{
-  border-top:1px solid #eee;
-  margin-top:20px;
-  padding-top:20px;
+/* =========================================================
+   COLORES
+   AQUÍ ESTÁ EL CAMBIO PRINCIPAL:
+   2 COLORES POR FILA
+========================================================= */
+
+.model-card .variant{
+  min-width:0;
+
+  /*
+    Quitamos el diseño anterior de línea divisoria.
+    Cada color ahora es una tarjeta individual.
+  */
+  border:1px solid var(--border);
+  margin:0;
+  padding:9px;
+  border-radius:13px;
+  background:#fff;
 }
+
 .variant-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:15px;
+  gap:5px;
+  min-width:0;
 }
+
 .variant-title{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:4px;
   flex-wrap:wrap;
+  min-width:0;
 }
+
 .color-name{
   font-weight:800;
-  font-size:17px;
+  font-size:13px;
+  line-height:1.1;
 }
+
+.edit-color{
+  padding:5px 6px;
+  font-size:9px;
+}
+
 .photo-count{
   color:#888;
-  font-size:14px;
+  font-size:8px;
+  white-space:nowrap;
 }
+
+/* =========================================================
+   FOTOGRAFÍAS
+========================================================= */
+
 .photos{
   display:flex;
-  gap:14px;
+  gap:5px;
   overflow-x:auto;
-  padding:16px 0 10px;
+  overflow-y:hidden;
+
+  padding:7px 0 4px;
+
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
 }
-.photos::-webkit-scrollbar{display:none}
-.photo-card{
-  width:130px;
-  flex:0 0 130px;
-  position:relative;
+
+.photos::-webkit-scrollbar{
+  display:none;
 }
+
+.photo-card{
+  width:76px;
+  flex:0 0 76px;
+  position:relative;
+  min-width:0;
+}
+
 .photo-card img{
-  width:130px;
-  height:130px;
+  width:76px;
+  height:76px;
   display:block;
   object-fit:cover;
-  border-radius:14px;
+  border-radius:8px;
   background:#f5f5f5;
 }
+
 .primary-badge{
   position:absolute;
-  top:7px;
-  left:7px;
+  top:4px;
+  left:4px;
+
   background:#171717;
   color:#fff;
-  padding:5px 8px;
-  border-radius:8px;
-  font-size:10px;
+
+  padding:3px 5px;
+  border-radius:6px;
+
+  font-size:7px;
   font-weight:800;
+
+  z-index:2;
 }
+
 .photo-controls{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
-  gap:5px;
-  margin-top:7px;
+  gap:2px;
+  margin-top:3px;
 }
+
 .photo-controls button{
-  padding:9px 4px;
-  border-radius:8px;
+  padding:4px 1px;
+  height:24px;
+  border-radius:6px;
   background:#f3edf0;
-  font-size:14px;
+  font-size:9px;
 }
+
 .photo-controls .delete-photo{
   color:#a32d2d;
   background:#fff0f0;
 }
+
 .make-primary{
   width:100%;
-  margin-top:5px;
-  padding:8px;
-  border-radius:8px;
+  margin-top:3px;
+  padding:4px 2px;
+  min-height:22px;
+  border-radius:6px;
   background:#f7e6ee;
-  font-size:11px;
+  font-size:7px;
 }
+
+/* =========================================================
+   ACCIONES DE COLOR
+========================================================= */
+
 .variant-bottom{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-top:10px;
+  display:block;
+  margin-top:5px;
 }
+
 .variant-actions{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4px;
 }
+
 .add-photos{
   background:#171717;
   color:#fff;
-  padding:11px 15px;
-  border-radius:12px;
+  padding:7px 4px;
+  border-radius:8px;
+  font-size:9px;
+  white-space:nowrap;
 }
+
+.delete-variant{
+  padding:7px 4px;
+  font-size:9px;
+  white-space:nowrap;
+}
+
+/* =========================================================
+   AGREGAR COLOR
+========================================================= */
+
 .model-bottom{
+  grid-column:1 / -1;
+
   border-top:1px solid #eee;
-  margin-top:22px;
-  padding-top:20px;
+  margin:2px 0 0;
+  padding-top:8px;
+
   display:flex;
   justify-content:center;
 }
+
 .add-color{
+  width:100%;
   background:#f7e6ee;
   color:#222;
-  padding:13px 22px;
-  border-radius:12px;
-  font-size:14px;
+  padding:8px;
+  border-radius:9px;
+  font-size:10px;
 }
 
-/* REGISTRO */
+/* =========================================================
+   REGISTRO DE PEDIDOS
+========================================================= */
 
 .record-summary{
   display:flex;
   gap:10px;
   margin-bottom:18px;
 }
+
 .summary-box{
   background:#fff;
   border-radius:18px;
   padding:17px 20px;
   box-shadow:0 8px 30px rgba(0,0,0,.04);
 }
+
 .summary-box strong{
   display:block;
   font-size:25px;
 }
+
 .summary-box span{
   display:block;
   margin-top:3px;
@@ -481,6 +758,7 @@ select:focus{
   font-size:11px;
   font-weight:700;
 }
+
 .record-note{
   margin-bottom:18px;
   padding:14px 16px;
@@ -491,12 +769,21 @@ select:focus{
   line-height:1.5;
   border:1px solid var(--border);
 }
+
 .order-search-wrap{
   position:relative;
   margin-bottom:18px;
 }
-#orders{display:grid;gap:16px}
-.order-card{overflow:hidden}
+
+#orders{
+  display:grid;
+  gap:16px;
+}
+
+.order-card{
+  overflow:hidden;
+}
+
 .order-top{
   padding:20px;
   display:flex;
@@ -504,39 +791,47 @@ select:focus{
   align-items:flex-start;
   gap:15px;
 }
+
 .order-folio{
   font-size:12px;
   color:#999;
   font-weight:800;
 }
+
 .order-client{
   font-size:21px;
   font-weight:900;
   margin-top:5px;
 }
+
 .order-date{
   font-size:12px;
   color:#999;
   margin-top:5px;
 }
+
 .order-total{
   text-align:right;
   flex:none;
 }
+
 .order-total strong{
   display:block;
   font-size:26px;
 }
+
 .order-total span{
   color:#888;
   font-size:11px;
 }
+
 .order-items{
   border-top:1px solid #f1e9ec;
   padding:12px 20px;
   background:#fffafb;
 }
-  .order-actions{
+
+.order-actions{
   display:flex;
   justify-content:flex-end;
   padding:12px 20px 16px;
@@ -557,27 +852,7 @@ select:focus{
   opacity:.5;
   cursor:not-allowed;
 }
-  .order-actions{
-  display:flex;
-  justify-content:flex-end;
-  padding:12px 20px 16px;
-  border-top:1px solid #f1e9ec;
-  background:#fff;
-}
 
-.delete-order{
-  background:#fff0f0;
-  color:#a32d2d;
-  border-radius:10px;
-  padding:10px 14px;
-  font-size:13px;
-  font-weight:800;
-}
-
-.delete-order:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
 .order-line{
   display:grid;
   grid-template-columns:60px 1fr;
@@ -585,25 +860,48 @@ select:focus{
   padding:9px 0;
   border-bottom:1px solid #f3e9ed;
 }
-.order-line:last-child{border-bottom:0}
+
+.order-line:last-child{
+  border-bottom:0;
+}
+
 .order-qty{
   font-weight:900;
   font-size:17px;
 }
-.order-product{font-weight:700}
+
+.order-product{
+  font-weight:700;
+}
+
 .order-product span{
   color:#888;
   font-weight:400;
   margin-left:5px;
 }
 
-.loading,.empty{
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.loading,
+.empty{
   background:#fff;
   border-radius:20px;
   padding:35px;
   text-align:center;
   color:#888;
 }
+
+/*
+  Cuando loading/empty está dentro de #models,
+  debe ocupar las dos columnas.
+*/
+#models > .loading,
+#models > .empty{
+  grid-column:1 / -1;
+}
+
 #operationStatus{
   position:fixed;
   left:50%;
@@ -619,6 +917,7 @@ select:focus{
   max-width:90%;
   text-align:center;
 }
+
 footer{
   padding:30px;
   text-align:center;
@@ -626,390 +925,49 @@ footer{
   font-size:13px;
 }
 
-@media(max-width:650px){
-  main{
-    width:94%;
-    margin-top:20px;
-  }
-  .card,.model-card{padding:18px}
-  .model-header{flex-direction:column}
-  .model-actions{justify-content:flex-start}
-  .category-editor{
-    align-items:stretch;
-    flex-direction:column;
-  }
-  .category-editor label{margin-bottom:2px}
-  .variant-header{align-items:flex-start}
-  .photo-card{
-    width:115px;
-    flex-basis:115px;
-  }
-  .photo-card img{
-    width:115px;
-    height:115px;
-  }
-  .record-summary{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-  }
-  .summary-box{padding:14px}
-  .order-top{padding:17px}
-  .order-client{font-size:19px}
-  .admin-search-area{top:68px}
-}
-  /* =========================================================
-   CAROLA ADMIN — CATÁLOGO COMPACTO 2 COLUMNAS
-   ========================================================= */
-
-/* Dos modelos por fila en iPad / escritorio */
-#models{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:18px;
-  align-items:start;
-}
-
-/* Tarjeta de modelo más compacta */
-.model-card{
-  padding:18px;
-  border-radius:20px;
-  min-width:0;
-}
-
-/* Encabezado */
-.model-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:12px;
-}
-
-.model-title{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  flex-wrap:wrap;
-  min-width:0;
-}
-
-.model-title h3{
-  font-size:21px;
-  line-height:1.1;
-  margin:0;
-}
-
-.model-count{
-  font-size:11px;
-}
-
-.category-badge{
-  padding:6px 9px;
-  font-size:10px;
-}
-
-/* Botones del encabezado */
-.model-actions{
-  display:flex;
-  gap:6px;
-  flex-wrap:nowrap;
-}
-
-.edit-model,
-.delete-model{
-  padding:8px 10px;
-  font-size:12px;
-  white-space:nowrap;
-}
-
-/* Categoría más pequeña */
-.category-editor{
-  margin-top:12px;
-  padding:9px;
-  gap:7px;
-  border-radius:12px;
-}
-
-.category-editor label{
-  font-size:11px;
-}
-
-.category-editor select{
-  padding:9px 10px;
-  font-size:12px;
-  min-width:0;
-}
-
-.save-category{
-  padding:9px 11px;
-  font-size:12px;
-}
-
-/* Los colores se distribuyen dentro de la tarjeta */
-.model-card .variant{
-  display:inline-block;
-  vertical-align:top;
-  width:calc(50% - 6px);
-  margin-top:12px;
-  padding:11px;
-  border:1px solid var(--border);
-  border-radius:14px;
-  background:#fff;
-}
-
-.model-card .variant:nth-of-type(even){
-  margin-right:8px;
-}
-
-/* Encabezado de cada color */
-.variant-header{
-  gap:7px;
-}
-
-.variant-title{
-  gap:6px;
-}
-
-.color-name{
-  font-size:14px;
-}
-
-.edit-color{
-  padding:7px 8px;
-  font-size:11px;
-}
-
-.photo-count{
-  font-size:10px;
-  white-space:nowrap;
-}
-
-/* Fotos mucho más compactas */
-.photos{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:7px;
-  overflow:visible;
-  padding:10px 0 5px;
-}
-
-.photo-card{
-  width:auto;
-  min-width:0;
-  flex:none;
-}
-
-.photo-card img{
-  width:100%;
-  height:auto;
-  aspect-ratio:1/1;
-  object-fit:cover;
-  border-radius:10px;
-}
-
-.primary-badge{
-  top:5px;
-  left:5px;
-  padding:4px 6px;
-  font-size:8px;
-}
-
-/* Controles debajo de cada foto */
-.photo-controls{
-  gap:3px;
-  margin-top:4px;
-}
-
-.photo-controls button{
-  padding:6px 2px;
-  font-size:11px;
-  border-radius:7px;
-}
-
-.make-primary{
-  padding:6px 3px;
-  margin-top:3px;
-  font-size:9px;
-}
-
-/* Acciones de cada color */
-.variant-bottom{
-  margin-top:7px;
-}
-
-.variant-actions{
-  width:100%;
-  gap:5px;
-}
-
-.add-photos,
-.delete-variant{
-  flex:1;
-  padding:8px 7px;
-  border-radius:9px;
-  font-size:10px;
-  white-space:nowrap;
-}
-
-/* Botón agregar color */
-.model-bottom{
-  margin-top:12px;
-  padding-top:10px;
-}
-
-.add-color{
-  width:100%;
-  padding:10px;
-  font-size:12px;
-}
-
 /* =========================================================
-   IPAD MÁS ANGOSTO
-   ========================================================= */
+   IPAD / TABLET
+========================================================= */
 
-@media (max-width:900px){
-
-  #models{
-    gap:12px;
-  }
-
-  .model-card{
-    padding:14px;
-  }
-
-  .model-title h3{
-    font-size:18px;
-  }
-
-  .model-header{
-    align-items:flex-start;
-  }
-
-  .model-actions{
-    flex-wrap:wrap;
-    justify-content:flex-end;
-  }
-
-  .edit-model,
-  .delete-model{
-    font-size:10px;
-    padding:7px 8px;
-  }
-
-  .category-editor{
-    flex-direction:row;
-    align-items:center;
-  }
-
-  .category-editor label{
-    display:none;
-  }
-
-  .model-card .variant{
-    width:100%;
-    margin-right:0 !important;
-  }
-
-  .photos{
-    grid-template-columns:repeat(3,minmax(0,1fr));
-  }
-}
-
-/* =========================================================
-   CELULAR
-   ========================================================= */
-
-@media (max-width:650px){
-
-  #models{
-    grid-template-columns:1fr;
-    gap:14px;
-  }
-
-  .model-card{
-    padding:15px;
-  }
-
-  .model-header{
-    flex-direction:row;
-  }
-
-  .model-title h3{
-    font-size:19px;
-  }
-
-  .category-editor{
-    flex-direction:row;
-  }
-
-  .model-card .variant{
-    width:100%;
-  }
-
-  .photos{
-    grid-template-columns:repeat(3,minmax(0,1fr));
-  }
-}
-  /* =========================================================
-   CAROLA ADMIN — MODO MÓVIL ULTRA COMPACTO
-   ========================================================= */
-
-@media (max-width:650px){
+@media(max-width:900px){
 
   main{
     width:96%;
-    margin-top:12px;
   }
 
-  /* Un modelo por fila */
   #models{
-    grid-template-columns:1fr;
+    grid-template-columns:repeat(2,minmax(0,1fr));
     gap:10px;
   }
 
-  /* Tarjeta completa */
   .model-card{
-    padding:12px;
-    border-radius:16px;
-  }
-
-  /* Encabezado modelo */
-  .model-header{
-    flex-direction:row;
-    align-items:center;
-    gap:6px;
-    margin-bottom:7px;
-  }
-
-  .model-title{
-    gap:5px;
+    padding:11px;
+    gap:7px;
   }
 
   .model-title h3{
-    font-size:17px;
+    font-size:16px;
   }
 
   .model-count{
-    font-size:9px;
+    font-size:8px;
   }
 
   .category-badge{
-    font-size:8px;
-    padding:4px 6px;
+    font-size:7px;
+    padding:4px 5px;
   }
 
-  /* Editar / eliminar modelo */
-  .model-actions{
-    margin-left:auto;
-    gap:4px;
-    flex-wrap:nowrap;
-  }
+  /*
+    En iPad dejamos sólo iconos en editar/eliminar
+    para ahorrar espacio.
+  */
 
   .edit-model,
   .delete-model{
     font-size:0;
-    width:34px;
-    height:34px;
+    width:30px;
+    height:30px;
     padding:0;
     display:grid;
     place-items:center;
@@ -1017,152 +975,411 @@ footer{
 
   .edit-model::after{
     content:"✏️";
-    font-size:14px;
+    font-size:12px;
   }
 
   .delete-model::after{
     content:"🗑";
-    font-size:14px;
-  }
-
-  /* Categoría en una sola línea */
-  .category-editor{
-    margin-top:7px;
-    padding:6px;
-    gap:5px;
-    flex-direction:row;
+    font-size:12px;
   }
 
   .category-editor label{
     display:none;
   }
 
-  .category-editor select{
-    padding:7px 9px;
-    font-size:11px;
-    height:34px;
+  .category-editor{
+    padding:5px;
   }
 
-  .save-category{
-    padding:7px 10px;
-    height:34px;
+  .category-editor select{
+    height:31px;
+    padding:6px 8px;
     font-size:10px;
   }
 
-  /* Cada color ocupa mucho menos */
+  .save-category{
+    height:31px;
+    padding:6px 8px;
+    font-size:9px;
+  }
+
   .model-card .variant{
-    width:100%;
-    display:block;
-    margin:8px 0 0 !important;
-    padding:9px;
-    border-radius:12px;
-  }
-
-  .variant-header{
-    min-height:25px;
-    align-items:center;
-  }
-
-  .variant-title{
-    gap:5px;
+    padding:7px;
   }
 
   .color-name{
-    font-size:14px;
+    font-size:12px;
   }
 
   .edit-color{
     font-size:0;
-    width:27px;
-    height:27px;
+    width:24px;
+    height:24px;
     padding:0;
+    display:grid;
+    place-items:center;
   }
 
   .edit-color::after{
     content:"✏️";
-    font-size:12px;
+    font-size:10px;
   }
 
   .photo-count{
-    font-size:9px;
-  }
-
-  /* FOTOS:
-     pequeñas y en una sola línea horizontal */
-  .photos{
-    display:flex;
-    gap:6px;
-    overflow-x:auto;
-    overflow-y:hidden;
-    padding:7px 0 4px;
-    scroll-snap-type:x proximity;
+    font-size:7px;
   }
 
   .photo-card{
-    width:78px;
-    min-width:78px;
-    flex:0 0 78px;
-    scroll-snap-align:start;
+    width:67px;
+    flex-basis:67px;
   }
 
   .photo-card img{
-    width:78px;
-    height:78px;
-    aspect-ratio:auto;
-    border-radius:8px;
-  }
-
-  .primary-badge{
-    top:4px;
-    left:4px;
-    padding:3px 5px;
-    font-size:7px;
-  }
-
-  /* Flechas y basura debajo */
-  .photo-controls{
-    gap:2px;
-    margin-top:3px;
-  }
-
-  .photo-controls button{
-    min-width:0;
-    padding:5px 1px;
-    font-size:10px;
-    height:25px;
-  }
-
-  .make-primary{
-    padding:4px 2px;
-    height:24px;
-    font-size:7px;
-  }
-
-  /* Botones del color */
-  .variant-bottom{
-    margin-top:4px;
-  }
-
-  .variant-actions{
-    gap:4px;
+    width:67px;
+    height:67px;
   }
 
   .add-photos,
   .delete-variant{
-    padding:7px 6px;
-    font-size:9px;
-    min-height:30px;
+    font-size:8px;
+    padding:6px 3px;
+  }
+}
+
+/* =========================================================
+   CELULAR
+   1 MODELO POR FILA
+   2 COLORES POR FILA
+========================================================= */
+
+@media(max-width:650px){
+
+  header{
+    padding:17px 15px 14px;
   }
 
-  /* Agregar nuevo color */
+  .logo{
+    font-size:23px;
+    letter-spacing:6px;
+  }
+
+  header p{
+    font-size:12px;
+    margin-top:4px;
+  }
+
+  .tabs{
+    width:96%;
+    padding:7px 0;
+  }
+
+  .tab{
+    padding:10px;
+    font-size:12px;
+    border-radius:10px;
+  }
+
+  main{
+    width:96%;
+    margin:14px auto 60px;
+  }
+
+  .card{
+    padding:16px;
+  }
+
+  .catalog{
+    margin-top:30px;
+  }
+
+  .catalog-header{
+    margin-bottom:10px;
+  }
+
+  .catalog-header h2,
+  .orders-header h2{
+    font-size:21px;
+  }
+
+  .catalog-header p,
+  .orders-header p{
+    font-size:11px;
+  }
+
+  .refresh{
+    padding:8px 10px;
+    font-size:10px;
+  }
+
+  .admin-search-area{
+    top:53px;
+    padding:6px 0 9px;
+  }
+
+  .admin-search{
+    padding:11px!important;
+    padding-right:42px!important;
+    font-size:13px!important;
+  }
+
+  .search-meta{
+    font-size:9px;
+    margin-top:5px;
+  }
+
+  /* Un MODELO por fila */
+
+  #models{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+
+  /*
+    Pero cada tarjeta conserva DOS columnas,
+    por lo que tenemos DOS COLORES por fila.
+  */
+
+  .model-card{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:6px;
+    row-gap:6px;
+
+    padding:9px;
+    border-radius:14px;
+  }
+
+  .model-header{
+    gap:5px;
+  }
+
+  .model-title{
+    gap:4px;
+  }
+
+  .model-title h3{
+    font-size:15px;
+  }
+
+  .model-count{
+    font-size:7px;
+  }
+
+  .category-badge{
+    padding:3px 5px;
+    font-size:7px;
+  }
+
+  .model-actions{
+    gap:3px;
+  }
+
+  .edit-model,
+  .delete-model{
+    width:27px;
+    height:27px;
+  }
+
+  .edit-model::after,
+  .delete-model::after{
+    font-size:11px;
+  }
+
+  /* Categoría */
+
+  .category-editor{
+    padding:4px;
+    gap:4px;
+    border-radius:8px;
+  }
+
+  .category-editor select{
+    height:29px;
+    padding:5px 7px;
+    font-size:9px;
+    border-radius:7px;
+  }
+
+  .save-category{
+    height:29px;
+    padding:5px 7px;
+    font-size:8px;
+    border-radius:7px;
+  }
+
+  /* Cada color ocupa MEDIA tarjeta */
+
+  .model-card .variant{
+    width:auto;
+    min-width:0;
+
+    padding:6px;
+    border-radius:10px;
+  }
+
+  .variant-header{
+    gap:3px;
+    align-items:flex-start;
+  }
+
+  .variant-title{
+    gap:3px;
+  }
+
+  .color-name{
+    font-size:11px;
+  }
+
+  .edit-color{
+    width:21px;
+    height:21px;
+  }
+
+  .edit-color::after{
+    font-size:9px;
+  }
+
+  .photo-count{
+    font-size:6px;
+  }
+
+  /*
+    Fotos pequeñas.
+    Si hay varias, se deslizan horizontalmente
+    dentro de la tarjeta del color.
+  */
+
+  .photos{
+    gap:4px;
+    padding:5px 0 3px;
+  }
+
+  .photo-card{
+    width:59px;
+    flex:0 0 59px;
+  }
+
+  .photo-card img{
+    width:59px;
+    height:59px;
+    border-radius:7px;
+  }
+
+  .primary-badge{
+    top:3px;
+    left:3px;
+    padding:2px 3px;
+    font-size:5px;
+    border-radius:4px;
+  }
+
+  .photo-controls{
+    gap:1px;
+    margin-top:2px;
+  }
+
+  .photo-controls button{
+    height:20px;
+    padding:2px 0;
+    font-size:8px;
+  }
+
+  .make-primary{
+    min-height:19px;
+    padding:3px 1px;
+    margin-top:2px;
+    font-size:6px;
+  }
+
+  /*
+    Acciones del color.
+    Dos botones en la misma línea.
+  */
+
+  .variant-bottom{
+    margin-top:3px;
+  }
+
+  .variant-actions{
+    gap:3px;
+  }
+
+  .add-photos,
+  .delete-variant{
+    padding:5px 2px;
+    font-size:7px;
+    border-radius:6px;
+    min-width:0;
+    overflow:hidden;
+  }
+
   .model-bottom{
-    margin-top:8px;
-    padding-top:7px;
+    margin-top:1px;
+    padding-top:6px;
   }
 
   .add-color{
-    padding:8px;
+    padding:6px;
+    font-size:8px;
+    border-radius:7px;
+  }
+
+  /* Registro */
+
+  .record-summary{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+
+  .summary-box{
+    padding:14px;
+  }
+
+  .order-top{
+    padding:17px;
+  }
+
+  .order-client{
+    font-size:19px;
+  }
+}
+
+/* =========================================================
+   CELULARES MUY ANGOSTOS
+========================================================= */
+
+@media(max-width:360px){
+
+  /*
+    Incluso aquí intentamos conservar los dos colores.
+    Reducimos todavía más las fotografías.
+  */
+
+  .model-card{
+    padding:7px;
+    column-gap:5px;
+  }
+
+  .model-card .variant{
+    padding:5px;
+  }
+
+  .color-name{
     font-size:10px;
+  }
+
+  .photo-card{
+    width:52px;
+    flex-basis:52px;
+  }
+
+  .photo-card img{
+    width:52px;
+    height:52px;
+  }
+
+  .add-photos,
+  .delete-variant{
+    font-size:6px;
   }
 }
 </style>
