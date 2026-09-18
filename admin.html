@@ -1165,6 +1165,91 @@ footer{
     font-size:10px;
   }
 }
+  /* =========================================================
+   COLORES EN GRID — 2 POR FILA
+   ========================================================= */
+
+.variants-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:12px;
+}
+
+.model-card .variants-grid .variant{
+  display:block;
+  width:100%;
+  margin:0 !important;
+  padding:10px;
+  min-width:0;
+}
+
+/* Fotografías compactas dentro de cada color */
+.variants-grid .photos{
+  min-width:0;
+}
+
+/* =========================================================
+   IPAD
+   ========================================================= */
+
+@media (max-width:900px){
+
+  .variants-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+
+  .model-card .variants-grid .variant{
+    padding:9px;
+  }
+
+}
+
+/* =========================================================
+   CELULAR
+   También 2 colores por fila
+   ========================================================= */
+
+@media (max-width:650px){
+
+  .variants-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px;
+    margin-top:8px;
+  }
+
+  .model-card .variants-grid .variant{
+    width:100%;
+    margin:0 !important;
+    padding:7px;
+  }
+
+  .variants-grid .color-name{
+    font-size:12px;
+  }
+
+  .variants-grid .photo-count{
+    font-size:8px;
+  }
+
+  .variants-grid .photo-card{
+    width:68px;
+    min-width:68px;
+    flex-basis:68px;
+  }
+
+  .variants-grid .photo-card img{
+    width:68px;
+    height:68px;
+  }
+
+  .variants-grid .add-photos,
+  .variants-grid .delete-variant{
+    font-size:8px;
+    padding:6px 3px;
+  }
+}
 </style>
 </head>
 
@@ -2266,7 +2351,8 @@ function renderModels(products){
             </button>
 
           </div>
-      `;
+      `<div class="variants-grid">
+        ;
 
       variants.forEach(
         function(variant){
@@ -2437,6 +2523,7 @@ function renderModels(products){
       );
 
       html+=`
+      </div>
           <div class="model-bottom">
 
             <button
