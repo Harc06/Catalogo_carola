@@ -657,6 +657,514 @@ footer{
   .order-client{font-size:19px}
   .admin-search-area{top:68px}
 }
+  /* =========================================================
+   CAROLA ADMIN — CATÁLOGO COMPACTO 2 COLUMNAS
+   ========================================================= */
+
+/* Dos modelos por fila en iPad / escritorio */
+#models{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+  align-items:start;
+}
+
+/* Tarjeta de modelo más compacta */
+.model-card{
+  padding:18px;
+  border-radius:20px;
+  min-width:0;
+}
+
+/* Encabezado */
+.model-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.model-title{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  min-width:0;
+}
+
+.model-title h3{
+  font-size:21px;
+  line-height:1.1;
+  margin:0;
+}
+
+.model-count{
+  font-size:11px;
+}
+
+.category-badge{
+  padding:6px 9px;
+  font-size:10px;
+}
+
+/* Botones del encabezado */
+.model-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:nowrap;
+}
+
+.edit-model,
+.delete-model{
+  padding:8px 10px;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+/* Categoría más pequeña */
+.category-editor{
+  margin-top:12px;
+  padding:9px;
+  gap:7px;
+  border-radius:12px;
+}
+
+.category-editor label{
+  font-size:11px;
+}
+
+.category-editor select{
+  padding:9px 10px;
+  font-size:12px;
+  min-width:0;
+}
+
+.save-category{
+  padding:9px 11px;
+  font-size:12px;
+}
+
+/* Los colores se distribuyen dentro de la tarjeta */
+.model-card .variant{
+  display:inline-block;
+  vertical-align:top;
+  width:calc(50% - 6px);
+  margin-top:12px;
+  padding:11px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:#fff;
+}
+
+.model-card .variant:nth-of-type(even){
+  margin-right:8px;
+}
+
+/* Encabezado de cada color */
+.variant-header{
+  gap:7px;
+}
+
+.variant-title{
+  gap:6px;
+}
+
+.color-name{
+  font-size:14px;
+}
+
+.edit-color{
+  padding:7px 8px;
+  font-size:11px;
+}
+
+.photo-count{
+  font-size:10px;
+  white-space:nowrap;
+}
+
+/* Fotos mucho más compactas */
+.photos{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  overflow:visible;
+  padding:10px 0 5px;
+}
+
+.photo-card{
+  width:auto;
+  min-width:0;
+  flex:none;
+}
+
+.photo-card img{
+  width:100%;
+  height:auto;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+.primary-badge{
+  top:5px;
+  left:5px;
+  padding:4px 6px;
+  font-size:8px;
+}
+
+/* Controles debajo de cada foto */
+.photo-controls{
+  gap:3px;
+  margin-top:4px;
+}
+
+.photo-controls button{
+  padding:6px 2px;
+  font-size:11px;
+  border-radius:7px;
+}
+
+.make-primary{
+  padding:6px 3px;
+  margin-top:3px;
+  font-size:9px;
+}
+
+/* Acciones de cada color */
+.variant-bottom{
+  margin-top:7px;
+}
+
+.variant-actions{
+  width:100%;
+  gap:5px;
+}
+
+.add-photos,
+.delete-variant{
+  flex:1;
+  padding:8px 7px;
+  border-radius:9px;
+  font-size:10px;
+  white-space:nowrap;
+}
+
+/* Botón agregar color */
+.model-bottom{
+  margin-top:12px;
+  padding-top:10px;
+}
+
+.add-color{
+  width:100%;
+  padding:10px;
+  font-size:12px;
+}
+
+/* =========================================================
+   IPAD MÁS ANGOSTO
+   ========================================================= */
+
+@media (max-width:900px){
+
+  #models{
+    gap:12px;
+  }
+
+  .model-card{
+    padding:14px;
+  }
+
+  .model-title h3{
+    font-size:18px;
+  }
+
+  .model-header{
+    align-items:flex-start;
+  }
+
+  .model-actions{
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .edit-model,
+  .delete-model{
+    font-size:10px;
+    padding:7px 8px;
+  }
+
+  .category-editor{
+    flex-direction:row;
+    align-items:center;
+  }
+
+  .category-editor label{
+    display:none;
+  }
+
+  .model-card .variant{
+    width:100%;
+    margin-right:0 !important;
+  }
+
+  .photos{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+
+/* =========================================================
+   CELULAR
+   ========================================================= */
+
+@media (max-width:650px){
+
+  #models{
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+
+  .model-card{
+    padding:15px;
+  }
+
+  .model-header{
+    flex-direction:row;
+  }
+
+  .model-title h3{
+    font-size:19px;
+  }
+
+  .category-editor{
+    flex-direction:row;
+  }
+
+  .model-card .variant{
+    width:100%;
+  }
+
+  .photos{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+  /* =========================================================
+   CAROLA ADMIN — MODO MÓVIL ULTRA COMPACTO
+   ========================================================= */
+
+@media (max-width:650px){
+
+  main{
+    width:96%;
+    margin-top:12px;
+  }
+
+  /* Un modelo por fila */
+  #models{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+
+  /* Tarjeta completa */
+  .model-card{
+    padding:12px;
+    border-radius:16px;
+  }
+
+  /* Encabezado modelo */
+  .model-header{
+    flex-direction:row;
+    align-items:center;
+    gap:6px;
+    margin-bottom:7px;
+  }
+
+  .model-title{
+    gap:5px;
+  }
+
+  .model-title h3{
+    font-size:17px;
+  }
+
+  .model-count{
+    font-size:9px;
+  }
+
+  .category-badge{
+    font-size:8px;
+    padding:4px 6px;
+  }
+
+  /* Editar / eliminar modelo */
+  .model-actions{
+    margin-left:auto;
+    gap:4px;
+    flex-wrap:nowrap;
+  }
+
+  .edit-model,
+  .delete-model{
+    font-size:0;
+    width:34px;
+    height:34px;
+    padding:0;
+    display:grid;
+    place-items:center;
+  }
+
+  .edit-model::after{
+    content:"✏️";
+    font-size:14px;
+  }
+
+  .delete-model::after{
+    content:"🗑";
+    font-size:14px;
+  }
+
+  /* Categoría en una sola línea */
+  .category-editor{
+    margin-top:7px;
+    padding:6px;
+    gap:5px;
+    flex-direction:row;
+  }
+
+  .category-editor label{
+    display:none;
+  }
+
+  .category-editor select{
+    padding:7px 9px;
+    font-size:11px;
+    height:34px;
+  }
+
+  .save-category{
+    padding:7px 10px;
+    height:34px;
+    font-size:10px;
+  }
+
+  /* Cada color ocupa mucho menos */
+  .model-card .variant{
+    width:100%;
+    display:block;
+    margin:8px 0 0 !important;
+    padding:9px;
+    border-radius:12px;
+  }
+
+  .variant-header{
+    min-height:25px;
+    align-items:center;
+  }
+
+  .variant-title{
+    gap:5px;
+  }
+
+  .color-name{
+    font-size:14px;
+  }
+
+  .edit-color{
+    font-size:0;
+    width:27px;
+    height:27px;
+    padding:0;
+  }
+
+  .edit-color::after{
+    content:"✏️";
+    font-size:12px;
+  }
+
+  .photo-count{
+    font-size:9px;
+  }
+
+  /* FOTOS:
+     pequeñas y en una sola línea horizontal */
+  .photos{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:7px 0 4px;
+    scroll-snap-type:x proximity;
+  }
+
+  .photo-card{
+    width:78px;
+    min-width:78px;
+    flex:0 0 78px;
+    scroll-snap-align:start;
+  }
+
+  .photo-card img{
+    width:78px;
+    height:78px;
+    aspect-ratio:auto;
+    border-radius:8px;
+  }
+
+  .primary-badge{
+    top:4px;
+    left:4px;
+    padding:3px 5px;
+    font-size:7px;
+  }
+
+  /* Flechas y basura debajo */
+  .photo-controls{
+    gap:2px;
+    margin-top:3px;
+  }
+
+  .photo-controls button{
+    min-width:0;
+    padding:5px 1px;
+    font-size:10px;
+    height:25px;
+  }
+
+  .make-primary{
+    padding:4px 2px;
+    height:24px;
+    font-size:7px;
+  }
+
+  /* Botones del color */
+  .variant-bottom{
+    margin-top:4px;
+  }
+
+  .variant-actions{
+    gap:4px;
+  }
+
+  .add-photos,
+  .delete-variant{
+    padding:7px 6px;
+    font-size:9px;
+    min-height:30px;
+  }
+
+  /* Agregar nuevo color */
+  .model-bottom{
+    margin-top:8px;
+    padding-top:7px;
+  }
+
+  .add-color{
+    padding:8px;
+    font-size:10px;
+  }
+}
 </style>
 </head>
 
