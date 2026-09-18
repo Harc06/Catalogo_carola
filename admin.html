@@ -536,6 +536,48 @@ select:focus{
   padding:12px 20px;
   background:#fffafb;
 }
+  .order-actions{
+  display:flex;
+  justify-content:flex-end;
+  padding:12px 20px 16px;
+  border-top:1px solid #f1e9ec;
+  background:#fff;
+}
+
+.delete-order{
+  background:#fff0f0;
+  color:#a32d2d;
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:13px;
+  font-weight:800;
+}
+
+.delete-order:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+  .order-actions{
+  display:flex;
+  justify-content:flex-end;
+  padding:12px 20px 16px;
+  border-top:1px solid #f1e9ec;
+  background:#fff;
+}
+
+.delete-order{
+  background:#fff0f0;
+  color:#a32d2d;
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:13px;
+  font-weight:800;
+}
+
+.delete-order:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
 .order-line{
   display:grid;
   grid-template-columns:60px 1fr;
@@ -2488,17 +2530,130 @@ function renderOrders(){
             </div>
 
             <div class="order-items">
-              ${lines}
-            </div>
+  ${lines}
+</div>
 
-          </article>
+<div class="order-actions">
+
+  <button
+    type="button"
+    class="delete-order"
+    data-id="${Number(order.id)}"
+    data-folio="${escapeAttribute(order.folio)}"
+    data-client="${escapeAttribute(order.cliente)}"
+  >
+    🗑 Eliminar registro
+  </button>
+
+</div>
+
+</article>
         `;
       }
     ).join("");
 }
+orders.onclick=async function(event){
+
+  const deleteButton=
+    event.target.closest(".delete-order");
+
+  if(!deleteButton)return;
+
+  const pedidoId=
+    Number(deleteButton.dataset.id);
+
+  const folio=
+    deleteButton.dataset.folio||"";
+
+  const client=
+    deleteButton.dataset.client||"";
+
+  if(
+    !Number.isInteger(pedidoId) ||
+    pedidoId<=0
+  ){
+    alert("Pedido inválido.");
+    return;
+  }
+
+  if(
+    !confirm(
+      "¿Eliminar este registro?\n\n"+
+      "Cliente: "+client+"\n"+
+      "Folio: "+folio+"\n\n"+
+      "Esta acción no se puede deshacer."
+    )
+  ){
+    return;
+  }
+
+  deleteButton.disabled=true;
+  deleteButton.textContent="Eliminando...";
+
+  showOperation("Eliminando registro...");
+
+  try{
+
+    const response=
+      await fetch(
+        "/.netlify/functions/admin-pedidos",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":"application/json",
+            "x-admin-password":adminPassword
+          },
+
+          body:JSON.stringify({
+            action:"delete-order",
+            pedido_id:pedidoId
+          })
+        }
+      );
+
+    const result=
+      await readJson(response);
+
+    if(
+      !response.ok ||
+      !result.success
+    ){
+      throw new Error(
+        result.error ||
+        "No se pudo eliminar el registro."
+      );
+    }
+
+    allOrders=
+      allOrders.filter(function(order){
+        return Number(order.id)!==pedidoId;
+      });
+
+    renderOrders();
+
+    operationStatus.textContent=
+      "✓ Registro eliminado";
+
+    setTimeout(hideOperation,1500);
+
+  }catch(error){
+
+    deleteButton.disabled=false;
+
+    deleteButton.textContent=
+      "🗑 Eliminar registro";
+
+    operationStatus.textContent=
+      "Error: "+error.message;
+
+    setTimeout(hideOperation,4000);
+  }
+};
 
 orderSearch.oninput=
   renderOrders;
+
 
 /* FECHA */
 
