@@ -1704,6 +1704,9 @@ const OLD_CART_KEY="carola_cart_v1";
 const NAME_KEY="carola_customer_name_v1";
 const LAST_ORDER_KEY="carola_last_order_v1";
 const VIEW_KEY="carola_view_v1";
+const CATALOG_STATE_KEY="carola_catalog_state_v1";
+const PAGE_SIZE=24;
+let visibleLimit=PAGE_SIZE;
 
 const DUPLICATE_WINDOW=30*60*1000;
 
@@ -2718,6 +2721,10 @@ applyView();
    RENDER CATÁLOGO
 ========================= */
 
+function saveCatalogState(){try{sessionStorage.setItem(CATALOG_STATE_KEY,JSON.stringify({category:selectedCategory,color:selectedFilter,search:search.value,scrollY:window.scrollY}));}catch{}}
+function restoreCatalogState(){try{const s=JSON.parse(sessionStorage.getItem(CATALOG_STATE_KEY)||"null");if(!s)return;selectedCategory=s.category||"todos";selectedFilter=s.color||"todos";search.value=s.search||"";setTimeout(()=>window.scrollTo(0,Number(s.scrollY||0)),80);}catch{}}
+window.addEventListener("pagehide",saveCatalogState);
+
 function renderProducts(){
 
 const query=
@@ -2794,11 +2801,15 @@ return;
 
 }
 
+const rendered=visible.slice(0,visibleLimit);
+
 grid.innerHTML=
-visible.map(product=>{
+rendered.map(product=>{
 
 const category=
 formatCategory(product.categoria);
+const productImages=variants(product).flatMap(v=>sortImages(v.imagenes||[])).map(i=>i.url).filter(Boolean);
+const secondImage=productImages[1]||"";
 
 return `
 
@@ -2881,7 +2892,7 @@ type="button"
 
 `;
 
-}).join("");
+}).join("") + (visible.length>visibleLimit?`<button class="load-more" type="button" data-load-more>Ver más modelos</button>`:"");
 
 }
 
@@ -2890,6 +2901,9 @@ type="button"
 ========================= */
 
 grid.onclick=function(event){
+
+const more=event.target.closest("[data-load-more]");
+if(more){visibleLimit+=PAGE_SIZE;renderProducts();return;}
 
 const button=
 event.target.closest(
@@ -2922,6 +2936,8 @@ if(!button)return;
 
 selectedCategory=
 button.dataset.category;
+visibleLimit=PAGE_SIZE;
+saveCatalogState();
 
 document
 .querySelectorAll(
@@ -2947,6 +2963,8 @@ if(!button)return;
 
 selectedFilter=
 button.dataset.color;
+visibleLimit=PAGE_SIZE;
+saveCatalogState();
 
 document
 .querySelectorAll(".filter")
@@ -2961,7 +2979,7 @@ renderProducts();
 
 };
 
-search.oninput=renderProducts;
+search.oninput=function(){visibleLimit=PAGE_SIZE;saveCatalogState();renderProducts();};
 
 clearSearch.onclick=function(){
 
@@ -3487,6 +3505,7 @@ passive:true
 ========================= */
 
 renderCart();
+restoreCatalogState();
 applyView();
 loadProducts();
 
