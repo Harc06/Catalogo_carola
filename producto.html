@@ -123,6 +123,8 @@ a{
   position:relative;
 }
 
+.gallery-arrow{position:absolute;top:50%;z-index:4;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.88);box-shadow:0 3px 14px rgba(0,0,0,.10);font-size:25px;line-height:1;display:flex;align-items:center;justify-content:center;transform:translateY(-50%);transition:opacity .18s ease,transform .18s ease}.gallery-arrow:hover{transform:translateY(-50%) scale(1.05)}.gallery-prev{left:14px}.gallery-next{right:14px}
+
 .main-image{
   width:100%;
   height:100%;
@@ -510,6 +512,8 @@ h1{
     max-height:none;
   }
 
+  .gallery-arrow{display:none}
+
   .thumbnails{
     display:flex;
     flex-direction:row;
@@ -620,7 +624,7 @@ h1{
       ← Catálogo
     </a>
 
-    <a href="/" class="brand brand-logo" aria-label="CAROLA, inicio"><img src="/assets/carola-logo-pink.webp" alt="CAROLA" width="80" height="80" fetchpriority="high"></a>
+    <a href="/" class="brand" aria-label="CAROLA, inicio">CAROLA</a>
 
     <a
       href="/?carrito=1"
@@ -667,6 +671,8 @@ const cartLink=
 let currentProduct=null;
 let currentVariant=null;
 let quantity=6;
+let currentImageIndex=0;
+let touchStartX=0;
 
 function normalize(value){
 
@@ -1112,6 +1118,8 @@ async function loadProduct(){
 
 function renderProduct(){
 
+  currentImageIndex=0;
+
   const images=
     sortImages(
       currentVariant.imagenes
@@ -1216,6 +1224,8 @@ function renderProduct(){
           width="800" height="1000" fetchpriority="high" decoding="async"
           alt="Modelo ${escapeAttribute(currentProduct.modelo)} ${escapeAttribute(formattedColor)}"
         >
+
+        ${images.length>1?`<button class="gallery-arrow gallery-prev" type="button" aria-label="Fotografía anterior">‹</button><button class="gallery-arrow gallery-next" type="button" aria-label="Fotografía siguiente">›</button>`:""}
 
         <div class="image-color">
           ${escapeHtml(formattedColor)}
@@ -1328,8 +1338,33 @@ function renderProduct(){
   `;
 }
 
+function changeGalleryImage(step){
+  const images=sortImages(currentVariant?.imagenes);
+  if(images.length<2)return;
+  currentImageIndex=(currentImageIndex+step+images.length)%images.length;
+  const image=images[currentImageIndex];
+  const mainImage=document.getElementById("mainImage");
+  if(mainImage)carolaSetImage(mainImage,image.url);
+  document.querySelectorAll(".thumbnail").forEach((item,index)=>item.classList.toggle("active",index===currentImageIndex));
+  const active=document.querySelector(".thumbnail.active");
+  if(active)active.scrollIntoView({behavior:"smooth",block:"nearest",inline:"nearest"});
+}
+
+productPage.addEventListener("touchstart",function(event){
+  if(!event.target.closest(".main-image-wrap"))return;
+  touchStartX=event.changedTouches[0].clientX;
+},{passive:true});
+productPage.addEventListener("touchend",function(event){
+  if(!event.target.closest(".main-image-wrap"))return;
+  const delta=event.changedTouches[0].clientX-touchStartX;
+  if(Math.abs(delta)>45)changeGalleryImage(delta<0?1:-1);
+},{passive:true});
+
 productPage.onclick=
 function(event){
+
+  if(event.target.closest(".gallery-prev")){changeGalleryImage(-1);return;}
+  if(event.target.closest(".gallery-next")){changeGalleryImage(1);return;}
 
   const thumbnail=
     event.target.closest(
@@ -1346,6 +1381,7 @@ function(event){
     if(mainImage){
 
       carolaSetImage(mainImage, thumbnail.dataset.url);
+      currentImageIndex=Array.from(document.querySelectorAll(".thumbnail")).indexOf(thumbnail);
     }
 
     document
