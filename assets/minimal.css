@@ -60,3 +60,16 @@ button:focus-visible,a:focus-visible{outline:2px solid #9c647c;outline-offset:4p
  .product-page{padding:18px 16px 80px;gap:24px}.info{padding-top:0}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* Official CAROLA logo, white on pastel pink. */
+.header .header-inner{display:flex;min-height:96px;height:auto;gap:20px}
+.header{height:auto}
+.header .brand-logo{order:-1;display:flex;align-items:center;flex:0 0 auto;letter-spacing:0;line-height:0}
+.brand-logo img{display:block;width:80px;height:80px;object-fit:contain;border-radius:6px}
+.header .cart-button,.header .cart-link{margin-left:auto}
+@media(max-width:700px){
+ .header .header-inner{min-height:80px;padding:8px 18px;gap:14px}
+ .brand-logo img{width:64px;height:64px}
+ .header .back{font-size:12px}
+ .header .cart-link{padding:10px 12px;font-size:11px}
+}
