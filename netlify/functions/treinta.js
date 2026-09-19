@@ -255,7 +255,7 @@ exports.handler = async function () {
          * un minuto en Netlify.
          */
         "Cache-Control":
-          "public, max-age=0, s-maxage=60, stale-while-revalidate=300"
+          "public, max-age=30, s-maxage=120, stale-while-revalidate=600"
       },
 
       body: JSON.stringify({
