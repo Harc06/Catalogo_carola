@@ -133,6 +133,8 @@ a{
   transition:opacity .18s ease;
 }
 
+.image-counter{position:absolute;right:12px;bottom:12px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.92);font-size:10px;font-weight:900;z-index:3}
+
 .image-color{
   position:absolute;
   left:12px;
@@ -404,6 +406,8 @@ h1{
   line-height:1.45;
   text-align:center;
 }
+
+.product-actions{display:flex;gap:8px;margin-top:12px}.share,.ask-whatsapp{flex:1;text-align:center;border:1px solid var(--border);background:#fff;padding:11px;border-radius:11px;font-size:11px;font-weight:800}
 
 .continue{
   display:block;
@@ -1105,6 +1109,7 @@ async function loadProduct(){
       " | CAROLA";
 
     renderProduct();
+    history.replaceState({},document.title,location.pathname+"?modelo="+encodeURIComponent(currentProduct.modelo)+"&color="+encodeURIComponent(currentVariant.color));
 
   }catch(error){
 
@@ -1227,6 +1232,8 @@ function renderProduct(){
 
         ${images.length>1?`<button class="gallery-arrow gallery-prev" type="button" aria-label="Fotografía anterior">‹</button><button class="gallery-arrow gallery-next" type="button" aria-label="Fotografía siguiente">›</button>`:""}
 
+        <div class="image-counter" id="imageCounter">1 / ${images.length}</div>
+
         <div class="image-color">
           ${escapeHtml(formattedColor)}
         </div>
@@ -1329,6 +1336,8 @@ function renderProduct(){
         Puedes combinar diferentes modelos y colores en tu pedido.
       </div>
 
+      <div class="product-actions"><button id="shareProduct" class="share" type="button">Compartir</button><a class="ask-whatsapp" target="_blank" rel="noopener" href="https://wa.me/524775971996?text=${encodeURIComponent(`Hola, me interesa el modelo ${currentProduct.modelo} en color ${formattedColor}`)}">Preguntar por WhatsApp</a></div>
+
       <a href="/" class="continue">
         ← Seguir viendo modelos
       </a>
@@ -1346,6 +1355,8 @@ function changeGalleryImage(step){
   const mainImage=document.getElementById("mainImage");
   if(mainImage)carolaSetImage(mainImage,image.url);
   document.querySelectorAll(".thumbnail").forEach((item,index)=>item.classList.toggle("active",index===currentImageIndex));
+  const counter=document.getElementById("imageCounter");if(counter)counter.textContent=(currentImageIndex+1)+" / "+images.length;
+  const next=images[(currentImageIndex+1)%images.length];if(next){const preload=new Image();preload.src=carolaImageUrl(next.url,800);}
   const active=document.querySelector(".thumbnail.active");
   if(active)active.scrollIntoView({behavior:"smooth",block:"nearest",inline:"nearest"});
 }
@@ -1396,6 +1407,8 @@ function(event){
 
     return;
   }
+
+  if(event.target.closest("#shareProduct")){const data={title:"Modelo "+currentProduct.modelo+" | CAROLA",text:"Modelo "+currentProduct.modelo+" · "+formatColor(currentVariant.color),url:location.href};if(navigator.share){navigator.share(data).catch(()=>{});}else{navigator.clipboard?.writeText(location.href);showToast("Enlace copiado");}return;}
 
   const colorButton=
     event.target.closest(
