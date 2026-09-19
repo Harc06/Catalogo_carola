@@ -60,3 +60,9 @@ button:focus-visible,a:focus-visible{outline:2px solid #9c647c;outline-offset:4p
  .product-page{padding:18px 16px 80px;gap:24px}.info{padding-top:0}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* Suave acercamiento de producto al pasar el cursor. */
+.product-image{overflow:hidden}
+.product-image img{transition:transform .32s ease;will-change:transform}
+@media (hover:hover) and (pointer:fine){.product-image:hover img{transform:scale(1.055)}}
+@media(prefers-reduced-motion:reduce){.product-image img{transition:none}}
