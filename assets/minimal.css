@@ -63,6 +63,8 @@ button:focus-visible,a:focus-visible{outline:2px solid #9c647c;outline-offset:4p
 
 /* Full-width pastel header with integrated white logo. */
 .header{
+  position:static;
+  top:auto;
   height:auto;
   background:#e8b8cd;
   border-bottom:0;
