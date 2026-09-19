@@ -608,6 +608,7 @@ h1{
   }
 }
 </style>
+<link rel="stylesheet" href="/assets/minimal.css?v=1">
 </head>
 
 <body>
@@ -647,6 +648,7 @@ h1{
   ✓ Agregado al pedido
 </div>
 
+<script src="/assets/images.js?v=1"></script>
 <script>
 
 const CART_KEY="carola_cart_v2";
@@ -1153,7 +1155,9 @@ function renderProduct(){
               aria-label="Ver fotografía ${index+1}"
             >
               <img
-                src="${escapeAttribute(image.url)}"
+                src="${escapeAttribute(carolaImageUrl(image.url,160))}"
+                data-original="${escapeAttribute(image.url)}"
+                width="72" height="86" decoding="async"
                 alt="Modelo ${escapeAttribute(currentProduct.modelo)} ${escapeAttribute(formattedColor)}"
                 loading="${index===0?"eager":"lazy"}"
               >
@@ -1207,7 +1211,11 @@ function renderProduct(){
         <img
           id="mainImage"
           class="main-image"
-          src="${escapeAttribute(images[0].url)}"
+          src="${escapeAttribute(carolaImageUrl(images[0].url,800))}"
+          srcset="${escapeAttribute(carolaImageSet(images[0].url,[480,800,1200]))}"
+          sizes="(max-width:850px) 95vw, 50vw"
+          data-original="${escapeAttribute(images[0].url)}"
+          width="800" height="1000" fetchpriority="high" decoding="async"
           alt="Modelo ${escapeAttribute(currentProduct.modelo)} ${escapeAttribute(formattedColor)}"
         >
 
@@ -1339,29 +1347,7 @@ function(event){
 
     if(mainImage){
 
-      mainImage.style.opacity=".45";
-
-      const nextUrl=
-        thumbnail.dataset.url;
-
-      const tempImage=
-        new Image();
-
-      tempImage.onload=
-      function(){
-
-        mainImage.src=nextUrl;
-        mainImage.style.opacity="1";
-      };
-
-      tempImage.onerror=
-      function(){
-
-        mainImage.src=nextUrl;
-        mainImage.style.opacity="1";
-      };
-
-      tempImage.src=nextUrl;
+      carolaSetImage(mainImage, thumbnail.dataset.url);
     }
 
     document
