@@ -36,7 +36,7 @@ exports.handler=async function(event){
         .from("pedidos")
         .select(`
           id, folio, cliente, total_pares, estado, creado_en, actualizado_en,
-          nota_cliente, nota_fecha, nota_total, nota_guardada, nota_actualizada_en, nota_extras,
+          nota_cliente, nota_fecha, nota_total, nota_guardada, nota_actualizada_en,
           pedido_detalles (
             id, modelo, color, cantidad, precio_unitario, importe
           )
@@ -112,7 +112,7 @@ exports.handler=async function(event){
         .eq("id",pedidoId)
         .select(`
           id, folio, cliente, total_pares, estado, creado_en, actualizado_en,
-          nota_cliente, nota_fecha, nota_total, nota_guardada, nota_actualizada_en, nota_extras,
+          nota_cliente, nota_fecha, nota_total, nota_guardada, nota_actualizada_en,
           pedido_detalles (
             id, modelo, color, cantidad, precio_unitario, importe
           )
