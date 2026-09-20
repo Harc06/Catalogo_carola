@@ -36,7 +36,7 @@ exports.handler=async function(event){
         .from("pedidos")
         .select(`
           id, folio, cliente, total_pares, estado, creado_en, actualizado_en,
-          nota_cliente, nota_fecha, nota_total, nota_guardada, nota_actualizada_en,
+          nota_cliente, nota_fecha, nota_total, nota_guardada, nota_actualizada_en, nota_extras,
           pedido_detalles (
             id, modelo, color, cantidad, precio_unitario, importe
           )
@@ -65,7 +65,7 @@ exports.handler=async function(event){
     if(action==="save-note"){
       const cliente=cleanText(body.cliente,120);
       const fecha=String(body.fecha||"").trim();
-      const items=Array.isArray(body.items)?body.items:[];
+      const items=Array.isArray(body.items)?body.items:[];\n      const extras=Array.isArray(body.extras)?body.extras:[];
 
       if(!cliente) return response(400,{success:false,error:"Falta el nombre del cliente"});
       if(!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return response(400,{success:false,error:"Fecha inválida"});
@@ -88,12 +88,12 @@ exports.handler=async function(event){
         updates.push({id:detailId,precio_unitario:precio,importe});
       }
 
-      total=Math.round((total+Number.EPSILON)*100)/100;
+      for(const extra of extras){\n        const cantidad=Number(extra.cantidad);\n        const precio=Number(extra.precio_unitario);\n        if(!Number.isFinite(cantidad)||cantidad<=0||!cleanText(extra.concepto,120)||!Number.isFinite(precio)||precio<0){\n          return response(400,{success:false,error:"Hay extras inválidos"});\n        }\n        total+=cantidad*precio;\n      }\n\n      total=Math.round((total+Number.EPSILON)*100)/100;
 
       for(const item of updates){
         const {error}=await supabase
           .from("pedido_detalles")
-          .update({precio_unitario:item.precio_unitario,importe:item.importe})
+          .update({cantidad:item.cantidad,precio_unitario:item.precio_unitario,importe:item.importe})
           .eq("id",item.id)
           .eq("pedido_id",pedidoId);
         if(error) throw error;
@@ -112,7 +112,7 @@ exports.handler=async function(event){
         .eq("id",pedidoId)
         .select(`
           id, folio, cliente, total_pares, estado, creado_en, actualizado_en,
-          nota_cliente, nota_fecha, nota_total, nota_guardada, nota_actualizada_en,
+          nota_cliente, nota_fecha, nota_total, nota_guardada, nota_actualizada_en, nota_extras,
           pedido_detalles (
             id, modelo, color, cantidad, precio_unitario, importe
           )
