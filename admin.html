@@ -912,6 +912,19 @@ select:focus{
  .note-price{border:0!important}
 }
 
+
+.note-section-title{margin:20px 0 8px;font-size:14px;font-weight:900}
+.note-qty,.extra-qty,.extra-concept,.extra-price{width:100%;padding:10px;border:1px solid #ddd;border-radius:9px;font-size:15px}
+.extra-row{display:grid;grid-template-columns:90px 1fr 125px 125px 38px;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #eee}
+.extra-remove{width:32px;height:32px;border-radius:8px;background:#fff0f0;color:#a32d2d}
+.add-extra{margin-top:10px;padding:11px 14px;border-radius:10px;background:#f5e6ed}
+.receipt-preview{position:fixed;left:-10000px;top:0;width:720px;background:#fff;padding:42px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#171717}
+.receipt-brand{font-size:30px;font-weight:900;letter-spacing:8px}.receipt-phone{margin-top:8px}.receipt-rule{border-top:1px solid #ddd;margin:22px 0}
+.receipt-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}.receipt-meta b{text-align:right}
+.receipt-table{width:100%;border-collapse:collapse;margin-top:18px}.receipt-table th,.receipt-table td{padding:10px 5px;border-bottom:1px solid #ddd;text-align:left}.receipt-table th:nth-child(1),.receipt-table td:nth-child(1){width:80px}.receipt-table th:last-child,.receipt-table td:last-child{text-align:right}
+.receipt-total{display:flex;justify-content:space-between;font-size:30px;font-weight:900;margin-top:28px}
+@media(max-width:650px){.extra-row{grid-template-columns:65px 1fr 90px 32px}.extra-row .extra-amount{grid-column:2 / 4;text-align:right}.note-row{grid-template-columns:65px 1fr 90px}}
+
 /* =========================================================
    ESTADOS
 ========================================================= */
@@ -1607,6 +1620,9 @@ footer{
         <div><label for="noteDate">Fecha de la nota</label><input id="noteDate" type="date"></div>
       </div>
       <div id="noteLines" class="note-table"></div>
+      <div class="note-section-title">Extras</div>
+      <div id="extraLines" class="note-table"></div>
+      <button id="addExtra" class="add-extra" type="button">+ Agregar extra</button>
       <div class="note-total"><span>Total</span><strong id="noteTotal">$0.00</strong></div>
       <div class="note-buttons">
         <button id="saveNote" class="save-note" type="button">Guardar nota</button>
@@ -1615,6 +1631,15 @@ footer{
       </div>
     </div>
   </div>
+</div>
+
+<div id="receiptPreview" class="receipt-preview">
+  <div class="receipt-brand">CAROLA</div>
+  <div class="receipt-phone">☎ 4775971996</div>
+  <div class="receipt-rule"></div>
+  <div class="receipt-meta"><span>Cliente</span><b id="receiptClient"></b><span>Fecha</span><b id="receiptDate"></b><span>Folio</span><b id="receiptFolio"></b></div>
+  <table class="receipt-table"><thead><tr><th>Cantidad</th><th>Producto</th><th>Precio</th></tr></thead><tbody id="receiptItems"></tbody></table>
+  <div class="receipt-total"><span>Total:</span><span id="receiptTotal"></span></div>
 </div>
 
 <div id="operationStatus">Procesando...</div>
@@ -1676,6 +1701,9 @@ const noteClose=document.getElementById("noteClose");
 const saveNote=document.getElementById("saveNote");
 const shareNote=document.getElementById("shareNote");
 const printNote=document.getElementById("printNote");
+const extraLines=document.getElementById("extraLines");
+const addExtra=document.getElementById("addExtra");
+const receiptPreview=document.getElementById("receiptPreview");
 
 /* PESTAÑAS */
 
@@ -3255,95 +3283,118 @@ function localDateInput(value){
   return local.toISOString().slice(0,10);
 }
 
+function extraRow(data={}){
+  const qty=Number(data.cantidad||1);
+  const concept=String(data.concepto||"");
+  const price=data.precio_unitario==null?"":Number(data.precio_unitario);
+  return `<div class="extra-row">
+    <input class="extra-qty" type="number" min="1" step="1" inputmode="numeric" value="${qty}">
+    <input class="extra-concept" type="text" value="${escapeAttribute(concept)}" placeholder="Concepto">
+    <input class="extra-price" type="number" min="0" step="0.01" inputmode="decimal" value="${price}" placeholder="$0">
+    <div class="extra-amount">$0.00</div>
+    <button class="extra-remove" type="button">×</button>
+  </div>`;
+}
+
 function openNote(order){
   activeNoteOrder=order;
   noteFolio.textContent=order.folio||"";
   noteClient.value=order.nota_cliente||order.cliente||"";
   noteDate.value=localDateInput(order.nota_fecha||order.creado_en);
   const details=Array.isArray(order.pedido_detalles)?order.pedido_detalles:[];
-  noteLines.innerHTML='<div class="note-row head"><div>Pares</div><div>Modelo / color</div><div>Precio par</div><div>Importe</div></div>'+
+  noteLines.innerHTML='<div class="note-row head"><div>Cantidad</div><div>Producto</div><div>Precio</div><div>Importe</div></div>'+
     details.map(function(item){
       const price=item.precio_unitario==null?"":Number(item.precio_unitario);
-      return `<div class="note-row" data-detail-id="${Number(item.id)}" data-qty="${Number(item.cantidad)}">
-        <div><strong>${Number(item.cantidad)}</strong></div>
-        <div><strong>Modelo ${escapeHtml(item.modelo)}</strong><br><span style="color:#888;font-size:12px">${escapeHtml(formatColor(item.color))}</span></div>
+      return `<div class="note-row" data-detail-id="${Number(item.id)}">
+        <div><input class="note-qty" type="number" min="1" step="1" inputmode="numeric" value="${Number(item.cantidad)}"></div>
+        <div><strong>${escapeHtml(item.modelo)} ${escapeHtml(formatColor(item.color))}</strong></div>
         <div><input class="note-price" type="number" min="0" step="0.01" inputmode="decimal" value="${price}" placeholder="$0"></div>
         <div class="note-amount">$0.00</div>
       </div>`;
     }).join("");
+  const extras=Array.isArray(order.nota_extras)?order.nota_extras:[];
+  extraLines.innerHTML=extras.map(extraRow).join("");
   calculateNote();
   noteModal.classList.add("open");
   noteModal.setAttribute("aria-hidden","false");
   document.body.style.overflow="hidden";
 }
 
-function closeNote(){
-  noteModal.classList.remove("open");
-  noteModal.setAttribute("aria-hidden","true");
-  document.body.style.overflow="";
-  activeNoteOrder=null;
-}
+function closeNote(){noteModal.classList.remove("open");noteModal.setAttribute("aria-hidden","true");document.body.style.overflow="";activeNoteOrder=null}
 
 function calculateNote(){
   let total=0;
   noteLines.querySelectorAll(".note-row[data-detail-id]").forEach(function(row){
-    const qty=Number(row.dataset.qty||0);
+    const qty=Number(row.querySelector(".note-qty").value||0);
     const price=Number(row.querySelector(".note-price").value||0);
-    const amount=qty*price;
-    total+=amount;
-    row.querySelector(".note-amount").textContent=money(amount);
+    const amount=qty*price; total+=amount; row.querySelector(".note-amount").textContent=money(amount);
   });
-  noteTotal.textContent=money(total);
-  return total;
+  extraLines.querySelectorAll(".extra-row").forEach(function(row){
+    const qty=Number(row.querySelector(".extra-qty").value||0);
+    const price=Number(row.querySelector(".extra-price").value||0);
+    const amount=qty*price; total+=amount; row.querySelector(".extra-amount").textContent=money(amount);
+  });
+  noteTotal.textContent=money(total); return total;
 }
 
 function notePayload(){
   return Array.from(noteLines.querySelectorAll(".note-row[data-detail-id]")).map(function(row){
-    return {id:Number(row.dataset.detailId),cantidad:Number(row.dataset.qty),precio_unitario:Number(row.querySelector(".note-price").value||0)};
+    return {id:Number(row.dataset.detailId),cantidad:Number(row.querySelector(".note-qty").value||0),precio_unitario:Number(row.querySelector(".note-price").value||0)};
   });
+}
+function extrasPayload(){
+  return Array.from(extraLines.querySelectorAll(".extra-row")).map(function(row){
+    return {cantidad:Number(row.querySelector(".extra-qty").value||0),concepto:row.querySelector(".extra-concept").value.trim(),precio_unitario:Number(row.querySelector(".extra-price").value||0)};
+  }).filter(x=>x.concepto);
 }
 
 async function saveActiveNote(){
   if(!activeNoteOrder)return false;
   if(!noteClient.value.trim()){alert("Escribe el nombre del cliente.");noteClient.focus();return false}
   if(!noteDate.value){alert("Selecciona la fecha.");return false}
-
-  saveNote.disabled=true; saveNote.textContent="Guardando...";
+  saveNote.disabled=true;saveNote.textContent="Guardando...";
   try{
-    const response=await fetch("/.netlify/functions/admin-pedidos",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-admin-password":adminPassword},
-      body:JSON.stringify({action:"save-note",pedido_id:Number(activeNoteOrder.id),cliente:noteClient.value.trim(),fecha:noteDate.value,items:notePayload()})
-    });
+    const response=await fetch("/.netlify/functions/admin-pedidos",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"save-note",pedido_id:Number(activeNoteOrder.id),cliente:noteClient.value.trim(),fecha:noteDate.value,items:notePayload(),extras:extrasPayload()})});
     const result=await readJson(response);
-    if(!response.ok||!result.success) throw new Error(result.error||"No se pudo guardar la nota.");
+    if(!response.ok||!result.success)throw new Error(result.error||"No se pudo guardar la nota.");
     const index=allOrders.findIndex(o=>Number(o.id)===Number(result.pedido.id));
-    if(index>=0) allOrders[index]=result.pedido;
-    activeNoteOrder=result.pedido;
-    renderOrders();
-    calculateNote();
-    showOperation("✓ Nota guardada");
-    setTimeout(hideOperation,1500);
-    return true;
-  }catch(error){
-    alert(error.message);
-    return false;
-  }finally{
-    saveNote.disabled=false; saveNote.textContent="Guardar nota";
-  }
+    if(index>=0)allOrders[index]=result.pedido;
+    activeNoteOrder=result.pedido;renderOrders();showOperation("✓ Nota guardada");setTimeout(hideOperation,1500);return true;
+  }catch(error){alert(error.message);return false}
+  finally{saveNote.disabled=false;saveNote.textContent="Guardar nota"}
 }
 
-function noteShareText(){
-  if(!activeNoteOrder)return "";
-  const rows=Array.from(noteLines.querySelectorAll(".note-row[data-detail-id]"));
-  const details=Array.isArray(activeNoteOrder.pedido_detalles)?activeNoteOrder.pedido_detalles:[];
-  const lines=rows.map(function(row,i){
+function buildReceipt(){
+  document.getElementById("receiptClient").textContent=noteClient.value.trim();
+  document.getElementById("receiptDate").textContent=noteDate.value;
+  document.getElementById("receiptFolio").textContent=activeNoteOrder?.folio||"";
+  const details=Array.isArray(activeNoteOrder?.pedido_detalles)?activeNoteOrder.pedido_detalles:[];
+  let html="";
+  Array.from(noteLines.querySelectorAll(".note-row[data-detail-id]")).forEach(function(row,i){
     const item=details.find(d=>Number(d.id)===Number(row.dataset.detailId))||details[i]||{};
-    const qty=Number(row.dataset.qty);
+    const qty=Number(row.querySelector(".note-qty").value||0);
     const price=Number(row.querySelector(".note-price").value||0);
-    return qty+" "+String(item.modelo||"")+" "+formatColor(item.color||"")+" · "+money(price)+" c/u · "+money(qty*price);
+    html+=`<tr><td>${qty}</td><td>${escapeHtml(String(item.modelo||"")+" "+formatColor(item.color||""))}</td><td>${escapeHtml(money(price))}</td></tr>`;
   });
-  return "CAROLA\nNota "+(activeNoteOrder.folio||"")+"\nFecha: "+noteDate.value+"\nCliente: "+noteClient.value.trim()+"\n\n"+lines.join("\n")+"\n\nTotal: "+noteTotal.textContent;
+  extrasPayload().forEach(function(x){html+=`<tr><td>${x.cantidad}</td><td>${escapeHtml(x.concepto)}</td><td>${escapeHtml(money(x.precio_unitario))}</td></tr>`});
+  document.getElementById("receiptItems").innerHTML=html;
+  document.getElementById("receiptTotal").textContent=money(calculateNote());
+}
+
+async function receiptBlob(){
+  buildReceipt();
+  const w=720,h=Math.max(900,330+document.querySelectorAll("#receiptItems tr").length*55);
+  const canvas=document.createElement("canvas");canvas.width=w*2;canvas.height=h*2;
+  const ctx=canvas.getContext("2d");ctx.scale(2,2);ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);ctx.fillStyle="#171717";
+  ctx.font="900 30px Arial";ctx.fillText("CAROLA",45,60);ctx.font="16px Arial";ctx.fillText("☎ 4775971996",45,90);
+  ctx.strokeStyle="#ddd";ctx.beginPath();ctx.moveTo(45,120);ctx.lineTo(675,120);ctx.stroke();
+  ctx.font="16px Arial";ctx.fillText("Cliente",45,155);ctx.font="700 16px Arial";ctx.textAlign="right";ctx.fillText(noteClient.value.trim(),675,155);ctx.textAlign="left";ctx.font="16px Arial";ctx.fillText("Fecha",45,183);ctx.font="700 16px Arial";ctx.textAlign="right";ctx.fillText(noteDate.value,675,183);ctx.textAlign="left";ctx.font="16px Arial";ctx.fillText("Folio",45,211);ctx.font="700 16px Arial";ctx.textAlign="right";ctx.fillText(activeNoteOrder?.folio||"",675,211);
+  let y=260;ctx.textAlign="left";ctx.font="700 14px Arial";ctx.fillText("CANTIDAD",45,y);ctx.fillText("PRODUCTO",150,y);ctx.textAlign="right";ctx.fillText("PRECIO",675,y);ctx.textAlign="left";y+=25;
+  const details=Array.isArray(activeNoteOrder?.pedido_detalles)?activeNoteOrder.pedido_detalles:[];
+  Array.from(noteLines.querySelectorAll(".note-row[data-detail-id]")).forEach(function(row,i){const item=details.find(d=>Number(d.id)===Number(row.dataset.detailId))||details[i]||{};const qty=Number(row.querySelector(".note-qty").value||0);const price=Number(row.querySelector(".note-price").value||0);ctx.font="16px Arial";ctx.fillText(String(qty),45,y);ctx.fillText(String(item.modelo||"")+" "+formatColor(item.color||""),150,y);ctx.textAlign="right";ctx.fillText(money(price),675,y);ctx.textAlign="left";y+=42});
+  extrasPayload().forEach(function(x){ctx.fillText(String(x.cantidad),45,y);ctx.fillText(x.concepto,150,y);ctx.textAlign="right";ctx.fillText(money(x.precio_unitario),675,y);ctx.textAlign="left";y+=42});
+  ctx.strokeStyle="#ddd";ctx.beginPath();ctx.moveTo(45,y);ctx.lineTo(675,y);ctx.stroke();y+=50;ctx.font="700 28px Arial";ctx.fillText("Total:",45,y);ctx.textAlign="right";ctx.fillText(money(calculateNote()),675,y);
+  return new Promise(resolve=>canvas.toBlob(resolve,"image/png",1));
 }
 
 orders.onclick=async function(event){
@@ -3379,19 +3430,21 @@ orders.onclick=async function(event){
   }
 };
 
-noteLines.addEventListener("input",function(event){if(event.target.classList.contains("note-price"))calculateNote()});
+noteLines.addEventListener("input",calculateNote);
+extraLines.addEventListener("input",calculateNote);
+extraLines.addEventListener("click",function(e){const b=e.target.closest(".extra-remove");if(b){b.closest(".extra-row").remove();calculateNote()}});
+addExtra.onclick=function(){extraLines.insertAdjacentHTML("beforeend",extraRow({cantidad:1,concepto:"",precio_unitario:""}))};
 noteClose.onclick=closeNote;
 noteModal.onclick=function(event){if(event.target===noteModal)closeNote()};
 saveNote.onclick=saveActiveNote;
-printNote.onclick=function(){calculateNote();window.print()};
+printNote.onclick=function(){buildReceipt();window.print()};
 shareNote.onclick=async function(){
-  calculateNote();
-  const text=noteShareText();
   try{
-    if(navigator.share){await navigator.share({title:"Nota CAROLA "+(activeNoteOrder?.folio||""),text})}
-    else if(navigator.clipboard){await navigator.clipboard.writeText(text);alert("Nota copiada. Ya puedes pegarla donde quieras.")}
-    else{alert(text)}
-  }catch(error){if(error.name!=="AbortError")alert("No se pudo compartir la nota.")}
+    const blob=await receiptBlob();
+    const file=new File([blob],"Nota-Carola-"+(activeNoteOrder?.folio||"pedido")+".png",{type:"image/png"});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Nota CAROLA"})}
+    else{const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+  }catch(error){if(error.name!=="AbortError")alert("No se pudo compartir la imagen.")}
 };
 
 orderSearch.oninput=
