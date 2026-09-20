@@ -3383,20 +3383,135 @@ function buildReceipt(){
 
 async function receiptBlob(){
   buildReceipt();
-  const w=720,h=Math.max(900,330+document.querySelectorAll("#receiptItems tr").length*55);
-  const canvas=document.createElement("canvas");canvas.width=w*2;canvas.height=h*2;
-  const ctx=canvas.getContext("2d");ctx.scale(2,2);ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);ctx.fillStyle="#171717";
-  ctx.font="900 30px Arial";ctx.fillText("CAROLA",45,60);ctx.font="16px Arial";ctx.fillText("☎ 4775971996",45,90);
-  ctx.strokeStyle="#ddd";ctx.beginPath();ctx.moveTo(45,120);ctx.lineTo(675,120);ctx.stroke();
-  ctx.font="16px Arial";ctx.fillText("Cliente",45,155);ctx.font="700 16px Arial";ctx.textAlign="right";ctx.fillText(noteClient.value.trim(),675,155);ctx.textAlign="left";ctx.font="16px Arial";ctx.fillText("Fecha",45,183);ctx.font="700 16px Arial";ctx.textAlign="right";ctx.fillText(noteDate.value,675,183);ctx.textAlign="left";ctx.font="16px Arial";ctx.fillText("Folio",45,211);ctx.font="700 16px Arial";ctx.textAlign="right";ctx.fillText(activeNoteOrder?.folio||"",675,211);
-  let y=260;ctx.textAlign="left";ctx.font="700 14px Arial";ctx.fillText("CANTIDAD",45,y);ctx.fillText("PRODUCTO",150,y);ctx.textAlign="right";ctx.fillText("PRECIO",675,y);ctx.textAlign="left";y+=25;
+
   const details=Array.isArray(activeNoteOrder?.pedido_detalles)?activeNoteOrder.pedido_detalles:[];
-  Array.from(noteLines.querySelectorAll(".note-row[data-detail-id]")).forEach(function(row,i){const item=details.find(d=>Number(d.id)===Number(row.dataset.detailId))||details[i]||{};const qty=Number(row.querySelector(".note-qty").value||0);const price=Number(row.querySelector(".note-price").value||0);ctx.font="16px Arial";ctx.fillText(String(qty),45,y);ctx.fillText(String(item.modelo||"")+" "+formatColor(item.color||""),150,y);ctx.textAlign="right";ctx.fillText(money(price),675,y);ctx.textAlign="left";y+=42});
-  extrasPayload().forEach(function(x){ctx.fillText(String(x.cantidad),45,y);ctx.fillText(x.concepto,150,y);ctx.textAlign="right";ctx.fillText(money(x.precio_unitario),675,y);ctx.textAlign="left";y+=42});
-  ctx.strokeStyle="#ddd";ctx.beginPath();ctx.moveTo(45,y);ctx.lineTo(675,y);ctx.stroke();y+=50;ctx.font="700 28px Arial";ctx.fillText("Total:",45,y);ctx.textAlign="right";ctx.fillText(money(calculateNote()),675,y);
+  const productRows=Array.from(noteLines.querySelectorAll(".note-row[data-detail-id]")).map(function(row,i){
+    const item=details.find(d=>Number(d.id)===Number(row.dataset.detailId))||details[i]||{};
+    return {
+      cantidad:Number(row.querySelector(".note-qty").value||0),
+      producto:(String(item.modelo||"")+" "+formatColor(item.color||"")).trim(),
+      precio:Number(row.querySelector(".note-price").value||0)
+    };
+  });
+  const extraRows=extrasPayload().map(x=>({cantidad:x.cantidad,producto:x.concepto,precio:x.precio_unitario}));
+  const rows=productRows.concat(extraRows);
+
+  const w=760;
+  const rowH=48;
+  const h=Math.max(820,455+(rows.length*rowH));
+  const scale=2;
+  const canvas=document.createElement("canvas");
+  canvas.width=w*scale;
+  canvas.height=h*scale;
+  const ctx=canvas.getContext("2d");
+  ctx.scale(scale,scale);
+
+  const pink="#ead2dc";
+  const softPink="#fbf4f7";
+  const dark="#1d1d1f";
+  const muted="#777277";
+  const line="#e8e0e3";
+
+  ctx.fillStyle="#ffffff";
+  ctx.fillRect(0,0,w,h);
+
+  // Encabezado CAROLA
+  ctx.fillStyle=softPink;
+  ctx.fillRect(0,0,w,132);
+  ctx.fillStyle=pink;
+  ctx.beginPath();
+  ctx.arc(72,66,35,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle=dark;
+  ctx.font="800 28px Arial";
+  ctx.textAlign="left";
+  ctx.fillText("CAROLA",126,59);
+  ctx.font="15px Arial";
+  ctx.fillStyle=muted;
+  ctx.fillText("Calzado Carola",126,84);
+  ctx.font="15px Arial";
+  ctx.fillStyle=dark;
+  ctx.fillText("☎ 477 597 1996",126,107);
+
+  ctx.fillStyle="#b8899d";
+  ctx.font="700 13px Arial";
+  ctx.textAlign="right";
+  ctx.fillText("NOTA DE PEDIDO",710,62);
+  ctx.font="600 12px Arial";
+  ctx.fillStyle=muted;
+  ctx.fillText(activeNoteOrder?.folio||"",710,84);
+
+  // Datos
+  let y=174;
+  const meta=function(label,value){
+    ctx.textAlign="left";
+    ctx.font="15px Arial";
+    ctx.fillStyle=muted;
+    ctx.fillText(label,50,y);
+    ctx.textAlign="right";
+    ctx.font="700 15px Arial";
+    ctx.fillStyle=dark;
+    ctx.fillText(String(value||""),710,y);
+    y+=34;
+  };
+  meta("Cliente",noteClient.value.trim());
+  meta("Fecha",noteDate.value);
+  meta("Folio",activeNoteOrder?.folio||"");
+
+  y+=8;
+  ctx.strokeStyle=line;
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(50,y);ctx.lineTo(710,y);ctx.stroke();
+  y+=34;
+
+  // Encabezado de productos: cantidad primero, producto, precio, valor
+  ctx.fillStyle=softPink;
+  ctx.fillRect(42,y-24,676,42);
+  ctx.fillStyle=dark;
+  ctx.font="700 13px Arial";
+  ctx.textAlign="left";
+  ctx.fillText("CANTIDAD",55,y+2);
+  ctx.fillText("PRODUCTO",160,y+2);
+  ctx.textAlign="right";
+  ctx.fillText("PRECIO UNITARIO",555,y+2);
+  ctx.fillText("VALOR",705,y+2);
+  y+=42;
+
+  rows.forEach(function(row){
+    const valor=Number(row.cantidad)*Number(row.precio);
+    ctx.fillStyle=dark;
+    ctx.font="15px Arial";
+    ctx.textAlign="left";
+    ctx.fillText(String(row.cantidad),60,y);
+    ctx.fillText(String(row.producto),160,y);
+    ctx.textAlign="right";
+    ctx.fillText(money(row.precio),555,y);
+    ctx.fillText(money(valor),705,y);
+    ctx.strokeStyle=line;
+    ctx.beginPath();ctx.moveTo(50,y+17);ctx.lineTo(710,y+17);ctx.stroke();
+    y+=rowH;
+  });
+
+  // Total
+  y+=25;
+  ctx.fillStyle=softPink;
+  ctx.fillRect(42,y-25,676,74);
+  ctx.fillStyle=dark;
+  ctx.font="800 28px Arial";
+  ctx.textAlign="left";
+  ctx.fillText("Total:",58,y+18);
+  ctx.textAlign="right";
+  ctx.fillText(money(calculateNote()),702,y+18);
+
+  // Pie
+  ctx.fillStyle=muted;
+  ctx.font="12px Arial";
+  ctx.textAlign="center";
+  ctx.fillText("Gracias por tu pedido · CAROLA",w/2,h-38);
+
   return new Promise(resolve=>canvas.toBlob(resolve,"image/png",1));
 }
-
 orders.onclick=async function(event){
   const continueButton=event.target.closest(".continue-order");
   if(continueButton){
