@@ -1440,7 +1440,18 @@ footer{
 .finance-grid{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
-  gap:12px;
+  gap:14px;
+  align-items:end;
+}
+.finance-grid > div{
+  min-width:0;
+}
+.finance-grid label{
+  min-height:20px;
+}
+.finance-grid input{
+  height:54px;
+  display:block;
 }
 .finance-grid label{margin:0 0 7px}
 .finance-grid input{
@@ -1541,6 +1552,14 @@ footer{
   .finance-summary{grid-template-columns:1fr 1fr}
   .finance-table-card{overflow-x:auto}
   .finance-table{min-width:760px}
+}
+@media(min-width:701px){
+  .finance-entry{
+    max-width:760px;
+  }
+  .finance-grid{
+    grid-template-columns:1.05fr 1fr 1fr;
+  }
 }
 
 </style>
@@ -3785,19 +3804,40 @@ function parseYmd(value){
   const [y,m,d]=String(value).split("-").map(Number);
   return {y,m,d};
 }
+function dateFromYmd(y,m,d){
+  return new Date(Date.UTC(y,m-1,d));
+}
+function ymdFromDate(date){
+  return {
+    y:date.getUTCFullYear(),
+    m:date.getUTCMonth()+1,
+    d:date.getUTCDate()
+  };
+}
+function dayOfYear(y,m,d){
+  const start=Date.UTC(y,0,1);
+  const current=Date.UTC(y,m-1,d);
+  return Math.floor((current-start)/86400000)+1;
+}
 function weekInfo(value){
   const {y,m,d}=parseYmd(value);
-  const week=Math.floor((d-1)/7)+1;
-  const start=(week-1)*7+1;
-  const lastDay=new Date(y,m,0).getDate();
-  const end=Math.min(start+6,lastDay);
-  return {week,start,end};
+  const doy=dayOfYear(y,m,d);
+  const week=Math.floor((doy-1)/7)+1;
+  const startDoy=(week-1)*7+1;
+  const endDoy=Math.min(startDoy+6,365+(new Date(Date.UTC(y,1,29)).getUTCDate()===29?1:0));
+  const startDate=new Date(Date.UTC(y,0,startDoy));
+  const endDate=new Date(Date.UTC(y,0,endDoy));
+  return {week,startDate,endDate};
 }
-function weekLabel(year,month,week){
-  const start=(week-1)*7+1;
-  const lastDay=new Date(year,month,0).getDate();
-  const end=Math.min(start+6,lastDay);
-  return "Semana "+week+" ("+start+"–"+end+" "+MONTHS_ES[month-1].slice(0,3).toLowerCase()+")";
+function shortDateLabel(date){
+  const p=ymdFromDate(date);
+  return p.d+" "+MONTHS_ES[p.m-1].slice(0,3).toLowerCase();
+}
+function weekLabelByInfo(info){
+  return "Semana "+info.week+" ("+shortDateLabel(info.startDate)+"–"+shortDateLabel(info.endDate)+")";
+}
+function weekLabelForDate(value){
+  return weekLabelByInfo(weekInfo(value));
 }
 function formatFinanceDate(value){
   const {y,m,d}=parseYmd(value);
@@ -3821,18 +3861,29 @@ function updateWeekOptions(){
   const year=Number(financeYear.value)||new Date().getFullYear();
   const month=Number(financeMonth.value);
   const prior=Number(financeWeek.value)||0;
-  if(!month){
-    financeWeek.innerHTML='<option value="0">Todas las semanas</option>';
-    financeWeek.disabled=true;
-    return;
-  }
   financeWeek.disabled=false;
-  const lastDay=new Date(year,month,0).getDate();
-  const count=Math.ceil(lastDay/7);
-  financeWeek.innerHTML='<option value="0">Todas las semanas</option>'+Array.from({length:count},(_,i)=>{
-    const w=i+1;
-    return '<option value="'+w+'" '+(prior===w?'selected':'')+'>'+weekLabel(year,month,w)+'</option>';
-  }).join("");
+
+  const totalDays=365+(new Date(Date.UTC(year,1,29)).getUTCDate()===29?1:0);
+  const totalWeeks=Math.ceil(totalDays/7);
+  const options=[];
+
+  for(let week=1;week<=totalWeeks;week++){
+    const startDoy=(week-1)*7+1;
+    const endDoy=Math.min(startDoy+6,totalDays);
+    const startDate=new Date(Date.UTC(year,0,startDoy));
+    const endDate=new Date(Date.UTC(year,0,endDoy));
+
+    if(month){
+      const startMonth=startDate.getUTCMonth()+1;
+      const endMonth=endDate.getUTCMonth()+1;
+      if(startMonth!==month && endMonth!==month) continue;
+    }
+
+    const info={week,startDate,endDate};
+    options.push('<option value="'+week+'" '+(prior===week?'selected':'')+'>'+weekLabelByInfo(info)+'</option>');
+  }
+
+  financeWeek.innerHTML='<option value="0">Todas las semanas</option>'+options.join("");
 }
 function filteredFinance(){
   const year=Number(financeYear.value);
@@ -3860,8 +3911,8 @@ function renderFinance(){
   }else{
     financeRows.innerHTML='<table class="finance-table"><thead><tr><th>Fecha</th><th>Semana</th><th>Ganancia</th><th>43%</th><th>Medias</th><th>Pares</th><th></th></tr></thead><tbody>'+
       rows.map(r=>{
-        const p=parseYmd(r.fecha),w=weekInfo(r.fecha);
-        return '<tr><td>'+formatFinanceDate(r.fecha)+'</td><td><span class="finance-week-label">'+weekLabel(p.y,p.m,w.week)+'</span></td><td>'+moneyShort(r.ganancia)+'</td><td>'+moneyShort(Number(r.ganancia)*.43)+'</td><td>'+Number(r.medias_docenas)+'</td><td>'+Number(r.medias_docenas)*6+'</td><td><div class="finance-actions"><button class="finance-edit" data-id="'+r.id+'">Editar</button><button class="finance-delete" data-id="'+r.id+'">Eliminar</button></div></td></tr>';
+        const w=weekInfo(r.fecha);
+        return '<tr><td>'+formatFinanceDate(r.fecha)+'</td><td><span class="finance-week-label">'+weekLabelByInfo(w)+'</span></td><td>'+moneyShort(r.ganancia)+'</td><td>'+moneyShort(Number(r.ganancia)*.43)+'</td><td>'+Number(r.medias_docenas)+'</td><td>'+Number(r.medias_docenas)*6+'</td><td><div class="finance-actions"><button class="finance-edit" data-id="'+r.id+'">Editar</button><button class="finance-delete" data-id="'+r.id+'">Eliminar</button></div></td></tr>';
       }).join("")+'</tbody></table>';
   }
   drawFinanceChart(rows);
@@ -3877,9 +3928,9 @@ function drawFinanceChart(rows){
     values=rows.map(r=>Number(r.ganancia||0));
     document.getElementById("financeChartTitle").textContent="Ganancia por día";
   }else if(month){
-    const count=Math.ceil(new Date(Number(financeYear.value),month,0).getDate()/7);
-    labels=Array.from({length:count},(_,i)=>"Semana "+(i+1));
-    values=labels.map((_,i)=>rows.filter(r=>weekInfo(r.fecha).week===i+1).reduce((s,r)=>s+Number(r.ganancia||0),0));
+    const weeks=[...new Set(rows.map(r=>weekInfo(r.fecha).week))].sort((a,b)=>a-b);
+    labels=weeks.map(w=>"Semana "+w);
+    values=weeks.map(w=>rows.filter(r=>weekInfo(r.fecha).week===w).reduce((s,r)=>s+Number(r.ganancia||0),0));
     document.getElementById("financeChartTitle").textContent="Ganancia por semana";
   }else{
     labels=MONTHS_ES.map(x=>x.slice(0,3));
