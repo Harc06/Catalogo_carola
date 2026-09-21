@@ -1867,6 +1867,11 @@ footer{
 
   <div class="finance-charts">
     <section class="finance-chart-card">
+      <div class="orders-header"><div><h2>Ganancia por mes</h2><p>Comparativo mensual del año seleccionado.</p></div></div>
+      <div class="finance-chart-wrap"><canvas id="monthlyProfitChart" width="520" height="280"></canvas></div>
+      <div id="monthlyProfitTooltip" class="finance-tooltip"></div>
+    </section>
+    <section class="finance-chart-card">
       <div class="orders-header"><div><h2 id="financeChartTitle">Ganancia por semana</h2><p>Comparativo del periodo seleccionado.</p></div></div>
       <div class="finance-chart-wrap"><canvas id="financeChart" width="520" height="280"></canvas></div>
       <div id="financeTooltip" class="finance-tooltip"></div>
@@ -2149,6 +2154,8 @@ const recordTotals=document.getElementById("recordTotals");
 const recordCompare=document.getElementById("recordCompare");
 const compareMonthA=document.getElementById("compareMonthA"),compareMonthB=document.getElementById("compareMonthB"),customMonthCompare=document.getElementById("customMonthCompare"),recordFrom=document.getElementById("recordFrom"),recordTo=document.getElementById("recordTo"),rangeSummary=document.getElementById("rangeSummary");let recordRangeActive=false;
 const financeChart=document.getElementById("financeChart");
+const monthlyProfitChart=document.getElementById("monthlyProfitChart");
+const monthlyProfitTooltip=document.getElementById("monthlyProfitTooltip");
 const pairsChart=document.getElementById("pairsChart");
 const financeTooltip=document.getElementById("financeTooltip");
 const pairsTooltip=document.getElementById("pairsTooltip");
@@ -4312,9 +4319,20 @@ function renderFinance(){
         return '<tr><td>'+formatFinanceDate(r.fecha)+'</td><td><span class="finance-week-label">'+weekLabelByInfo(w)+'</span></td><td>'+moneyShort(r.ganancia)+'</td><td>'+moneyShort(Number(r.ganancia)*.43)+'</td><td>'+Number(r.medias_docenas)+'</td><td>'+Number(r.medias_docenas)*6+'</td><td><div class="finance-actions"><button class="finance-edit" data-id="'+r.id+'">Editar</button><button class="finance-delete" data-id="'+r.id+'">Eliminar</button></div></td></tr>';
       }).join("")+'</tbody></table>';
   }
+  drawMonthlyProfitChart();
   drawFinanceChart(rows);
   drawPairsChart(rows);
   renderBreakEven();
+}
+function drawMonthlyProfitChart(){
+  const year=Number(financeYear.value);
+  const yearRows=allFinance.filter(r=>parseYmd(r.fecha).y===year);
+  const points=MONTHS_ES.map((name,i)=>{
+    const rr=yearRows.filter(r=>parseYmd(r.fecha).m===i+1);
+    return {label:name.slice(0,3),fullLabel:name+" "+year,ganancia:rr.reduce((s,r)=>s+Number(r.ganancia||0),0),pares:rr.reduce((s,r)=>s+Number(r.medias_docenas||0)*6,0),semana:"Acumulado mensual"};
+  });
+  drawBars(monthlyProfitChart,monthlyProfitTooltip,points,"ganancia",v=>moneyShort(v));
+  attachChartHover(monthlyProfitChart);
 }
 function drawFinanceChart(rows){
   const month=Number(financeMonth.value),week=Number(financeWeek.value);
