@@ -1,10 +1,11 @@
+const {authorized}=require("./admin-auth-lib");
 const { createClient } = require("@supabase/supabase-js");
 
 exports.handler = async function (event) {
   const headers = {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type, x-admin-password",
+    "Access-Control-Allow-Headers": "Content-Type, x-admin-password, Authorization",
     "Access-Control-Allow-Methods": "POST, OPTIONS"
   };
 
@@ -25,19 +26,7 @@ exports.handler = async function (event) {
     });
   }
 
-  const providedPassword =
-    event.headers["x-admin-password"] ||
-    event.headers["X-Admin-Password"];
-
-  if (
-    !process.env.ADMIN_PASSWORD ||
-    providedPassword !== process.env.ADMIN_PASSWORD
-  ) {
-    return respond(401, {
-      success: false,
-      error: "Acceso no autorizado"
-    });
-  }
+  if(!(await authorized(event))){return respond(401,{success:false,error:"Acceso no autorizado"});}
 
   if (
     !process.env.SUPABASE_URL ||
