@@ -2025,7 +2025,16 @@ async function setupFaceID(){
   options.challenge=b64urlToBytes(options.challenge);
   options.user.id=b64urlToBytes(options.user.id);
   if(options.excludeCredentials)options.excludeCredentials=options.excludeCredentials.map(x=>({...x,id:b64urlToBytes(x.id)}));
-  const cred=await navigator.credentials.create({publicKey:options});
+  authOverlay("Contraseña correcta. Toca aquí para crear tu acceso con Face ID.");
+  const cred=await new Promise((resolve,reject)=>{
+    const el=document.getElementById("carolaAuth");
+    el.style.cursor="pointer";
+    el.onclick=async()=>{
+      el.onclick=null;
+      try{resolve(await navigator.credentials.create({publicKey:options}))}
+      catch(e){reject(e)}
+    };
+  });
   const v=await authCall({action:"register-verify",password,challenge_id:a.challenge_id,response:credentialToJSON(cred)});
   adminPassword=v.token;
 }
