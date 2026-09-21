@@ -2039,14 +2039,34 @@ async function loginApplePasskey(){
   const v=await authCall({action:"login-verify",challenge_id:a.challenge_id,response:credentialToJSON(cred)});adminPassword=v.token
 }
 async function authenticateAdmin(){
-  /* Face ID/Passkey exclusivamente en iPhone. iPad y computadoras usan contraseña. */
-  if(!isIPhone())return passwordLogin();
-  authOverlay("Preparando Face ID…");
+  /* iPhone usa su Passkey. iPad registra una Passkey propia del dispositivo; PC/Mac usa contraseña. */
+  if(!isIPhone()&&!isIPad())return passwordLogin();
+  authOverlay(isIPad()?"Configurando acceso seguro en este iPad…":"Preparando Face ID…");
   if(!window.PublicKeyCredential)throw new Error("Este navegador no admite Passkeys.");
+
+  if(isIPad()){
+    /* El iPad no reutiliza la credencial del iPhone: registra su propia Passkey de plataforma.
+       Esto evita que Safari intente autenticar con otro dispositivo mediante QR. */
+    const localReady=localStorage.getItem("carola-ipad-passkey-v1")==="1";
+    if(!localReady){
+      await setupApplePasskey();
+      localStorage.setItem("carola-ipad-passkey-v1","1");
+      hideAuth();
+      return;
+    }
+  }
+
   const status=await authCall({action:"status"});
-  if(!status.hasPasskey){await setupApplePasskey();hideAuth();return}
+  if(!status.hasPasskey){await setupApplePasskey();if(isIPad())localStorage.setItem("carola-ipad-passkey-v1","1");hideAuth();return}
   try{await loginApplePasskey();hideAuth()}
   catch(error){
+    if(isIPad()){
+      /* Si la marca local existe pero la credencial ya no está en el iPad, permite volver a registrarla. */
+      localStorage.removeItem("carola-ipad-passkey-v1");
+      authOverlay("No encontré la llave de este iPad. Regístrala de nuevo para usar Face ID/Touch ID.",'<button id="registerIPadPasskey" type="button" style="width:100%;margin-top:12px;padding:14px;border:0;border-radius:14px;background:#171717;color:white;font-weight:800;font-size:16px">Registrar llave en este iPad</button>');
+      await new Promise((resolve,reject)=>{document.getElementById("registerIPadPasskey").onclick=async()=>{try{await setupApplePasskey();localStorage.setItem("carola-ipad-passkey-v1","1");resolve()}catch(e){reject(e)}}});
+      hideAuth();return;
+    }
     authOverlay("Toca para continuar con Face ID.",'<button id="retryAppleFace" type="button" style="width:100%;margin-top:12px;padding:14px;border:0;border-radius:14px;background:#171717;color:white;font-weight:800;font-size:16px">Usar Face ID</button>');
     await new Promise((resolve,reject)=>{document.getElementById("retryAppleFace").onclick=async()=>{try{await loginApplePasskey();resolve()}catch(e){reject(e)}}});hideAuth()
   }
