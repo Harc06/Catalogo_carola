@@ -27,6 +27,19 @@ exports.handler=async event=>{
    if(tipo==="pago"&&!payload.forma_pago)return res(400,{success:false,error:"Forma de pago requerida"});
    const {data,error}=await supabase.from("proveedores_movimientos").insert(payload).select().single();if(error)throw error;return res(200,{success:true,movimiento:data});
   }
+  if(action==="complete-movement"){
+   const id=Number(b.id);
+   if(!Number.isInteger(id)||id<1)return res(400,{success:false,error:"Movimiento inválido"});
+   const {data:current,error:ce}=await supabase.from("proveedores_movimientos").select("id,tipo,fecha,folio,pares,forma_pago").eq("id",id).single();if(ce)throw ce;
+   const patch={actualizado_en:new Date().toISOString()};
+   if(!current.fecha){if(!dateOk(b.fecha))return res(400,{success:false,error:"Falta una fecha válida"});patch.fecha=b.fecha}
+   if(current.tipo==="nota"){
+    if(!current.folio){const folio=String(b.folio||"").trim();if(!folio)return res(400,{success:false,error:"Falta el folio"});patch.folio=folio}
+    if(!current.pares){const pares=Number(b.pares);if(!Number.isInteger(pares)||pares<=0)return res(400,{success:false,error:"Faltan los pares"});patch.pares=pares}
+   }
+   if(current.tipo==="pago"&&!current.forma_pago){const forma=String(b.forma_pago||"").trim();if(!forma)return res(400,{success:false,error:"Falta la forma de pago"});patch.forma_pago=forma}
+   const {data,error}=await supabase.from("proveedores_movimientos").update(patch).eq("id",id).select().single();if(error)throw error;return res(200,{success:true,movimiento:data});
+  }
   if(action==="delete-movement"){const id=Number(b.id);const {data,error}=await supabase.from("proveedores_movimientos").delete().eq("id",id).select("id").single();if(error)throw error;return res(200,{success:true,eliminado:data})}
   return res(400,{success:false,error:"Acción no reconocida"});
  }catch(e){console.error(e);return res(500,{success:false,error:e.message||"Error de proveedores"})}
