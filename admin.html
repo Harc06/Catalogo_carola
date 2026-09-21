@@ -1930,6 +1930,8 @@ footer{
       <button id="clearRecordFilters" class="refresh" type="button">Limpiar filtros</button>
     </div>
     <div id="recordTotals" class="record-totals"></div>
+    <div class="record-compare" style="display:block;margin-top:14px"><strong>Comparar dos meses</strong><div class="record-filter" style="margin-top:10px"><select id="compareMonthA"></select><select id="compareMonthB"></select></div><div id="customMonthCompare"></div></div>
+    <div class="record-compare" style="display:block;margin-top:14px"><strong>Rango personalizado</strong><div class="record-filter" style="margin-top:10px"><input id="recordFrom" class="record-day" type="date"><input id="recordTo" class="record-day" type="date"><button id="applyRecordRange" class="refresh" type="button">Aplicar rango</button><button id="clearRecordRange" class="refresh" type="button">Quitar rango</button></div><div id="rangeSummary"></div></div>
     <div id="recordCompare" class="record-compare"></div>
     <div id="financeRows"></div>
   </section>
@@ -2145,6 +2147,7 @@ const recordWeek=document.getElementById("recordWeek");
 const recordDay=document.getElementById("recordDay");
 const recordTotals=document.getElementById("recordTotals");
 const recordCompare=document.getElementById("recordCompare");
+const compareMonthA=document.getElementById("compareMonthA"),compareMonthB=document.getElementById("compareMonthB"),customMonthCompare=document.getElementById("customMonthCompare"),recordFrom=document.getElementById("recordFrom"),recordTo=document.getElementById("recordTo"),rangeSummary=document.getElementById("rangeSummary");let recordRangeActive=false;
 const financeChart=document.getElementById("financeChart");
 const pairsChart=document.getElementById("pairsChart");
 const financeTooltip=document.getElementById("financeTooltip");
@@ -4261,6 +4264,12 @@ function comparisonText(label,current,previous,money){
   const sign=change>0?"+":"";
   return '<strong>'+label+': '+val+'</strong> · '+sign+change.toFixed(1)+'% vs mes anterior';
 }
+function financeStats(rows){const profit=rows.reduce((s,r)=>s+Number(r.ganancia||0),0),half=rows.reduce((s,r)=>s+Number(r.medias_docenas||0),0),pairs=half*6;return{profit,half,pairs,avg:pairs?profit/pairs:0}}
+function monthKey(y,m){return y+"-"+String(m).padStart(2,"0")}
+function monthRows(key){if(!key)return[];const [y,m]=key.split("-").map(Number);return allFinance.filter(r=>{const p=parseYmd(r.fecha);return p.y===y&&p.m===m})}
+function monthNameKey(key){if(!key)return"";const [y,m]=key.split("-").map(Number);return MONTHS_ES[m-1]+" "+y}
+function renderCustomCompare(){if(!compareMonthA.value||!compareMonthB.value){customMonthCompare.innerHTML="Selecciona dos meses.";return}const a=financeStats(monthRows(compareMonthA.value)),b=financeStats(monthRows(compareMonthB.value)),dp=b.profit-a.profit,dq=b.pairs-a.pairs,pct=(x,y)=>y?((x-y)/y*100):null,pp=pct(b.profit,a.profit),pq=pct(b.pairs,a.pairs);customMonthCompare.innerHTML='<div style="margin-top:12px;line-height:1.8"><strong>'+monthNameKey(compareMonthA.value)+'</strong>: '+moneyShort(a.profit)+' · '+a.pairs+' pares · '+moneyShort(a.avg)+'/par<br><strong>'+monthNameKey(compareMonthB.value)+'</strong>: '+moneyShort(b.profit)+' · '+b.pairs+' pares · '+moneyShort(b.avg)+'/par<br><strong>Diferencia:</strong> '+(dp>=0?"+":"")+moneyShort(dp)+' '+(pp===null?"":'('+(pp>=0?"+":"")+pp.toFixed(1)+'%)')+' · '+(dq>=0?"+":"")+dq+' pares '+(pq===null?"":'('+(pq>=0?"+":"")+pq.toFixed(1)+'%)')+'</div>'}
+function refreshCompareMonths(){const keys=[...new Set(allFinance.map(r=>{const p=parseYmd(r.fecha);return monthKey(p.y,p.m)}))].sort().reverse(),a=compareMonthA.value,b=compareMonthB.value,html=keys.map(k=>'<option value="'+k+'">'+monthNameKey(k)+'</option>').join("");compareMonthA.innerHTML=html;compareMonthB.innerHTML=html;compareMonthA.value=keys.includes(a)?a:(keys[1]||keys[0]||"");compareMonthB.value=keys.includes(b)?b:(keys[0]||"");renderCustomCompare()}
 function renderFinance(){
   const rows=filteredFinance();
   const profit=rows.reduce((s,r)=>s+Number(r.ganancia||0),0);
@@ -4272,13 +4281,15 @@ function renderFinance(){
 
   let tableRows=allFinance.filter(r=>parseYmd(r.fecha).y===Number(financeYear.value));
   const rm=Number(recordMonth.value||0),rw=Number(recordWeek.value||0),rd=recordDay.value;
-  if(rm)tableRows=tableRows.filter(r=>parseYmd(r.fecha).m===rm);
+  if(recordRangeActive&&recordFrom.value&&recordTo.value)tableRows=allFinance.filter(r=>r.fecha>=recordFrom.value&&r.fecha<=recordTo.value);
+  else if(rm)tableRows=tableRows.filter(r=>parseYmd(r.fecha).m===rm);
   if(rw)tableRows=tableRows.filter(r=>weekInfo(r.fecha).week===rw);
   if(rd)tableRows=tableRows.filter(r=>r.fecha===rd);
   tableRows.sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const tableProfit=tableRows.reduce((s,r)=>s+Number(r.ganancia||0),0);
   const tableHalf=tableRows.reduce((s,r)=>s+Number(r.medias_docenas||0),0);
   const tablePairs=tableHalf*6;
+  rangeSummary.innerHTML=recordRangeActive&&recordFrom.value&&recordTo.value?'<div style="margin-top:10px"><strong>'+formatFinanceDate(recordFrom.value)+' → '+formatFinanceDate(recordTo.value)+'</strong> · '+tableRows.length+' días · '+moneyShort(tableProfit)+' · '+tablePairs+' pares · '+moneyShort(tablePairs?tableProfit/tablePairs:0)+'/par</div>':'';
   recordTotals.innerHTML='<div class="summary-box"><strong>'+moneyShort(tableProfit)+'</strong><span>GANANCIA TOTAL</span></div><div class="summary-box"><strong>'+moneyShort(tableProfit*.43)+'</strong><span>43% TOTAL</span></div><div class="summary-box"><strong>'+tableHalf+'</strong><span>MEDIAS DOCENAS</span></div><div class="summary-box"><strong>'+tablePairs+'</strong><span>PARES</span></div>';
 
   if(rm&&!rw&&!rd){
@@ -4521,6 +4532,7 @@ async function loadFinance(preferredFixedYear,preferredFixedMonth){
     financeExpenses=Array.isArray(result.gastos)?result.gastos:[];
     financeLoaded=true;
     setupFinanceFilters();
+    refreshCompareMonths();
     setupFixedFilters(preferredFixedYear,preferredFixedMonth);
     renderFinance();
   }catch(error){
@@ -4551,10 +4563,13 @@ saveFinance.onclick=saveFinanceRecord;
 financeYear.onchange=function(){updateWeekOptions();if(fixedYear)fixedYear.value=financeYear.value;renderFinance();syncFixedInput()};
 financeMonth.onchange=function(){updateWeekOptions();if(fixedMonth&&financeMonth.value!=="0")fixedMonth.value=financeMonth.value;renderFinance();syncFixedInput()};
 financeWeek.onchange=renderFinance;
-recordMonth.onchange=function(){updateRecordWeekOptions("0");recordDay.value="";renderFinance()};
-recordWeek.onchange=function(){recordDay.value="";renderFinance()};
-recordDay.onchange=function(){if(recordDay.value){const p=parseYmd(recordDay.value);recordMonth.value=String(p.m);updateRecordWeekOptions(weekInfo(recordDay.value).week);recordWeek.value=String(weekInfo(recordDay.value).week)}renderFinance()};
-document.getElementById("clearRecordFilters").onclick=function(){recordMonth.value="0";recordDay.value="";updateRecordWeekOptions("0");renderFinance()};
+recordMonth.onchange=function(){recordRangeActive=false;updateRecordWeekOptions("0");recordDay.value="";renderFinance()};
+recordWeek.onchange=function(){recordRangeActive=false;recordDay.value="";renderFinance()};
+recordDay.onchange=function(){recordRangeActive=false;if(recordDay.value){const p=parseYmd(recordDay.value);recordMonth.value=String(p.m);updateRecordWeekOptions(weekInfo(recordDay.value).week);recordWeek.value=String(weekInfo(recordDay.value).week)}renderFinance()};
+document.getElementById("clearRecordFilters").onclick=function(){recordRangeActive=false;recordMonth.value="0";recordDay.value="";recordFrom.value="";recordTo.value="";updateRecordWeekOptions("0");renderFinance()};
+compareMonthA.onchange=renderCustomCompare;compareMonthB.onchange=renderCustomCompare;
+document.getElementById("applyRecordRange").onclick=function(){if(!recordFrom.value||!recordTo.value)return alert("Selecciona ambas fechas.");if(recordFrom.value>recordTo.value)return alert("La fecha inicial debe ser anterior a la final.");recordRangeActive=true;recordMonth.value="0";recordWeek.value="0";recordDay.value="";renderFinance()};
+document.getElementById("clearRecordRange").onclick=function(){recordRangeActive=false;recordFrom.value="";recordTo.value="";renderFinance()};
 document.getElementById("refreshFinance").onclick=loadFinance;
 financeRows.onclick=async function(e){
   const edit=e.target.closest(".finance-edit");
