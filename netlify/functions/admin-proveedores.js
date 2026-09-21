@@ -9,7 +9,7 @@ exports.handler=async event=>{
   if(event.httpMethod==="GET"){
    const {data:proveedores,error:e1}=await supabase.from("proveedores").select("id,nombre,activo,creado_en").eq("activo",true).order("nombre");
    if(e1)throw e1;
-   const {data:movimientos,error:e2}=await supabase.from("proveedores_movimientos").select("id,proveedor_id,tipo,fecha,folio,importe,pares,forma_pago,observaciones,creado_en,actualizado_en").order("fecha",{ascending:false}).order("id",{ascending:false});
+   const {data:movimientos,error:e2}=await supabase.from("proveedores_movimientos").select("id,proveedor_id,tipo,fecha,folio,importe,pares,forma_pago,observaciones,creado_en,actualizado_en,eliminado_en").order("fecha",{ascending:false}).order("id",{ascending:false});
    if(e2)throw e2;return res(200,{success:true,proveedores:proveedores||[],movimientos:movimientos||[]});
   }
   if(event.httpMethod!=="POST")return res(405,{success:false,error:"Método no permitido"});
@@ -40,7 +40,16 @@ exports.handler=async event=>{
    if(current.tipo==="pago"&&!current.forma_pago){const forma=String(b.forma_pago||"").trim();if(!forma)return res(400,{success:false,error:"Falta la forma de pago"});patch.forma_pago=forma}
    const {data,error}=await supabase.from("proveedores_movimientos").update(patch).eq("id",id).select().single();if(error)throw error;return res(200,{success:true,movimiento:data});
   }
-  if(action==="delete-movement"){const id=Number(b.id);const {data,error}=await supabase.from("proveedores_movimientos").delete().eq("id",id).select("id").single();if(error)throw error;return res(200,{success:true,eliminado:data})}
+  if(action==="update-movement"){
+   const id=Number(b.id),tipo=String(b.tipo||""),fecha=String(b.fecha||""),importe=Number(b.importe);
+   if(!Number.isInteger(id)||id<1||!["nota","pago"].includes(tipo)||!dateOk(fecha)||!Number.isFinite(importe)||importe<=0)return res(400,{success:false,error:"Datos inválidos"});
+   const patch={fecha,importe,actualizado_en:new Date().toISOString()};
+   if(tipo==="nota"){const folio=String(b.folio||"").trim(),pares=Number(b.pares);if(!folio||!Number.isInteger(pares)||pares<=0)return res(400,{success:false,error:"Fecha, folio, importe y pares son obligatorios"});patch.folio=folio;patch.pares=pares}
+   else{const forma=String(b.forma_pago||"").trim();if(!forma)return res(400,{success:false,error:"Fecha, importe y forma de pago son obligatorios"});patch.forma_pago=forma}
+   const {data,error}=await supabase.from("proveedores_movimientos").update(patch).eq("id",id).is("eliminado_en",null).select().single();if(error)throw error;return res(200,{success:true,movimiento:data});
+  }
+  if(action==="delete-movement"){const id=Number(b.id);const {data,error}=await supabase.from("proveedores_movimientos").update({eliminado_en:new Date().toISOString(),actualizado_en:new Date().toISOString()}).eq("id",id).is("eliminado_en",null).select().single();if(error)throw error;return res(200,{success:true,eliminado:data})}
+  if(action==="restore-movement"){const id=Number(b.id);const {data,error}=await supabase.from("proveedores_movimientos").update({eliminado_en:null,actualizado_en:new Date().toISOString()}).eq("id",id).select().single();if(error)throw error;return res(200,{success:true,movimiento:data})}
   return res(400,{success:false,error:"Acción no reconocida"});
  }catch(e){console.error(e);return res(500,{success:false,error:e.message||"Error de proveedores"})}
 };
