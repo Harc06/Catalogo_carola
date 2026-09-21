@@ -1549,6 +1549,14 @@ footer{
 #breakEvenProgressBar{height:100%;width:0;background:#e8bfd0;border-radius:999px;transition:width .35s ease}
 .break-even-note{color:#777;font-size:12px;line-height:1.5;margin:12px 0 0}
 .expense-builder{margin-top:18px;padding-top:18px;border-top:1px solid #f0e4e9}
+.expense-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:12px;background:#f7e6ee;color:#222;font-weight:800;margin-bottom:0}
+.expense-toggle span:last-child{font-size:18px;transition:transform .2s}
+.expense-toggle.open span:last-child{transform:rotate(180deg)}
+.expense-collapsible{display:none;padding-top:14px}
+.expense-collapsible.open{display:block}
+.record-filter{display:grid;grid-template-columns:1fr 1fr 1.35fr 1fr;gap:8px;margin:14px 0}
+.record-filter input,.record-filter select{width:100%;height:44px;padding:0 10px;border:1px solid #ddd;border-radius:11px;background:#fff}
+@media(max-width:700px){.record-filter{grid-template-columns:1fr 1fr}.record-filter .record-day{grid-column:1/-1}}
 .expense-add{display:grid;grid-template-columns:1.5fr 1fr auto;gap:10px;align-items:end}
 .expense-add input{width:100%;height:48px;padding:0 13px;border:1px solid #ddd;border-radius:12px;background:#fff}
 #addExpenseCategory{height:48px;padding:0 18px;border-radius:12px;background:#171717;color:#fff}
@@ -1880,6 +1888,8 @@ footer{
       <button id="saveFixedExpense" type="button" style="display:none">Guardar meta</button>
     </div>
     <div class="expense-builder">
+      <button id="expenseToggle" class="expense-toggle" type="button"><span>Gastos fijos del mes</span><span>⌄</span></button>
+      <div id="expenseCollapsible" class="expense-collapsible">
       <div class="orders-header"><div><h3>Conceptos de gastos</h3><p>Cada mes conserva su propio registro. Puedes reutilizar los mismos conceptos y cambiar únicamente lo que pagarás ese mes.</p></div><button id="copyPreviousExpenses" class="refresh" type="button">Copiar mes anterior</button></div>
       <div class="expense-add">
         <div><label for="expenseName">Concepto</label><input id="expenseName" type="text" placeholder="Ej. Renta bodega"></div>
@@ -1888,6 +1898,7 @@ footer{
       </div>
       <div id="expenseList" class="expense-list"></div>
       <div class="expense-total"><span>Total gastos fijos del mes</span><strong id="expenseTotal">$0</strong></div>
+      </div>
     </div>
     <div class="break-even-summary">
       <div class="summary-box"><strong id="beFixed">$0</strong><span>GASTOS FIJOS</span></div>
@@ -1912,6 +1923,12 @@ footer{
         <p>Filtrados automáticamente por año, mes y semana.</p>
       </div>
       <button id="refreshFinance" class="refresh" type="button">Actualizar</button>
+    </div>
+    <div class="record-filter">
+      <select id="recordMonth"><option value="0">Todos los meses</option></select>
+      <select id="recordWeek"><option value="0">Todas las semanas</option></select>
+      <input id="recordDay" class="record-day" type="date" aria-label="Filtrar por día">
+      <button id="clearRecordFilters" class="refresh" type="button">Limpiar filtros</button>
     </div>
     <div id="financeRows"></div>
   </section>
@@ -2037,6 +2054,9 @@ const financeYear=document.getElementById("financeYear");
 const financeMonth=document.getElementById("financeMonth");
 const financeWeek=document.getElementById("financeWeek");
 const financeRows=document.getElementById("financeRows");
+const recordMonth=document.getElementById("recordMonth");
+const recordWeek=document.getElementById("recordWeek");
+const recordDay=document.getElementById("recordDay");
 const financeChart=document.getElementById("financeChart");
 const pairsChart=document.getElementById("pairsChart");
 const financeTooltip=document.getElementById("financeTooltip");
@@ -3976,6 +3996,11 @@ async function confirmSalesImport(){
   }
   const day=pendingSalesImport.days[0];
   financeDate.value=day.fecha;
+  const reportParts=parseYmd(day.fecha);
+  financeYear.value=String(reportParts.y);
+  financeMonth.value=String(reportParts.m);
+  updateWeekOptions();
+  financeWeek.value="0";
   financeHalfDozens.value=Math.floor(day.pares/6);
   financeProfit.value="";
   financeProfit.focus();
@@ -4092,6 +4117,26 @@ function setupFinanceFilters(){
   const currentMonth=Number(financeMonth.value)||new Date().getMonth()+1;
   financeMonth.innerHTML='<option value="0">Todos los meses</option>'+MONTHS_ES.map((name,i)=>'<option value="'+(i+1)+'" '+((i+1)===currentMonth?'selected':'')+'>'+name+'</option>').join("");
   updateWeekOptions();
+  setupRecordFilters();
+}
+function setupRecordFilters(){
+  if(!recordMonth||!recordWeek)return;
+  const priorMonth=recordMonth.value||"0",priorWeek=recordWeek.value||"0";
+  recordMonth.innerHTML='<option value="0">Todos los meses</option>'+MONTHS_ES.map((name,i)=>'<option value="'+(i+1)+'">'+name+'</option>').join("");
+  recordMonth.value=priorMonth;
+  updateRecordWeekOptions(priorWeek);
+}
+function updateRecordWeekOptions(preferred){
+  const year=Number(financeYear.value)||new Date().getFullYear(),month=Number(recordMonth.value)||0;
+  const totalDays=365+(new Date(Date.UTC(year,1,29)).getUTCDate()===29?1:0),totalWeeks=Math.ceil(totalDays/7),opts=[];
+  for(let week=1;week<=totalWeeks;week++){
+    const startDoy=(week-1)*7+1,endDoy=Math.min(startDoy+6,totalDays);
+    const startDate=new Date(Date.UTC(year,0,startDoy)),endDate=new Date(Date.UTC(year,0,endDoy));
+    if(month&&startDate.getUTCMonth()+1!==month&&endDate.getUTCMonth()+1!==month)continue;
+    opts.push('<option value="'+week+'">'+weekLabelByInfo({week,startDate,endDate})+'</option>');
+  }
+  recordWeek.innerHTML='<option value="0">Todas las semanas</option>'+opts.join("");
+  if(preferred&&[...recordWeek.options].some(o=>o.value===String(preferred)))recordWeek.value=String(preferred);
 }
 function updateWeekOptions(){
   const year=Number(financeYear.value)||new Date().getFullYear();
@@ -4142,11 +4187,17 @@ function renderFinance(){
   document.getElementById("financeTotalHalfDozens").textContent=half;
   document.getElementById("financeTotalPairs").textContent=half*6;
 
-  if(!rows.length){
-    financeRows.innerHTML='<div class="finance-empty">No hay registros en este periodo.</div>';
+  let tableRows=allFinance.filter(r=>parseYmd(r.fecha).y===Number(financeYear.value));
+  const rm=Number(recordMonth.value||0),rw=Number(recordWeek.value||0),rd=recordDay.value;
+  if(rm)tableRows=tableRows.filter(r=>parseYmd(r.fecha).m===rm);
+  if(rw)tableRows=tableRows.filter(r=>weekInfo(r.fecha).week===rw);
+  if(rd)tableRows=tableRows.filter(r=>r.fecha===rd);
+  tableRows.sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  if(!tableRows.length){
+    financeRows.innerHTML='<div class="finance-empty">No hay registros con estos filtros.</div>';
   }else{
     financeRows.innerHTML='<table class="finance-table"><thead><tr><th>Fecha</th><th>Semana</th><th>Ganancia</th><th>43%</th><th>Medias</th><th>Pares</th><th></th></tr></thead><tbody>'+
-      rows.map(r=>{
+      tableRows.map(r=>{
         const w=weekInfo(r.fecha);
         return '<tr><td>'+formatFinanceDate(r.fecha)+'</td><td><span class="finance-week-label">'+weekLabelByInfo(w)+'</span></td><td>'+moneyShort(r.ganancia)+'</td><td>'+moneyShort(Number(r.ganancia)*.43)+'</td><td>'+Number(r.medias_docenas)+'</td><td>'+Number(r.medias_docenas)*6+'</td><td><div class="finance-actions"><button class="finance-edit" data-id="'+r.id+'">Editar</button><button class="finance-delete" data-id="'+r.id+'">Eliminar</button></div></td></tr>';
       }).join("")+'</tbody></table>';
@@ -4278,6 +4329,13 @@ function setupBreakEvenHistory(){
 beHistoryYear.onchange=renderBreakEvenHistory;
 beHistoryMonth.onchange=renderBreakEvenHistory;
 
+const expenseToggle=document.getElementById("expenseToggle");
+const expenseCollapsible=document.getElementById("expenseCollapsible");
+expenseToggle.onclick=function(){
+  const open=expenseCollapsible.classList.toggle("open");
+  expenseToggle.classList.toggle("open",open);
+};
+
 function setupFixedFilters(preferredYear,preferredMonth){
   const keepYear=String(preferredYear||fixedYear.value||"");
   const keepMonth=String(preferredMonth||fixedMonth.value||"");
@@ -4394,6 +4452,10 @@ saveFinance.onclick=saveFinanceRecord;
 financeYear.onchange=function(){updateWeekOptions();if(fixedYear)fixedYear.value=financeYear.value;renderFinance();syncFixedInput()};
 financeMonth.onchange=function(){updateWeekOptions();if(fixedMonth&&financeMonth.value!=="0")fixedMonth.value=financeMonth.value;renderFinance();syncFixedInput()};
 financeWeek.onchange=renderFinance;
+recordMonth.onchange=function(){updateRecordWeekOptions("0");recordDay.value="";renderFinance()};
+recordWeek.onchange=function(){recordDay.value="";renderFinance()};
+recordDay.onchange=function(){if(recordDay.value){const p=parseYmd(recordDay.value);recordMonth.value=String(p.m);updateRecordWeekOptions(weekInfo(recordDay.value).week);recordWeek.value=String(weekInfo(recordDay.value).week)}renderFinance()};
+document.getElementById("clearRecordFilters").onclick=function(){recordMonth.value="0";recordDay.value="";updateRecordWeekOptions("0");renderFinance()};
 document.getElementById("refreshFinance").onclick=loadFinance;
 financeRows.onclick=async function(e){
   const edit=e.target.closest(".finance-edit");
