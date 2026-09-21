@@ -1899,6 +1899,33 @@ footer{
     </section>
   </div>
 
+
+
+  <section class="finance-table-card">
+    <div class="orders-header">
+      <div>
+        <h2>Registros</h2>
+        <p>Filtrados automáticamente por año, mes y semana.</p>
+      </div>
+      <button id="refreshFinance" class="refresh" type="button">Actualizar</button>
+    </div>
+    <div class="record-filter">
+      <select id="recordMonth"><option value="0">Todos los meses</option></select>
+      <select id="recordWeek"><option value="0">Todas las semanas</option></select>
+      <input id="recordDay" class="record-day" type="date" aria-label="Filtrar por día">
+      <button id="clearRecordFilters" class="refresh" type="button">Limpiar filtros</button>
+    </div>
+    <div id="recordTotals" class="record-totals"></div>
+    <div class="record-tools-tabs">
+      <button id="toggleMonthCompare" class="record-tool-btn" type="button">Comparar meses</button>
+      <button id="toggleCustomRange" class="record-tool-btn" type="button">Rango personalizado</button>
+    </div>
+    <div id="monthComparePanel" class="record-compare record-tool-panel"><strong>Comparar dos meses</strong><div class="record-filter" style="margin-top:10px"><select id="compareMonthA"></select><select id="compareMonthB"></select></div><div id="customMonthCompare"></div></div>
+    <div id="customRangePanel" class="record-compare record-tool-panel"><strong>Rango personalizado</strong><div class="record-filter" style="margin-top:10px"><input id="recordFrom" class="record-day" type="date"><input id="recordTo" class="record-day" type="date"><button id="applyRecordRange" class="refresh" type="button">Aplicar rango</button><button id="clearRecordRange" class="refresh" type="button">Quitar rango</button></div><div id="rangeSummary"></div></div>
+    <div id="recordCompare" class="record-compare"></div>
+    <div id="financeRows"></div>
+  </section>
+
   <section class="break-even-card">
     <div class="orders-header"><div><h2>Punto de equilibrio</h2><p>Configura tus gastos fijos mensuales y mide cuánto falta para cubrirlos con tu apartado del 43%.</p></div></div>
     <div class="break-even-form">
@@ -1934,31 +1961,6 @@ footer{
       <select id="beHistoryMonth"></select>
     </div>
     <div id="beHistorySummary" class="finance-empty">Selecciona cualquier mes para consultar el registro que quedó guardado en ese periodo.</div>
-  </section>
-
-  <section class="finance-table-card">
-    <div class="orders-header">
-      <div>
-        <h2>Registros</h2>
-        <p>Filtrados automáticamente por año, mes y semana.</p>
-      </div>
-      <button id="refreshFinance" class="refresh" type="button">Actualizar</button>
-    </div>
-    <div class="record-filter">
-      <select id="recordMonth"><option value="0">Todos los meses</option></select>
-      <select id="recordWeek"><option value="0">Todas las semanas</option></select>
-      <input id="recordDay" class="record-day" type="date" aria-label="Filtrar por día">
-      <button id="clearRecordFilters" class="refresh" type="button">Limpiar filtros</button>
-    </div>
-    <div id="recordTotals" class="record-totals"></div>
-    <div class="record-tools-tabs">
-      <button id="toggleMonthCompare" class="record-tool-btn" type="button">Comparar meses</button>
-      <button id="toggleCustomRange" class="record-tool-btn" type="button">Rango personalizado</button>
-    </div>
-    <div id="monthComparePanel" class="record-compare record-tool-panel"><strong>Comparar dos meses</strong><div class="record-filter" style="margin-top:10px"><select id="compareMonthA"></select><select id="compareMonthB"></select></div><div id="customMonthCompare"></div></div>
-    <div id="customRangePanel" class="record-compare record-tool-panel"><strong>Rango personalizado</strong><div class="record-filter" style="margin-top:10px"><input id="recordFrom" class="record-day" type="date"><input id="recordTo" class="record-day" type="date"><button id="applyRecordRange" class="refresh" type="button">Aplicar rango</button><button id="clearRecordRange" class="refresh" type="button">Quitar rango</button></div><div id="rangeSummary"></div></div>
-    <div id="recordCompare" class="record-compare"></div>
-    <div id="financeRows"></div>
   </section>
 </div>
 
