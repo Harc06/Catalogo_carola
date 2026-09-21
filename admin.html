@@ -1651,15 +1651,15 @@ footer{
 
 <div class="tabs-wrap">
   <div class="tabs">
-    <button id="catalogTab" class="tab active" type="button">CATÁLOGO</button>
+    <button id="catalogTab" class="tab" type="button">CATÁLOGO</button>
     <button id="ordersTab" class="tab" type="button">REGISTRO</button>
-    <button id="financeTab" class="tab" type="button">FINANZAS</button>
+    <button id="financeTab" class="tab active" type="button">FINANZAS</button>
   </div>
 </div>
 
 <main>
 
-<div id="catalogPanel" class="panel active">
+<div id="catalogPanel" class="panel">
 
 <section class="card" id="uploadSection">
 
@@ -1819,7 +1819,7 @@ footer{
 </div>
 
 
-<div id="financePanel" class="panel">
+<div id="financePanel" class="panel active">
   <section class="card import-card">
     <h2>Importar ventas desde Excel</h2>
     <p>Lee únicamente Hoja2. CAROLA calcula las medias docenas; tú solo capturas la ganancia.</p>
@@ -4602,7 +4602,7 @@ function escapeAttribute(value){
 /* INICIAR */
 
 createColorBlock("");
-loadModels();
+loadFinance().then(()=>window.scrollTo({top:0,left:0,behavior:"auto"}));
 
 </script>
 
