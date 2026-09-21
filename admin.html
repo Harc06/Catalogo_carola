@@ -1440,8 +1440,8 @@ footer{
 .import-drop{border:1.5px dashed #dcb8c7;border-radius:16px;padding:18px;text-align:center;background:#fff8fb}
 .import-drop input{display:none}
 .paste-excel{margin-top:14px;padding-top:14px;border-top:1px solid #ecd8e1}
-.paste-excel textarea{box-sizing:border-box;width:100%;min-height:92px;resize:vertical;border:1px solid #ddd;border-radius:12px;padding:12px;font:14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#fff;outline:none}
-.paste-excel textarea:focus{border-color:#dcaabd}
+.file-paste-zone{box-sizing:border-box;width:100%;min-height:92px;border:1px solid #ddd;border-radius:12px;padding:18px;background:#fff;outline:none;display:flex;align-items:center;justify-content:center;color:#777;font-size:14px;cursor:text}
+.file-paste-zone:focus{border-color:#dcaabd;box-shadow:0 0 0 3px rgba(220,170,189,.12)}
 .paste-hint{margin:8px 0 0!important;font-size:12px;color:#888}
 .import-btn{display:inline-block;padding:12px 18px;border-radius:12px;background:#171717;color:#fff;font-weight:800;cursor:pointer}
 .import-preview{margin-top:14px}
@@ -1818,8 +1818,8 @@ footer{
       <input id="salesExcel" type="file" accept=".xlsx,.xls">
       <div id="salesExcelName" style="margin-top:10px;color:#888;font-size:12px">Ningún archivo seleccionado</div>
       <div class="paste-excel">
-        <textarea id="salesPaste" placeholder="O pega aquí las filas copiadas directamente desde Excel"></textarea>
-        <p class="paste-hint">En Excel selecciona la tabla de Hoja2, toca Copiar y pégala aquí. No necesitas guardar ni subir el archivo.</p>
+        <div id="salesPaste" class="file-paste-zone" tabindex="0">Pega aquí el archivo de Excel completo</div>
+        <p class="paste-hint">Copia el archivo .xlsx desde Archivos/Finder/Explorador y pégalo aquí. El archivo se procesa en el navegador y no se almacena en CAROLA.</p>
       </div>
     </div>
     <div id="importPreview" class="import-preview"></div>
@@ -3965,7 +3965,7 @@ function renderSalesPreview(data){
   const clientRows=[];
   data.days.forEach(d=>Object.entries(d.clientes).forEach(([name,pares])=>clientRows.push({fecha:d.fecha,name,pares})));
   importPreview.innerHTML='<div class="import-kpis"><div class="summary-box"><strong>'+pairs+'</strong><span>PARES VÁLIDOS</span></div><div class="summary-box"><strong>'+Math.floor(pairs/6)+'</strong><span>MEDIAS DOCENAS</span></div><div class="summary-box"><strong>'+data.ignored+'</strong><span>LÍNEAS IGNORADAS</span></div></div><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Pares válidos</th><th>Medias</th></tr></thead><tbody>'+clientRows.map(x=>'<tr><td>'+formatFinanceDate(x.fecha)+'</td><td>'+escapeHtml(x.name)+'</td><td>'+x.pares+'</td><td>'+Math.floor(x.pares/6)+'</td></tr>').join("")+'</tbody></table></div><div class="import-actions"><button id="importCancel" type="button">Cancelar</button><button id="importConfirm" type="button">Usar medias docenas</button></div>';
-  document.getElementById("importCancel").onclick=()=>{pendingSalesImport=null;importPreview.innerHTML="";salesExcel.value="";salesPaste.value="";document.getElementById("salesExcelName").textContent="Ningún archivo seleccionado"};
+  document.getElementById("importCancel").onclick=()=>{pendingSalesImport=null;importPreview.innerHTML="";salesExcel.value="";salesPaste.textContent="Pega aquí el archivo de Excel completo";document.getElementById("salesExcelName").textContent="Ningún archivo seleccionado"};
   document.getElementById("importConfirm").onclick=confirmSalesImport;
 }
 async function confirmSalesImport(){
@@ -3982,41 +3982,40 @@ async function confirmSalesImport(){
   pendingSalesImport=null;
   importPreview.innerHTML='<div class="finance-empty">✓ Medias docenas cargadas en el registro del '+escapeHtml(formatFinanceDate(day.fecha))+'. Ahora escribe únicamente la ganancia del día y presiona Guardar registro.</div>';
 }
-function parsePastedExcel(text){
-  const rows=String(text||"").split(/\r?\n/).filter(line=>line.trim()).map(line=>line.split("\t"));
-  if(!rows.length)throw new Error("No detecté datos copiados de Excel.");
-  return parseSalesSheet(rows);
+async function processExcelFile(file){
+  if(!file)throw new Error("No detecté un archivo.");
+  const name=String(file.name||"").toLowerCase();
+  if(!name.endsWith(".xlsx")&&!name.endsWith(".xls"))throw new Error("Pega un archivo de Excel .xlsx o .xls.");
+  if(typeof XLSX==="undefined")throw new Error("No se pudo cargar el lector de Excel.");
+  document.getElementById("salesExcelName").textContent=file.name||"Excel pegado";
+  importPreview.innerHTML='<div class="finance-empty">Leyendo Hoja2...</div>';
+  const buffer=await file.arrayBuffer(),book=XLSX.read(buffer,{type:"array"});
+  if(!book.Sheets["Hoja2"])throw new Error("El archivo no contiene Hoja2.");
+  const rows=XLSX.utils.sheet_to_json(book.Sheets["Hoja2"],{header:1,raw:true,defval:null});
+  pendingSalesImport=parseSalesSheet(rows);
+  renderSalesPreview(pendingSalesImport);
 }
-salesPaste.addEventListener("paste",function(e){
-  const text=e.clipboardData&&e.clipboardData.getData("text/plain");
-  if(!text)return;
+salesPaste.addEventListener("paste",async function(e){
   e.preventDefault();
-  this.value=text;
-  try{
-    pendingSalesImport=parsePastedExcel(text);
-    document.getElementById("salesExcelName").textContent="Datos pegados desde Excel";
-    renderSalesPreview(pendingSalesImport);
-  }catch(err){
-    pendingSalesImport=null;
-    importPreview.innerHTML='<div class="finance-empty">'+escapeHtml(err.message)+'</div>';
+  const items=Array.from(e.clipboardData?.items||[]);
+  let file=null;
+  for(const item of items){
+    if(item.kind==="file"){file=item.getAsFile();if(file)break}
   }
+  if(!file&&e.clipboardData?.files?.length)file=e.clipboardData.files[0];
+  if(!file){
+    importPreview.innerHTML='<div class="finance-empty">El navegador no recibió un archivo de Excel. Copia el archivo .xlsx completo y vuelve a pegarlo aquí.</div>';
+    return;
+  }
+  try{await processExcelFile(file)}
+  catch(err){pendingSalesImport=null;importPreview.innerHTML='<div class="finance-empty">'+escapeHtml(err.message)+'</div>'}
 });
-salesPaste.addEventListener("input",function(){
-  if(!this.value.trim())return;
-  try{pendingSalesImport=parsePastedExcel(this.value);renderSalesPreview(pendingSalesImport)}catch(err){}
-});
+salesPaste.addEventListener("click",function(){this.focus()});
 
 salesExcel.onchange=async function(){
   const file=this.files&&this.files[0];if(!file)return;
-  document.getElementById("salesExcelName").textContent=file.name;
-  importPreview.innerHTML='<div class="finance-empty">Leyendo Hoja2...</div>';
-  try{
-    if(typeof XLSX==="undefined")throw new Error("No se pudo cargar el lector de Excel.");
-    const buffer=await file.arrayBuffer(),book=XLSX.read(buffer,{type:"array"});
-    if(!book.Sheets["Hoja2"])throw new Error("El archivo no contiene Hoja2.");
-    const rows=XLSX.utils.sheet_to_json(book.Sheets["Hoja2"],{header:1,raw:true,defval:null});
-    pendingSalesImport=parseSalesSheet(rows);renderSalesPreview(pendingSalesImport);
-  }catch(e){pendingSalesImport=null;importPreview.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
+  try{await processExcelFile(file)}
+  catch(e){pendingSalesImport=null;importPreview.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
 };
 
 
