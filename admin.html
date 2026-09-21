@@ -2038,9 +2038,16 @@ async function loginFaceID(){
   adminPassword=v.token;
 }
 async function authenticateAdmin(){
-  authOverlay("Usa Face ID para entrar.");
+  authOverlay("Preparando acceso seguro…");
   if(!window.PublicKeyCredential)throw new Error("Este navegador no admite Passkeys.");
   const status=await authCall({action:"status"});
+  authOverlay(status.hasPasskey?"Toca la pantalla para continuar con Face ID.":"Primera configuración: toca la pantalla para activar Face ID.");
+  await new Promise((resolve,reject)=>{
+    const el=document.getElementById("carolaAuth");
+    el.style.cursor="pointer";
+    el.onclick=()=>{el.onclick=null;resolve()};
+    setTimeout(()=>reject(new Error("Toca la pantalla y vuelve a intentarlo.")),120000);
+  });
   if(status.hasPasskey)await loginFaceID();else await setupFaceID();
   hideAuth();
 }
