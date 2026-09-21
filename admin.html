@@ -4005,6 +4005,107 @@ function drawFinanceChart(rows){
   drawBars(financeChart,financeTooltip,points,"ganancia",v=>moneyShort(v));
   attachChartHover(financeChart);
 }
+function dayName(value){
+  const {y,m,d}=parseYmd(value);
+  return ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"][new Date(Date.UTC(y,m-1,d)).getUTCDay()];
+}
+function drawBars(canvas,tooltip,points,valueKey,valueFormatter){
+  const ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const pad={l:58,r:14,t:18,b:48};
+  const max=Math.max(...points.map(p=>Number(p[valueKey]||0)),1);
+  const innerW=w-pad.l-pad.r,innerH=h-pad.t-pad.b;
+  ctx.strokeStyle="#eadfe4";ctx.lineWidth=1;
+  for(let n=0;n<=4;n++){const y=pad.t+innerH*(n/4);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke()}
+  const slot=innerW/Math.max(points.length,1),bar=Math.max(7,Math.min(34,slot*.58));
+  const hit=[];
+  points.forEach((p,n)=>{
+    const v=Number(p[valueKey]||0),bh=(v/max)*(innerH-8),x=pad.l+n*slot+(slot-bar)/2,y=pad.t+innerH-bh;
+    ctx.fillStyle="#e8bfd0";ctx.fillRect(x,y,bar,bh);
+    ctx.fillStyle="#333";ctx.font="10px -apple-system,BlinkMacSystemFont,Segoe UI,Arial";ctx.textAlign="center";
+    ctx.fillText(p.label,x+bar/2,h-20);
+    hit.push({x,y,w:bar,h:Math.max(bh,4),p});
+  });
+  ctx.fillStyle="#888";ctx.textAlign="right";ctx.font="9px -apple-system,BlinkMacSystemFont,Segoe UI,Arial";
+  for(let n=0;n<=4;n++){const v=max*(1-n/4),y=pad.t+innerH*(n/4)+3;ctx.fillText(valueFormatter(v),pad.l-7,y)}
+  canvas._hits=hit;canvas._tooltip=tooltip;
+}
+function attachChartHover(canvas){
+  function hide(){if(canvas._tooltip)canvas._tooltip.style.display="none"}
+  canvas.onmouseleave=hide;
+  canvas.onmousemove=function(e){
+    const rect=canvas.getBoundingClientRect(),sx=canvas.width/rect.width,sy=canvas.height/rect.height;
+    const x=(e.clientX-rect.left)*sx,y=(e.clientY-rect.top)*sy;
+    const hit=(canvas._hits||[]).find(h=>x>=h.x-5&&x<=h.x+h.w+5&&y>=h.y-8&&y<=h.y+h.h+8);
+    if(!hit){hide();return}
+    const p=hit.p,t=canvas._tooltip;
+    t.innerHTML="<b>"+escapeHtml(p.fullLabel||p.label)+"</b><br>Ganancia: "+escapeHtml(moneyShort(p.ganancia))+"<br>Pares: "+Number(p.pares||0)+"<br>"+escapeHtml(p.semana||"");
+    t.style.display="block";
+    const card=canvas.closest(".finance-chart-card").getBoundingClientRect();
+    t.style.left=Math.min(e.clientX-card.left+12,card.width-190)+"px";
+    t.style.top=Math.max(70,e.clientY-card.top-20)+"px";
+  };
+}
+function drawPairsChart(rows){
+  const month=Number(financeMonth.value),week=Number(financeWeek.value);
+  let points=[];
+  if(month){
+    points=rows.map(r=>({label:dayName(r.fecha)+" "+parseYmd(r.fecha).d,fullLabel:formatFinanceDate(r.fecha),pares:Number(r.medias_docenas)*6,ganancia:Number(r.ganancia),semana:weekLabelForDate(r.fecha)}));
+  }else{
+    points=MONTHS_ES.map((name,n)=>{
+      const rr=rows.filter(r=>parseYmd(r.fecha).m===n+1);
+      return {label:name.slice(0,3),fullLabel:name,pares:rr.reduce((s,r)=>s+Number(r.medias_docenas)*6,0),ganancia:rr.reduce((s,r)=>s+Number(r.ganancia),0),semana:"Acumulado mensual"};
+    });
+  }
+  drawBars(pairsChart,pairsTooltip,points,"pares",v=>String(Math.round(v)));
+  attachChartHover(pairsChart);
+}
+function renderBreakEven(){
+  const y=Number(fixedYear.value)||Number(financeYear.value)||new Date().getFullYear();
+  const m=Number(fixedMonth.value)||Number(financeMonth.value)||new Date().getMonth()+1;
+  const goal=financeGoals.find(g=>Number(g.anio)===y&&Number(g.mes)===m);
+  const fixed=Number(goal?.gastos_fijos||0);
+  const rows=allFinance.filter(r=>{const p=parseYmd(r.fecha);return p.y===y&&p.m===m});
+  const profit=rows.reduce((s,r)=>s+Number(r.ganancia||0),0);
+  const pairs=rows.reduce((s,r)=>s+Number(r.medias_docenas||0)*6,0);
+  const reserved=profit*.43,avg=pairs?profit/pairs:0,contribution=avg*.43;
+  const missing=Math.max(0,fixed-reserved),pairsNeeded=contribution>0?Math.ceil(missing/contribution):0,extra=Math.max(0,reserved-fixed);
+  document.getElementById("beFixed").textContent=moneyShort(fixed);
+  document.getElementById("beReserved").textContent=moneyShort(reserved);
+  document.getElementById("beAvg").textContent=moneyShort(avg);
+  document.getElementById("bePairs").textContent=fixed?pairsNeeded:"—";
+  document.getElementById("beExtra").textContent=moneyShort(extra);
+  document.getElementById("breakEvenProgressBar").style.width=(fixed?Math.min(100,(reserved/fixed)*100):0)+"%";
+  document.getElementById("breakEvenNote").textContent=!fixed?"Guarda los gastos fijos del mes para calcular tu punto de equilibrio.":(reserved>=fixed?"Meta cubierta. Excedente del apartado: "+moneyShort(extra)+".":"Faltan "+moneyShort(missing)+"; al promedio actual faltan aproximadamente "+pairsNeeded+" pares.");
+}
+function setupFixedFilters(){
+  const years=[...new Set([new Date().getFullYear(),...allFinance.map(r=>parseYmd(r.fecha).y),...financeGoals.map(g=>Number(g.anio))])].sort((a,b)=>b-a);
+  fixedYear.innerHTML=years.map(y=>'<option value="'+y+'">'+y+'</option>').join("");
+  fixedMonth.innerHTML=MONTHS_ES.map((n,k)=>'<option value="'+(k+1)+'">'+n+'</option>').join("");
+  fixedYear.value=financeYear.value||String(new Date().getFullYear());
+  fixedMonth.value=financeMonth.value&&financeMonth.value!=="0"?financeMonth.value:String(new Date().getMonth()+1);
+  syncFixedInput();
+}
+function syncFixedInput(){
+  const g=financeGoals.find(x=>Number(x.anio)===Number(fixedYear.value)&&Number(x.mes)===Number(fixedMonth.value));
+  fixedExpense.value=g?Number(g.gastos_fijos):"";
+  renderBreakEven();
+}
+async function saveFixedExpenseValue(){
+  const gastos=Number(fixedExpense.value),anio=Number(fixedYear.value),mes=Number(fixedMonth.value);
+  if(!Number.isFinite(gastos)||gastos<0){alert("Escribe gastos fijos válidos.");return}
+  const btn=document.getElementById("saveFixedExpense");btn.disabled=true;btn.textContent="Guardando...";
+  try{
+    const response=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"save-goal",anio,mes,gastos_fijos:gastos})});
+    const result=await readJson(response);
+    if(!response.ok||!result.success)throw new Error(result.error||"No se pudo guardar.");
+    await loadFinance();showOperation("✓ Gastos fijos guardados");setTimeout(hideOperation,1500);
+  }catch(e){alert(e.message)}finally{btn.disabled=false;btn.textContent="Guardar meta"}
+}
+fixedYear.onchange=syncFixedInput;
+fixedMonth.onchange=syncFixedInput;
+document.getElementById("saveFixedExpense").onclick=saveFixedExpenseValue;
+
 async function loadFinance(){
   financeRows.innerHTML='<div class="finance-empty">Cargando finanzas...</div>';
   try{
