@@ -1660,6 +1660,7 @@ footer{
 .supplier-column>div:last-child{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .supplier-column .finance-table{width:100%;min-width:540px}
 @media(max-width:800px){.supplier-split{grid-template-columns:1fr}.supplier-column{padding:14px}.supplier-column .finance-table{min-width:580px}}
+.move-menu{display:inline-block;position:relative}.move-menu summary{list-style:none;cursor:pointer;background:#f8edf2;border:1px solid #ead5df;border-radius:10px;padding:7px 10px;font-weight:800}.move-menu summary::-webkit-details-marker{display:none}.move-menu>div{position:absolute;right:0;z-index:20;background:white;border:1px solid #eadfe3;border-radius:12px;padding:6px;box-shadow:0 8px 25px rgba(0,0,0,.12);min-width:130px}.move-menu button{display:block;width:100%;border:0;background:white;text-align:left;padding:9px;border-radius:8px;font-weight:700}.deleted-box{margin-top:18px;background:#fff;border:1px solid #eadfe3;border-radius:18px;padding:14px 18px}.deleted-box>summary{cursor:pointer;font-weight:900}.supplier-column input{padding:8px;border:1px solid #dfd4d8;border-radius:9px;max-width:120px}
 </style>
 <style>
 .finance-quick-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -2226,21 +2227,35 @@ function supplierHistoryTable(items,tipo){
  if(!items.length)return '<div class="finance-empty">Sin '+(tipo==="nota"?"notas":"pagos")+'.</div>';
  return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Fecha</th><th>'+(tipo==="nota"?"Folio":"Forma")+'</th><th>Importe</th>'+(tipo==="nota"?'<th>Pares</th>':'')+'<th></th></tr></thead><tbody>'+items.map(x=>{
   const incomplete=!x.fecha||(tipo==="nota"&&(!x.folio||!x.pares))||(tipo==="pago"&&!x.forma_pago);
-  const date=pendingField(x,"fecha","date","Fecha");
-  const detail=tipo==="nota"?pendingField(x,"folio","text","Folio"):pendingField(x,"forma_pago","text","Forma de pago");
-  const pairs=tipo==="nota"?pendingField(x,"pares","number","Pares"):"";
-  return '<tr><td>'+date+'</td><td>'+detail+'</td><td>'+moneyShort(x.importe)+'</td>'+(tipo==="nota"?'<td>'+pairs+'</td>':'')+'<td>'+(incomplete?'<button class="record-tool-btn" style="padding:7px 10px" onclick="savePendingMove('+x.id+',\''+tipo+'\')">Guardar</button>':'')+' <button class="delete-finance" onclick="deleteSupplierMove('+x.id+')">Eliminar</button></td></tr>'
+  const date=pendingField(x,"fecha","date","Fecha"),detail=tipo==="nota"?pendingField(x,"folio","text","Folio"):pendingField(x,"forma_pago","text","Forma de pago"),pairs=tipo==="nota"?pendingField(x,"pares","number","Pares"):"";
+  return '<tr id="move-row-'+x.id+'"><td>'+date+'</td><td>'+detail+'</td><td>'+moneyShort(x.importe)+'</td>'+(tipo==="nota"?'<td>'+pairs+'</td>':'')+'<td>'+(incomplete?'<button class="record-tool-btn" style="padding:7px 10px" onclick="savePendingMove('+x.id+',\''+tipo+'\')">Guardar</button> ':'')+'<details class="move-menu"><summary>Editar</summary><div><button type="button" onclick="editSupplierMove('+x.id+')">Editar datos</button><button type="button" onclick="deleteSupplierMove('+x.id+')">Eliminar</button></div></details></td></tr>'
  }).join("")+'</tbody></table></div>';
 }
+function editSupplierMove(id){
+ const x=supplierMoves.find(m=>m.id===id);if(!x)return;
+ const row=document.getElementById("move-row-"+id),note=x.tipo==="nota";
+ row.innerHTML='<td><input id="edit-date-'+id+'" type="date" value="'+(x.fecha||"")+'"></td><td><input id="edit-detail-'+id+'" type="text" value="'+escapeHtml(note?(x.folio||""):(x.forma_pago||""))+'" placeholder="'+(note?"Folio":"Forma de pago")+'"></td><td><input id="edit-amount-'+id+'" type="number" min=".01" step=".01" value="'+Number(x.importe)+'"></td>'+(note?'<td><input id="edit-pairs-'+id+'" type="number" min="1" step="1" value="'+(x.pares||"")+'"></td>':'')+'<td><button class="record-tool-btn" onclick="saveSupplierEdit('+id+')">Guardar</button> <button class="record-tool-btn" onclick="renderSuppliers()">Cancelar</button></td>';
+}
+async function saveSupplierEdit(id){
+ const x=supplierMoves.find(m=>m.id===id),note=x.tipo==="nota";
+ const b={action:"update-movement",id,tipo:x.tipo,fecha:document.getElementById("edit-date-"+id).value,importe:Number(document.getElementById("edit-amount-"+id).value)};
+ if(note){b.folio=document.getElementById("edit-detail-"+id).value;b.pares=Number(document.getElementById("edit-pairs-"+id).value)}else b.forma_pago=document.getElementById("edit-detail-"+id).value;
+ try{await supplierCall(b);await loadSuppliers()}catch(e){alert(e.message)}
+}
+function deletedSupplierTable(items){
+ if(!items.length)return '<div class="finance-empty">No hay movimientos eliminados.</div>';
+ return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Importe</th><th></th></tr></thead><tbody>'+items.map(x=>'<tr><td>'+(x.fecha?formatFinanceDate(x.fecha):"—")+'</td><td>'+(x.tipo==="nota"?"Nota":"Pago")+'</td><td>'+escapeHtml(x.tipo==="nota"?(x.folio||"—"):(x.forma_pago||"—"))+'</td><td>'+moneyShort(x.importe)+'</td><td><button class="record-tool-btn" onclick="restoreSupplierMove('+x.id+')">Restaurar</button></td></tr>').join("")+'</tbody></table></div>';
+}
+async function restoreSupplierMove(id){try{await supplierCall({action:"restore-movement",id});await loadSuppliers()}catch(e){alert(e.message)}}
 function renderSuppliers(){
  supplierSelect.innerHTML=suppliers.length?suppliers.map(p=>'<option value="'+p.id+'" '+(p.id===selectedSupplier?'selected':'')+'>'+escapeHtml(p.nombre)+'</option>').join(""):'<option value="">Sin proveedores</option>';
  const p=suppliers.find(x=>x.id===selectedSupplier);if(!p){supplierContent.innerHTML='<div class="finance-empty">Agrega un proveedor para comenzar.</div>';return}
- const m=supplierMoves.filter(x=>x.proveedor_id===p.id),notes=m.filter(x=>x.tipo==="nota"),pays=m.filter(x=>x.tipo==="pago"),openings=m.filter(x=>x.tipo==="saldo_inicial");
+ const all=supplierMoves.filter(x=>x.proveedor_id===p.id),m=all.filter(x=>!x.eliminado_en),deleted=all.filter(x=>x.eliminado_en),notes=m.filter(x=>x.tipo==="nota"),pays=m.filter(x=>x.tipo==="pago"),openings=m.filter(x=>x.tipo==="saldo_inicial");
  const nt=notes.reduce((s,x)=>s+Number(x.importe),0),pt=pays.reduce((s,x)=>s+Number(x.importe),0),opening=openings.reduce((s,x)=>s+Number(x.importe),0),pairs=notes.reduce((s,x)=>s+Number(x.pares||0),0),pending=notes.filter(x=>!x.pares||!x.fecha||!x.folio).length+pays.filter(x=>!x.fecha||!x.forma_pago).length,balance=opening+nt-pt;
  supplierContent.innerHTML='<h2>'+escapeHtml(p.nombre)+'</h2><div class="finance-summary"><div class="summary-box"><strong>'+moneyShort(nt)+'</strong><span>TOTAL NOTAS</span></div><div class="summary-box"><strong>'+moneyShort(pt)+'</strong><span>TOTAL PAGADO</span></div><div class="summary-box"><strong>'+moneyShort(balance)+'</strong><span>SALDO PENDIENTE</span></div><div class="summary-box"><strong>'+pairs+'</strong><span>PARES RECIBIDOS</span></div></div>'+
  '<div class="record-tools-tabs"><button id="newNoteBtn" class="record-tool-btn">+ Nota / entrega</button><button id="newPayBtn" class="record-tool-btn">+ Pago</button></div><div id="supplierForm"></div>'+
  ''+
- '<div class="supplier-split"><section class="supplier-column supplier-notes"><div class="supplier-card-head"><div><span class="supplier-kicker">ENTRADAS</span><h3>Notas / entregas</h3></div><strong class="supplier-card-total">'+moneyShort(nt)+'</strong></div>'+supplierHistoryTable(notes,"nota")+'</section><section class="supplier-column supplier-pays"><div class="supplier-card-head"><div><span class="supplier-kicker">SALIDAS</span><h3>Pagos</h3></div><strong class="supplier-card-total">'+moneyShort(pt)+'</strong></div>'+supplierHistoryTable(pays,"pago")+'</section></div>';
+ '<div class="supplier-split"><section class="supplier-column supplier-notes"><div class="supplier-card-head"><div><span class="supplier-kicker">ENTRADAS</span><h3>Notas / entregas</h3></div><strong class="supplier-card-total">'+moneyShort(nt)+'</strong></div>'+supplierHistoryTable(notes,"nota")+'</section><section class="supplier-column supplier-pays"><div class="supplier-card-head"><div><span class="supplier-kicker">SALIDAS</span><h3>Pagos</h3></div><strong class="supplier-card-total">'+moneyShort(pt)+'</strong></div>'+supplierHistoryTable(pays,"pago")+'</section></div><details class="deleted-box"><summary>Eliminados ('+deleted.length+')</summary>'+deletedSupplierTable(deleted)+'</details>';
  document.getElementById("newNoteBtn").onclick=()=>supplierForm("nota");document.getElementById("newPayBtn").onclick=()=>supplierForm("pago");
 }
 async function savePendingMove(id,tipo){
@@ -2271,7 +2286,7 @@ function supplierForm(tipo){
    await supplierCall(b);await loadSuppliers()
  }catch(e){alert(e.message)}};
 }
-async function deleteSupplierMove(id){if(!confirm("¿Eliminar este movimiento?"))return;try{await supplierCall({action:"delete-movement",id});await loadSuppliers()}catch(e){alert(e.message)}}
+async function deleteSupplierMove(id){if(!confirm("¿Mover este movimiento a Eliminados?"))return;try{await supplierCall({action:"delete-movement",id});await loadSuppliers()}catch(e){alert(e.message)}}
 document.getElementById("addSupplier").onclick=async()=>{const nombre=supplierName.value.trim();if(!nombre)return;try{await supplierCall({action:"add-provider",nombre});supplierName.value="";await loadSuppliers()}catch(e){alert(e.message)}};
 document.getElementById("refreshSuppliers").onclick=loadSuppliers;
 document.getElementById("supplierSelect").onchange=e=>selectSupplier(e.target.value);
