@@ -2204,7 +2204,23 @@ function renderSuppliers(){
 function selectSupplier(id){selectedSupplier=id;renderSuppliers()}
 function supplierForm(tipo){
  const isNote=tipo==="nota";document.getElementById("supplierForm").innerHTML='<div class="finance-grid" style="margin-top:16px"><div><label>Fecha</label><input id="smDate" type="date" value="'+new Date().toISOString().slice(0,10)+'"></div>'+(isNote?'<div><label>Folio de nota</label><input id="smFolio" type="text" placeholder="Ej. 173"></div>':'<div><label>Forma de pago</label><select id="smPay"><option>Transferencia</option><option>Efectivo</option><option>Depósito</option><option>Otro</option></select></div>')+'<div><label>Importe</label><input id="smAmount" type="number" min="0.01" step="0.01" placeholder="$0.00"></div>'+(isNote?'<div><label>Pares recibidos</label><input id="smPairs" type="number" min="1" step="1" placeholder="0"></div>':'')+'<div><label>Observaciones</label><input id="smObs" type="text" placeholder="Opcional"></div></div><button id="saveSupplierMove" type="button">Guardar '+(isNote?"nota":"pago")+'</button>';
- document.getElementById("saveSupplierMove").onclick=async()=>{try{const b={action:"add-movement",proveedor_id:selectedSupplier,tipo,fecha:smDate.value,importe:Number(smAmount.value),observaciones:smObs.value};if(isNote){b.folio=smFolio.value;b.pares=Number(smPairs.value)}else b.forma_pago=smPay.value;await supplierCall(b);await loadSuppliers()}catch(e){alert(e.message)}};
+ document.getElementById("saveSupplierMove").onclick=async()=>{try{
+   const fecha=smDate.value,importe=Number(smAmount.value);
+   if(!fecha)return alert("Falta la fecha. No se registró nada.");
+   if(!Number.isFinite(importe)||importe<=0)return alert("Falta un importe válido. No se registró nada.");
+   const b={action:"add-movement",proveedor_id:selectedSupplier,tipo,fecha,importe,observaciones:smObs.value};
+   if(isNote){
+     const folio=smFolio.value.trim(),pares=Number(smPairs.value);
+     if(!folio)return alert("Falta el folio de la nota. No se registró nada.");
+     if(!Number.isInteger(pares)||pares<=0)return alert("Falta el número de pares recibidos. No se registró nada.");
+     b.folio=folio;b.pares=pares;
+   }else{
+     const forma=smPay.value.trim();
+     if(!forma)return alert("Falta la forma de pago. No se registró nada.");
+     b.forma_pago=forma;
+   }
+   await supplierCall(b);await loadSuppliers()
+ }catch(e){alert(e.message)}};
 }
 async function deleteSupplierMove(id){if(!confirm("¿Eliminar este movimiento?"))return;try{await supplierCall({action:"delete-movement",id});await loadSuppliers()}catch(e){alert(e.message)}}
 document.getElementById("addSupplier").onclick=async()=>{const nombre=supplierName.value.trim();if(!nombre)return;try{await supplierCall({action:"add-provider",nombre});supplierName.value="";await loadSuppliers()}catch(e){alert(e.message)}};
