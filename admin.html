@@ -68,7 +68,7 @@ header p{
   width:min(1050px,94%);
   margin:auto;
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:repeat(3,1fr);
   gap:8px;
   padding:10px 0;
 }
@@ -1427,6 +1427,122 @@ footer{
     font-size:6px;
   }
 }
+
+/* =========================================================
+   FINANZAS
+========================================================= */
+.finance-entry{
+  max-width:720px;
+  margin:0 auto 26px;
+}
+.finance-entry h2{margin-bottom:6px}
+.finance-entry p{margin:0 0 18px;color:#888}
+.finance-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:12px;
+}
+.finance-grid label{margin:0 0 7px}
+.finance-grid input{
+  width:100%;
+  padding:15px;
+  border:1px solid #ddd;
+  border-radius:13px;
+  font-size:16px;
+  outline:none;
+  background:#fff;
+}
+.finance-grid input:focus{border-color:#dcaabd}
+#saveFinance{
+  width:100%;
+  margin-top:16px;
+  padding:16px;
+  border-radius:14px;
+  background:#171717;
+  color:#fff;
+  font-size:16px;
+}
+.finance-toolbar{
+  display:grid;
+  grid-template-columns:1fr 1fr 1.4fr;
+  gap:10px;
+  margin:24px 0 16px;
+}
+.finance-summary{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:18px;
+}
+.finance-chart-card,.finance-table-card{
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 8px 30px rgba(0,0,0,.05);
+  padding:20px;
+  margin-top:16px;
+}
+.finance-chart-wrap{
+  overflow-x:auto;
+}
+#financeChart{
+  width:100%;
+  min-width:620px;
+  height:280px;
+  display:block;
+}
+.finance-table{
+  width:100%;
+  border-collapse:collapse;
+}
+.finance-table th,.finance-table td{
+  padding:12px 10px;
+  border-bottom:1px solid #f0e4e9;
+  text-align:left;
+  font-size:13px;
+}
+.finance-table th{
+  color:#777;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.3px;
+}
+.finance-table td:last-child{
+  text-align:right;
+}
+.finance-actions{
+  display:flex;
+  gap:6px;
+  justify-content:flex-end;
+}
+.finance-edit,.finance-delete{
+  padding:7px 9px;
+  border-radius:9px;
+  font-size:11px;
+}
+.finance-edit{background:#f7e6ee}
+.finance-delete{background:#fff0f0;color:#a32d2d}
+.finance-week-label{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:999px;
+  background:#f7e6ee;
+  color:#6d4354;
+  font-size:10px;
+  font-weight:800;
+}
+.finance-empty{
+  padding:28px;
+  text-align:center;
+  color:#888;
+}
+@media(max-width:700px){
+  .finance-grid{grid-template-columns:1fr}
+  .finance-toolbar{grid-template-columns:1fr}
+  .finance-summary{grid-template-columns:1fr 1fr}
+  .finance-table-card{overflow-x:auto}
+  .finance-table{min-width:760px}
+}
+
 </style>
 </head>
 
@@ -1441,6 +1557,7 @@ footer{
   <div class="tabs">
     <button id="catalogTab" class="tab active" type="button">CATÁLOGO</button>
     <button id="ordersTab" class="tab" type="button">REGISTRO</button>
+    <button id="financeTab" class="tab" type="button">FINANZAS</button>
   </div>
 </div>
 
@@ -1605,6 +1722,67 @@ footer{
 
 </div>
 
+
+<div id="financePanel" class="panel">
+  <section class="card finance-entry">
+    <h2>Registrar día</h2>
+    <p>Captura una sola vez la ganancia y las medias docenas vendidas.</p>
+
+    <div class="finance-grid">
+      <div>
+        <label for="financeDate">Fecha</label>
+        <input id="financeDate" type="date">
+      </div>
+      <div>
+        <label for="financeProfit">Ganancia del día</label>
+        <input id="financeProfit" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$0.00">
+      </div>
+      <div>
+        <label for="financeHalfDozens">Medias docenas vendidas</label>
+        <input id="financeHalfDozens" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
+      </div>
+    </div>
+
+    <button id="saveFinance" type="button">Guardar registro</button>
+  </section>
+
+  <div class="finance-toolbar">
+    <select id="financeYear"></select>
+    <select id="financeMonth"></select>
+    <select id="financeWeek"></select>
+  </div>
+
+  <div class="finance-summary">
+    <div class="summary-box"><strong id="financeTotalProfit">$0</strong><span>GANANCIA</span></div>
+    <div class="summary-box"><strong id="financeTotalReserve">$0</strong><span>APARTADO 43%</span></div>
+    <div class="summary-box"><strong id="financeTotalHalfDozens">0</strong><span>MEDIAS DOCENAS</span></div>
+    <div class="summary-box"><strong id="financeTotalPairs">0</strong><span>PARES</span></div>
+  </div>
+
+  <section class="finance-chart-card">
+    <div class="orders-header">
+      <div>
+        <h2 id="financeChartTitle">Ganancia por semana</h2>
+        <p id="financeChartSubtitle">Comparativo del periodo seleccionado.</p>
+      </div>
+    </div>
+    <div class="finance-chart-wrap">
+      <canvas id="financeChart" width="900" height="280"></canvas>
+    </div>
+  </section>
+
+  <section class="finance-table-card">
+    <div class="orders-header">
+      <div>
+        <h2>Registros</h2>
+        <p>Filtrados automáticamente por año, mes y semana.</p>
+      </div>
+      <button id="refreshFinance" class="refresh" type="button">Actualizar</button>
+    </div>
+    <div id="financeRows"></div>
+  </section>
+</div>
+
 </main>
 
 
@@ -1669,6 +1847,9 @@ let allOrders=[];
 let ordersLoaded=false;
 let colorBlockCounter=0;
 let activeNoteOrder=null;
+let allFinance=[];
+let financeLoaded=false;
+let editingFinanceId=null;
 
 /* ELEMENTOS */
 
@@ -1704,25 +1885,50 @@ const printNote=document.getElementById("printNote");
 const extraLines=document.getElementById("extraLines");
 const addExtra=document.getElementById("addExtra");
 const receiptPreview=document.getElementById("receiptPreview");
+const financeTab=document.getElementById("financeTab");
+const financePanel=document.getElementById("financePanel");
+const financeDate=document.getElementById("financeDate");
+const financeProfit=document.getElementById("financeProfit");
+const financeHalfDozens=document.getElementById("financeHalfDozens");
+const saveFinance=document.getElementById("saveFinance");
+const financeYear=document.getElementById("financeYear");
+const financeMonth=document.getElementById("financeMonth");
+const financeWeek=document.getElementById("financeWeek");
+const financeRows=document.getElementById("financeRows");
+const financeChart=document.getElementById("financeChart");
 
 /* PESTAÑAS */
 
 catalogTab.onclick=function(){
   catalogTab.classList.add("active");
   ordersTab.classList.remove("active");
+  financeTab.classList.remove("active");
   catalogPanel.classList.add("active");
   ordersPanel.classList.remove("active");
+  financePanel.classList.remove("active");
 };
 
 ordersTab.onclick=async function(){
   ordersTab.classList.add("active");
   catalogTab.classList.remove("active");
+  financeTab.classList.remove("active");
   ordersPanel.classList.add("active");
   catalogPanel.classList.remove("active");
+  financePanel.classList.remove("active");
 
   if(!ordersLoaded){
     await loadOrders();
   }
+};
+
+financeTab.onclick=async function(){
+  financeTab.classList.add("active");
+  catalogTab.classList.remove("active");
+  ordersTab.classList.remove("active");
+  financePanel.classList.add("active");
+  catalogPanel.classList.remove("active");
+  ordersPanel.classList.remove("active");
+  if(!financeLoaded) await loadFinance();
 };
 
 /* MENSAJES */
@@ -3564,6 +3770,200 @@ shareNote.onclick=async function(){
 
 orderSearch.oninput=
   renderOrders;
+
+
+
+/* FINANZAS */
+const MONTHS_ES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+function financeLocalToday(){
+  const d=new Date();
+  const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);
+  return local.toISOString().slice(0,10);
+}
+function parseYmd(value){
+  const [y,m,d]=String(value).split("-").map(Number);
+  return {y,m,d};
+}
+function weekInfo(value){
+  const {y,m,d}=parseYmd(value);
+  const week=Math.floor((d-1)/7)+1;
+  const start=(week-1)*7+1;
+  const lastDay=new Date(y,m,0).getDate();
+  const end=Math.min(start+6,lastDay);
+  return {week,start,end};
+}
+function weekLabel(year,month,week){
+  const start=(week-1)*7+1;
+  const lastDay=new Date(year,month,0).getDate();
+  const end=Math.min(start+6,lastDay);
+  return "Semana "+week+" ("+start+"–"+end+" "+MONTHS_ES[month-1].slice(0,3).toLowerCase()+")";
+}
+function formatFinanceDate(value){
+  const {y,m,d}=parseYmd(value);
+  return d+" "+MONTHS_ES[m-1].slice(0,3).toLowerCase()+" "+y;
+}
+function moneyShort(value){
+  return new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(Number(value||0));
+}
+function setupFinanceFilters(){
+  const years=[...new Set(allFinance.map(x=>parseYmd(x.fecha).y))];
+  const currentYear=new Date().getFullYear();
+  if(!years.includes(currentYear)) years.push(currentYear);
+  years.sort((a,b)=>b-a);
+  const selectedYear=Number(financeYear.value)||currentYear;
+  financeYear.innerHTML=years.map(y=>'<option value="'+y+'" '+(y===selectedYear?'selected':'')+'>'+y+'</option>').join("");
+  const currentMonth=Number(financeMonth.value)||new Date().getMonth()+1;
+  financeMonth.innerHTML='<option value="0">Todos los meses</option>'+MONTHS_ES.map((name,i)=>'<option value="'+(i+1)+'" '+((i+1)===currentMonth?'selected':'')+'>'+name+'</option>').join("");
+  updateWeekOptions();
+}
+function updateWeekOptions(){
+  const year=Number(financeYear.value)||new Date().getFullYear();
+  const month=Number(financeMonth.value);
+  const prior=Number(financeWeek.value)||0;
+  if(!month){
+    financeWeek.innerHTML='<option value="0">Todas las semanas</option>';
+    financeWeek.disabled=true;
+    return;
+  }
+  financeWeek.disabled=false;
+  const lastDay=new Date(year,month,0).getDate();
+  const count=Math.ceil(lastDay/7);
+  financeWeek.innerHTML='<option value="0">Todas las semanas</option>'+Array.from({length:count},(_,i)=>{
+    const w=i+1;
+    return '<option value="'+w+'" '+(prior===w?'selected':'')+'>'+weekLabel(year,month,w)+'</option>';
+  }).join("");
+}
+function filteredFinance(){
+  const year=Number(financeYear.value);
+  const month=Number(financeMonth.value);
+  const week=Number(financeWeek.value);
+  return allFinance.filter(r=>{
+    const p=parseYmd(r.fecha);
+    if(year&&p.y!==year) return false;
+    if(month&&p.m!==month) return false;
+    if(week&&weekInfo(r.fecha).week!==week) return false;
+    return true;
+  }).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+}
+function renderFinance(){
+  const rows=filteredFinance();
+  const profit=rows.reduce((s,r)=>s+Number(r.ganancia||0),0);
+  const half=rows.reduce((s,r)=>s+Number(r.medias_docenas||0),0);
+  document.getElementById("financeTotalProfit").textContent=moneyShort(profit);
+  document.getElementById("financeTotalReserve").textContent=moneyShort(profit*.43);
+  document.getElementById("financeTotalHalfDozens").textContent=half;
+  document.getElementById("financeTotalPairs").textContent=half*6;
+
+  if(!rows.length){
+    financeRows.innerHTML='<div class="finance-empty">No hay registros en este periodo.</div>';
+  }else{
+    financeRows.innerHTML='<table class="finance-table"><thead><tr><th>Fecha</th><th>Semana</th><th>Ganancia</th><th>43%</th><th>Medias</th><th>Pares</th><th></th></tr></thead><tbody>'+
+      rows.map(r=>{
+        const p=parseYmd(r.fecha),w=weekInfo(r.fecha);
+        return '<tr><td>'+formatFinanceDate(r.fecha)+'</td><td><span class="finance-week-label">'+weekLabel(p.y,p.m,w.week)+'</span></td><td>'+moneyShort(r.ganancia)+'</td><td>'+moneyShort(Number(r.ganancia)*.43)+'</td><td>'+Number(r.medias_docenas)+'</td><td>'+Number(r.medias_docenas)*6+'</td><td><div class="finance-actions"><button class="finance-edit" data-id="'+r.id+'">Editar</button><button class="finance-delete" data-id="'+r.id+'">Eliminar</button></div></td></tr>';
+      }).join("")+'</tbody></table>';
+  }
+  drawFinanceChart(rows);
+}
+function drawFinanceChart(rows){
+  const ctx=financeChart.getContext("2d");
+  const w=financeChart.width,h=financeChart.height;
+  ctx.clearRect(0,0,w,h);
+  const month=Number(financeMonth.value),week=Number(financeWeek.value);
+  let labels=[],values=[];
+  if(month&&week){
+    labels=rows.map(r=>formatFinanceDate(r.fecha).split(" ").slice(0,2).join(" "));
+    values=rows.map(r=>Number(r.ganancia||0));
+    document.getElementById("financeChartTitle").textContent="Ganancia por día";
+  }else if(month){
+    const count=Math.ceil(new Date(Number(financeYear.value),month,0).getDate()/7);
+    labels=Array.from({length:count},(_,i)=>"Semana "+(i+1));
+    values=labels.map((_,i)=>rows.filter(r=>weekInfo(r.fecha).week===i+1).reduce((s,r)=>s+Number(r.ganancia||0),0));
+    document.getElementById("financeChartTitle").textContent="Ganancia por semana";
+  }else{
+    labels=MONTHS_ES.map(x=>x.slice(0,3));
+    values=labels.map((_,i)=>rows.filter(r=>parseYmd(r.fecha).m===i+1).reduce((s,r)=>s+Number(r.ganancia||0),0));
+    document.getElementById("financeChartTitle").textContent="Ganancia por mes";
+  }
+  const pad={l:62,r:20,t:20,b:48};
+  const max=Math.max(...values,1);
+  const innerW=w-pad.l-pad.r,innerH=h-pad.t-pad.b;
+  ctx.strokeStyle="#eadfe4";ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pad.t+innerH*(i/4);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke()}
+  const slot=innerW/Math.max(labels.length,1),bar=Math.max(8,Math.min(44,slot*.55));
+  values.forEach((v,i)=>{
+    const bh=(v/max)*(innerH-8),x=pad.l+i*slot+(slot-bar)/2,y=pad.t+innerH-bh;
+    ctx.fillStyle="#e8bfd0";ctx.fillRect(x,y,bar,bh);
+    ctx.fillStyle="#333";ctx.font="11px -apple-system, BlinkMacSystemFont, Segoe UI, Arial";ctx.textAlign="center";
+    ctx.fillText(labels[i],x+bar/2,h-20);
+  });
+  ctx.fillStyle="#888";ctx.textAlign="right";ctx.font="10px -apple-system, BlinkMacSystemFont, Segoe UI, Arial";
+  for(let i=0;i<=4;i++){const val=max*(1-i/4);const y=pad.t+innerH*(i/4)+3;ctx.fillText(moneyShort(val),pad.l-8,y)}
+}
+async function loadFinance(){
+  financeRows.innerHTML='<div class="finance-empty">Cargando finanzas...</div>';
+  try{
+    const response=await fetch("/.netlify/functions/admin-finanzas?t="+Date.now(),{headers:{"x-admin-password":adminPassword},cache:"no-store"});
+    const result=await readJson(response);
+    if(!response.ok||!result.success) throw new Error(result.error||"No se pudo cargar finanzas.");
+    allFinance=Array.isArray(result.registros)?result.registros:[];
+    financeLoaded=true;
+    setupFinanceFilters();
+    renderFinance();
+  }catch(error){
+    financeRows.innerHTML='<div class="finance-empty">'+escapeHtml(error.message)+'</div>';
+  }
+}
+async function saveFinanceRecord(){
+  const fecha=financeDate.value;
+  const ganancia=Number(financeProfit.value);
+  const medias=Number(financeHalfDozens.value);
+  if(!fecha){alert("Selecciona una fecha.");return}
+  if(!Number.isFinite(ganancia)||ganancia<0){alert("Escribe una ganancia válida.");return}
+  if(!Number.isInteger(medias)||medias<0){alert("Escribe las medias docenas vendidas.");return}
+  saveFinance.disabled=true;saveFinance.textContent="Guardando...";
+  try{
+    const response=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:editingFinanceId?"update":"upsert",id:editingFinanceId,fecha,ganancia,medias_docenas:medias})});
+    const result=await readJson(response);
+    if(!response.ok||!result.success) throw new Error(result.error||"No se pudo guardar.");
+    editingFinanceId=null;
+    financeProfit.value="";financeHalfDozens.value="";
+    saveFinance.textContent="Guardar registro";
+    await loadFinance();
+    showOperation("✓ Registro guardado");setTimeout(hideOperation,1500);
+  }catch(error){alert(error.message)}
+  finally{saveFinance.disabled=false;if(!editingFinanceId)saveFinance.textContent="Guardar registro"}
+}
+saveFinance.onclick=saveFinanceRecord;
+financeYear.onchange=function(){updateWeekOptions();renderFinance()};
+financeMonth.onchange=function(){updateWeekOptions();renderFinance()};
+financeWeek.onchange=renderFinance;
+document.getElementById("refreshFinance").onclick=loadFinance;
+financeRows.onclick=async function(e){
+  const edit=e.target.closest(".finance-edit");
+  if(edit){
+    const row=allFinance.find(r=>Number(r.id)===Number(edit.dataset.id));
+    if(!row)return;
+    editingFinanceId=Number(row.id);
+    financeDate.value=row.fecha;
+    financeProfit.value=Number(row.ganancia);
+    financeHalfDozens.value=Number(row.medias_docenas);
+    saveFinance.textContent="Guardar cambios";
+    financePanel.scrollIntoView({behavior:"smooth",block:"start"});
+    return;
+  }
+  const del=e.target.closest(".finance-delete");
+  if(!del)return;
+  if(!confirm("¿Eliminar este registro financiero?"))return;
+  try{
+    const response=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"delete",id:Number(del.dataset.id)})});
+    const result=await readJson(response);
+    if(!response.ok||!result.success) throw new Error(result.error||"No se pudo eliminar.");
+    await loadFinance();
+  }catch(error){alert(error.message)}
+};
+financeDate.value=financeLocalToday();
 
 
 /* FECHA */
