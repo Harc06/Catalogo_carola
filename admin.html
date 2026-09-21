@@ -1882,7 +1882,7 @@ footer{
       <button id="saveFixedExpense" type="button" style="display:none">Guardar meta</button>
     </div>
     <div class="expense-builder">
-      <div class="orders-header"><div><h3>Conceptos de gastos</h3><p>Agrega renta, créditos, tarjetas u otros gastos. Puedes cambiar el importe cada mes.</p></div></div>
+      <div class="orders-header"><div><h3>Conceptos de gastos</h3><p>Cada mes conserva su propio registro. Puedes reutilizar los mismos conceptos y cambiar únicamente lo que pagarás ese mes.</p></div><button id="copyPreviousExpenses" class="refresh" type="button">Copiar mes anterior</button></div>
       <div class="expense-add">
         <div><label for="expenseName">Concepto</label><input id="expenseName" type="text" placeholder="Ej. Renta bodega"></div>
         <div><label for="expenseAmount">Importe mensual</label><input id="expenseAmount" type="number" min="0" step="0.01" placeholder="$0.00"></div>
@@ -1904,7 +1904,7 @@ footer{
       <select id="beHistoryYear"></select>
       <select id="beHistoryMonth"></select>
     </div>
-    <div id="beHistorySummary" class="finance-empty">Selecciona un mes para consultar su punto de equilibrio.</div>
+    <div id="beHistorySummary" class="finance-empty">Selecciona cualquier mes para consultar el registro que quedó guardado en ese periodo.</div>
   </section>
 
   <section class="finance-table-card">
@@ -4296,6 +4296,26 @@ async function expenseAction(payload){
   if(!response.ok||!result.success)throw new Error(result.error||"No se pudo guardar el gasto.");
   await loadFinance();
 }
+document.getElementById("copyPreviousExpenses").onclick=async function(){
+  const y=Number(fixedYear.value),m=Number(fixedMonth.value);
+  let py=y,pm=m-1;if(pm===0){pm=12;py--}
+  const previous=financeExpenses.filter(x=>Number(x.anio)===py&&Number(x.mes)===pm);
+  if(!previous.length){alert("El mes anterior no tiene gastos registrados.");return}
+  const current=monthExpenses();
+  const existing=new Set(current.map(x=>String(x.concepto||"").trim().toLowerCase()));
+  const missing=previous.filter(x=>!existing.has(String(x.concepto||"").trim().toLowerCase()));
+  if(!missing.length){alert("Este mes ya tiene todos los conceptos del mes anterior.");return}
+  this.disabled=true;this.textContent="Copiando...";
+  try{
+    for(const x of missing){
+      const response=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"save-expense",anio:y,mes:m,concepto:x.concepto,importe:Number(x.importe||0)})});
+      const result=await readJson(response);if(!response.ok||!result.success)throw new Error(result.error||"No se pudo copiar el gasto.");
+    }
+    await loadFinance();
+  }catch(e){alert(e.message)}
+  finally{this.disabled=false;this.textContent="Copiar mes anterior"}
+};
+
 document.getElementById("addExpenseCategory").onclick=async function(){
   const concepto=expenseName.value.trim(),importe=Number(expenseAmount.value);
   if(!concepto){alert("Escribe el concepto del gasto.");return}
