@@ -4397,7 +4397,8 @@ function dayName(value){
 function drawBars(canvas,tooltip,points,valueKey,valueFormatter){
   const ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height;
   ctx.clearRect(0,0,w,h);
-  const pad={l:58,r:14,t:18,b:48};
+  /* Más espacio arriba para mostrar el valor de cada barra sin recortarlo. */
+  const pad={l:58,r:14,t:34,b:48};
   const max=Math.max(...points.map(p=>Number(p[valueKey]||0)),1);
   const innerW=w-pad.l-pad.r,innerH=h-pad.t-pad.b;
   ctx.strokeStyle="#eadfe4";ctx.lineWidth=1;
@@ -4407,6 +4408,12 @@ function drawBars(canvas,tooltip,points,valueKey,valueFormatter){
   points.forEach((p,n)=>{
     const v=Number(p[valueKey]||0),bh=(v/max)*(innerH-8),x=pad.l+n*slot+(slot-bar)/2,y=pad.t+innerH-bh;
     ctx.fillStyle="#e8bfd0";ctx.fillRect(x,y,bar,bh);
+    /* Valor visible encima de cada barra. Ganancias se muestran como moneda y pares como número. */
+    if(v>0){
+      ctx.fillStyle="#555";ctx.font="bold 9px -apple-system,BlinkMacSystemFont,Segoe UI,Arial";ctx.textAlign="center";
+      const valueLabel=valueKey==="ganancia"?moneyShort(v):Math.round(v).toLocaleString("es-MX");
+      ctx.fillText(valueLabel,x+bar/2,Math.max(12,y-6));
+    }
     ctx.fillStyle="#333";ctx.font="10px -apple-system,BlinkMacSystemFont,Segoe UI,Arial";ctx.textAlign="center";
     ctx.fillText(p.label,x+bar/2,h-20);
     hit.push({x,y,w:bar,h:Math.max(bh,4),p});
