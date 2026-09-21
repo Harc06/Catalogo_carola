@@ -1502,7 +1502,8 @@ footer{
   gap:10px;
   margin-bottom:18px;
 }
-.finance-chart-card,.finance-table-card{
+.finance-charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.finance-chart-card,.finance-table-card,.break-even-card{
   background:#fff;
   border-radius:20px;
   box-shadow:0 8px 30px rgba(0,0,0,.05);
@@ -1512,12 +1513,27 @@ footer{
 .finance-chart-wrap{
   overflow-x:auto;
 }
-#financeChart{
+.finance-chart-card{position:relative;min-width:0}
+.finance-chart-card canvas{
   width:100%;
-  min-width:620px;
   height:280px;
   display:block;
 }
+.finance-tooltip{
+  position:absolute;z-index:20;pointer-events:none;display:none;
+  background:#171717;color:#fff;border-radius:12px;padding:10px 12px;
+  font-size:12px;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,.2);
+  white-space:nowrap;
+}
+.break-even-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end}
+.break-even-form label{margin:0 0 7px}
+.break-even-form input,.break-even-form select{width:100%;height:50px;padding:0 13px;border:1px solid #ddd;border-radius:12px;background:#fff}
+#saveFixedExpense{height:50px;padding:0 18px;border-radius:12px;background:#171717;color:#fff}
+.break-even-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:18px}
+.break-even-progress{height:14px;background:#f3e8ed;border-radius:999px;overflow:hidden;margin-top:18px}
+#breakEvenProgressBar{height:100%;width:0;background:#e8bfd0;border-radius:999px;transition:width .35s ease}
+.break-even-note{color:#777;font-size:12px;line-height:1.5;margin:12px 0 0}
+
 .finance-table{
   width:100%;
   border-collapse:collapse;
@@ -1567,6 +1583,9 @@ footer{
   .finance-grid{grid-template-columns:1fr}
   .finance-toolbar{grid-template-columns:1fr}
   .finance-summary{grid-template-columns:1fr 1fr}
+  .finance-charts{grid-template-columns:1fr}
+  .break-even-form{grid-template-columns:1fr}
+  .break-even-summary{grid-template-columns:1fr 1fr}
   .finance-table-card{overflow-x:auto}
   .finance-table{min-width:760px}
 }
@@ -1795,16 +1814,36 @@ footer{
     <div class="summary-box"><strong id="financeTotalPairs">0</strong><span>PARES</span></div>
   </div>
 
-  <section class="finance-chart-card">
-    <div class="orders-header">
-      <div>
-        <h2 id="financeChartTitle">Ganancia por semana</h2>
-        <p id="financeChartSubtitle">Comparativo del periodo seleccionado.</p>
-      </div>
+  <div class="finance-charts">
+    <section class="finance-chart-card">
+      <div class="orders-header"><div><h2 id="financeChartTitle">Ganancia por semana</h2><p>Comparativo del periodo seleccionado.</p></div></div>
+      <div class="finance-chart-wrap"><canvas id="financeChart" width="520" height="280"></canvas></div>
+      <div id="financeTooltip" class="finance-tooltip"></div>
+    </section>
+    <section class="finance-chart-card">
+      <div class="orders-header"><div><h2 id="pairsChartTitle">Pares por día</h2><p>Ventas por día del periodo seleccionado.</p></div></div>
+      <div class="finance-chart-wrap"><canvas id="pairsChart" width="520" height="280"></canvas></div>
+      <div id="pairsTooltip" class="finance-tooltip"></div>
+    </section>
+  </div>
+
+  <section class="break-even-card">
+    <div class="orders-header"><div><h2>Punto de equilibrio</h2><p>Configura tus gastos fijos mensuales y mide cuánto falta para cubrirlos con tu apartado del 43%.</p></div></div>
+    <div class="break-even-form">
+      <div><label for="fixedYear">Año</label><select id="fixedYear"></select></div>
+      <div><label for="fixedMonth">Mes</label><select id="fixedMonth"></select></div>
+      <div><label for="fixedExpense">Gastos fijos del mes</label><input id="fixedExpense" type="number" min="0" step="0.01" placeholder="$0.00"></div>
+      <button id="saveFixedExpense" type="button">Guardar meta</button>
     </div>
-    <div class="finance-chart-wrap">
-      <canvas id="financeChart" width="900" height="280"></canvas>
+    <div class="break-even-summary">
+      <div class="summary-box"><strong id="beFixed">$0</strong><span>GASTOS FIJOS</span></div>
+      <div class="summary-box"><strong id="beReserved">$0</strong><span>43% ACUMULADO</span></div>
+      <div class="summary-box"><strong id="beAvg">$0</strong><span>GANANCIA PROM. / PAR</span></div>
+      <div class="summary-box"><strong id="bePairs">0</strong><span>PARES QUE FALTAN</span></div>
+      <div class="summary-box"><strong id="beExtra">$0</strong><span>EXCEDENTE LIBRE</span></div>
     </div>
+    <div class="break-even-progress"><div id="breakEvenProgressBar"></div></div>
+    <p id="breakEvenNote" class="break-even-note">Guarda los gastos fijos del mes para calcular tu punto de equilibrio.</p>
   </section>
 
   <section class="finance-table-card">
@@ -1932,6 +1971,13 @@ const financeMonth=document.getElementById("financeMonth");
 const financeWeek=document.getElementById("financeWeek");
 const financeRows=document.getElementById("financeRows");
 const financeChart=document.getElementById("financeChart");
+const pairsChart=document.getElementById("pairsChart");
+const financeTooltip=document.getElementById("financeTooltip");
+const pairsTooltip=document.getElementById("pairsTooltip");
+const fixedYear=document.getElementById("fixedYear");
+const fixedMonth=document.getElementById("fixedMonth");
+const fixedExpense=document.getElementById("fixedExpense");
+let financeGoals=[];
 
 /* PESTAÑAS */
 
@@ -3933,41 +3979,31 @@ function renderFinance(){
       }).join("")+'</tbody></table>';
   }
   drawFinanceChart(rows);
+  drawPairsChart(rows);
+  renderBreakEven();
 }
 function drawFinanceChart(rows){
-  const ctx=financeChart.getContext("2d");
-  const w=financeChart.width,h=financeChart.height;
-  ctx.clearRect(0,0,w,h);
   const month=Number(financeMonth.value),week=Number(financeWeek.value);
-  let labels=[],values=[];
+  let points=[];
   if(month&&week){
-    labels=rows.map(r=>formatFinanceDate(r.fecha).split(" ").slice(0,2).join(" "));
-    values=rows.map(r=>Number(r.ganancia||0));
+    points=rows.map(r=>({label:dayName(r.fecha)+" "+parseYmd(r.fecha).d,fullLabel:formatFinanceDate(r.fecha),ganancia:Number(r.ganancia),pares:Number(r.medias_docenas)*6,semana:weekLabelForDate(r.fecha)}));
     document.getElementById("financeChartTitle").textContent="Ganancia por día";
   }else if(month){
     const weeks=[...new Set(rows.map(r=>weekInfo(r.fecha).week))].sort((a,b)=>a-b);
-    labels=weeks.map(w=>"Semana "+w);
-    values=weeks.map(w=>rows.filter(r=>weekInfo(r.fecha).week===w).reduce((s,r)=>s+Number(r.ganancia||0),0));
+    points=weeks.map(w=>{
+      const rr=rows.filter(r=>weekInfo(r.fecha).week===w);
+      return {label:"Sem "+w,fullLabel:"Semana "+w,ganancia:rr.reduce((s,r)=>s+Number(r.ganancia),0),pares:rr.reduce((s,r)=>s+Number(r.medias_docenas)*6,0),semana:rr.length?weekLabelForDate(rr[0].fecha):"Semana "+w};
+    });
     document.getElementById("financeChartTitle").textContent="Ganancia por semana";
   }else{
-    labels=MONTHS_ES.map(x=>x.slice(0,3));
-    values=labels.map((_,i)=>rows.filter(r=>parseYmd(r.fecha).m===i+1).reduce((s,r)=>s+Number(r.ganancia||0),0));
+    points=MONTHS_ES.map((name,i)=>{
+      const rr=rows.filter(r=>parseYmd(r.fecha).m===i+1);
+      return {label:name.slice(0,3),fullLabel:name,ganancia:rr.reduce((s,r)=>s+Number(r.ganancia),0),pares:rr.reduce((s,r)=>s+Number(r.medias_docenas)*6,0),semana:"Acumulado mensual"};
+    });
     document.getElementById("financeChartTitle").textContent="Ganancia por mes";
   }
-  const pad={l:62,r:20,t:20,b:48};
-  const max=Math.max(...values,1);
-  const innerW=w-pad.l-pad.r,innerH=h-pad.t-pad.b;
-  ctx.strokeStyle="#eadfe4";ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){const y=pad.t+innerH*(i/4);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke()}
-  const slot=innerW/Math.max(labels.length,1),bar=Math.max(8,Math.min(44,slot*.55));
-  values.forEach((v,i)=>{
-    const bh=(v/max)*(innerH-8),x=pad.l+i*slot+(slot-bar)/2,y=pad.t+innerH-bh;
-    ctx.fillStyle="#e8bfd0";ctx.fillRect(x,y,bar,bh);
-    ctx.fillStyle="#333";ctx.font="11px -apple-system, BlinkMacSystemFont, Segoe UI, Arial";ctx.textAlign="center";
-    ctx.fillText(labels[i],x+bar/2,h-20);
-  });
-  ctx.fillStyle="#888";ctx.textAlign="right";ctx.font="10px -apple-system, BlinkMacSystemFont, Segoe UI, Arial";
-  for(let i=0;i<=4;i++){const val=max*(1-i/4);const y=pad.t+innerH*(i/4)+3;ctx.fillText(moneyShort(val),pad.l-8,y)}
+  drawBars(financeChart,financeTooltip,points,"ganancia",v=>moneyShort(v));
+  attachChartHover(financeChart);
 }
 async function loadFinance(){
   financeRows.innerHTML='<div class="finance-empty">Cargando finanzas...</div>';
@@ -3976,8 +4012,10 @@ async function loadFinance(){
     const result=await readJson(response);
     if(!response.ok||!result.success) throw new Error(result.error||"No se pudo cargar finanzas.");
     allFinance=Array.isArray(result.registros)?result.registros:[];
+    financeGoals=Array.isArray(result.metas)?result.metas:[];
     financeLoaded=true;
     setupFinanceFilters();
+    setupFixedFilters();
     renderFinance();
   }catch(error){
     financeRows.innerHTML='<div class="finance-empty">'+escapeHtml(error.message)+'</div>';
@@ -4004,8 +4042,8 @@ async function saveFinanceRecord(){
   finally{saveFinance.disabled=false;if(!editingFinanceId)saveFinance.textContent="Guardar registro"}
 }
 saveFinance.onclick=saveFinanceRecord;
-financeYear.onchange=function(){updateWeekOptions();renderFinance()};
-financeMonth.onchange=function(){updateWeekOptions();renderFinance()};
+financeYear.onchange=function(){updateWeekOptions();if(fixedYear)fixedYear.value=financeYear.value;renderFinance();syncFixedInput()};
+financeMonth.onchange=function(){updateWeekOptions();if(fixedMonth&&financeMonth.value!=="0")fixedMonth.value=financeMonth.value;renderFinance();syncFixedInput()};
 financeWeek.onchange=renderFinance;
 document.getElementById("refreshFinance").onclick=loadFinance;
 financeRows.onclick=async function(e){
