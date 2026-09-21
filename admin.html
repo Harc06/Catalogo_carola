@@ -1533,6 +1533,18 @@ footer{
 .break-even-progress{height:14px;background:#f3e8ed;border-radius:999px;overflow:hidden;margin-top:18px}
 #breakEvenProgressBar{height:100%;width:0;background:#e8bfd0;border-radius:999px;transition:width .35s ease}
 .break-even-note{color:#777;font-size:12px;line-height:1.5;margin:12px 0 0}
+.expense-builder{margin-top:18px;padding-top:18px;border-top:1px solid #f0e4e9}
+.expense-add{display:grid;grid-template-columns:1.5fr 1fr auto;gap:10px;align-items:end}
+.expense-add input{width:100%;height:48px;padding:0 13px;border:1px solid #ddd;border-radius:12px;background:#fff}
+#addExpenseCategory{height:48px;padding:0 18px;border-radius:12px;background:#171717;color:#fff}
+.expense-list{margin-top:12px;display:grid;gap:8px}
+.expense-row{display:grid;grid-template-columns:1.5fr 1fr auto;gap:10px;align-items:center;padding:10px 12px;background:#fff8fb;border:1px solid #f0dce5;border-radius:12px}
+.expense-row input{width:100%;height:42px;padding:0 10px;border:1px solid #e7d9df;border-radius:10px;background:#fff}
+.expense-row-actions{display:flex;gap:6px}
+.expense-save,.expense-delete{padding:9px 10px;border-radius:9px;font-size:11px}
+.expense-save{background:#171717;color:#fff}.expense-delete{background:#fff0f0;color:#a32d2d}
+.expense-total{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:14px 16px;border-radius:12px;background:#f7e6ee;font-weight:800}
+
 
 .finance-table{
   width:100%;
@@ -1586,6 +1598,8 @@ footer{
   .finance-charts{grid-template-columns:1fr}
   .break-even-form{grid-template-columns:1fr}
   .break-even-summary{grid-template-columns:1fr 1fr}
+  .expense-add,.expense-row{grid-template-columns:1fr}
+  .expense-row-actions{justify-content:flex-end}
   .finance-table-card{overflow-x:auto}
   .finance-table{min-width:760px}
 }
@@ -1832,8 +1846,18 @@ footer{
     <div class="break-even-form">
       <div><label for="fixedYear">Año</label><select id="fixedYear"></select></div>
       <div><label for="fixedMonth">Mes</label><select id="fixedMonth"></select></div>
-      <div><label for="fixedExpense">Gastos fijos del mes</label><input id="fixedExpense" type="number" min="0" step="0.01" placeholder="$0.00"></div>
-      <button id="saveFixedExpense" type="button">Guardar meta</button>
+      <div><label>Total gastos fijos</label><input id="fixedExpense" type="number" readonly placeholder="$0.00"></div>
+      <button id="saveFixedExpense" type="button" style="display:none">Guardar meta</button>
+    </div>
+    <div class="expense-builder">
+      <div class="orders-header"><div><h3>Conceptos de gastos</h3><p>Agrega renta, créditos, tarjetas u otros gastos. Puedes cambiar el importe cada mes.</p></div></div>
+      <div class="expense-add">
+        <div><label for="expenseName">Concepto</label><input id="expenseName" type="text" placeholder="Ej. Renta bodega"></div>
+        <div><label for="expenseAmount">Importe mensual</label><input id="expenseAmount" type="number" min="0" step="0.01" placeholder="$0.00"></div>
+        <button id="addExpenseCategory" type="button">+ Agregar</button>
+      </div>
+      <div id="expenseList" class="expense-list"></div>
+      <div class="expense-total"><span>Total gastos fijos del mes</span><strong id="expenseTotal">$0</strong></div>
     </div>
     <div class="break-even-summary">
       <div class="summary-box"><strong id="beFixed">$0</strong><span>GASTOS FIJOS</span></div>
@@ -1977,7 +2001,11 @@ const pairsTooltip=document.getElementById("pairsTooltip");
 const fixedYear=document.getElementById("fixedYear");
 const fixedMonth=document.getElementById("fixedMonth");
 const fixedExpense=document.getElementById("fixedExpense");
+const expenseName=document.getElementById("expenseName");
+const expenseAmount=document.getElementById("expenseAmount");
+const expenseList=document.getElementById("expenseList");
 let financeGoals=[];
+let financeExpenses=[];
 
 /* PESTAÑAS */
 
@@ -4064,7 +4092,8 @@ function renderBreakEven(){
   const y=Number(fixedYear.value)||Number(financeYear.value)||new Date().getFullYear();
   const m=Number(fixedMonth.value)||Number(financeMonth.value)||new Date().getMonth()+1;
   const goal=financeGoals.find(g=>Number(g.anio)===y&&Number(g.mes)===m);
-  const fixed=Number(goal?.gastos_fijos||0);
+  const expenseRows=financeExpenses.filter(g=>Number(g.anio)===y&&Number(g.mes)===m);
+  const fixed=expenseRows.length?expenseRows.reduce((s,g)=>s+Number(g.importe||0),0):Number(goal?.gastos_fijos||0);
   const rows=allFinance.filter(r=>{const p=parseYmd(r.fecha);return p.y===y&&p.m===m});
   const profit=rows.reduce((s,r)=>s+Number(r.ganancia||0),0);
   const pairs=rows.reduce((s,r)=>s+Number(r.medias_docenas||0)*6,0);
@@ -4079,32 +4108,55 @@ function renderBreakEven(){
   document.getElementById("breakEvenNote").textContent=!fixed?"Guarda los gastos fijos del mes para calcular tu punto de equilibrio.":(reserved>=fixed?"Meta cubierta. Excedente del apartado: "+moneyShort(extra)+".":"Faltan "+moneyShort(missing)+"; al promedio actual faltan aproximadamente "+pairsNeeded+" pares.");
 }
 function setupFixedFilters(){
-  const years=[...new Set([new Date().getFullYear(),...allFinance.map(r=>parseYmd(r.fecha).y),...financeGoals.map(g=>Number(g.anio))])].sort((a,b)=>b-a);
+  const years=[...new Set([new Date().getFullYear(),...allFinance.map(r=>parseYmd(r.fecha).y),...financeExpenses.map(g=>Number(g.anio))])].sort((a,b)=>b-a);
   fixedYear.innerHTML=years.map(y=>'<option value="'+y+'">'+y+'</option>').join("");
   fixedMonth.innerHTML=MONTHS_ES.map((n,k)=>'<option value="'+(k+1)+'">'+n+'</option>').join("");
   fixedYear.value=financeYear.value||String(new Date().getFullYear());
   fixedMonth.value=financeMonth.value&&financeMonth.value!=="0"?financeMonth.value:String(new Date().getMonth()+1);
-  syncFixedInput();
+  renderExpenses();
 }
-function syncFixedInput(){
-  const g=financeGoals.find(x=>Number(x.anio)===Number(fixedYear.value)&&Number(x.mes)===Number(fixedMonth.value));
-  fixedExpense.value=g?Number(g.gastos_fijos):"";
+function monthExpenses(){
+  return financeExpenses.filter(x=>Number(x.anio)===Number(fixedYear.value)&&Number(x.mes)===Number(fixedMonth.value));
+}
+function renderExpenses(){
+  const rows=monthExpenses();
+  const total=rows.reduce((s,x)=>s+Number(x.importe||0),0);
+  fixedExpense.value=total||"";
+  document.getElementById("expenseTotal").textContent=moneyShort(total);
+  expenseList.innerHTML=rows.length?rows.map(x=>'<div class="expense-row" data-id="'+x.id+'"><input class="expense-concept" value="'+escapeHtml(x.concepto)+'"><input class="expense-value" type="number" min="0" step="0.01" value="'+Number(x.importe)+'"><div class="expense-row-actions"><button class="expense-save" type="button">Guardar</button><button class="expense-delete" type="button">Eliminar</button></div></div>').join(""):'<div class="finance-empty">Aún no hay conceptos para este mes.</div>';
   renderBreakEven();
 }
-async function saveFixedExpenseValue(){
-  const gastos=Number(fixedExpense.value),anio=Number(fixedYear.value),mes=Number(fixedMonth.value);
-  if(!Number.isFinite(gastos)||gastos<0){alert("Escribe gastos fijos válidos.");return}
-  const btn=document.getElementById("saveFixedExpense");btn.disabled=true;btn.textContent="Guardando...";
-  try{
-    const response=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"save-goal",anio,mes,gastos_fijos:gastos})});
-    const result=await readJson(response);
-    if(!response.ok||!result.success)throw new Error(result.error||"No se pudo guardar.");
-    await loadFinance();showOperation("✓ Gastos fijos guardados");setTimeout(hideOperation,1500);
-  }catch(e){alert(e.message)}finally{btn.disabled=false;btn.textContent="Guardar meta"}
+async function expenseAction(payload){
+  const response=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify(payload)});
+  const result=await readJson(response);
+  if(!response.ok||!result.success)throw new Error(result.error||"No se pudo guardar el gasto.");
+  await loadFinance();
 }
-fixedYear.onchange=syncFixedInput;
-fixedMonth.onchange=syncFixedInput;
-document.getElementById("saveFixedExpense").onclick=saveFixedExpenseValue;
+document.getElementById("addExpenseCategory").onclick=async function(){
+  const concepto=expenseName.value.trim(),importe=Number(expenseAmount.value);
+  if(!concepto){alert("Escribe el concepto del gasto.");return}
+  if(!Number.isFinite(importe)||importe<0){alert("Escribe un importe válido.");return}
+  this.disabled=true;
+  try{
+    await expenseAction({action:"save-expense",anio:Number(fixedYear.value),mes:Number(fixedMonth.value),concepto,importe});
+    expenseName.value="";expenseAmount.value="";
+  }catch(e){alert(e.message)}finally{this.disabled=false}
+};
+expenseList.onclick=async function(e){
+  const row=e.target.closest(".expense-row");if(!row)return;
+  const id=Number(row.dataset.id);
+  if(e.target.closest(".expense-save")){
+    const concepto=row.querySelector(".expense-concept").value.trim(),importe=Number(row.querySelector(".expense-value").value);
+    if(!concepto||!Number.isFinite(importe)||importe<0){alert("Revisa concepto e importe.");return}
+    try{await expenseAction({action:"save-expense",id,anio:Number(fixedYear.value),mes:Number(fixedMonth.value),concepto,importe})}catch(err){alert(err.message)}
+  }
+  if(e.target.closest(".expense-delete")){
+    if(!confirm("¿Eliminar este concepto de gasto?"))return;
+    try{await expenseAction({action:"delete-expense",id})}catch(err){alert(err.message)}
+  }
+};
+fixedYear.onchange=renderExpenses;
+fixedMonth.onchange=renderExpenses;
 
 async function loadFinance(){
   financeRows.innerHTML='<div class="finance-empty">Cargando finanzas...</div>';
@@ -4114,6 +4166,7 @@ async function loadFinance(){
     if(!response.ok||!result.success) throw new Error(result.error||"No se pudo cargar finanzas.");
     allFinance=Array.isArray(result.registros)?result.registros:[];
     financeGoals=Array.isArray(result.metas)?result.metas:[];
+    financeExpenses=Array.isArray(result.gastos)?result.gastos:[];
     financeLoaded=true;
     setupFinanceFilters();
     setupFixedFilters();
