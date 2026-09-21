@@ -6,7 +6,7 @@ async function authorized(event){
   const legacy=event.headers["x-admin-password"]||event.headers["X-Admin-Password"];
   if(process.env.ADMIN_PASSWORD&&legacy===process.env.ADMIN_PASSWORD)return true;
   const h=event.headers["authorization"]||event.headers["Authorization"]||"";
-  const token=h.startsWith("Bearer ")?h.slice(7).trim():"";
+  const token=h.startsWith("Bearer ")?h.slice(7).trim():(legacy||"");
   if(!token)return false;
   const {data,error}=await client().from("admin_sessions").select("expires_at").eq("token_hash",sha(token)).maybeSingle();
   return !error&&data&&new Date(data.expires_at)>new Date();
