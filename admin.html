@@ -2224,12 +2224,12 @@ function pendingField(x,key,type,placeholder){
 }
 function supplierHistoryTable(items,tipo){
  if(!items.length)return '<div class="finance-empty">Sin '+(tipo==="nota"?"notas":"pagos")+'.</div>';
- return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Fecha</th><th>'+(tipo==="nota"?"Folio":"Forma")+'</th><th>Importe</th>'+(tipo==="nota"?'<th>Pares</th>':'')+'<th>Estado</th><th></th></tr></thead><tbody>'+items.map(x=>{
+ return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Fecha</th><th>'+(tipo==="nota"?"Folio":"Forma")+'</th><th>Importe</th>'+(tipo==="nota"?'<th>Pares</th>':'')+'<th></th></tr></thead><tbody>'+items.map(x=>{
   const incomplete=!x.fecha||(tipo==="nota"&&(!x.folio||!x.pares))||(tipo==="pago"&&!x.forma_pago);
   const date=pendingField(x,"fecha","date","Fecha");
   const detail=tipo==="nota"?pendingField(x,"folio","text","Folio"):pendingField(x,"forma_pago","text","Forma de pago");
   const pairs=tipo==="nota"?pendingField(x,"pares","number","Pares"):"";
-  return '<tr><td>'+date+'</td><td>'+detail+'</td><td>'+moneyShort(x.importe)+'</td>'+(tipo==="nota"?'<td>'+pairs+'</td>':'')+'<td>'+(incomplete?'⚠️ Pendiente':'✓ Completo')+'</td><td>'+(incomplete?'<button class="record-tool-btn" style="padding:7px 10px" onclick="savePendingMove('+x.id+',\''+tipo+'\')">Guardar</button>':'')+' <button class="delete-finance" onclick="deleteSupplierMove('+x.id+')">Eliminar</button></td></tr>'
+  return '<tr><td>'+date+'</td><td>'+detail+'</td><td>'+moneyShort(x.importe)+'</td>'+(tipo==="nota"?'<td>'+pairs+'</td>':'')+'<td>'+(incomplete?'<button class="record-tool-btn" style="padding:7px 10px" onclick="savePendingMove('+x.id+',\''+tipo+'\')">Guardar</button>':'')+' <button class="delete-finance" onclick="deleteSupplierMove('+x.id+')">Eliminar</button></td></tr>'
  }).join("")+'</tbody></table></div>';
 }
 function renderSuppliers(){
@@ -2239,7 +2239,7 @@ function renderSuppliers(){
  const nt=notes.reduce((s,x)=>s+Number(x.importe),0),pt=pays.reduce((s,x)=>s+Number(x.importe),0),opening=openings.reduce((s,x)=>s+Number(x.importe),0),pairs=notes.reduce((s,x)=>s+Number(x.pares||0),0),pending=notes.filter(x=>!x.pares||!x.fecha||!x.folio).length+pays.filter(x=>!x.fecha||!x.forma_pago).length,balance=opening+nt-pt;
  supplierContent.innerHTML='<h2>'+escapeHtml(p.nombre)+'</h2><div class="finance-summary"><div class="summary-box"><strong>'+moneyShort(nt)+'</strong><span>TOTAL NOTAS</span></div><div class="summary-box"><strong>'+moneyShort(pt)+'</strong><span>TOTAL PAGADO</span></div><div class="summary-box"><strong>'+moneyShort(balance)+'</strong><span>SALDO PENDIENTE</span></div><div class="summary-box"><strong>'+pairs+'</strong><span>PARES RECIBIDOS</span></div></div>'+
  '<div class="record-tools-tabs"><button id="newNoteBtn" class="record-tool-btn">+ Nota / entrega</button><button id="newPayBtn" class="record-tool-btn">+ Pago</button></div><div id="supplierForm"></div>'+
- '<div style="margin-top:12px;font-weight:800">'+(pending?('⚠️ '+pending+' movimiento(s) histórico(s) con datos pendientes'):'✓ Sin datos pendientes')+'</div>'+
+ ''+
  '<div class="supplier-split"><section class="supplier-column supplier-notes"><div class="supplier-card-head"><div><span class="supplier-kicker">ENTRADAS</span><h3>Notas / entregas</h3></div><strong class="supplier-card-total">'+moneyShort(nt)+'</strong></div>'+supplierHistoryTable(notes,"nota")+'</section><section class="supplier-column supplier-pays"><div class="supplier-card-head"><div><span class="supplier-kicker">SALIDAS</span><h3>Pagos</h3></div><strong class="supplier-card-total">'+moneyShort(pt)+'</strong></div>'+supplierHistoryTable(pays,"pago")+'</section></div>';
  document.getElementById("newNoteBtn").onclick=()=>supplierForm("nota");document.getElementById("newPayBtn").onclick=()=>supplierForm("pago");
 }
