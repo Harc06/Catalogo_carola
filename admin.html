@@ -1440,8 +1440,6 @@ footer{
 .import-drop{border:1.5px dashed #dcb8c7;border-radius:16px;padding:18px;text-align:center;background:#fff8fb}
 .import-drop input{display:none}
 .paste-excel{margin-top:14px;padding-top:14px;border-top:1px solid #ecd8e1}
-.file-paste-zone{box-sizing:border-box;width:100%;min-height:92px;border:1px solid #ddd;border-radius:12px;padding:18px;background:#fff;outline:none;display:flex;align-items:center;justify-content:center;color:#777;font-size:14px;cursor:text}
-.file-paste-zone:focus{border-color:#dcaabd;box-shadow:0 0 0 3px rgba(220,170,189,.12)}
 .paste-hint{margin:8px 0 0!important;font-size:12px;color:#888}
 .import-btn{display:inline-block;padding:12px 18px;border-radius:12px;background:#171717;color:#fff;font-weight:800;cursor:pointer}
 .import-preview{margin-top:14px}
@@ -1818,8 +1816,8 @@ footer{
       <input id="salesExcel" type="file" accept=".xlsx,.xls">
       <div id="salesExcelName" style="margin-top:10px;color:#888;font-size:12px">Ningún archivo seleccionado</div>
       <div class="paste-excel">
-        <div id="salesPaste" class="file-paste-zone" tabindex="0">Pega aquí el archivo de Excel completo</div>
-        <p class="paste-hint">Copia el archivo .xlsx desde Archivos/Finder/Explorador y pégalo aquí. El archivo se procesa en el navegador y no se almacena en CAROLA.</p>
+        <button id="salesPaste" class="import-btn" type="button" style="margin-left:8px">Pegar Excel copiado</button>
+        <p class="paste-hint">Copia el archivo .xlsx completo y toca este botón. Si tu navegador permite leer archivos del portapapeles, CAROLA lo abrirá directamente.</p>
       </div>
     </div>
     <div id="importPreview" class="import-preview"></div>
@@ -3995,22 +3993,31 @@ async function processExcelFile(file){
   pendingSalesImport=parseSalesSheet(rows);
   renderSalesPreview(pendingSalesImport);
 }
-salesPaste.addEventListener("paste",async function(e){
-  e.preventDefault();
-  const items=Array.from(e.clipboardData?.items||[]);
-  let file=null;
-  for(const item of items){
-    if(item.kind==="file"){file=item.getAsFile();if(file)break}
+salesPaste.onclick=async function(){
+  this.disabled=true;this.textContent="Leyendo portapapeles...";
+  try{
+    if(!navigator.clipboard||!navigator.clipboard.read)throw new Error("Este navegador no permite leer archivos del portapapeles con un botón.");
+    const clipboardItems=await navigator.clipboard.read();
+    let file=null;
+    for(const item of clipboardItems){
+      for(const type of item.types){
+        if(type.includes("spreadsheet")||type.includes("excel")||type.includes("officedocument")||type==="application/octet-stream"){
+          const blob=await item.getType(type);
+          file=new File([blob],"archivo-copiado.xlsx",{type});
+          break;
+        }
+      }
+      if(file)break;
+    }
+    if(!file)throw new Error("No encontré un archivo Excel en el portapapeles. En iPad/Safari Apple puede bloquear el acceso a archivos copiados; en ese caso usa Seleccionar Excel.");
+    await processExcelFile(file);
+  }catch(err){
+    pendingSalesImport=null;
+    importPreview.innerHTML='<div class="finance-empty">'+escapeHtml(err.message)+'</div>';
+  }finally{
+    this.disabled=false;this.textContent="Pegar Excel copiado";
   }
-  if(!file&&e.clipboardData?.files?.length)file=e.clipboardData.files[0];
-  if(!file){
-    importPreview.innerHTML='<div class="finance-empty">El navegador no recibió un archivo de Excel. Copia el archivo .xlsx completo y vuelve a pegarlo aquí.</div>';
-    return;
-  }
-  try{await processExcelFile(file)}
-  catch(err){pendingSalesImport=null;importPreview.innerHTML='<div class="finance-empty">'+escapeHtml(err.message)+'</div>'}
-});
-salesPaste.addEventListener("click",function(){this.focus()});
+};
 
 salesExcel.onchange=async function(){
   const file=this.files&&this.files[0];if(!file)return;
@@ -4269,12 +4276,14 @@ function setupBreakEvenHistory(){
 beHistoryYear.onchange=renderBreakEvenHistory;
 beHistoryMonth.onchange=renderBreakEvenHistory;
 
-function setupFixedFilters(){
-  const years=[...new Set([new Date().getFullYear(),...allFinance.map(r=>parseYmd(r.fecha).y),...financeExpenses.map(g=>Number(g.anio))])].sort((a,b)=>b-a);
+function setupFixedFilters(preferredYear,preferredMonth){
+  const keepYear=String(preferredYear||fixedYear.value||"");
+  const keepMonth=String(preferredMonth||fixedMonth.value||"");
+  const years=[...new Set([new Date().getFullYear(),...allFinance.map(r=>parseYmd(r.fecha).y),...financeExpenses.map(g=>Number(g.anio)),Number(keepYear)||0].filter(Boolean))].sort((a,b)=>b-a);
   fixedYear.innerHTML=years.map(y=>'<option value="'+y+'">'+y+'</option>').join("");
   fixedMonth.innerHTML=MONTHS_ES.map((n,k)=>'<option value="'+(k+1)+'">'+n+'</option>').join("");
-  fixedYear.value=financeYear.value||String(new Date().getFullYear());
-  fixedMonth.value=financeMonth.value&&financeMonth.value!=="0"?financeMonth.value:String(new Date().getMonth()+1);
+  fixedYear.value=keepYear&&years.includes(Number(keepYear))?keepYear:(financeYear.value||String(new Date().getFullYear()));
+  fixedMonth.value=keepMonth||((financeMonth.value&&financeMonth.value!=="0")?financeMonth.value:String(new Date().getMonth()+1));
   renderExpenses();
   setupBreakEvenHistory();
 }
@@ -4290,10 +4299,11 @@ function renderExpenses(){
   renderBreakEven();
 }
 async function expenseAction(payload){
+  const keepYear=fixedYear.value,keepMonth=fixedMonth.value;
   const response=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify(payload)});
   const result=await readJson(response);
   if(!response.ok||!result.success)throw new Error(result.error||"No se pudo guardar el gasto.");
-  await loadFinance();
+  await loadFinance(keepYear,keepMonth);
 }
 document.getElementById("copyPreviousExpenses").onclick=async function(){
   const y=Number(fixedYear.value),m=Number(fixedMonth.value);
@@ -4310,7 +4320,7 @@ document.getElementById("copyPreviousExpenses").onclick=async function(){
       const response=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"save-expense",anio:y,mes:m,concepto:x.concepto,importe:Number(x.importe||0)})});
       const result=await readJson(response);if(!response.ok||!result.success)throw new Error(result.error||"No se pudo copiar el gasto.");
     }
-    await loadFinance();
+    await loadFinance(String(y),String(m));
   }catch(e){alert(e.message)}
   finally{this.disabled=false;this.textContent="Copiar mes anterior"}
 };
@@ -4341,7 +4351,7 @@ expenseList.onclick=async function(e){
 fixedYear.onchange=renderExpenses;
 fixedMonth.onchange=renderExpenses;
 
-async function loadFinance(){
+async function loadFinance(preferredFixedYear,preferredFixedMonth){
   financeRows.innerHTML='<div class="finance-empty">Cargando finanzas...</div>';
   try{
     const response=await fetch("/.netlify/functions/admin-finanzas?t="+Date.now(),{headers:{"x-admin-password":adminPassword},cache:"no-store"});
@@ -4352,7 +4362,7 @@ async function loadFinance(){
     financeExpenses=Array.isArray(result.gastos)?result.gastos:[];
     financeLoaded=true;
     setupFinanceFilters();
-    setupFixedFilters();
+    setupFixedFilters(preferredFixedYear,preferredFixedMonth);
     renderFinance();
   }catch(error){
     financeRows.innerHTML='<div class="finance-empty">'+escapeHtml(error.message)+'</div>';
