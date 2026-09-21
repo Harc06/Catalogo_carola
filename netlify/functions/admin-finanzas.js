@@ -33,7 +33,13 @@ exports.handler=async function(event){
         .select("id,fecha,ganancia,medias_docenas,creado_en,actualizado_en")
         .order("fecha",{ascending:false});
       if(error) throw error;
-      return response(200,{success:true,registros:data||[]});
+      const {data:metas,error:metasError}=await supabase
+        .from("finanzas_metas")
+        .select("id,anio,mes,gastos_fijos,creado_en,actualizado_en")
+        .order("anio",{ascending:false})
+        .order("mes",{ascending:false});
+      if(metasError) throw metasError;
+      return response(200,{success:true,registros:data||[],metas:metas||[]});
     }
 
     if(event.httpMethod!=="POST") return response(405,{success:false,error:"Método no permitido"});
@@ -80,6 +86,22 @@ exports.handler=async function(event){
         .single();
       if(error) throw error;
       return response(200,{success:true,registro:data});
+    }
+
+    if(action==="save-goal"){
+      const anio=Number(body.anio);
+      const mes=Number(body.mes);
+      const gastos=Number(body.gastos_fijos);
+      if(!Number.isInteger(anio)||anio<2020||anio>2100) return response(400,{success:false,error:"Año inválido"});
+      if(!Number.isInteger(mes)||mes<1||mes>12) return response(400,{success:false,error:"Mes inválido"});
+      if(!Number.isFinite(gastos)||gastos<0) return response(400,{success:false,error:"Gastos fijos inválidos"});
+      const {data,error}=await supabase
+        .from("finanzas_metas")
+        .upsert({anio,mes,gastos_fijos:gastos,actualizado_en:new Date().toISOString()},{onConflict:"anio,mes"})
+        .select("id,anio,mes,gastos_fijos,creado_en,actualizado_en")
+        .single();
+      if(error) throw error;
+      return response(200,{success:true,meta:data});
     }
 
     if(action==="delete"){
