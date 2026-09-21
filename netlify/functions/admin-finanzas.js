@@ -1,3 +1,4 @@
+const {authorized}=require("./admin-auth-lib");
 const { createClient } = require("@supabase/supabase-js");
 
 const supabase = createClient(
@@ -14,17 +15,13 @@ function response(statusCode,data){
   };
 }
 
-function authorized(event){
-  const password=event.headers["x-admin-password"]||event.headers["X-Admin-Password"];
-  return Boolean(process.env.ADMIN_PASSWORD && password===process.env.ADMIN_PASSWORD);
-}
 
 function validDate(value){
   return /^\d{4}-\d{2}-\d{2}$/.test(String(value||""));
 }
 
 exports.handler=async function(event){
-  if(!authorized(event)) return response(401,{success:false,error:"Contraseña incorrecta"});
+  if(!(await authorized(event))) return response(401,{success:false,error:"Contraseña incorrecta"});
 
   try{
     if(event.httpMethod==="GET"){
