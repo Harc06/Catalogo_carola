@@ -1436,6 +1436,19 @@ footer{
   margin:0 auto 26px;
 }
 .finance-entry h2{margin-bottom:6px}
+.import-card{max-width:760px;margin:0 auto 18px}
+.import-drop{border:1.5px dashed #dcb8c7;border-radius:16px;padding:18px;text-align:center;background:#fff8fb}
+.import-drop input{display:none}
+.import-btn{display:inline-block;padding:12px 18px;border-radius:12px;background:#171717;color:#fff;font-weight:800;cursor:pointer}
+.import-preview{margin-top:14px}
+.import-preview table{width:100%;border-collapse:collapse}
+.import-preview th,.import-preview td{padding:9px 8px;border-bottom:1px solid #f0e4e9;text-align:left;font-size:12px}
+.import-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.import-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.import-actions button{padding:11px 15px;border-radius:11px}
+#importConfirm{background:#171717;color:#fff}
+#importCancel{background:#f7e6ee}
+@media(max-width:700px){.import-kpis{grid-template-columns:1fr}}
 .finance-entry p{margin:0 0 18px;color:#888}
 .finance-grid{
   display:grid;
@@ -1793,6 +1806,17 @@ footer{
 
 
 <div id="financePanel" class="panel">
+  <section class="card import-card">
+    <h2>Importar ventas desde Excel</h2>
+    <p>Lee únicamente Hoja2, ignora cajas y toma solo pares en múltiplos de 6.</p>
+    <div class="import-drop">
+      <label class="import-btn" for="salesExcel">Seleccionar Excel</label>
+      <input id="salesExcel" type="file" accept=".xlsx,.xls">
+      <div id="salesExcelName" style="margin-top:10px;color:#888;font-size:12px">Ningún archivo seleccionado</div>
+    </div>
+    <div id="importPreview" class="import-preview"></div>
+  </section>
+
   <section class="card finance-entry">
     <h2>Registrar día</h2>
     <p>Captura una sola vez la ganancia y las medias docenas vendidas.</p>
@@ -1923,6 +1947,7 @@ footer{
 
 <footer>Panel interno de Calzado Carola</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 
 /* CONTRASEÑA */
@@ -1985,6 +2010,9 @@ const extraLines=document.getElementById("extraLines");
 const addExtra=document.getElementById("addExtra");
 const receiptPreview=document.getElementById("receiptPreview");
 const financeTab=document.getElementById("financeTab");
+const salesExcel=document.getElementById("salesExcel");
+const importPreview=document.getElementById("importPreview");
+let pendingSalesImport=null;
 const financePanel=document.getElementById("financePanel");
 const financeDate=document.getElementById("financeDate");
 const financeProfit=document.getElementById("financeProfit");
@@ -3881,6 +3909,73 @@ shareNote.onclick=async function(){
 orderSearch.oninput=
   renderOrders;
 
+
+
+
+/* IMPORTAR EXCEL DE VENTAS */
+function excelSerialToYmd(serial){
+  const d=new Date(Date.UTC(1899,11,30)+Math.floor(Number(serial))*86400000);
+  return d.toISOString().slice(0,10);
+}
+function normalizeHeader(v){return String(v||"").trim().toLowerCase().replaceAll(".","")}
+function parseSalesSheet(rows){
+  const headerIndex=rows.findIndex(r=>Array.isArray(r)&&r.some(v=>normalizeHeader(v)==="contacto")&&r.some(v=>normalizeHeader(v)==="producto"));
+  if(headerIndex<0) throw new Error("No encontré la tabla de productos en Hoja2.");
+  const headers=rows[headerIndex].map(normalizeHeader);
+  const col=name=>headers.indexOf(name);
+  const ix={fecha:col("fecha"),tipo:col("tipo"),vendedor:col("vendedor"),contacto:col("contacto"),producto:col("producto"),cant:col("cant"),precio:col("precio unitario"),total:col("total")};
+  if(Object.values(ix).some(v=>v<0)) throw new Error("Hoja2 no tiene todas las columnas necesarias.");
+  const byDate={},clients={}; let ignored=0;
+  rows.slice(headerIndex+1).forEach(r=>{
+    if(!r||String(r[ix.tipo]||"").trim().toLowerCase()!=="venta")return;
+    if(String(r[ix.vendedor]||"").trim().toLowerCase()!=="carola")return;
+    const product=String(r[ix.producto]||"").trim(),client=String(r[ix.contacto]||"").trim()||"Sin contacto";
+    const qty=Number(r[ix.cant]||0),price=Number(r[ix.precio]||0);
+    if(!product||product.toLowerCase().includes("caja")){ignored++;return}
+    const validQty=Math.floor(qty/6)*6;
+    if(validQty<6){ignored++;return}
+    const date=typeof r[ix.fecha]==="number"?excelSerialToYmd(r[ix.fecha]):String(r[ix.fecha]||"").slice(0,10);
+    const amount=validQty*price;
+    if(!byDate[date])byDate[date]={fecha:date,pares:0,venta:0,clientes:{}};
+    byDate[date].pares+=validQty;byDate[date].venta+=amount;
+    if(!byDate[date].clientes[client])byDate[date].clientes[client]={pares:0,venta:0};
+    byDate[date].clientes[client].pares+=validQty;byDate[date].clientes[client].venta+=amount;
+  });
+  const days=Object.values(byDate);
+  if(!days.length)throw new Error("No encontré ventas válidas de Carola en Hoja2.");
+  return {days,ignored};
+}
+function renderSalesPreview(data){
+  const pairs=data.days.reduce((s,d)=>s+d.pares,0),sales=data.days.reduce((s,d)=>s+d.venta,0);
+  const clientRows=[];
+  data.days.forEach(d=>Object.entries(d.clientes).forEach(([name,v])=>clientRows.push({fecha:d.fecha,name,...v})));
+  importPreview.innerHTML='<div class="import-kpis"><div class="summary-box"><strong>'+pairs+'</strong><span>PARES VÁLIDOS</span></div><div class="summary-box"><strong>'+moneyShort(sales)+'</strong><span>VENTA VÁLIDA</span></div><div class="summary-box"><strong>'+data.ignored+'</strong><span>LÍNEAS IGNORADAS</span></div></div><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Pares</th><th>Venta</th></tr></thead><tbody>'+clientRows.map(x=>'<tr><td>'+formatFinanceDate(x.fecha)+'</td><td>'+escapeHtml(x.name)+'</td><td>'+x.pares+'</td><td>'+moneyShort(x.venta)+'</td></tr>').join("")+'</tbody></table></div><div class="import-actions"><button id="importCancel" type="button">Cancelar</button><button id="importConfirm" type="button">Confirmar importación</button></div>';
+  document.getElementById("importCancel").onclick=()=>{pendingSalesImport=null;importPreview.innerHTML="";salesExcel.value="";document.getElementById("salesExcelName").textContent="Ningún archivo seleccionado"};
+  document.getElementById("importConfirm").onclick=confirmSalesImport;
+}
+async function confirmSalesImport(){
+  if(!pendingSalesImport)return;
+  const btn=document.getElementById("importConfirm");btn.disabled=true;btn.textContent="Guardando...";
+  try{
+    const response=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"import-sales",days:pendingSalesImport.days})});
+    const result=await readJson(response);if(!response.ok||!result.success)throw new Error(result.error||"No se pudo importar.");
+    alert("Importación lista: "+result.pares+" pares y "+moneyShort(result.venta)+".");
+    pendingSalesImport=null;importPreview.innerHTML="";salesExcel.value="";document.getElementById("salesExcelName").textContent="Ningún archivo seleccionado";
+    await loadFinance();
+  }catch(e){alert(e.message)}finally{if(btn){btn.disabled=false;btn.textContent="Confirmar importación"}}
+}
+salesExcel.onchange=async function(){
+  const file=this.files&&this.files[0];if(!file)return;
+  document.getElementById("salesExcelName").textContent=file.name;
+  importPreview.innerHTML='<div class="finance-empty">Leyendo Hoja2...</div>';
+  try{
+    if(typeof XLSX==="undefined")throw new Error("No se pudo cargar el lector de Excel.");
+    const buffer=await file.arrayBuffer(),book=XLSX.read(buffer,{type:"array"});
+    if(!book.Sheets["Hoja2"])throw new Error("El archivo no contiene Hoja2.");
+    const rows=XLSX.utils.sheet_to_json(book.Sheets["Hoja2"],{header:1,raw:true,defval:null});
+    pendingSalesImport=parseSalesSheet(rows);renderSalesPreview(pendingSalesImport);
+  }catch(e){pendingSalesImport=null;importPreview.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
+};
 
 
 /* FINANZAS */
