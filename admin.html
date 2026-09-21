@@ -1967,11 +1967,17 @@ footer{
 
 <div id="suppliersPanel" class="panel">
   <div class="orders-header"><div><h2>Deudas proveedores</h2><p>Notas recibidas, pagos, pares y saldo pendiente por proveedor.</p></div><button id="refreshSuppliers" class="refresh" type="button">Actualizar</button></div>
-  <section class="card">
-    <div class="finance-grid"><div><label>Nuevo proveedor</label><input id="supplierName" type="text" placeholder="Ej. Noé"></div></div>
-    <button id="addSupplier" type="button">+ Agregar proveedor</button>
+  <div class="record-tools-tabs" style="margin-bottom:14px">
+    <button id="toggleNewSupplier" class="record-tool-btn" type="button">+ Nuevo proveedor</button>
+  </div>
+  <section id="newSupplierPanel" class="card" style="display:none">
+    <div class="finance-grid"><div><label>Nombre del proveedor</label><input id="supplierName" type="text" placeholder="Ej. Noé"></div></div>
+    <button id="addSupplier" type="button" style="margin-top:12px;padding:12px 18px;border:0;border-radius:12px;background:#171717;color:#fff;font-weight:800">+ Agregar proveedor</button>
   </section>
-  <div id="supplierTabs" class="record-tools-tabs"></div>
+  <section class="card" style="padding:16px;margin-bottom:14px">
+    <label for="supplierSelect" style="display:block;font-weight:800;margin-bottom:8px">Proveedor</label>
+    <select id="supplierSelect" style="width:100%;padding:14px;border:1px solid #ead8df;border-radius:14px;background:#fff;font-size:16px;font-weight:700"></select>
+  </section>
   <section id="supplierContent" class="card"><div class="finance-empty">Agrega o selecciona un proveedor.</div></section>
 </div>
 
@@ -2192,7 +2198,7 @@ async function loadSuppliers(){
  try{const j=await supplierCall();suppliers=j.proveedores||[];supplierMoves=j.movimientos||[];suppliersLoaded=true;if(!selectedSupplier&&suppliers.length)selectedSupplier=suppliers[0].id;renderSuppliers()}catch(e){supplierContent.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
 }
 function renderSuppliers(){
- supplierTabs.innerHTML=suppliers.map(p=>'<button class="record-tool-btn '+(p.id===selectedSupplier?'active':'')+'" onclick="selectSupplier('+p.id+')">'+escapeHtml(p.nombre)+'</button>').join("");
+ supplierSelect.innerHTML=suppliers.length?suppliers.map(p=>'<option value="'+p.id+'" '+(p.id===selectedSupplier?'selected':'')+'>'+escapeHtml(p.nombre)+'</option>').join(""):'<option value="">Sin proveedores</option>';
  const p=suppliers.find(x=>x.id===selectedSupplier);if(!p){supplierContent.innerHTML='<div class="finance-empty">Agrega un proveedor para comenzar.</div>';return}
  const m=supplierMoves.filter(x=>x.proveedor_id===p.id),notes=m.filter(x=>x.tipo==="nota"),pays=m.filter(x=>x.tipo==="pago"),openings=m.filter(x=>x.tipo==="saldo_inicial");
  const nt=notes.reduce((s,x)=>s+Number(x.importe),0),pt=pays.reduce((s,x)=>s+Number(x.importe),0),opening=openings.reduce((s,x)=>s+Number(x.importe),0),pairs=notes.reduce((s,x)=>s+Number(x.pares||0),0),pending=notes.filter(x=>!x.pares||!x.fecha||!x.folio).length+pays.filter(x=>!x.fecha||!x.forma_pago).length,balance=opening+nt-pt;
@@ -2201,7 +2207,7 @@ function renderSuppliers(){
  '<div style="margin-top:12px;font-weight:800">'+(pending?('⚠️ '+pending+' movimiento(s) histórico(s) con datos pendientes'):'✓ Sin datos pendientes')+'</div><div style="overflow:auto;margin-top:20px"><table class="finance-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Folio / Forma</th><th>Importe</th><th>Pares</th><th>Estado</th><th></th></tr></thead><tbody>'+m.map(x=>{const incomplete=(x.tipo==="nota"&&(!x.pares||!x.fecha||!x.folio))||(x.tipo==="pago"&&(!x.fecha||!x.forma_pago));const label=x.tipo==="nota"?"Nota":x.tipo==="pago"?"Pago":"Saldo inicial";return '<tr><td>'+(x.fecha?formatFinanceDate(x.fecha):"Pendiente")+'</td><td>'+escapeHtml(label)+'</td><td>'+escapeHtml(x.tipo==="nota"?(x.folio||"Pendiente"):x.tipo==="pago"?(x.forma_pago||"Pendiente"):"Saldo anterior")+'</td><td>'+moneyShort(x.importe)+'</td><td>'+(x.tipo==="nota"?(x.pares||"Pendiente"):"—")+'</td><td>'+(incomplete?"⚠️ Pendiente":"✓ Completo")+'</td><td><button class="delete-finance" onclick="deleteSupplierMove('+x.id+')">Eliminar</button></td></tr>'}).join("")+'</tbody></table></div>';
  document.getElementById("newNoteBtn").onclick=()=>supplierForm("nota");document.getElementById("newPayBtn").onclick=()=>supplierForm("pago");
 }
-function selectSupplier(id){selectedSupplier=id;renderSuppliers()}
+function selectSupplier(id){selectedSupplier=Number(id);renderSuppliers()}
 function supplierForm(tipo){
  const isNote=tipo==="nota";document.getElementById("supplierForm").innerHTML='<div class="finance-grid" style="margin-top:16px"><div><label>Fecha</label><input id="smDate" type="date" value="'+new Date().toISOString().slice(0,10)+'"></div>'+(isNote?'<div><label>Folio de nota</label><input id="smFolio" type="text" placeholder="Ej. 173"></div>':'<div><label>Forma de pago</label><select id="smPay"><option>Transferencia</option><option>Efectivo</option><option>Depósito</option><option>Otro</option></select></div>')+'<div><label>Importe</label><input id="smAmount" type="number" min="0.01" step="0.01" placeholder="$0.00"></div>'+(isNote?'<div><label>Pares recibidos</label><input id="smPairs" type="number" min="1" step="1" placeholder="0"></div>':'')+'<div><label>Observaciones</label><input id="smObs" type="text" placeholder="Opcional"></div></div><button id="saveSupplierMove" type="button">Guardar '+(isNote?"nota":"pago")+'</button>';
  document.getElementById("saveSupplierMove").onclick=async()=>{try{
@@ -2225,6 +2231,8 @@ function supplierForm(tipo){
 async function deleteSupplierMove(id){if(!confirm("¿Eliminar este movimiento?"))return;try{await supplierCall({action:"delete-movement",id});await loadSuppliers()}catch(e){alert(e.message)}}
 document.getElementById("addSupplier").onclick=async()=>{const nombre=supplierName.value.trim();if(!nombre)return;try{await supplierCall({action:"add-provider",nombre});supplierName.value="";await loadSuppliers()}catch(e){alert(e.message)}};
 document.getElementById("refreshSuppliers").onclick=loadSuppliers;
+document.getElementById("supplierSelect").onchange=e=>selectSupplier(e.target.value);
+document.getElementById("toggleNewSupplier").onclick=()=>{const p=document.getElementById("newSupplierPanel"),open=p.style.display!=="none";p.style.display=open?"none":"block";toggleNewSupplier.classList.toggle("active",!open)};
 
 /* PESTAÑAS */
 
