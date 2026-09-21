@@ -39,7 +39,14 @@ exports.handler=async function(event){
         .order("anio",{ascending:false})
         .order("mes",{ascending:false});
       if(metasError) throw metasError;
-      return response(200,{success:true,registros:data||[],metas:metas||[]});
+      const {data:gastos,error:gastosError}=await supabase
+        .from("finanzas_gastos")
+        .select("id,anio,mes,concepto,importe,creado_en,actualizado_en")
+        .order("anio",{ascending:false})
+        .order("mes",{ascending:false})
+        .order("concepto",{ascending:true});
+      if(gastosError) throw gastosError;
+      return response(200,{success:true,registros:data||[],metas:metas||[],gastos:gastos||[]});
     }
 
     if(event.httpMethod!=="POST") return response(405,{success:false,error:"Método no permitido"});
@@ -102,6 +109,32 @@ exports.handler=async function(event){
         .single();
       if(error) throw error;
       return response(200,{success:true,meta:data});
+    }
+
+    if(action==="save-expense"){
+      const id=Number(body.id||0),anio=Number(body.anio),mes=Number(body.mes);
+      const concepto=String(body.concepto||"").trim(),importe=Number(body.importe);
+      if(!Number.isInteger(anio)||anio<2020||anio>2100) return response(400,{success:false,error:"Año inválido"});
+      if(!Number.isInteger(mes)||mes<1||mes>12) return response(400,{success:false,error:"Mes inválido"});
+      if(!concepto) return response(400,{success:false,error:"Concepto requerido"});
+      if(!Number.isFinite(importe)||importe<0) return response(400,{success:false,error:"Importe inválido"});
+      let query;
+      if(id>0){
+        query=supabase.from("finanzas_gastos").update({anio,mes,concepto,importe,actualizado_en:new Date().toISOString()}).eq("id",id);
+      }else{
+        query=supabase.from("finanzas_gastos").insert({anio,mes,concepto,importe,actualizado_en:new Date().toISOString()});
+      }
+      const {data,error}=await query.select("id,anio,mes,concepto,importe,creado_en,actualizado_en").single();
+      if(error) throw error;
+      return response(200,{success:true,gasto:data});
+    }
+
+    if(action==="delete-expense"){
+      const id=Number(body.id);
+      if(!Number.isInteger(id)||id<=0) return response(400,{success:false,error:"Gasto inválido"});
+      const {data,error}=await supabase.from("finanzas_gastos").delete().eq("id",id).select("id").single();
+      if(error) throw error;
+      return response(200,{success:true,eliminado:data});
     }
 
     if(action==="delete"){
