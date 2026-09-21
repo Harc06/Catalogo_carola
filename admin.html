@@ -1641,6 +1641,15 @@ footer{
 
 
 @media(max-width:800px){.supplier-split{grid-template-columns:1fr!important}.supplier-split table{min-width:560px}}
+
+.supplier-split{align-items:start;width:100%}
+.supplier-column{min-width:0;overflow:hidden;background:#fff;border:1px solid var(--border);border-radius:16px;padding:12px}
+.supplier-column h3{margin:2px 4px 12px}
+.supplier-column>div{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.supplier-column .finance-table{width:100%;min-width:560px;table-layout:auto}
+.supplier-column .finance-table th,.supplier-column .finance-table td{white-space:nowrap;padding:10px 8px;font-size:12px}
+.supplier-column input{max-width:110px}
+@media(max-width:800px){.supplier-split{grid-template-columns:1fr!important}.supplier-column .finance-table{min-width:620px}}
 </style>
 <style>
 .finance-quick-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -2221,7 +2230,7 @@ function renderSuppliers(){
  supplierContent.innerHTML='<h2>'+escapeHtml(p.nombre)+'</h2><div class="finance-summary"><div class="summary-box"><strong>'+moneyShort(nt)+'</strong><span>TOTAL NOTAS</span></div><div class="summary-box"><strong>'+moneyShort(pt)+'</strong><span>TOTAL PAGADO</span></div><div class="summary-box"><strong>'+moneyShort(balance)+'</strong><span>SALDO PENDIENTE</span></div><div class="summary-box"><strong>'+pairs+'</strong><span>PARES RECIBIDOS</span></div></div>'+
  '<div class="record-tools-tabs"><button id="newNoteBtn" class="record-tool-btn">+ Nota / entrega</button><button id="newPayBtn" class="record-tool-btn">+ Pago</button></div><div id="supplierForm"></div>'+
  '<div style="margin-top:12px;font-weight:800">'+(pending?('⚠️ '+pending+' movimiento(s) histórico(s) con datos pendientes'):'✓ Sin datos pendientes')+'</div>'+
- '<div class="supplier-split" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px"><section><h3>Notas / entregas</h3>'+supplierHistoryTable(notes,"nota")+'</section><section><h3>Pagos</h3>'+supplierHistoryTable(pays,"pago")+'</section></div>';
+ '<div class="supplier-split" style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:18px"><section class="supplier-column supplier-notes"><h3>Notas / entregas</h3>'+supplierHistoryTable(notes,"nota")+'</section><section class="supplier-column supplier-pays"><h3>Pagos</h3>'+supplierHistoryTable(pays,"pago")+'</section></div>';
  document.getElementById("newNoteBtn").onclick=()=>supplierForm("nota");document.getElementById("newPayBtn").onclick=()=>supplierForm("pago");
 }
 async function savePendingMove(id,tipo){
