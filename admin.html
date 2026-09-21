@@ -1650,6 +1650,16 @@ footer{
 .supplier-column .finance-table th,.supplier-column .finance-table td{white-space:nowrap;padding:10px 8px;font-size:12px}
 .supplier-column input{max-width:110px}
 @media(max-width:800px){.supplier-split{grid-template-columns:1fr!important}.supplier-column .finance-table{min-width:620px}}
+
+.supplier-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:18px;align-items:start}
+.supplier-column{min-width:0;background:#fff;border:1px solid #eadfe3;border-radius:22px;padding:18px;box-shadow:0 10px 30px rgba(70,35,48,.06);overflow:hidden}
+.supplier-card-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:2px 2px 14px;border-bottom:1px solid #f0e6ea;margin-bottom:8px}
+.supplier-card-head h3{margin:2px 0 0;font-size:20px}
+.supplier-kicker{font-size:10px;font-weight:900;letter-spacing:.12em;color:#9b7c88}
+.supplier-card-total{font-size:19px;white-space:nowrap}
+.supplier-column>div:last-child{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.supplier-column .finance-table{width:100%;min-width:540px}
+@media(max-width:800px){.supplier-split{grid-template-columns:1fr}.supplier-column{padding:14px}.supplier-column .finance-table{min-width:580px}}
 </style>
 <style>
 .finance-quick-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -2230,7 +2240,7 @@ function renderSuppliers(){
  supplierContent.innerHTML='<h2>'+escapeHtml(p.nombre)+'</h2><div class="finance-summary"><div class="summary-box"><strong>'+moneyShort(nt)+'</strong><span>TOTAL NOTAS</span></div><div class="summary-box"><strong>'+moneyShort(pt)+'</strong><span>TOTAL PAGADO</span></div><div class="summary-box"><strong>'+moneyShort(balance)+'</strong><span>SALDO PENDIENTE</span></div><div class="summary-box"><strong>'+pairs+'</strong><span>PARES RECIBIDOS</span></div></div>'+
  '<div class="record-tools-tabs"><button id="newNoteBtn" class="record-tool-btn">+ Nota / entrega</button><button id="newPayBtn" class="record-tool-btn">+ Pago</button></div><div id="supplierForm"></div>'+
  '<div style="margin-top:12px;font-weight:800">'+(pending?('⚠️ '+pending+' movimiento(s) histórico(s) con datos pendientes'):'✓ Sin datos pendientes')+'</div>'+
- '<div class="supplier-split" style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:18px"><section class="supplier-column supplier-notes"><h3>Notas / entregas</h3>'+supplierHistoryTable(notes,"nota")+'</section><section class="supplier-column supplier-pays"><h3>Pagos</h3>'+supplierHistoryTable(pays,"pago")+'</section></div>';
+ '<div class="supplier-split"><section class="supplier-column supplier-notes"><div class="supplier-card-head"><div><span class="supplier-kicker">ENTRADAS</span><h3>Notas / entregas</h3></div><strong class="supplier-card-total">'+moneyShort(nt)+'</strong></div>'+supplierHistoryTable(notes,"nota")+'</section><section class="supplier-column supplier-pays"><div class="supplier-card-head"><div><span class="supplier-kicker">SALIDAS</span><h3>Pagos</h3></div><strong class="supplier-card-total">'+moneyShort(pt)+'</strong></div>'+supplierHistoryTable(pays,"pago")+'</section></div>';
  document.getElementById("newNoteBtn").onclick=()=>supplierForm("nota");document.getElementById("newPayBtn").onclick=()=>supplierForm("pago");
 }
 async function savePendingMove(id,tipo){
