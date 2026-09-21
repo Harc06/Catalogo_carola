@@ -1808,7 +1808,7 @@ footer{
 <div id="financePanel" class="panel">
   <section class="card import-card">
     <h2>Importar ventas desde Excel</h2>
-    <p>Lee únicamente Hoja2, ignora cajas y toma solo pares en múltiplos de 6.</p>
+    <p>Lee únicamente Hoja2. CAROLA calcula las medias docenas; tú solo capturas la ganancia.</p>
     <div class="import-drop">
       <label class="import-btn" for="salesExcel">Seleccionar Excel</label>
       <input id="salesExcel" type="file" accept=".xlsx,.xls">
@@ -3923,46 +3923,47 @@ function parseSalesSheet(rows){
   if(headerIndex<0) throw new Error("No encontré la tabla de productos en Hoja2.");
   const headers=rows[headerIndex].map(normalizeHeader);
   const col=name=>headers.indexOf(name);
-  const ix={fecha:col("fecha"),tipo:col("tipo"),vendedor:col("vendedor"),contacto:col("contacto"),producto:col("producto"),cant:col("cant"),precio:col("precio unitario"),total:col("total")};
+  const ix={fecha:col("fecha"),tipo:col("tipo"),vendedor:col("vendedor"),contacto:col("contacto"),producto:col("producto"),cant:col("cant")};
   if(Object.values(ix).some(v=>v<0)) throw new Error("Hoja2 no tiene todas las columnas necesarias.");
-  const byDate={},clients={}; let ignored=0;
+  const byDate={}; let ignored=0;
   rows.slice(headerIndex+1).forEach(r=>{
     if(!r||String(r[ix.tipo]||"").trim().toLowerCase()!=="venta")return;
     if(String(r[ix.vendedor]||"").trim().toLowerCase()!=="carola")return;
     const product=String(r[ix.producto]||"").trim(),client=String(r[ix.contacto]||"").trim()||"Sin contacto";
-    const qty=Number(r[ix.cant]||0),price=Number(r[ix.precio]||0);
+    const qty=Number(r[ix.cant]||0);
     if(!product||product.toLowerCase().includes("caja")){ignored++;return}
     const validQty=Math.floor(qty/6)*6;
     if(validQty<6){ignored++;return}
     const date=typeof r[ix.fecha]==="number"?excelSerialToYmd(r[ix.fecha]):String(r[ix.fecha]||"").slice(0,10);
-    const amount=validQty*price;
-    if(!byDate[date])byDate[date]={fecha:date,pares:0,venta:0,clientes:{}};
-    byDate[date].pares+=validQty;byDate[date].venta+=amount;
-    if(!byDate[date].clientes[client])byDate[date].clientes[client]={pares:0,venta:0};
-    byDate[date].clientes[client].pares+=validQty;byDate[date].clientes[client].venta+=amount;
+    if(!byDate[date])byDate[date]={fecha:date,pares:0,clientes:{}};
+    byDate[date].pares+=validQty;
+    byDate[date].clientes[client]=(byDate[date].clientes[client]||0)+validQty;
   });
   const days=Object.values(byDate);
   if(!days.length)throw new Error("No encontré ventas válidas de Carola en Hoja2.");
   return {days,ignored};
 }
 function renderSalesPreview(data){
-  const pairs=data.days.reduce((s,d)=>s+d.pares,0),sales=data.days.reduce((s,d)=>s+d.venta,0);
+  const pairs=data.days.reduce((sum,d)=>sum+d.pares,0);
   const clientRows=[];
-  data.days.forEach(d=>Object.entries(d.clientes).forEach(([name,v])=>clientRows.push({fecha:d.fecha,name,...v})));
-  importPreview.innerHTML='<div class="import-kpis"><div class="summary-box"><strong>'+pairs+'</strong><span>PARES VÁLIDOS</span></div><div class="summary-box"><strong>'+moneyShort(sales)+'</strong><span>VENTA VÁLIDA</span></div><div class="summary-box"><strong>'+data.ignored+'</strong><span>LÍNEAS IGNORADAS</span></div></div><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Pares</th><th>Venta</th></tr></thead><tbody>'+clientRows.map(x=>'<tr><td>'+formatFinanceDate(x.fecha)+'</td><td>'+escapeHtml(x.name)+'</td><td>'+x.pares+'</td><td>'+moneyShort(x.venta)+'</td></tr>').join("")+'</tbody></table></div><div class="import-actions"><button id="importCancel" type="button">Cancelar</button><button id="importConfirm" type="button">Confirmar importación</button></div>';
+  data.days.forEach(d=>Object.entries(d.clientes).forEach(([name,pares])=>clientRows.push({fecha:d.fecha,name,pares})));
+  importPreview.innerHTML='<div class="import-kpis"><div class="summary-box"><strong>'+pairs+'</strong><span>PARES VÁLIDOS</span></div><div class="summary-box"><strong>'+Math.floor(pairs/6)+'</strong><span>MEDIAS DOCENAS</span></div><div class="summary-box"><strong>'+data.ignored+'</strong><span>LÍNEAS IGNORADAS</span></div></div><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Pares válidos</th><th>Medias</th></tr></thead><tbody>'+clientRows.map(x=>'<tr><td>'+formatFinanceDate(x.fecha)+'</td><td>'+escapeHtml(x.name)+'</td><td>'+x.pares+'</td><td>'+Math.floor(x.pares/6)+'</td></tr>').join("")+'</tbody></table></div><div class="import-actions"><button id="importCancel" type="button">Cancelar</button><button id="importConfirm" type="button">Usar medias docenas</button></div>';
   document.getElementById("importCancel").onclick=()=>{pendingSalesImport=null;importPreview.innerHTML="";salesExcel.value="";document.getElementById("salesExcelName").textContent="Ningún archivo seleccionado"};
   document.getElementById("importConfirm").onclick=confirmSalesImport;
 }
 async function confirmSalesImport(){
   if(!pendingSalesImport)return;
-  const btn=document.getElementById("importConfirm");btn.disabled=true;btn.textContent="Guardando...";
-  try{
-    const response=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"import-sales",days:pendingSalesImport.days})});
-    const result=await readJson(response);if(!response.ok||!result.success)throw new Error(result.error||"No se pudo importar.");
-    alert("Importación lista: "+result.pares+" pares y "+moneyShort(result.venta)+".");
-    pendingSalesImport=null;importPreview.innerHTML="";salesExcel.value="";document.getElementById("salesExcelName").textContent="Ningún archivo seleccionado";
-    await loadFinance();
-  }catch(e){alert(e.message)}finally{if(btn){btn.disabled=false;btn.textContent="Confirmar importación"}}
+  if(pendingSalesImport.days.length!==1){
+    alert("Este archivo contiene más de una fecha. Importa un reporte por día para capturar la ganancia correctamente.");
+    return;
+  }
+  const day=pendingSalesImport.days[0];
+  financeDate.value=day.fecha;
+  financeHalfDozens.value=Math.floor(day.pares/6);
+  financeProfit.value="";
+  financeProfit.focus();
+  pendingSalesImport=null;
+  importPreview.innerHTML='<div class="finance-empty">✓ Medias docenas cargadas en el registro del '+escapeHtml(formatFinanceDate(day.fecha))+'. Ahora escribe únicamente la ganancia del día y presiona Guardar registro.</div>';
 }
 salesExcel.onchange=async function(){
   const file=this.files&&this.files[0];if(!file)return;
