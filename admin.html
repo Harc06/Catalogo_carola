@@ -4197,9 +4197,14 @@ function setupFinanceFilters(){
 }
 function setupRecordFilters(){
   if(!recordMonth||!recordWeek)return;
-  const priorMonth=recordMonth.value||"0",priorWeek=recordWeek.value||"0";
+  const currentMonth=String(new Date().getMonth()+1);
+  /* En la primera carga, Registros abre en el mes actual. Después respeta cualquier filtro elegido por el usuario. */
+  const initialized=recordMonth.dataset.initialized==="1";
+  const priorMonth=initialized?(recordMonth.value||currentMonth):currentMonth;
+  const priorWeek=initialized?(recordWeek.value||"0"):"0";
   recordMonth.innerHTML='<option value="0">Todos los meses</option>'+MONTHS_ES.map((name,i)=>'<option value="'+(i+1)+'">'+name+'</option>').join("");
   recordMonth.value=priorMonth;
+  recordMonth.dataset.initialized="1";
   updateRecordWeekOptions(priorWeek);
 }
 function updateRecordWeekOptions(preferred){
