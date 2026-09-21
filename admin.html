@@ -1826,12 +1826,7 @@ footer{
     <div class="import-drop">
       <label class="import-btn" for="salesExcel">Seleccionar Excel</label>
       <input id="salesExcel" type="file" accept=".xlsx,.xls">
-      <div id="salesExcelName" style="margin-top:10px;color:#888;font-size:12px">Ningún archivo seleccionado</div>
-      <div class="paste-excel">
-        <button id="salesPaste" class="import-btn" type="button" style="margin-left:8px">Pegar Excel copiado</button>
-        <p class="paste-hint">Copia el archivo .xlsx completo y toca este botón. Si tu navegador permite leer archivos del portapapeles, CAROLA lo abrirá directamente.</p>
-      </div>
-    </div>
+      <div id="salesExcelName" style="margin-top:10px;color:#888;font-size:12px">Ningún archivo seleccionado</div></div>
     <div id="importPreview" class="import-preview"></div>
   </section>
 
@@ -2045,7 +2040,6 @@ const addExtra=document.getElementById("addExtra");
 const receiptPreview=document.getElementById("receiptPreview");
 const financeTab=document.getElementById("financeTab");
 const salesExcel=document.getElementById("salesExcel");
-const salesPaste=document.getElementById("salesPaste");
 const importPreview=document.getElementById("importPreview");
 let pendingSalesImport=null;
 const financePanel=document.getElementById("financePanel");
@@ -3993,7 +3987,7 @@ function renderSalesPreview(data){
   const clientRows=[];
   data.days.forEach(d=>Object.entries(d.clientes).forEach(([name,pares])=>clientRows.push({fecha:d.fecha,name,pares})));
   importPreview.innerHTML='<div style="margin:0 0 12px;padding:14px 16px;border-radius:14px;background:#171717;color:#fff;text-align:center"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;opacity:.7">FECHA DEL REPORTE</div><div style="font-size:20px;font-weight:900;margin-top:4px">'+escapeHtml(dateLabel)+'</div></div><div class="import-kpis"><div class="summary-box"><strong>'+pairs+'</strong><span>PARES VÁLIDOS</span></div><div class="summary-box"><strong>'+Math.floor(pairs/6)+'</strong><span>MEDIAS DOCENAS</span></div><div class="summary-box"><strong>'+data.ignored+'</strong><span>LÍNEAS IGNORADAS</span></div></div><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Pares válidos</th><th>Medias</th></tr></thead><tbody>'+clientRows.map(x=>'<tr><td>'+formatFinanceDate(x.fecha)+'</td><td>'+escapeHtml(x.name)+'</td><td>'+x.pares+'</td><td>'+Math.floor(x.pares/6)+'</td></tr>').join("")+'</tbody></table></div><div class="import-actions"><button id="importCancel" type="button">Cancelar</button><button id="importConfirm" type="button">Usar medias docenas</button></div>';
-  document.getElementById("importCancel").onclick=()=>{pendingSalesImport=null;importPreview.innerHTML="";salesExcel.value="";salesPaste.textContent="Pega aquí el archivo de Excel completo";document.getElementById("salesExcelName").textContent="Ningún archivo seleccionado"};
+  document.getElementById("importCancel").onclick=()=>{pendingSalesImport=null;importPreview.innerHTML="";salesExcel.value="";document.getElementById("salesExcelName").textContent="Ningún archivo seleccionado"};
   document.getElementById("importConfirm").onclick=confirmSalesImport;
 }
 async function confirmSalesImport(){
@@ -4028,32 +4022,6 @@ async function processExcelFile(file){
   pendingSalesImport=parseSalesSheet(rows);
   renderSalesPreview(pendingSalesImport);
 }
-salesPaste.onclick=async function(){
-  this.disabled=true;this.textContent="Leyendo portapapeles...";
-  try{
-    if(!navigator.clipboard||!navigator.clipboard.read)throw new Error("Este navegador no permite leer archivos del portapapeles con un botón.");
-    const clipboardItems=await navigator.clipboard.read();
-    let file=null;
-    for(const item of clipboardItems){
-      for(const type of item.types){
-        if(type.includes("spreadsheet")||type.includes("excel")||type.includes("officedocument")||type==="application/octet-stream"){
-          const blob=await item.getType(type);
-          file=new File([blob],"archivo-copiado.xlsx",{type});
-          break;
-        }
-      }
-      if(file)break;
-    }
-    if(!file)throw new Error("No encontré un archivo Excel en el portapapeles. En iPad/Safari Apple puede bloquear el acceso a archivos copiados; en ese caso usa Seleccionar Excel.");
-    await processExcelFile(file);
-  }catch(err){
-    pendingSalesImport=null;
-    importPreview.innerHTML='<div class="finance-empty">'+escapeHtml(err.message)+'</div>';
-  }finally{
-    this.disabled=false;this.textContent="Pegar Excel copiado";
-  }
-};
-
 salesExcel.onchange=async function(){
   const file=this.files&&this.files[0];if(!file)return;
   try{await processExcelFile(file)}
