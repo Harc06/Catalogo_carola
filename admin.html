@@ -1439,6 +1439,10 @@ footer{
 .import-card{max-width:760px;margin:0 auto 18px}
 .import-drop{border:1.5px dashed #dcb8c7;border-radius:16px;padding:18px;text-align:center;background:#fff8fb}
 .import-drop input{display:none}
+.paste-excel{margin-top:14px;padding-top:14px;border-top:1px solid #ecd8e1}
+.paste-excel textarea{box-sizing:border-box;width:100%;min-height:92px;resize:vertical;border:1px solid #ddd;border-radius:12px;padding:12px;font:14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#fff;outline:none}
+.paste-excel textarea:focus{border-color:#dcaabd}
+.paste-hint{margin:8px 0 0!important;font-size:12px;color:#888}
 .import-btn{display:inline-block;padding:12px 18px;border-radius:12px;background:#171717;color:#fff;font-weight:800;cursor:pointer}
 .import-preview{margin-top:14px}
 .import-preview table{width:100%;border-collapse:collapse}
@@ -1813,6 +1817,10 @@ footer{
       <label class="import-btn" for="salesExcel">Seleccionar Excel</label>
       <input id="salesExcel" type="file" accept=".xlsx,.xls">
       <div id="salesExcelName" style="margin-top:10px;color:#888;font-size:12px">Ningún archivo seleccionado</div>
+      <div class="paste-excel">
+        <textarea id="salesPaste" placeholder="O pega aquí las filas copiadas directamente desde Excel"></textarea>
+        <p class="paste-hint">En Excel selecciona la tabla de Hoja2, toca Copiar y pégala aquí. No necesitas guardar ni subir el archivo.</p>
+      </div>
     </div>
     <div id="importPreview" class="import-preview"></div>
   </section>
@@ -1892,6 +1900,11 @@ footer{
     </div>
     <div class="break-even-progress"><div id="breakEvenProgressBar"></div></div>
     <p id="breakEvenNote" class="break-even-note">Guarda los gastos fijos del mes para calcular tu punto de equilibrio.</p>
+    <div class="finance-toolbar" style="margin-top:18px">
+      <select id="beHistoryYear"></select>
+      <select id="beHistoryMonth"></select>
+    </div>
+    <div id="beHistorySummary" class="finance-empty">Selecciona un mes para consultar su punto de equilibrio.</div>
   </section>
 
   <section class="finance-table-card">
@@ -2011,9 +2024,13 @@ const addExtra=document.getElementById("addExtra");
 const receiptPreview=document.getElementById("receiptPreview");
 const financeTab=document.getElementById("financeTab");
 const salesExcel=document.getElementById("salesExcel");
+const salesPaste=document.getElementById("salesPaste");
 const importPreview=document.getElementById("importPreview");
 let pendingSalesImport=null;
 const financePanel=document.getElementById("financePanel");
+const beHistoryYear=document.getElementById("beHistoryYear");
+const beHistoryMonth=document.getElementById("beHistoryMonth");
+const beHistorySummary=document.getElementById("beHistorySummary");
 const financeDate=document.getElementById("financeDate");
 const financeProfit=document.getElementById("financeProfit");
 const financeHalfDozens=document.getElementById("financeHalfDozens");
@@ -3948,7 +3965,7 @@ function renderSalesPreview(data){
   const clientRows=[];
   data.days.forEach(d=>Object.entries(d.clientes).forEach(([name,pares])=>clientRows.push({fecha:d.fecha,name,pares})));
   importPreview.innerHTML='<div class="import-kpis"><div class="summary-box"><strong>'+pairs+'</strong><span>PARES VÁLIDOS</span></div><div class="summary-box"><strong>'+Math.floor(pairs/6)+'</strong><span>MEDIAS DOCENAS</span></div><div class="summary-box"><strong>'+data.ignored+'</strong><span>LÍNEAS IGNORADAS</span></div></div><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Pares válidos</th><th>Medias</th></tr></thead><tbody>'+clientRows.map(x=>'<tr><td>'+formatFinanceDate(x.fecha)+'</td><td>'+escapeHtml(x.name)+'</td><td>'+x.pares+'</td><td>'+Math.floor(x.pares/6)+'</td></tr>').join("")+'</tbody></table></div><div class="import-actions"><button id="importCancel" type="button">Cancelar</button><button id="importConfirm" type="button">Usar medias docenas</button></div>';
-  document.getElementById("importCancel").onclick=()=>{pendingSalesImport=null;importPreview.innerHTML="";salesExcel.value="";document.getElementById("salesExcelName").textContent="Ningún archivo seleccionado"};
+  document.getElementById("importCancel").onclick=()=>{pendingSalesImport=null;importPreview.innerHTML="";salesExcel.value="";salesPaste.value="";document.getElementById("salesExcelName").textContent="Ningún archivo seleccionado"};
   document.getElementById("importConfirm").onclick=confirmSalesImport;
 }
 async function confirmSalesImport(){
@@ -3965,6 +3982,30 @@ async function confirmSalesImport(){
   pendingSalesImport=null;
   importPreview.innerHTML='<div class="finance-empty">✓ Medias docenas cargadas en el registro del '+escapeHtml(formatFinanceDate(day.fecha))+'. Ahora escribe únicamente la ganancia del día y presiona Guardar registro.</div>';
 }
+function parsePastedExcel(text){
+  const rows=String(text||"").split(/\r?\n/).filter(line=>line.trim()).map(line=>line.split("\t"));
+  if(!rows.length)throw new Error("No detecté datos copiados de Excel.");
+  return parseSalesSheet(rows);
+}
+salesPaste.addEventListener("paste",function(e){
+  const text=e.clipboardData&&e.clipboardData.getData("text/plain");
+  if(!text)return;
+  e.preventDefault();
+  this.value=text;
+  try{
+    pendingSalesImport=parsePastedExcel(text);
+    document.getElementById("salesExcelName").textContent="Datos pegados desde Excel";
+    renderSalesPreview(pendingSalesImport);
+  }catch(err){
+    pendingSalesImport=null;
+    importPreview.innerHTML='<div class="finance-empty">'+escapeHtml(err.message)+'</div>';
+  }
+});
+salesPaste.addEventListener("input",function(){
+  if(!this.value.trim())return;
+  try{pendingSalesImport=parsePastedExcel(this.value);renderSalesPreview(pendingSalesImport)}catch(err){}
+});
+
 salesExcel.onchange=async function(){
   const file=this.files&&this.files[0];if(!file)return;
   document.getElementById("salesExcelName").textContent=file.name;
@@ -4203,6 +4244,32 @@ function renderBreakEven(){
   document.getElementById("breakEvenProgressBar").style.width=(fixed?Math.min(100,(reserved/fixed)*100):0)+"%";
   document.getElementById("breakEvenNote").textContent=!fixed?"Guarda los gastos fijos del mes para calcular tu punto de equilibrio.":(reserved>=fixed?"Meta cubierta. Excedente del apartado: "+moneyShort(extra)+".":"Faltan "+moneyShort(missing)+"; al promedio actual faltan aproximadamente "+pairsNeeded+" pares.");
 }
+function renderBreakEvenHistory(){
+  if(!beHistoryYear||!beHistoryMonth)return;
+  const y=Number(beHistoryYear.value),m=Number(beHistoryMonth.value);
+  if(!y||!m)return;
+  const expenseRows=financeExpenses.filter(g=>Number(g.anio)===y&&Number(g.mes)===m);
+  const goal=financeGoals.find(g=>Number(g.anio)===y&&Number(g.mes)===m);
+  const fixed=expenseRows.length?expenseRows.reduce((s,g)=>s+Number(g.importe||0),0):Number(goal?.gastos_fijos||0);
+  const rows=allFinance.filter(r=>{const p=parseYmd(r.fecha);return p.y===y&&p.m===m});
+  const profit=rows.reduce((s,r)=>s+Number(r.ganancia||0),0);
+  const pairs=rows.reduce((s,r)=>s+Number(r.medias_docenas||0)*6,0);
+  const reserved=profit*.43,avg=pairs?profit/pairs:0,extra=Math.max(0,reserved-fixed),missing=Math.max(0,fixed-reserved);
+  beHistorySummary.innerHTML='<div class="finance-summary" style="margin-top:12px"><div class="summary-box"><strong>'+moneyShort(fixed)+'</strong><span>GASTOS FIJOS</span></div><div class="summary-box"><strong>'+moneyShort(reserved)+'</strong><span>43% ACUMULADO</span></div><div class="summary-box"><strong>'+pairs+'</strong><span>PARES</span></div><div class="summary-box"><strong>'+moneyShort(avg)+'</strong><span>GANANCIA / PAR</span></div></div><p style="margin:10px 0 0;color:#777">'+(fixed?(reserved>=fixed?'Mes cubierto · Excedente '+moneyShort(extra):'Faltaron '+moneyShort(missing)+' para cubrir gastos.'):'No hay gastos fijos configurados para este mes.')+'</p>';
+}
+function setupBreakEvenHistory(){
+  if(!beHistoryYear||!beHistoryMonth)return;
+  const years=[...new Set([new Date().getFullYear(),...allFinance.map(r=>parseYmd(r.fecha).y),...financeExpenses.map(g=>Number(g.anio))])].sort((a,b)=>b-a);
+  const oldY=beHistoryYear.value,oldM=beHistoryMonth.value;
+  beHistoryYear.innerHTML=years.map(y=>'<option value="'+y+'">'+y+'</option>').join("");
+  beHistoryMonth.innerHTML=MONTHS_ES.map((n,k)=>'<option value="'+(k+1)+'">'+n+'</option>').join("");
+  beHistoryYear.value=oldY&&years.includes(Number(oldY))?oldY:(fixedYear.value||String(new Date().getFullYear()));
+  beHistoryMonth.value=oldM||fixedMonth.value||String(new Date().getMonth()+1);
+  renderBreakEvenHistory();
+}
+beHistoryYear.onchange=renderBreakEvenHistory;
+beHistoryMonth.onchange=renderBreakEvenHistory;
+
 function setupFixedFilters(){
   const years=[...new Set([new Date().getFullYear(),...allFinance.map(r=>parseYmd(r.fecha).y),...financeExpenses.map(g=>Number(g.anio))])].sort((a,b)=>b-a);
   fixedYear.innerHTML=years.map(y=>'<option value="'+y+'">'+y+'</option>').join("");
@@ -4210,6 +4277,7 @@ function setupFixedFilters(){
   fixedYear.value=financeYear.value||String(new Date().getFullYear());
   fixedMonth.value=financeMonth.value&&financeMonth.value!=="0"?financeMonth.value:String(new Date().getMonth()+1);
   renderExpenses();
+  setupBreakEvenHistory();
 }
 function monthExpenses(){
   return financeExpenses.filter(x=>Number(x.anio)===Number(fixedYear.value)&&Number(x.mes)===Number(fixedMonth.value));
