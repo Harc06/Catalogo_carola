@@ -1640,6 +1640,18 @@ footer{
 }
 
 </style>
+<style>
+.finance-quick-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.finance-quick-btn{border:1px solid #ead8df;background:#f8edf2;color:#333;border-radius:18px;padding:14px 10px;font-weight:800;font-size:14px}
+.finance-quick-btn.active{background:#171717;color:#fff;border-color:#171717}
+.finance-collapsible{display:none}.finance-collapsible.open{display:block}
+.finance-collapsible.card{margin-top:0}
+.record-tools-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.record-tool-btn{border:1px solid #ead8df;background:#f8edf2;border-radius:16px;padding:12px 8px;font-weight:800;color:#333}
+.record-tool-btn.active{background:#171717;color:#fff;border-color:#171717}
+.record-tool-panel{display:none}.record-tool-panel.open{display:block}
+@media(max-width:600px){.finance-quick-tabs,.record-tools-tabs{gap:8px}.finance-quick-btn,.record-tool-btn{font-size:13px}}
+</style>
 </head>
 
 <body>
@@ -1820,7 +1832,11 @@ footer{
 
 
 <div id="financePanel" class="panel active">
-  <section class="card import-card">
+  <div class="finance-quick-tabs">
+    <button id="toggleImportFinance" class="finance-quick-btn" type="button">Subir archivo</button>
+    <button id="toggleEntryFinance" class="finance-quick-btn" type="button">Registrar día</button>
+  </div>
+  <section id="importFinancePanel" class="card import-card finance-collapsible">
     <h2>Importar ventas desde Excel</h2>
     <p>Lee únicamente Hoja2. CAROLA calcula las medias docenas; tú solo capturas la ganancia.</p>
     <div class="import-drop">
@@ -1830,7 +1846,7 @@ footer{
     <div id="importPreview" class="import-preview"></div>
   </section>
 
-  <section class="card finance-entry">
+  <section id="entryFinancePanel" class="card finance-entry finance-collapsible">
     <h2>Registrar día</h2>
     <p>Captura una sola vez la ganancia y las medias docenas vendidas.</p>
 
@@ -1935,8 +1951,12 @@ footer{
       <button id="clearRecordFilters" class="refresh" type="button">Limpiar filtros</button>
     </div>
     <div id="recordTotals" class="record-totals"></div>
-    <div class="record-compare" style="display:block;margin-top:14px"><strong>Comparar dos meses</strong><div class="record-filter" style="margin-top:10px"><select id="compareMonthA"></select><select id="compareMonthB"></select></div><div id="customMonthCompare"></div></div>
-    <div class="record-compare" style="display:block;margin-top:14px"><strong>Rango personalizado</strong><div class="record-filter" style="margin-top:10px"><input id="recordFrom" class="record-day" type="date"><input id="recordTo" class="record-day" type="date"><button id="applyRecordRange" class="refresh" type="button">Aplicar rango</button><button id="clearRecordRange" class="refresh" type="button">Quitar rango</button></div><div id="rangeSummary"></div></div>
+    <div class="record-tools-tabs">
+      <button id="toggleMonthCompare" class="record-tool-btn" type="button">Comparar meses</button>
+      <button id="toggleCustomRange" class="record-tool-btn" type="button">Rango personalizado</button>
+    </div>
+    <div id="monthComparePanel" class="record-compare record-tool-panel"><strong>Comparar dos meses</strong><div class="record-filter" style="margin-top:10px"><select id="compareMonthA"></select><select id="compareMonthB"></select></div><div id="customMonthCompare"></div></div>
+    <div id="customRangePanel" class="record-compare record-tool-panel"><strong>Rango personalizado</strong><div class="record-filter" style="margin-top:10px"><input id="recordFrom" class="record-day" type="date"><input id="recordTo" class="record-day" type="date"><button id="applyRecordRange" class="refresh" type="button">Aplicar rango</button><button id="clearRecordRange" class="refresh" type="button">Quitar rango</button></div><div id="rangeSummary"></div></div>
     <div id="recordCompare" class="record-compare"></div>
     <div id="financeRows"></div>
   </section>
@@ -2167,6 +2187,22 @@ const expenseAmount=document.getElementById("expenseAmount");
 const expenseList=document.getElementById("expenseList");
 let financeGoals=[];
 let financeExpenses=[];
+
+
+// Paneles compactos de Finanzas
+function bindCompactToggle(buttonId,panelId,otherButtonId,otherPanelId){
+  const b=document.getElementById(buttonId),p=document.getElementById(panelId);
+  if(!b||!p)return;
+  b.onclick=function(){
+    const opening=!p.classList.contains("open");
+    if(otherPanelId){const op=document.getElementById(otherPanelId),ob=document.getElementById(otherButtonId);if(op)op.classList.remove("open");if(ob)ob.classList.remove("active")}
+    p.classList.toggle("open",opening);b.classList.toggle("active",opening);
+  };
+}
+bindCompactToggle("toggleImportFinance","importFinancePanel","toggleEntryFinance","entryFinancePanel");
+bindCompactToggle("toggleEntryFinance","entryFinancePanel","toggleImportFinance","importFinancePanel");
+bindCompactToggle("toggleMonthCompare","monthComparePanel","toggleCustomRange","customRangePanel");
+bindCompactToggle("toggleCustomRange","customRangePanel","toggleMonthCompare","monthComparePanel");
 
 /* PESTAÑAS */
 
