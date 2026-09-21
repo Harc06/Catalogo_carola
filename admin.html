@@ -2050,14 +2050,32 @@ async function authenticateAdmin(){
   authOverlay("Preparando acceso seguro…");
   if(!window.PublicKeyCredential)throw new Error("Este navegador no admite Passkeys.");
   const status=await authCall({action:"status"});
-  authOverlay(status.hasPasskey?"Toca la pantalla para continuar con Face ID.":"Primera configuración: toca la pantalla para activar Face ID.");
-  await new Promise((resolve,reject)=>{
-    const el=document.getElementById("carolaAuth");
-    el.style.cursor="pointer";
-    el.onclick=()=>{el.onclick=null;resolve()};
-    setTimeout(()=>reject(new Error("Toca la pantalla y vuelve a intentarlo.")),120000);
-  });
-  if(status.hasPasskey)await loginFaceID();else await setupFaceID();
+  if(status.hasPasskey){
+    authOverlay("Abriendo Face ID…");
+    try{
+      await loginFaceID();
+    }catch(error){
+      if(error&&error.name==="NotAllowedError"){
+        authOverlay("Toca aquí para continuar con Face ID.");
+        await new Promise(resolve=>{
+          const el=document.getElementById("carolaAuth");
+          el.style.cursor="pointer";
+          el.onclick=()=>{el.onclick=null;resolve()};
+        });
+        await loginFaceID();
+      }else{
+        throw error;
+      }
+    }
+  }else{
+    authOverlay("Primera configuración: toca la pantalla para activar Face ID.");
+    await new Promise(resolve=>{
+      const el=document.getElementById("carolaAuth");
+      el.style.cursor="pointer";
+      el.onclick=()=>{el.onclick=null;resolve()};
+    });
+    await setupFaceID();
+  }
   hideAuth();
 }
 
