@@ -2214,9 +2214,10 @@ function pendingField(x,key,type,placeholder){
 function supplierHistoryTable(items,tipo){
  if(!items.length)return '<div class="finance-empty">Sin '+(tipo==="nota"?"notas":"pagos")+'.</div>';
  return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Fecha</th><th>'+(tipo==="nota"?"Folio":"Forma")+'</th><th>Importe</th>'+(tipo==="nota"?'<th>Pares</th>':'')+'<th></th></tr></thead><tbody>'+items.map(x=>{
-  const incomplete=!x.fecha||(tipo==="nota"&&(!x.folio||!x.pares))||(tipo==="pago"&&!x.forma_pago);
-  const date=pendingField(x,"fecha","date","Fecha"),detail=tipo==="nota"?pendingField(x,"folio","text","Folio"):pendingField(x,"forma_pago","text","Forma de pago"),pairs=tipo==="nota"?pendingField(x,"pares","number","Pares"):"";
-  return '<tr id="move-row-'+x.id+'"><td>'+date+'</td><td>'+detail+'</td><td>'+moneyShort(x.importe)+'</td>'+(tipo==="nota"?'<td>'+pairs+'</td>':'')+'<td>'+(incomplete?'<button class="record-tool-btn" style="padding:7px 10px" onclick="savePendingMove('+x.id+',\''+tipo+'\')">Guardar</button> ':'')+'<details class="move-menu"><summary>Editar</summary><div><button type="button" onclick="editSupplierMove('+x.id+')">Editar datos</button><button type="button" onclick="deleteSupplierMove('+x.id+')">Eliminar</button></div></details></td></tr>'
+  const date=x.fecha?formatFinanceDate(x.fecha):"—";
+  const detail=tipo==="nota"?(x.folio?escapeHtml(x.folio):"—"):(x.forma_pago?escapeHtml(x.forma_pago):"—");
+  const pairs=tipo==="nota"?(x.pares||"—"):"";
+  return '<tr id="move-row-'+x.id+'"><td>'+date+'</td><td>'+detail+'</td><td>'+moneyShort(x.importe)+'</td>'+(tipo==="nota"?'<td>'+pairs+'</td>':'')+'<td><details class="move-menu"><summary>Editar</summary><div><button type="button" onclick="editSupplierMove('+x.id+')">Editar datos</button><button type="button" onclick="deleteSupplierMove('+x.id+')">Eliminar</button></div></details></td></tr>'
  }).join("")+'</tbody></table></div>';
 }
 function editSupplierMove(id){
