@@ -137,6 +137,25 @@ exports.handler=async function(event){
       return response(200,{success:true,eliminado:data});
     }
 
+    if(action==="import-sales"){
+      const days=Array.isArray(body.days)?body.days:[];
+      if(!days.length) return response(400,{success:false,error:"No hay días para importar"});
+      let totalPairs=0,totalSales=0;
+      for(const day of days){
+        const fecha=String(day.fecha||"");
+        const pares=Number(day.pares||0),venta=Number(day.venta||0);
+        if(!validDate(fecha)||!Number.isInteger(pares)||pares<0||!Number.isFinite(venta)||venta<0) continue;
+        const medias=Math.floor(pares/6);
+        const clients=day.clientes&&typeof day.clientes==="object"?day.clientes:{};
+        const {error}=await supabase.from("finanzas_ventas_importadas").upsert({
+          fecha,pares,medias_docenas:medias,venta_total:venta,detalle_clientes:clients,actualizado_en:new Date().toISOString()
+        },{onConflict:"fecha"});
+        if(error) throw error;
+        totalPairs+=pares;totalSales+=venta;
+      }
+      return response(200,{success:true,pares:totalPairs,venta:totalSales});
+    }
+
     if(action==="delete"){
       const id=Number(body.id);
       if(!Number.isInteger(id)||id<=0) return response(400,{success:false,error:"Registro inválido"});
