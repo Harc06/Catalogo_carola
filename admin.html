@@ -4279,7 +4279,31 @@ function financeStats(rows){const profit=rows.reduce((s,r)=>s+Number(r.ganancia|
 function monthKey(y,m){return y+"-"+String(m).padStart(2,"0")}
 function monthRows(key){if(!key)return[];const [y,m]=key.split("-").map(Number);return allFinance.filter(r=>{const p=parseYmd(r.fecha);return p.y===y&&p.m===m})}
 function monthNameKey(key){if(!key)return"";const [y,m]=key.split("-").map(Number);return MONTHS_ES[m-1]+" "+y}
-function renderCustomCompare(){if(!compareMonthA.value||!compareMonthB.value){customMonthCompare.innerHTML="Selecciona dos meses.";return}const a=financeStats(monthRows(compareMonthA.value)),b=financeStats(monthRows(compareMonthB.value)),dp=b.profit-a.profit,dq=b.pairs-a.pairs,pct=(x,y)=>y?((x-y)/y*100):null,pp=pct(b.profit,a.profit),pq=pct(b.pairs,a.pairs);customMonthCompare.innerHTML='<div style="margin-top:12px;line-height:1.8"><strong>'+monthNameKey(compareMonthA.value)+'</strong>: '+moneyShort(a.profit)+' · '+a.pairs+' pares · '+moneyShort(a.avg)+'/par<br><strong>'+monthNameKey(compareMonthB.value)+'</strong>: '+moneyShort(b.profit)+' · '+b.pairs+' pares · '+moneyShort(b.avg)+'/par<br><strong>Diferencia:</strong> '+(dp>=0?"+":"")+moneyShort(dp)+' '+(pp===null?"":'('+(pp>=0?"+":"")+pp.toFixed(1)+'%)')+' · '+(dq>=0?"+":"")+dq+' pares '+(pq===null?"":'('+(pq>=0?"+":"")+pq.toFixed(1)+'%)')+'</div>'}
+function renderCustomCompare(){
+  if(!compareMonthA.value||!compareMonthB.value){customMonthCompare.innerHTML="Selecciona dos meses.";return}
+  const a=financeStats(monthRows(compareMonthA.value)),b=financeStats(monthRows(compareMonthB.value));
+  const dp=b.profit-a.profit,dq=b.pairs-a.pairs,dh=b.half-a.half,dr=b.profit*.43-a.profit*.43,da=b.avg-a.avg;
+  const pct=(x,y)=>y?((x-y)/y*100):null,pp=pct(b.profit,a.profit),pq=pct(b.pairs,a.pairs);
+  const direction=(v,word)=>v===0?"igual":v>0?"más "+word:"menos "+word;
+  const signedMoney=v=>(v>=0?"+":"-")+moneyShort(Math.abs(v));
+  const signedNum=v=>(v>=0?"+":"")+v;
+  const pctText=v=>v===null?"sin base de comparación":(v>=0?"+":"")+v.toFixed(1)+"%";
+  customMonthCompare.innerHTML=
+    '<div style="margin-top:14px;line-height:1.55">'+
+      '<div style="padding:12px 0;border-bottom:1px solid #eadde2"><strong style="font-size:16px">'+monthNameKey(compareMonthA.value)+'</strong><br>'+
+      '<span>Ganancia total: <b>'+moneyShort(a.profit)+'</b></span> · <span>43% apartado: <b>'+moneyShort(a.profit*.43)+'</b></span><br>'+
+      '<span>Medias docenas: <b>'+a.half+'</b></span> · <span>Pares vendidos: <b>'+a.pairs+'</b></span> · <span>Ganancia promedio por par: <b>'+moneyShort(a.avg)+'</b></span></div>'+
+      '<div style="padding:12px 0;border-bottom:1px solid #eadde2"><strong style="font-size:16px">'+monthNameKey(compareMonthB.value)+'</strong><br>'+
+      '<span>Ganancia total: <b>'+moneyShort(b.profit)+'</b></span> · <span>43% apartado: <b>'+moneyShort(b.profit*.43)+'</b></span><br>'+
+      '<span>Medias docenas: <b>'+b.half+'</b></span> · <span>Pares vendidos: <b>'+b.pairs+'</b></span> · <span>Ganancia promedio por par: <b>'+moneyShort(b.avg)+'</b></span></div>'+
+      '<div style="padding-top:12px"><strong>¿Qué cambió de '+monthNameKey(compareMonthA.value)+' a '+monthNameKey(compareMonthB.value)+'?</strong><br>'+
+      '<span>Ganancia: <b>'+signedMoney(dp)+'</b> ('+pctText(pp)+'). En '+monthNameKey(compareMonthB.value)+' hubo <b>'+direction(dp,"ganancia")+'</b> que en '+monthNameKey(compareMonthA.value)+'.</span><br>'+
+      '<span>Ventas: <b>'+signedNum(dq)+' pares</b> ('+pctText(pq)+') y <b>'+signedNum(dh)+' medias docenas</b>.</span><br>'+
+      '<span>43% apartado: <b>'+signedMoney(dr)+'</b>.</span><br>'+
+      '<span>Ganancia promedio por par: <b>'+signedMoney(da)+'</b> por par.</span>'+
+      '</div>'+
+    '</div>';
+}
 function refreshCompareMonths(){const keys=[...new Set(allFinance.map(r=>{const p=parseYmd(r.fecha);return monthKey(p.y,p.m)}))].sort().reverse(),a=compareMonthA.value,b=compareMonthB.value,html=keys.map(k=>'<option value="'+k+'">'+monthNameKey(k)+'</option>').join("");compareMonthA.innerHTML=html;compareMonthB.innerHTML=html;compareMonthA.value=keys.includes(a)?a:(keys[1]||keys[0]||"");compareMonthB.value=keys.includes(b)?b:(keys[0]||"");renderCustomCompare()}
 function renderFinance(){
   const rows=filteredFinance();
