@@ -1439,29 +1439,46 @@ footer{
 .finance-entry p{margin:0 0 18px;color:#888}
 .finance-grid{
   display:grid;
-  grid-template-columns:1fr 1fr 1fr;
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:14px;
-  align-items:end;
+  align-items:start;
 }
 .finance-grid > div{
   min-width:0;
+  display:flex;
+  flex-direction:column;
 }
 .finance-grid label{
-  min-height:20px;
+  margin:0 0 8px;
+  height:22px;
+  line-height:22px;
+  min-height:22px;
+  white-space:nowrap;
 }
 .finance-grid input{
-  height:54px;
-  display:block;
-}
-.finance-grid label{margin:0 0 7px}
-.finance-grid input{
+  box-sizing:border-box;
   width:100%;
-  padding:15px;
+  min-width:0;
+  height:56px;
+  margin:0;
+  padding:0 15px;
   border:1px solid #ddd;
   border-radius:13px;
   font-size:16px;
+  line-height:normal;
   outline:none;
   background:#fff;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.finance-grid input[type="date"]{
+  min-height:56px;
+  text-align:center;
+  text-align-last:center;
+}
+.finance-grid input[type="date"]::-webkit-date-and-time-value{
+  text-align:center;
+  margin:0;
 }
 .finance-grid input:focus{border-color:#dcaabd}
 #saveFinance{
@@ -1558,7 +1575,7 @@ footer{
     max-width:760px;
   }
   .finance-grid{
-    grid-template-columns:1.05fr 1fr 1fr;
+    grid-template-columns:repeat(3,minmax(0,1fr));
   }
 }
 
