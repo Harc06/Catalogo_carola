@@ -1556,6 +1556,10 @@ footer{
 .expense-collapsible.open{display:block}
 .record-filter{display:grid;grid-template-columns:1fr 1fr 1.35fr 1fr;gap:8px;margin:14px 0}
 .record-filter input,.record-filter select{width:100%;height:44px;padding:0 10px;border:1px solid #ddd;border-radius:11px;background:#fff}
+.record-totals{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 14px}
+.record-compare{margin:0 0 14px;padding:12px 14px;border-radius:12px;background:#fff8fb;border:1px solid #f0dce5;color:#666;font-size:12px;line-height:1.55}
+.record-compare strong{color:#222}
+@media(max-width:700px){.record-totals{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.record-filter{grid-template-columns:1fr 1fr}.record-filter .record-day{grid-column:1/-1}}
 .expense-add{display:grid;grid-template-columns:1.5fr 1fr auto;gap:10px;align-items:end}
 .expense-add input{width:100%;height:48px;padding:0 13px;border:1px solid #ddd;border-radius:12px;background:#fff}
@@ -1930,6 +1934,8 @@ footer{
       <input id="recordDay" class="record-day" type="date" aria-label="Filtrar por día">
       <button id="clearRecordFilters" class="refresh" type="button">Limpiar filtros</button>
     </div>
+    <div id="recordTotals" class="record-totals"></div>
+    <div id="recordCompare" class="record-compare"></div>
     <div id="financeRows"></div>
   </section>
 </div>
@@ -2057,6 +2063,8 @@ const financeRows=document.getElementById("financeRows");
 const recordMonth=document.getElementById("recordMonth");
 const recordWeek=document.getElementById("recordWeek");
 const recordDay=document.getElementById("recordDay");
+const recordTotals=document.getElementById("recordTotals");
+const recordCompare=document.getElementById("recordCompare");
 const financeChart=document.getElementById("financeChart");
 const pairsChart=document.getElementById("pairsChart");
 const financeTooltip=document.getElementById("financeTooltip");
@@ -4178,6 +4186,27 @@ function filteredFinance(){
     return true;
   }).sort((a,b)=>a.fecha.localeCompare(b.fecha));
 }
+function recordPeriodRows(year,month,week,day){
+  return allFinance.filter(r=>{
+    const p=parseYmd(r.fecha);
+    if(year&&p.y!==year)return false;
+    if(month&&p.m!==month)return false;
+    if(week&&weekInfo(r.fecha).week!==week)return false;
+    if(day&&r.fecha!==day)return false;
+    return true;
+  });
+}
+function percentChange(current,previous){
+  if(!previous)return current?null:0;
+  return ((current-previous)/previous)*100;
+}
+function comparisonText(label,current,previous,money){
+  const change=percentChange(current,previous);
+  const val=money?moneyShort(current):Math.round(current).toLocaleString("es-MX");
+  if(change===null)return '<strong>'+label+': '+val+'</strong> · sin base comparable el mes anterior';
+  const sign=change>0?"+":"";
+  return '<strong>'+label+': '+val+'</strong> · '+sign+change.toFixed(1)+'% vs mes anterior';
+}
 function renderFinance(){
   const rows=filteredFinance();
   const profit=rows.reduce((s,r)=>s+Number(r.ganancia||0),0);
@@ -4193,6 +4222,22 @@ function renderFinance(){
   if(rw)tableRows=tableRows.filter(r=>weekInfo(r.fecha).week===rw);
   if(rd)tableRows=tableRows.filter(r=>r.fecha===rd);
   tableRows.sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const tableProfit=tableRows.reduce((s,r)=>s+Number(r.ganancia||0),0);
+  const tableHalf=tableRows.reduce((s,r)=>s+Number(r.medias_docenas||0),0);
+  const tablePairs=tableHalf*6;
+  recordTotals.innerHTML='<div class="summary-box"><strong>'+moneyShort(tableProfit)+'</strong><span>GANANCIA TOTAL</span></div><div class="summary-box"><strong>'+moneyShort(tableProfit*.43)+'</strong><span>43% TOTAL</span></div><div class="summary-box"><strong>'+tableHalf+'</strong><span>MEDIAS DOCENAS</span></div><div class="summary-box"><strong>'+tablePairs+'</strong><span>PARES</span></div>';
+
+  if(rm&&!rw&&!rd){
+    let py=Number(financeYear.value),pm=rm-1;if(pm===0){pm=12;py--}
+    const previous=recordPeriodRows(py,pm,0,"");
+    const prevProfit=previous.reduce((s,r)=>s+Number(r.ganancia||0),0);
+    const prevPairs=previous.reduce((s,r)=>s+Number(r.medias_docenas||0)*6,0);
+    recordCompare.innerHTML='<strong>Comparación: '+MONTHS_ES[rm-1]+' vs '+MONTHS_ES[pm-1]+'</strong><br>'+comparisonText("Ganancia",tableProfit,prevProfit,true)+' &nbsp; · &nbsp; '+comparisonText("Pares",tablePairs,prevPairs,false);
+    recordCompare.style.display="block";
+  }else{
+    recordCompare.innerHTML='Selecciona un mes completo para ver la comparación contra el mes anterior.';
+    recordCompare.style.display="block";
+  }
   if(!tableRows.length){
     financeRows.innerHTML='<div class="finance-empty">No hay registros con estos filtros.</div>';
   }else{
