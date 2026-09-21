@@ -1979,19 +1979,71 @@ footer{
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 
-/* CONTRASEÑA */
+/* ACCESO CON FACE ID / PASSKEY */
+let adminPassword="";
 
-let adminPassword=prompt(
-  "Contraseña de administrador de Calzado Carola:"
-);
-
-if(adminPassword===null){
-  document.body.innerHTML=
-    "<h2 style='text-align:center;margin-top:80px'>Acceso cancelado</h2>";
-  throw new Error("Acceso cancelado");
+function b64urlToBytes(value){
+  const s=String(value||"").replace(/-/g,"+").replace(/_/g,"/");
+  const padded=s+"=".repeat((4-s.length%4)%4);
+  const raw=atob(padded);
+  return Uint8Array.from(raw,c=>c.charCodeAt(0));
 }
-
-adminPassword=String(adminPassword||"").trim();
+function credentialToJSON(cred){
+  if(!cred)return null;
+  const o={id:cred.id,rawId:arrayToB64url(cred.rawId),type:cred.type,response:{}};
+  const r=cred.response;
+  for(const k of ["clientDataJSON","attestationObject","authenticatorData","signature","userHandle"]){
+    if(r[k])o.response[k]=arrayToB64url(r[k]);
+  }
+  if(typeof r.getTransports==="function")o.response.transports=r.getTransports();
+  if(cred.authenticatorAttachment)o.authenticatorAttachment=cred.authenticatorAttachment;
+  if(typeof cred.getClientExtensionResults==="function")o.clientExtensionResults=cred.getClientExtensionResults();
+  return o;
+}
+function arrayToB64url(buffer){
+  const bytes=new Uint8Array(buffer),chunk=0x8000;let binary="";
+  for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));
+  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+async function authCall(payload){
+  const r=await fetch("/.netlify/functions/admin-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  const j=await r.json().catch(()=>({success:false,error:"Respuesta inválida"}));
+  if(!r.ok||!j.success)throw new Error(j.error||"No se pudo autenticar");
+  return j;
+}
+function authOverlay(message){
+  let el=document.getElementById("carolaAuth");
+  if(!el){el=document.createElement("div");el.id="carolaAuth";el.style.cssText="position:fixed;inset:0;z-index:99999;background:#fff7fa;display:flex;align-items:center;justify-content:center;padding:24px;font-family:inherit";el.innerHTML='<div style="max-width:390px;width:100%;background:white;border:1px solid #f2d6df;border-radius:24px;padding:30px;text-align:center;box-shadow:0 18px 50px #8b496122"><div style="font-size:28px;font-weight:800;letter-spacing:3px;color:#c86f8b">CAROLA</div><h2 style="margin:18px 0 8px">Acceso al administrador</h2><p id="carolaAuthText" style="color:#777;line-height:1.5"></p></div>';document.body.appendChild(el)}
+  document.getElementById("carolaAuthText").textContent=message||"Verificando acceso…";
+}
+function hideAuth(){document.getElementById("carolaAuth")?.remove()}
+async function setupFaceID(){
+  const password=prompt("Primera configuración: escribe la contraseña de administrador para activar Face ID.");
+  if(password===null)throw new Error("Configuración cancelada");
+  const a=await authCall({action:"register-options",password});
+  const options=a.options;
+  options.challenge=b64urlToBytes(options.challenge);
+  options.user.id=b64urlToBytes(options.user.id);
+  if(options.excludeCredentials)options.excludeCredentials=options.excludeCredentials.map(x=>({...x,id:b64urlToBytes(x.id)}));
+  const cred=await navigator.credentials.create({publicKey:options});
+  const v=await authCall({action:"register-verify",password,challenge_id:a.challenge_id,response:credentialToJSON(cred)});
+  adminPassword=v.token;
+}
+async function loginFaceID(){
+  const a=await authCall({action:"login-options"}),options=a.options;
+  options.challenge=b64urlToBytes(options.challenge);
+  if(options.allowCredentials)options.allowCredentials=options.allowCredentials.map(x=>({...x,id:b64urlToBytes(x.id)}));
+  const cred=await navigator.credentials.get({publicKey:options});
+  const v=await authCall({action:"login-verify",challenge_id:a.challenge_id,response:credentialToJSON(cred)});
+  adminPassword=v.token;
+}
+async function authenticateAdmin(){
+  authOverlay("Usa Face ID para entrar.");
+  if(!window.PublicKeyCredential)throw new Error("Este navegador no admite Passkeys.");
+  const status=await authCall({action:"status"});
+  if(status.hasPasskey)await loginFaceID();else await setupFaceID();
+  hideAuth();
+}
 
 /* VARIABLES */
 
@@ -4569,8 +4621,7 @@ function escapeAttribute(value){
 
 /* INICIAR */
 
-createColorBlock("");
-loadFinance().then(()=>window.scrollTo({top:0,left:0,behavior:"auto"}));
+authenticateAdmin().then(async()=>{createColorBlock("");await loadFinance();window.scrollTo({top:0,left:0,behavior:"auto"});}).catch(err=>{authOverlay("No se pudo iniciar sesión: "+err.message+". Recarga la página para intentar de nuevo.");});
 
 </script>
 
