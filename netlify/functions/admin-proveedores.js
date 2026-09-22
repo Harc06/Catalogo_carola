@@ -23,7 +23,7 @@ exports.handler=async event=>{
   if(action==="add-movement"){
    const proveedor_id=Number(b.proveedor_id),tipo=String(b.tipo||""),fecha=String(b.fecha||""),importe=Number(b.importe),pares=b.pares==null?null:Number(b.pares);
    if(!Number.isInteger(proveedor_id)||proveedor_id<1)return res(400,{success:false,error:"Proveedor inválido"});
-   if(!["nota","pago"].includes(tipo)||!dateOk(fecha)||!Number.isFinite(importe)||importe<=0)return res(400,{success:false,error:"Datos inválidos"});
+   if(!["nota","pago","saldo_inicial","corte"].includes(tipo)||!dateOk(fecha)||!Number.isFinite(importe)||importe<=0)return res(400,{success:false,error:"Datos inválidos"});
    if(tipo==="nota"&&(!Number.isInteger(pares)||pares<=0))return res(400,{success:false,error:"Los pares son obligatorios en una nota"});
    const payload={proveedor_id,tipo,fecha,importe,folio:tipo==="nota"?String(b.folio||"").trim()||null:null,pares:tipo==="nota"?pares:null,forma_pago:tipo==="pago"?String(b.forma_pago||"").trim():null,observaciones:String(b.observaciones||"").trim()||null,actualizado_en:new Date().toISOString()};
    if(tipo==="pago"&&!payload.forma_pago)return res(400,{success:false,error:"Forma de pago requerida"});
