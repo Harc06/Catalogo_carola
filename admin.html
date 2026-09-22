@@ -2233,13 +2233,13 @@ bindCompactToggle("toggleEntryFinance","entryFinancePanel","toggleImportFinance"
 bindCompactToggle("toggleMonthCompare","monthComparePanel","toggleCustomRange","customRangePanel");
 bindCompactToggle("toggleCustomRange","customRangePanel","toggleMonthCompare","monthComparePanel");
 
-let suppliersLoaded=false,suppliers=[],supplierMoves=[],selectedSupplier=0;
+let suppliersLoaded=false,suppliers=[],supplierMoves=[],selectedSupplier=Number(sessionStorage.getItem("carolaSelectedSupplier")||0);
 async function supplierCall(payload){
  const r=await fetch("/.netlify/functions/admin-proveedores",{method:payload?"POST":"GET",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:payload?JSON.stringify(payload):undefined});
  const j=await r.json();if(!r.ok||!j.success)throw new Error(j.error||"Error");return j;
 }
 async function loadSuppliers(){
- try{const j=await supplierCall();suppliers=(j.proveedores||[]).sort((a,b)=>{const an=String(a.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(),bn=String(b.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();if(an==="noe")return -1;if(bn==="noe")return 1;return an.localeCompare(bn,"es")});supplierMoves=j.movimientos||[];suppliersLoaded=true;renderSuppliers()}catch(e){supplierContent.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
+ try{const j=await supplierCall();suppliers=(j.proveedores||[]).sort((a,b)=>{const an=String(a.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(),bn=String(b.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();if(an==="noe")return -1;if(bn==="noe")return 1;return an.localeCompare(bn,"es")});supplierMoves=j.movimientos||[];suppliersLoaded=true;if(selectedSupplier&&!suppliers.some(p=>Number(p.id)===Number(selectedSupplier)))selectedSupplier=0;renderSuppliers()}catch(e){supplierContent.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
 }
 function pendingField(x,key,type,placeholder){
  if(x[key])return key==="fecha"?formatFinanceDate(x[key]):escapeHtml(x[key]);
@@ -2293,7 +2293,7 @@ async function savePendingMove(id,tipo){
  else b.forma_pago=get("forma_pago");
  try{await supplierCall(b);await loadSuppliers()}catch(e){alert(e.message)}
 }
-function selectSupplier(id){selectedSupplier=id?Number(id):0;renderSuppliers()}
+function selectSupplier(id){selectedSupplier=id?Number(id):0;if(selectedSupplier)sessionStorage.setItem("carolaSelectedSupplier",String(selectedSupplier));else sessionStorage.removeItem("carolaSelectedSupplier");renderSuppliers()}
 function supplierForm(tipo){
  const isNote=tipo==="nota";document.getElementById("supplierForm").innerHTML='<div class="finance-grid" style="margin-top:16px"><div><label>Fecha</label><input id="smDate" type="date" value="'+new Date().toISOString().slice(0,10)+'"></div>'+(isNote?'<div><label>Folio de nota</label><input id="smFolio" type="text" placeholder="Ej. 173"></div>':'<div><label>Forma de pago</label><select id="smPay"><option>Transferencia</option><option>Efectivo</option><option>Depósito</option><option>Otro</option></select></div>')+'<div><label>Importe</label><input id="smAmount" type="number" min="0.01" step="0.01" placeholder="$0.00"></div>'+(isNote?'<div><label>Pares recibidos</label><input id="smPairs" type="number" min="1" step="1" placeholder="0"></div>':'')+'<div><label>Observaciones</label><input id="smObs" type="text" placeholder="Opcional"></div></div><button id="saveSupplierMove" class="supplier-save-btn" type="button">Guardar '+(isNote?"nota":"pago")+'</button>';
  document.getElementById("saveSupplierMove").onclick=async()=>{try{
@@ -2317,7 +2317,7 @@ function supplierForm(tipo){
 async function deleteSupplierMove(id){if(!confirm("¿Mover este movimiento a Eliminados?"))return;try{await supplierCall({action:"delete-movement",id});await loadSuppliers()}catch(e){alert(e.message)}}
 document.getElementById("addSupplier").onclick=async()=>{const nombre=supplierName.value.trim();if(!nombre)return;try{await supplierCall({action:"add-provider",nombre});supplierName.value="";await loadSuppliers()}catch(e){alert(e.message)}};
 document.getElementById("refreshSuppliers").onclick=loadSuppliers;
-document.getElementById("supplierSelect").onchange=e=>selectSupplier(e.target.value);document.getElementById("editSupplier").onclick=async()=>{const p=suppliers.find(x=>x.id===selectedSupplier);if(!p)return;const nombre=prompt("Nuevo nombre del proveedor:",p.nombre);if(!nombre||nombre.trim()===p.nombre)return;try{await supplierCall({action:"update-provider",id:p.id,nombre:nombre.trim()});await loadSuppliers()}catch(e){alert(e.message)}};document.getElementById("deleteSupplier").onclick=async()=>{const p=suppliers.find(x=>x.id===selectedSupplier);if(!p||!confirm("¿Eliminar al proveedor "+p.nombre+"? Sus movimientos quedarán ocultos junto con el proveedor."))return;try{await supplierCall({action:"delete-provider",id:p.id});selectedSupplier=0;await loadSuppliers()}catch(e){alert(e.message)}};
+document.getElementById("supplierSelect").onchange=e=>selectSupplier(e.target.value);document.getElementById("supplierSelect").oninput=e=>selectSupplier(e.target.value);document.getElementById("editSupplier").onclick=async()=>{const p=suppliers.find(x=>x.id===selectedSupplier);if(!p)return;const nombre=prompt("Nuevo nombre del proveedor:",p.nombre);if(!nombre||nombre.trim()===p.nombre)return;try{await supplierCall({action:"update-provider",id:p.id,nombre:nombre.trim()});await loadSuppliers()}catch(e){alert(e.message)}};document.getElementById("deleteSupplier").onclick=async()=>{const p=suppliers.find(x=>x.id===selectedSupplier);if(!p||!confirm("¿Eliminar al proveedor "+p.nombre+"? Sus movimientos quedarán ocultos junto con el proveedor."))return;try{await supplierCall({action:"delete-provider",id:p.id});selectedSupplier=0;await loadSuppliers()}catch(e){alert(e.message)}};
 document.getElementById("toggleNewSupplier").onclick=()=>{const p=document.getElementById("newSupplierPanel"),open=p.style.display!=="none";p.style.display=open?"none":"block";toggleNewSupplier.classList.toggle("active",!open)};
 let clientsLoaded=false,clients=[],clientMoves=[],selectedClient=0;
 async function clientCall(payload){
