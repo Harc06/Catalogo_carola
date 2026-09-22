@@ -1684,7 +1684,7 @@ footer{
 .record-tool-btn{border:1px solid #ead8df;background:#f8edf2;border-radius:16px;padding:12px 8px;font-weight:800;color:#333}
 .record-tool-btn.active{background:#171717;color:#fff;border-color:#171717}
 .record-tool-panel{display:none}.record-tool-panel.open{display:block}
-@media(max-width:600px){.finance-quick-tabs,.record-tools-tabs{gap:8px}.finance-quick-btn,.record-tool-btn{font-size:13px}}
+@media(max-width:600px){.tabs{overflow-x:auto;grid-template-columns:repeat(5,minmax(105px,1fr))}.finance-quick-tabs,.record-tools-tabs{gap:8px}.finance-quick-btn,.record-tool-btn{font-size:13px}}
 </style>
 </head>
 
@@ -2348,10 +2348,10 @@ function renderClients(){
  const all=clientMoves.filter(x=>x.cliente_id===p.id),m=all.filter(x=>!x.eliminado_en),deleted=all.filter(x=>x.eliminado_en),sortMoves=a=>a.sort((x,y)=>{if(!x.fecha&&!y.fecha)return Number(y.id)-Number(x.id);if(!x.fecha)return 1;if(!y.fecha)return -1;const d=String(y.fecha).localeCompare(String(x.fecha));return d||Number(y.id)-Number(x.id)}),notes=sortMoves(m.filter(x=>x.tipo==="nota")),pays=sortMoves(m.filter(x=>x.tipo==="pago")),openings=m.filter(x=>x.tipo==="saldo_inicial");
  const nt=notes.reduce((s,x)=>s+Number(x.importe),0),pt=pays.reduce((s,x)=>s+Number(x.importe),0),opening=openings.reduce((s,x)=>s+Number(x.importe),0),pairs=notes.reduce((s,x)=>s+Number(x.pares||0),0),pending=notes.filter(x=>!x.pares||!x.fecha||!x.folio).length+pays.filter(x=>!x.fecha||!x.forma_pago).length,balance=opening+nt-pt;
  clientContent.innerHTML='<h2>'+escapeHtml(p.nombre)+'</h2><div class="finance-summary"><div class="summary-box"><strong>'+moneyShort(nt)+'</strong><span>TOTAL NOTAS</span></div><div class="summary-box"><strong>'+moneyShort(pt)+'</strong><span>TOTAL ABONADO</span></div><div class="summary-box"><strong>'+moneyShort(balance)+'</strong><span>SALDO PENDIENTE</span></div><div class="summary-box"><strong>'+pairs+'</strong><span>PARES VENDIDOS</span></div></div>'+
- '<div class="record-tools-tabs"><button id="newNoteBtn" class="record-tool-btn">+ Nota / venta</button><button id="newPayBtn" class="record-tool-btn">+ Abono</button></div><div id="clientForm"></div>'+
+ '<div class="record-tools-tabs"><button id="clientNewNoteBtn" class="record-tool-btn">+ Nota / venta</button><button id="clientNewPayBtn" class="record-tool-btn">+ Abono</button></div><div id="clientForm"></div>'+
  ''+
- '<div class="client-split"><details class="client-column client-notes"><summary class="client-card-head"><div><span class="client-kicker">ENTRADAS</span><h3>Notas / ventas</h3></div><div class="client-summary-right"><strong class="client-card-total">'+moneyShort(nt)+'</strong><span class="client-chevron">⌄</span></div></summary><div class="client-card-body">'+clientHistoryTable(notes,"nota")+'</div></details><details class="client-column client-pays"><summary class="client-card-head"><div><span class="client-kicker">SALIDAS</span><h3>Abonos</h3></div><div class="client-summary-right"><strong class="client-card-total">'+moneyShort(pt)+'</strong><span class="client-chevron">⌄</span></div></summary><div class="client-card-body">'+clientHistoryTable(pays,"pago")+'</div></details></div><details class="deleted-box"><summary>Eliminados ('+deleted.length+')</summary>'+deletedClientTable(deleted)+'</details>';
- document.getElementById("newNoteBtn").onclick=()=>clientForm("nota");document.getElementById("newPayBtn").onclick=()=>clientForm("pago");
+ '<div class="supplier-split"><details class="supplier-column supplier-notes"><summary class="supplier-card-head"><div><span class="supplier-kicker">ENTRADAS</span><h3>Notas / ventas</h3></div><div class="supplier-summary-right"><strong class="supplier-card-total">'+moneyShort(nt)+'</strong><span class="supplier-chevron">⌄</span></div></summary><div class="supplier-card-body">'+clientHistoryTable(notes,"nota")+'</div></details><details class="supplier-column supplier-pays"><summary class="supplier-card-head"><div><span class="supplier-kicker">SALIDAS</span><h3>Abonos</h3></div><div class="supplier-summary-right"><strong class="supplier-card-total">'+moneyShort(pt)+'</strong><span class="supplier-chevron">⌄</span></div></summary><div class="supplier-card-body">'+clientHistoryTable(pays,"pago")+'</div></details></div><details class="deleted-box"><summary>Eliminados ('+deleted.length+')</summary>'+deletedClientTable(deleted)+'</details>';
+ document.getElementById("clientNewNoteBtn").onclick=()=>clientForm("nota");document.getElementById("clientNewPayBtn").onclick=()=>clientForm("pago");
 }
 async function savePendingClientMove(id,tipo){
  const get=k=>{const e=document.getElementById('pend-'+k+'-'+id);return e?e.value:undefined};
@@ -2362,19 +2362,19 @@ async function savePendingClientMove(id,tipo){
 }
 function selectClient(id){selectedClient=Number(id);renderClients()}
 function clientForm(tipo){
- const isNote=tipo==="nota";document.getElementById("clientForm").innerHTML='<div class="finance-grid" style="margin-top:16px"><div><label>Fecha</label><input id="smDate" type="date" value="'+new Date().toISOString().slice(0,10)+'"></div>'+(isNote?'<div><label>Folio de nota</label><input id="smFolio" type="text" placeholder="Ej. 173"></div>':'<div><label>Forma de abono</label><select id="smPay"><option>Transferencia</option><option>Efectivo</option><option>Depósito</option><option>Otro</option></select></div>')+'<div><label>Importe</label><input id="smAmount" type="number" min="0.01" step="0.01" placeholder="$0.00"></div>'+(isNote?'<div><label>Pares recibidos</label><input id="smPairs" type="number" min="1" step="1" placeholder="0"></div>':'')+'<div><label>Observaciones</label><input id="smObs" type="text" placeholder="Opcional"></div></div><button id="saveClientMove" class="client-save-btn" type="button">Guardar '+(isNote?"nota":"pago")+'</button>';
+ const isNote=tipo==="nota";document.getElementById("clientForm").innerHTML='<div class="finance-grid" style="margin-top:16px"><div><label>Fecha</label><input id="cmDate" type="date" value="'+new Date().toISOString().slice(0,10)+'"></div>'+(isNote?'<div><label>Folio de nota</label><input id="cmFolio" type="text" placeholder="Ej. 173"></div>':'<div><label>Forma de abono</label><select id="cmPay"><option>Transferencia</option><option>Efectivo</option><option>Depósito</option><option>Otro</option></select></div>')+'<div><label>Importe</label><input id="cmAmount" type="number" min="0.01" step="0.01" placeholder="$0.00"></div>'+(isNote?'<div><label>Pares recibidos</label><input id="cmPairs" type="number" min="1" step="1" placeholder="0"></div>':'')+'<div><label>Observaciones</label><input id="cmObs" type="text" placeholder="Opcional"></div></div><button id="saveClientMove" class="supplier-save-btn" type="button">Guardar '+(isNote?"nota":"abono")+'</button>';
  document.getElementById("saveClientMove").onclick=async()=>{try{
-   const fecha=smDate.value,importe=Number(smAmount.value);
+   const fecha=cmDate.value,importe=Number(cmAmount.value);
    if(!fecha)return alert("Falta la fecha. No se registró nada.");
    if(!Number.isFinite(importe)||importe<=0)return alert("Falta un importe válido. No se registró nada.");
-   const b={action:"add-movement",cliente_id:selectedClient,tipo,fecha,importe,observaciones:smObs.value};
+   const b={action:"add-movement",cliente_id:selectedClient,tipo,fecha,importe,observaciones:cmObs.value};
    if(isNote){
-     const folio=smFolio.value.trim(),pares=Number(smPairs.value);
+     const folio=cmFolio.value.trim(),pares=Number(cmPairs.value);
      if(!folio)return alert("Falta el folio de la nota. No se registró nada.");
      if(!Number.isInteger(pares)||pares<=0)return alert("Falta el número de pares recibidos. No se registró nada.");
      b.folio=folio;b.pares=pares;
    }else{
-     const forma=smPay.value.trim();
+     const forma=cmPay.value.trim();
      if(!forma)return alert("Falta la forma de pago. No se registró nada.");
      b.forma_pago=forma;
    }
