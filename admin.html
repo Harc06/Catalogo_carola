@@ -4956,5 +4956,15 @@ authenticateAdmin().then(async()=>{createColorBlock("");await loadFinance();wind
 
 </script>
 
+
+<style>
+#backToTop{position:fixed;right:22px;bottom:22px;width:48px;height:48px;border:1px solid #ead8df;border-radius:50%;background:#fff;color:#171717;box-shadow:0 8px 24px rgba(0,0,0,.12);font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;opacity:0;visibility:hidden;transform:translateY(8px);transition:.2s}
+#backToTop.show{opacity:1;visibility:visible;transform:none}
+@media(max-width:600px){#backToTop{right:16px;bottom:18px;width:44px;height:44px}}
+</style>
+<button id="backToTop" type="button" aria-label="Volver arriba" title="Volver arriba">↑</button>
+<script>
+(()=>{const b=document.getElementById("backToTop");if(!b)return;const sync=()=>b.classList.toggle("show",window.scrollY>450);window.addEventListener("scroll",sync,{passive:true});sync();b.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}))})();
+</script>
 </body>
 </html>
