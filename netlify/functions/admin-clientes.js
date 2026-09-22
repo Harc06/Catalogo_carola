@@ -18,6 +18,8 @@ exports.handler=async event=>{
    const nombre=String(b.nombre||"").trim();if(!nombre)return res(400,{success:false,error:"Nombre requerido"});
    const {data,error}=await supabase.from("clientes_deuda").insert({nombre}).select().single();if(error)throw error;return res(200,{success:true,cliente:data});
   }
+  if(action==="update-provider"){const id=Number(b.id),nombre=String(b.nombre||"").trim();if(!Number.isInteger(id)||id<1||!nombre)return res(400,{success:false,error:"Datos inválidos"});const {data,error}=await supabase.from("clientes_deuda").update({nombre}).eq("id",id).eq("activo",true).select().single();if(error)throw error;return res(200,{success:true,registro:data});}
+  if(action==="delete-provider"){const id=Number(b.id);if(!Number.isInteger(id)||id<1)return res(400,{success:false,error:"Cliente inválido"});const {data,error}=await supabase.from("clientes_deuda").update({activo:false}).eq("id",id).select().single();if(error)throw error;return res(200,{success:true,registro:data});}
   if(action==="add-movement"){
    const cliente_id=Number(b.cliente_id),tipo=String(b.tipo||""),fecha=String(b.fecha||""),importe=Number(b.importe),pares=b.pares==null?null:Number(b.pares);
    if(!Number.isInteger(cliente_id)||cliente_id<1)return res(400,{success:false,error:"Cliente inválido"});
