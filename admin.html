@@ -2083,25 +2083,31 @@ async function loginApplePasskey(){
   const v=await authCall({action:"login-verify",challenge_id:a.challenge_id,response:credentialToJSON(cred)});adminPassword=v.token
 }
 async function authenticateAdmin(){
-  /* Siempre deja una salida por contraseña. La Passkey es comodidad, no un bloqueo. */
+  /* En iPhone/iPad intenta la llave de acceso automáticamente al abrir la página. */
   if(!isIPhone()&&!isIPad())return passwordLogin();
-  authOverlay("Elige cómo entrar.",'<button id="appleFaceLogin" type="button" style="width:100%;margin-top:12px;padding:14px;border:0;border-radius:14px;background:#171717;color:white;font-weight:800;font-size:16px">Usar Face ID / llave de acceso</button><button id="applePasswordLogin" type="button" style="width:100%;margin-top:10px;padding:14px;border:1px solid #ddd;border-radius:14px;background:white;color:#171717;font-weight:800;font-size:16px">Entrar con contraseña</button>');
-  return new Promise(resolve=>{
-    document.getElementById("applePasswordLogin").onclick=async()=>{await passwordLogin();resolve()};
-    document.getElementById("appleFaceLogin").onclick=async()=>{
-      try{
-        if(!window.PublicKeyCredential)throw new Error("Este navegador no admite Passkeys.");
-        const status=await authCall({action:"status"});
-        if(!status.hasPasskey)await setupApplePasskey();else await loginApplePasskey();
-        if(isIPad())localStorage.setItem("carola-ipad-passkey-v1","1");
-        hideAuth();resolve();
-      }catch(error){
-        authOverlay("La llave de acceso no pudo usarse. Puedes entrar con contraseña o volver a registrar una llave.",'<button id="authFallbackPassword" type="button" style="width:100%;margin-top:12px;padding:14px;border:0;border-radius:14px;background:#171717;color:white;font-weight:800;font-size:16px">Entrar con contraseña</button><button id="authRegisterAgain" type="button" style="width:100%;margin-top:10px;padding:14px;border:1px solid #ddd;border-radius:14px;background:white;color:#171717;font-weight:800;font-size:16px">Registrar nueva llave</button>');
-        document.getElementById("authFallbackPassword").onclick=async()=>{await passwordLogin();resolve()};
-        document.getElementById("authRegisterAgain").onclick=async()=>{try{await setupApplePasskey();if(isIPad())localStorage.setItem("carola-ipad-passkey-v1","1");hideAuth();resolve()}catch(e){authOverlay("No se pudo registrar la llave. Entra con contraseña.",'<button id="authLastPassword" type="button" style="width:100%;margin-top:12px;padding:14px;border:0;border-radius:14px;background:#171717;color:white;font-weight:800;font-size:16px">Entrar con contraseña</button>');document.getElementById("authLastPassword").onclick=async()=>{await passwordLogin();resolve()}}};
-      }
-    };
-  });
+  try{
+    if(!window.PublicKeyCredential)throw new Error("Este navegador no admite Passkeys.");
+    const status=await authCall({action:"status"});
+    if(!status.hasPasskey){
+      /* La primera configuración sí necesita una acción del usuario para registrar la llave. */
+      authOverlay("Configura Face ID / llave de acceso para entrar automáticamente las próximas veces.",'<button id="activateFirstPasskey" type="button" style="width:100%;margin-top:12px;padding:14px;border:0;border-radius:14px;background:#171717;color:white;font-weight:800;font-size:16px">Configurar llave de acceso</button><button id="authFirstPassword" type="button" style="width:100%;margin-top:10px;padding:14px;border:1px solid #ddd;border-radius:14px;background:white;color:#171717;font-weight:800;font-size:16px">Entrar con contraseña</button>');
+      return new Promise(resolve=>{
+        document.getElementById("activateFirstPasskey").onclick=async()=>{try{await setupApplePasskey();if(isIPad())localStorage.setItem("carola-ipad-passkey-v1","1");hideAuth();resolve()}catch(e){await passwordLogin();resolve()}};
+        document.getElementById("authFirstPassword").onclick=async()=>{await passwordLogin();resolve()};
+      });
+    }
+    authOverlay("Abriendo llave de acceso…");
+    await loginApplePasskey();
+    if(isIPad())localStorage.setItem("carola-ipad-passkey-v1","1");
+    hideAuth();
+  }catch(error){
+    /* Si Safari/iOS bloquea o cancela la solicitud automática, conserva el acceso manual como respaldo. */
+    authOverlay("No se pudo abrir la llave automáticamente.",'<button id="authRetryPasskey" type="button" style="width:100%;margin-top:12px;padding:14px;border:0;border-radius:14px;background:#171717;color:white;font-weight:800;font-size:16px">Usar llave de acceso</button><button id="authFallbackPassword" type="button" style="width:100%;margin-top:10px;padding:14px;border:1px solid #ddd;border-radius:14px;background:white;color:#171717;font-weight:800;font-size:16px">Entrar con contraseña</button>');
+    return new Promise(resolve=>{
+      document.getElementById("authRetryPasskey").onclick=async()=>{try{await loginApplePasskey();hideAuth();resolve()}catch(e){}};
+      document.getElementById("authFallbackPassword").onclick=async()=>{await passwordLogin();resolve()};
+    });
+  }
 }
 
 /* VARIABLES */
