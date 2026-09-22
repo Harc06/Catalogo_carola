@@ -1,0 +1,52 @@
+name: Backup diario CAROLA
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+      timezone: "America/Mexico_City"
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validar secreto
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::Falta configurar el secreto SUPABASE_DB_URL en GitHub."
+            exit 1
+          fi
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Crear respaldo de base de datos
+        run: |
+          mkdir -p backup
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/roles.sql --role-only
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/data.sql --data-only --use-copy
+
+      - name: Información del respaldo
+        run: |
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > backup/backup-created-utc.txt
+          git rev-parse HEAD > backup/source-commit.txt
+
+      - name: Comprimir respaldo
+        run: tar -czf carola-backup.tar.gz backup
+
+      - name: Guardar copia diaria
+        uses: actions/upload-artifact@v4
+        with:
+          name: carola-backup-${{ github.run_id }}
+          path: carola-backup.tar.gz
+          retention-days: 30
+          if-no-files-found: error
