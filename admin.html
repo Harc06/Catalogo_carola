@@ -1700,7 +1700,7 @@ footer{
     <button id="catalogTab" class="tab" type="button">CATÁLOGO</button>
     <button id="ordersTab" class="tab" type="button">REGISTRO</button>
     <button id="financeTab" class="tab active" type="button">FINANZAS</button>
-    <button id="suppliersTab" class="tab" type="button">PROVEEDORES</button><button id="clientsTab" class="tab" type="button">CLIENTES</button>
+    <select id="accountsTab" class="tab" style="appearance:auto"><option value="" selected>CUENTAS ▾</option><option value="suppliers">PROVEEDORES</option><option value="clients">CLIENTES</option></select>
   </div>
 </div>
 
@@ -2009,8 +2009,7 @@ footer{
     <button id="addSupplier" type="button" style="margin-top:12px;padding:12px 18px;border:0;border-radius:12px;background:#171717;color:#fff;font-weight:800">+ Agregar proveedor</button>
   </section>
   <section class="card" style="padding:16px;margin-bottom:14px">
-    <label for="supplierSelect" style="display:block;font-weight:800;margin-bottom:8px">Proveedor</label>
-    <select id="supplierSelect" style="width:100%;padding:14px;border:1px solid #ead8df;border-radius:14px;background:#fff;font-size:16px;font-weight:700"></select>
+    <label for="supplierSelect" style="display:block;font-weight:800;margin-bottom:8px">Proveedor</label><div style="display:flex;gap:8px;align-items:center"><select id="supplierSelect" style="flex:1;min-width:0;padding:14px;border:1px solid #ead8df;border-radius:14px;background:#fff;font-size:16px;font-weight:700"></select><button id="editSupplier" class="record-tool-btn" type="button">Editar</button><button id="deleteSupplier" class="record-tool-btn" type="button">Eliminar</button></div>
   </section>
   <section id="supplierContent" class="card"><div class="finance-empty">Agrega o selecciona un proveedor.</div></section>
 </div>
@@ -2018,7 +2017,7 @@ footer{
   <div class="orders-header"><div><h2>Deudas clientes</h2><p>Notas de venta, abonos, pares y saldo pendiente por cliente.</p></div><button id="refreshClients" class="refresh" type="button">Actualizar</button></div>
   <div class="record-tools-tabs" style="margin-bottom:14px"><button id="toggleNewClient" class="record-tool-btn" type="button">+ Nuevo cliente</button></div>
   <section id="newClientPanel" class="card" style="display:none"><div class="finance-grid"><div><label>Nombre del cliente</label><input id="clientName" type="text" placeholder="Ej. Boutique Luna"></div></div><button id="addClient" type="button" style="margin-top:12px;padding:12px 18px;border:0;border-radius:12px;background:#171717;color:#fff;font-weight:800">+ Agregar cliente</button></section>
-  <section class="card" style="padding:16px;margin-bottom:14px"><label for="clientSelect" style="display:block;font-weight:800;margin-bottom:8px">Cliente</label><select id="clientSelect" style="width:100%;padding:14px;border:1px solid #ead8df;border-radius:14px;background:#fff;font-size:16px;font-weight:700"></select></section>
+  <section class="card" style="padding:16px;margin-bottom:14px"><label for="clientSelect" style="display:block;font-weight:800;margin-bottom:8px">Cliente</label><div style="display:flex;gap:8px;align-items:center"><select id="clientSelect" style="flex:1;min-width:0;padding:14px;border:1px solid #ead8df;border-radius:14px;background:#fff;font-size:16px;font-weight:700"></select><button id="editClient" class="record-tool-btn" type="button">Editar</button><button id="deleteClient" class="record-tool-btn" type="button">Eliminar</button></div></section>
   <section id="clientContent" class="card"><div class="finance-empty">Agrega o selecciona un cliente.</div></section>
 </div>
 
@@ -2303,7 +2302,7 @@ function supplierForm(tipo){
 async function deleteSupplierMove(id){if(!confirm("¿Mover este movimiento a Eliminados?"))return;try{await supplierCall({action:"delete-movement",id});await loadSuppliers()}catch(e){alert(e.message)}}
 document.getElementById("addSupplier").onclick=async()=>{const nombre=supplierName.value.trim();if(!nombre)return;try{await supplierCall({action:"add-provider",nombre});supplierName.value="";await loadSuppliers()}catch(e){alert(e.message)}};
 document.getElementById("refreshSuppliers").onclick=loadSuppliers;
-document.getElementById("supplierSelect").onchange=e=>selectSupplier(e.target.value);
+document.getElementById("supplierSelect").onchange=e=>selectSupplier(e.target.value);document.getElementById("editSupplier").onclick=async()=>{const p=suppliers.find(x=>x.id===selectedSupplier);if(!p)return;const nombre=prompt("Nuevo nombre del proveedor:",p.nombre);if(!nombre||nombre.trim()===p.nombre)return;try{await supplierCall({action:"update-provider",id:p.id,nombre:nombre.trim()});await loadSuppliers()}catch(e){alert(e.message)}};document.getElementById("deleteSupplier").onclick=async()=>{const p=suppliers.find(x=>x.id===selectedSupplier);if(!p||!confirm("¿Eliminar al proveedor "+p.nombre+"? Sus movimientos quedarán ocultos junto con el proveedor."))return;try{await supplierCall({action:"delete-provider",id:p.id});selectedSupplier=0;await loadSuppliers()}catch(e){alert(e.message)}};
 document.getElementById("toggleNewSupplier").onclick=()=>{const p=document.getElementById("newSupplierPanel"),open=p.style.display!=="none";p.style.display=open?"none":"block";toggleNewSupplier.classList.toggle("active",!open)};
 let clientsLoaded=false,clients=[],clientMoves=[],selectedClient=0;
 async function clientCall(payload){
@@ -2384,7 +2383,7 @@ function clientForm(tipo){
 async function deleteClientMove(id){if(!confirm("¿Mover este movimiento a Eliminados?"))return;try{await clientCall({action:"delete-movement",id});await loadClients()}catch(e){alert(e.message)}}
 document.getElementById("addClient").onclick=async()=>{const nombre=clientName.value.trim();if(!nombre)return;try{await clientCall({action:"add-provider",nombre});clientName.value="";await loadClients()}catch(e){alert(e.message)}};
 document.getElementById("refreshClients").onclick=loadClients;
-document.getElementById("clientSelect").onchange=e=>selectClient(e.target.value);
+document.getElementById("clientSelect").onchange=e=>selectClient(e.target.value);document.getElementById("editClient").onclick=async()=>{const p=clients.find(x=>x.id===selectedClient);if(!p)return;const nombre=prompt("Nuevo nombre del cliente:",p.nombre);if(!nombre||nombre.trim()===p.nombre)return;try{await clientCall({action:"update-provider",id:p.id,nombre:nombre.trim()});await loadClients()}catch(e){alert(e.message)}};document.getElementById("deleteClient").onclick=async()=>{const p=clients.find(x=>x.id===selectedClient);if(!p||!confirm("¿Eliminar al cliente "+p.nombre+"? Sus movimientos quedarán ocultos junto con el cliente."))return;try{await clientCall({action:"delete-provider",id:p.id});selectedClient=0;await loadClients()}catch(e){alert(e.message)}};
 document.getElementById("toggleNewClient").onclick=()=>{const p=document.getElementById("newClientPanel"),open=p.style.display!=="none";p.style.display=open?"none":"block";toggleNewClient.classList.toggle("active",!open)};
 
 /* PESTAÑAS */
@@ -2393,8 +2392,8 @@ catalogTab.onclick=function(){
   catalogTab.classList.add("active");
   ordersTab.classList.remove("active");
   financeTab.classList.remove("active");
-  suppliersTab.classList.remove("active");
-  clientsTab.classList.remove("active");
+  accountsTab.classList.remove("active");
+  accountsTab.classList.remove("active");
   catalogPanel.classList.add("active");
   ordersPanel.classList.remove("active");
   financePanel.classList.remove("active");
@@ -2406,8 +2405,8 @@ ordersTab.onclick=async function(){
   ordersTab.classList.add("active");
   catalogTab.classList.remove("active");
   financeTab.classList.remove("active");
-  suppliersTab.classList.remove("active");
-  clientsTab.classList.remove("active");
+  accountsTab.classList.remove("active");
+  accountsTab.classList.remove("active");
   ordersPanel.classList.add("active");
   catalogPanel.classList.remove("active");
   financePanel.classList.remove("active");
@@ -2423,8 +2422,8 @@ financeTab.onclick=async function(){
   financeTab.classList.add("active");
   catalogTab.classList.remove("active");
   ordersTab.classList.remove("active");
-  suppliersTab.classList.remove("active");
-  clientsTab.classList.remove("active");
+  accountsTab.classList.remove("active");
+  accountsTab.classList.remove("active");
   financePanel.classList.add("active");
   catalogPanel.classList.remove("active");
   ordersPanel.classList.remove("active");
@@ -2433,12 +2432,7 @@ financeTab.onclick=async function(){
   if(!financeLoaded) await loadFinance();
 };
 
-suppliersTab.onclick=async function(){
-  [catalogTab,ordersTab,financeTab].forEach(x=>x.classList.remove("active"));suppliersTab.classList.add("active");
-  [catalogPanel,ordersPanel,financePanel].forEach(x=>x.classList.remove("active"));suppliersPanel.classList.add("active");
-  if(!suppliersLoaded)await loadSuppliers();
-};
-clientsTab.onclick=async function(){[catalogTab,ordersTab,financeTab,suppliersTab].forEach(x=>x.classList.remove("active"));clientsTab.classList.add("active");[catalogPanel,ordersPanel,financePanel,suppliersPanel].forEach(x=>x.classList.remove("active"));clientsPanel.classList.add("active");if(!clientsLoaded)await loadClients();};
+accountsTab.onchange=async function(){const v=this.value;[catalogTab,ordersTab,financeTab].forEach(x=>x.classList.remove("active"));[catalogPanel,ordersPanel,financePanel,suppliersPanel,clientsPanel].forEach(x=>x.classList.remove("active"));if(v==="suppliers"){accountsTab.classList.add("active");suppliersPanel.classList.add("active");if(!suppliersLoaded)await loadSuppliers()}else if(v==="clients"){accountsTab.classList.add("active");clientsPanel.classList.add("active");if(!clientsLoaded)await loadClients()}else{financeTab.classList.add("active");financePanel.classList.add("active")}};
 
 /* MENSAJES */
 
