@@ -1686,7 +1686,7 @@ footer{
 .record-tool-panel{display:none}.record-tool-panel.open{display:block}
 .tabs{grid-template-columns:repeat(5,minmax(0,1fr))}
 .mobile-account-tab{display:none}
-.client-agenda-list{display:grid;gap:10px;margin-top:14px}
+.client-agenda-list{display:grid;gap:10px;margin-top:14px;max-height:650px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
 .client-agenda-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,.55fr);gap:16px;align-items:center;padding:14px 16px;border:1px solid #ead8df;border-radius:16px;background:#fff}
 .client-agenda-name{font-weight:800;color:#222}
 .client-agenda-phone{color:#666;text-align:right;word-break:break-word}
@@ -2026,7 +2026,7 @@ footer{
   <div class="record-tools-tabs" style="margin-bottom:14px"><button id="toggleNewClient" class="record-tool-btn" type="button">+ Nuevo cliente</button></div>
   <section id="newClientPanel" class="card" style="display:none"><div class="finance-grid"><div><label>Nombre del cliente</label><input id="clientName" type="text" placeholder="Ej. Boutique Luna"></div></div><button id="addClient" type="button" style="margin-top:12px;padding:12px 18px;border:0;border-radius:12px;background:#171717;color:#fff;font-weight:800">+ Agregar cliente</button></section>
   <section class="card" style="padding:16px;margin-bottom:14px"><label for="clientSelect" style="display:block;font-weight:800;margin-bottom:8px">Cliente</label><div style="display:flex;gap:8px;align-items:center"><select id="clientSelect" style="flex:1;min-width:0;padding:14px;border:1px solid #ead8df;border-radius:14px;background:#fff;font-size:16px;font-weight:700"></select><button id="editClient" class="record-tool-btn" type="button">Editar</button><button id="deleteClient" class="record-tool-btn" type="button">Eliminar</button></div></section>
-  <section id="clientContent" class="card"><div class="finance-empty">Agrega o selecciona un cliente.</div></section><button id="clientDirectoryBtn" class="record-tool-btn" type="button" style="width:100%;margin-top:14px;padding:14px">Agenda de clientes</button><section id="clientDirectory" class="card" style="display:none;margin-top:14px"><h2>Agenda de clientes</h2><p id="clientDirectoryMeta" style="color:#777;margin:0">Cargando clientes...</p><div id="clientDirectoryList" class="client-agenda-list"></div></section>
+  <section id="clientContent" class="card"><div class="finance-empty">Agrega o selecciona un cliente.</div></section><button id="clientDirectoryBtn" class="record-tool-btn" type="button" style="width:100%;margin-top:14px;padding:14px">Agenda de clientes</button><section id="clientDirectory" class="card" style="display:none;margin-top:14px"><h2>Agenda de clientes</h2><div class="admin-search-wrap" style="margin:10px 0 8px"><input id="clientDirectorySearch" class="admin-search" type="search" placeholder="Buscar cliente o teléfono..." autocomplete="off"></div><p id="clientDirectoryMeta" style="color:#777;margin:0">Cargando clientes...</p><div id="clientDirectoryList" class="client-agenda-list"></div></section>
 </div>
 
 </main>
@@ -2395,7 +2395,15 @@ document.getElementById("addClient").onclick=async()=>{const nombre=clientName.v
 document.getElementById("refreshClients").onclick=loadClients;
 document.getElementById("clientSelect").onchange=e=>selectClient(e.target.value);document.getElementById("editClient").onclick=async()=>{const p=clients.find(x=>x.id===selectedClient);if(!p)return;const nombre=prompt("Nuevo nombre del cliente:",p.nombre);if(!nombre||nombre.trim()===p.nombre)return;try{await clientCall({action:"update-provider",id:p.id,nombre:nombre.trim()});await loadClients()}catch(e){alert(e.message)}};document.getElementById("deleteClient").onclick=async()=>{const p=clients.find(x=>x.id===selectedClient);if(!p||!confirm("¿Eliminar al cliente "+p.nombre+"? Sus movimientos quedarán ocultos junto con el cliente."))return;try{await clientCall({action:"delete-provider",id:p.id});selectedClient=0;await loadClients()}catch(e){alert(e.message)}};
 document.getElementById("toggleNewClient").onclick=()=>{const p=document.getElementById("newClientPanel"),open=p.style.display!=="none";p.style.display=open?"none":"block";toggleNewClient.classList.toggle("active",!open)};
-function renderClientDirectory(){const list=document.getElementById("clientDirectoryList"),meta=document.getElementById("clientDirectoryMeta"),rows=window.catalogClients||[];if(!list||!meta)return;meta.textContent=rows.length+" clientes en la agenda";list.innerHTML=rows.length?rows.map(x=>'<div class="client-agenda-row"><div class="client-agenda-name">'+escapeHtml(x.nombre||"")+'</div><div class="client-agenda-phone">'+escapeHtml(x.telefono||"Sin teléfono")+'</div></div>').join(""):'<div class="finance-empty">No hay clientes registrados.</div>';}
+function renderClientDirectory(){
+ const list=document.getElementById("clientDirectoryList"),meta=document.getElementById("clientDirectoryMeta"),search=document.getElementById("clientDirectorySearch");if(!list||!meta)return;
+ const q=normalizeText(search?search.value:"");
+ const all=[...(window.catalogClients||[])].sort((a,b)=>String(a.nombre||"").localeCompare(String(b.nombre||""),"es",{sensitivity:"base"}));
+ const rows=q?all.filter(x=>normalizeText((x.nombre||"")+" "+(x.telefono||"")).includes(q)):all;
+ meta.textContent=(q?rows.length+" de ":"")+all.length+" clientes en la agenda";
+ list.innerHTML=rows.length?rows.map(x=>'<div class="client-agenda-row"><div class="client-agenda-name">'+escapeHtml(x.nombre||"")+'</div><div class="client-agenda-phone">'+escapeHtml(x.telefono||"Sin teléfono")+'</div></div>').join(""):'<div class="finance-empty">No encontré clientes.</div>';
+}
+const clientDirectorySearch=document.getElementById("clientDirectorySearch");if(clientDirectorySearch)clientDirectorySearch.oninput=renderClientDirectory;
 document.getElementById("clientDirectoryBtn").onclick=()=>{const p=document.getElementById("clientDirectory"),open=p.style.display!=="none";p.style.display=open?"none":"block";clientDirectoryBtn.classList.toggle("active",!open)};
 
 /* PESTAÑAS */
