@@ -1684,7 +1684,13 @@ footer{
 .record-tool-btn{border:1px solid #ead8df;background:#f8edf2;border-radius:16px;padding:12px 8px;font-weight:800;color:#333}
 .record-tool-btn.active{background:#171717;color:#fff;border-color:#171717}
 .record-tool-panel{display:none}.record-tool-panel.open{display:block}
-@media(max-width:600px){.tabs{width:96%;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;overflow:visible}.tab{min-width:0;padding:11px 4px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.finance-quick-tabs,.record-tools-tabs{gap:8px}.finance-quick-btn,.record-tool-btn{font-size:13px}}
+.tabs{grid-template-columns:repeat(5,minmax(0,1fr))}
+.mobile-account-tab{display:none}
+.client-agenda-list{display:grid;gap:10px;margin-top:14px}
+.client-agenda-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,.55fr);gap:16px;align-items:center;padding:14px 16px;border:1px solid #ead8df;border-radius:16px;background:#fff}
+.client-agenda-name{font-weight:800;color:#222}
+.client-agenda-phone{color:#666;text-align:right;word-break:break-word}
+@media(max-width:600px){.tabs{width:96%;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;overflow:visible}.tab{min-width:0;padding:11px 4px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.desktop-account-tab{display:none}.mobile-account-tab{display:block}.finance-quick-tabs,.record-tools-tabs{gap:8px}.finance-quick-btn,.record-tool-btn{font-size:13px}.client-agenda-row{grid-template-columns:1fr;gap:4px}.client-agenda-phone{text-align:left}}
 </style>
 </head>
 
@@ -1700,7 +1706,9 @@ footer{
     <button id="catalogTab" class="tab" type="button">CATÁLOGO</button>
     <button id="ordersTab" class="tab" type="button">REGISTRO</button>
     <button id="financeTab" class="tab active" type="button">FINANZAS</button>
-    <select id="accountsTab" class="tab" style="appearance:auto"><option value="" selected>CUENTAS ▾</option><option value="suppliers">PROVEEDORES</option><option value="clients">CLIENTES</option></select>
+    <button id="clientsTab" class="tab desktop-account-tab" type="button">CLIENTES</button>
+    <button id="suppliersTab" class="tab desktop-account-tab" type="button">PROVEEDORES</button>
+    <select id="accountsTab" class="tab mobile-account-tab" style="appearance:auto"><option value="" selected>CUENTAS ▾</option><option value="clients">CLIENTES</option><option value="suppliers">PROVEEDORES</option></select>
   </div>
 </div>
 
@@ -2018,7 +2026,7 @@ footer{
   <div class="record-tools-tabs" style="margin-bottom:14px"><button id="toggleNewClient" class="record-tool-btn" type="button">+ Nuevo cliente</button></div>
   <section id="newClientPanel" class="card" style="display:none"><div class="finance-grid"><div><label>Nombre del cliente</label><input id="clientName" type="text" placeholder="Ej. Boutique Luna"></div></div><button id="addClient" type="button" style="margin-top:12px;padding:12px 18px;border:0;border-radius:12px;background:#171717;color:#fff;font-weight:800">+ Agregar cliente</button></section>
   <section class="card" style="padding:16px;margin-bottom:14px"><label for="clientSelect" style="display:block;font-weight:800;margin-bottom:8px">Cliente</label><div style="display:flex;gap:8px;align-items:center"><select id="clientSelect" style="flex:1;min-width:0;padding:14px;border:1px solid #ead8df;border-radius:14px;background:#fff;font-size:16px;font-weight:700"></select><button id="editClient" class="record-tool-btn" type="button">Editar</button><button id="deleteClient" class="record-tool-btn" type="button">Eliminar</button></div></section>
-  <section id="clientContent" class="card"><div class="finance-empty">Agrega o selecciona un cliente.</div></section><button id="clientDirectoryBtn" class="record-tool-btn" type="button" style="width:100%;margin-top:14px;padding:14px">Registro de clientes</button><section id="clientDirectory" class="card" style="display:none;margin-top:14px"><h2>Registro de clientes</h2><p style="color:#777;margin-bottom:0">Aquí aparecerá el directorio con nombre y teléfono de tus clientes.</p></section>
+  <section id="clientContent" class="card"><div class="finance-empty">Agrega o selecciona un cliente.</div></section><button id="clientDirectoryBtn" class="record-tool-btn" type="button" style="width:100%;margin-top:14px;padding:14px">Agenda de clientes</button><section id="clientDirectory" class="card" style="display:none;margin-top:14px"><h2>Agenda de clientes</h2><p id="clientDirectoryMeta" style="color:#777;margin:0">Cargando clientes...</p><div id="clientDirectoryList" class="client-agenda-list"></div></section>
 </div>
 
 </main>
@@ -2386,55 +2394,21 @@ async function deleteClientMove(id){if(!confirm("¿Mover este movimiento a Elimi
 document.getElementById("addClient").onclick=async()=>{const nombre=clientName.value.trim();if(!nombre)return;try{await clientCall({action:"add-provider",nombre});clientName.value="";await loadClients()}catch(e){alert(e.message)}};
 document.getElementById("refreshClients").onclick=loadClients;
 document.getElementById("clientSelect").onchange=e=>selectClient(e.target.value);document.getElementById("editClient").onclick=async()=>{const p=clients.find(x=>x.id===selectedClient);if(!p)return;const nombre=prompt("Nuevo nombre del cliente:",p.nombre);if(!nombre||nombre.trim()===p.nombre)return;try{await clientCall({action:"update-provider",id:p.id,nombre:nombre.trim()});await loadClients()}catch(e){alert(e.message)}};document.getElementById("deleteClient").onclick=async()=>{const p=clients.find(x=>x.id===selectedClient);if(!p||!confirm("¿Eliminar al cliente "+p.nombre+"? Sus movimientos quedarán ocultos junto con el cliente."))return;try{await clientCall({action:"delete-provider",id:p.id});selectedClient=0;await loadClients()}catch(e){alert(e.message)}};
-document.getElementById("toggleNewClient").onclick=()=>{const p=document.getElementById("newClientPanel"),open=p.style.display!=="none";p.style.display=open?"none":"block";toggleNewClient.classList.toggle("active",!open)};document.getElementById("clientDirectoryBtn").onclick=()=>{const p=document.getElementById("clientDirectory"),open=p.style.display!=="none";p.style.display=open?"none":"block";clientDirectoryBtn.classList.toggle("active",!open)};
+document.getElementById("toggleNewClient").onclick=()=>{const p=document.getElementById("newClientPanel"),open=p.style.display!=="none";p.style.display=open?"none":"block";toggleNewClient.classList.toggle("active",!open)};
+function renderClientDirectory(){const list=document.getElementById("clientDirectoryList"),meta=document.getElementById("clientDirectoryMeta"),rows=window.catalogClients||[];if(!list||!meta)return;meta.textContent=rows.length+" clientes en la agenda";list.innerHTML=rows.length?rows.map(x=>'<div class="client-agenda-row"><div class="client-agenda-name">'+escapeHtml(x.nombre||"")+'</div><div class="client-agenda-phone">'+escapeHtml(x.telefono||"Sin teléfono")+'</div></div>').join(""):'<div class="finance-empty">No hay clientes registrados.</div>';}
+document.getElementById("clientDirectoryBtn").onclick=()=>{const p=document.getElementById("clientDirectory"),open=p.style.display!=="none";p.style.display=open?"none":"block";clientDirectoryBtn.classList.toggle("active",!open)};
 
 /* PESTAÑAS */
-
-catalogTab.onclick=function(){
-  catalogTab.classList.add("active");
-  ordersTab.classList.remove("active");
-  financeTab.classList.remove("active");
-  accountsTab.classList.remove("active");
-  accountsTab.classList.remove("active");
-  catalogPanel.classList.add("active");
-  ordersPanel.classList.remove("active");
-  financePanel.classList.remove("active");
-  suppliersPanel.classList.remove("active");
-  clientsPanel.classList.remove("active");
-};
-
-ordersTab.onclick=async function(){
-  ordersTab.classList.add("active");
-  catalogTab.classList.remove("active");
-  financeTab.classList.remove("active");
-  accountsTab.classList.remove("active");
-  accountsTab.classList.remove("active");
-  ordersPanel.classList.add("active");
-  catalogPanel.classList.remove("active");
-  financePanel.classList.remove("active");
-  suppliersPanel.classList.remove("active");
-  clientsPanel.classList.remove("active");
-
-  if(!ordersLoaded){
-    await loadOrders();
-  }
-};
-
-financeTab.onclick=async function(){
-  financeTab.classList.add("active");
-  catalogTab.classList.remove("active");
-  ordersTab.classList.remove("active");
-  accountsTab.classList.remove("active");
-  accountsTab.classList.remove("active");
-  financePanel.classList.add("active");
-  catalogPanel.classList.remove("active");
-  ordersPanel.classList.remove("active");
-  suppliersPanel.classList.remove("active");
-  clientsPanel.classList.remove("active");
-  if(!financeLoaded) await loadFinance();
-};
-
-accountsTab.onchange=async function(){const v=this.value;[catalogTab,ordersTab,financeTab].forEach(x=>x.classList.remove("active"));[catalogPanel,ordersPanel,financePanel,suppliersPanel,clientsPanel].forEach(x=>x.classList.remove("active"));if(v==="suppliers"){accountsTab.classList.add("active");suppliersPanel.classList.add("active");if(!suppliersLoaded)await loadSuppliers()}else if(v==="clients"){accountsTab.classList.add("active");clientsPanel.classList.add("active");if(!clientsLoaded)await loadClients()}else{financeTab.classList.add("active");financePanel.classList.add("active")}};
+function clearAdminTabs(){
+  [catalogTab,ordersTab,financeTab,clientsTab,suppliersTab,accountsTab].forEach(x=>x&&x.classList.remove("active"));
+  [catalogPanel,ordersPanel,financePanel,suppliersPanel,clientsPanel].forEach(x=>x&&x.classList.remove("active"));
+}
+catalogTab.onclick=function(){clearAdminTabs();catalogTab.classList.add("active");catalogPanel.classList.add("active")};
+ordersTab.onclick=async function(){clearAdminTabs();ordersTab.classList.add("active");ordersPanel.classList.add("active");if(!ordersLoaded)await loadOrders()};
+financeTab.onclick=async function(){clearAdminTabs();financeTab.classList.add("active");financePanel.classList.add("active");if(!financeLoaded)await loadFinance()};
+clientsTab.onclick=async function(){clearAdminTabs();clientsTab.classList.add("active");clientsPanel.classList.add("active");if(!clientsLoaded)await loadClients()};
+suppliersTab.onclick=async function(){clearAdminTabs();suppliersTab.classList.add("active");suppliersPanel.classList.add("active");if(!suppliersLoaded)await loadSuppliers()};
+accountsTab.onchange=async function(){const v=this.value;clearAdminTabs();accountsTab.classList.add("active");if(v==="clients"){clientsPanel.classList.add("active");if(!clientsLoaded)await loadClients()}else if(v==="suppliers"){suppliersPanel.classList.add("active");if(!suppliersLoaded)await loadSuppliers()}else{accountsTab.classList.remove("active");financeTab.classList.add("active");financePanel.classList.add("active")}};
 
 /* MENSAJES */
 
