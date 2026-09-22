@@ -1517,6 +1517,38 @@ footer{
   gap:10px;
   margin-bottom:18px;
 }
+.balance-overview{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin:0 0 18px;
+}
+.balance-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:18px 20px;
+  box-shadow:0 8px 30px rgba(0,0,0,.05);
+  min-width:0;
+}
+.balance-card .balance-label{
+  display:block;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.7px;
+  margin-bottom:7px;
+}
+.balance-card strong{display:block;font-size:28px;line-height:1.05}
+.balance-card small{display:block;color:#888;margin-top:7px;font-size:12px}
+.balance-card.debt{background:#fff8f8}
+.balance-card.debt .balance-label{color:#a33b3b}
+.balance-card.receivable{background:#f7fff9}
+.balance-card.receivable .balance-label{color:#167344}
+.balance-card.net.positive{background:#f6fbff}
+.balance-card.net.positive .balance-label{color:#1769aa}
+.balance-card.net.negative{background:#fff7f7}
+.balance-card.net.negative .balance-label{color:#a32d2d}
+@media(max-width:700px){.balance-overview{grid-template-columns:1fr}.balance-card strong{font-size:25px}}
 .finance-charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .finance-chart-card,.finance-table-card,.break-even-card{
   background:#fff;
@@ -1926,6 +1958,12 @@ footer{
     <div class="summary-box"><strong id="financeTotalPairs">0</strong><span>PARES</span></div>
   </div>
 
+  <div id="balanceOverview" class="balance-overview">
+    <div class="balance-card debt"><span class="balance-label">DEBES</span><strong id="financeSupplierDebt">$0</strong><small>Saldo pendiente a proveedores</small></div>
+    <div class="balance-card receivable"><span class="balance-label">ME DEBEN</span><strong id="financeClientDebt">$0</strong><small>Saldo pendiente de clientes</small></div>
+    <div id="financeNetCard" class="balance-card net positive"><span id="financeNetLabel" class="balance-label">SALDO A FAVOR</span><strong id="financeNetBalance">$0</strong><small id="financeNetHelp">Lo que te deben menos lo que debes</small></div>
+  </div>
+
   <div class="finance-charts">
     <section class="finance-chart-card">
       <div class="orders-header"><div><h2>Ganancia por mes</h2><p>Comparativo mensual del año seleccionado.</p></div></div>
@@ -2239,7 +2277,7 @@ async function supplierCall(payload){
  const j=await r.json();if(!r.ok||!j.success)throw new Error(j.error||"Error");return j;
 }
 async function loadSuppliers(){
- try{const j=await supplierCall();suppliers=(j.proveedores||[]).sort((a,b)=>{const an=String(a.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(),bn=String(b.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();if(an==="noe")return -1;if(bn==="noe")return 1;return an.localeCompare(bn,"es")});supplierMoves=j.movimientos||[];suppliersLoaded=true;if(selectedSupplier&&!suppliers.some(p=>Number(p.id)===Number(selectedSupplier)))selectedSupplier=0;renderSuppliers()}catch(e){supplierContent.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
+ try{const j=await supplierCall();suppliers=(j.proveedores||[]).sort((a,b)=>{const an=String(a.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(),bn=String(b.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();if(an==="noe")return -1;if(bn==="noe")return 1;return an.localeCompare(bn,"es")});supplierMoves=j.movimientos||[];suppliersLoaded=true;renderFinanceBalances();if(selectedSupplier&&!suppliers.some(p=>Number(p.id)===Number(selectedSupplier)))selectedSupplier=0;renderSuppliers()}catch(e){supplierContent.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
 }
 function pendingField(x,key,type,placeholder){
  if(x[key])return key==="fecha"?formatFinanceDate(x[key]):escapeHtml(x[key]);
@@ -2325,7 +2363,7 @@ async function clientCall(payload){
  const j=await r.json();if(!r.ok||!j.success)throw new Error(j.error||"Error");return j;
 }
 async function loadClients(){
- try{const j=await clientCall();clients=(j.clientes_deuda||[]).sort((a,b)=>{const an=String(a.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(),bn=String(b.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();if(an==="noe")return -1;if(bn==="noe")return 1;return an.localeCompare(bn,"es")});clientMoves=j.movimientos||[];window.catalogClients=j.catalogo_clientes||[];clientsLoaded=true;renderClients();renderClientDirectory()}catch(e){clientContent.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
+ try{const j=await clientCall();clients=(j.clientes_deuda||[]).sort((a,b)=>{const an=String(a.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(),bn=String(b.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();if(an==="noe")return -1;if(bn==="noe")return 1;return an.localeCompare(bn,"es")});clientMoves=j.movimientos||[];window.catalogClients=j.catalogo_clientes||[];clientsLoaded=true;renderFinanceBalances();renderClients();renderClientDirectory()}catch(e){clientContent.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
 }
 function pendingField(x,key,type,placeholder){
  if(x[key])return key==="fecha"?formatFinanceDate(x[key]):escapeHtml(x[key]);
@@ -4542,6 +4580,37 @@ function renderCustomCompare(){
     '</div>';
 }
 function refreshCompareMonths(){const keys=[...new Set(allFinance.map(r=>{const p=parseYmd(r.fecha);return monthKey(p.y,p.m)}))].sort().reverse(),a=compareMonthA.value,b=compareMonthB.value,html=keys.map(k=>'<option value="'+k+'">'+monthNameKey(k)+'</option>').join("");compareMonthA.innerHTML=html;compareMonthB.innerHTML=html;compareMonthA.value=keys.includes(a)?a:(keys[1]||keys[0]||"");compareMonthB.value=keys.includes(b)?b:(keys[0]||"");renderCustomCompare()}
+function accountPendingTotal(moves,idKey){
+  const byAccount=new Map();
+  (moves||[]).filter(x=>!x.eliminado_en).forEach(x=>{
+    const id=Number(x[idKey]||0);
+    const current=byAccount.get(id)||0;
+    const amount=Number(x.importe||0);
+    byAccount.set(id,current+(x.tipo==="pago"?-amount:((x.tipo==="nota"||x.tipo==="saldo_inicial")?amount:0)));
+  });
+  return [...byAccount.values()].reduce((sum,balance)=>sum+Math.max(0,balance),0);
+}
+function renderFinanceBalances(){
+  const supplierTotal=accountPendingTotal(supplierMoves,"proveedor_id");
+  const clientTotal=accountPendingTotal(clientMoves,"cliente_id");
+  const net=clientTotal-supplierTotal;
+  const s=document.getElementById("financeSupplierDebt"),cl=document.getElementById("financeClientDebt"),n=document.getElementById("financeNetBalance"),card=document.getElementById("financeNetCard"),label=document.getElementById("financeNetLabel"),help=document.getElementById("financeNetHelp");
+  if(!s||!cl||!n)return;
+  s.textContent=moneyShort(supplierTotal);cl.textContent=moneyShort(clientTotal);n.textContent=moneyShort(Math.abs(net));
+  const positive=net>=0;
+  card.classList.toggle("positive",positive);card.classList.toggle("negative",!positive);
+  label.textContent=positive?"SALDO A FAVOR":"SALDO EN CONTRA";
+  help.textContent=positive?"Te deben más de lo que debes":"Debes más de lo que te deben";
+}
+async function ensureFinanceBalances(){
+  try{
+    const jobs=[];
+    if(!suppliersLoaded)jobs.push(loadSuppliers());
+    if(!clientsLoaded)jobs.push(loadClients());
+    if(jobs.length)await Promise.all(jobs);
+    renderFinanceBalances();
+  }catch(e){console.warn("No se pudieron cargar los saldos generales",e)}
+}
 function renderFinance(){
   const rows=filteredFinance();
   const profit=rows.reduce((s,r)=>s+Number(r.ganancia||0),0);
@@ -4960,7 +5029,7 @@ function escapeAttribute(value){
 
 /* INICIAR */
 
-authenticateAdmin().then(async()=>{createColorBlock("");await Promise.all([loadModels(),loadFinance()]);window.scrollTo({top:0,left:0,behavior:"auto"});}).catch(err=>{authOverlay("No se pudo iniciar sesión: "+err.message+". Recarga la página para intentar de nuevo.");});
+authenticateAdmin().then(async()=>{createColorBlock("");await Promise.all([loadModels(),loadFinance(),ensureFinanceBalances()]);window.scrollTo({top:0,left:0,behavior:"auto"});}).catch(err=>{authOverlay("No se pudo iniciar sesión: "+err.message+". Recarga la página para intentar de nuevo.");});
 
 </script>
 
