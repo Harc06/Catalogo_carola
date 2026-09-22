@@ -10,7 +10,10 @@ exports.handler=async event=>{
    const {data:clientes_deuda,error:e1}=await supabase.from("clientes_deuda").select("id,nombre,activo,creado_en").eq("activo",true).order("nombre");
    if(e1)throw e1;
    const {data:movimientos,error:e2}=await supabase.from("clientes_movimientos").select("id,cliente_id,tipo,fecha,folio,importe,pares,forma_pago,observaciones,creado_en,actualizado_en,eliminado_en").order("fecha",{ascending:false}).order("id",{ascending:false});
-   if(e2)throw e2;return res(200,{success:true,clientes_deuda:clientes_deuda||[],movimientos:movimientos||[]});
+   if(e2)throw e2;
+   const {data:catalogo_clientes,error:e3}=await supabase.from("catalogo_clientes").select("id,nombre,telefono,activo,creado_en").eq("activo",true).order("nombre");
+   if(e3)throw e3;
+   return res(200,{success:true,clientes_deuda:clientes_deuda||[],movimientos:movimientos||[],catalogo_clientes:catalogo_clientes||[]});
   }
   if(event.httpMethod!=="POST")return res(405,{success:false,error:"Método no permitido"});
   const b=JSON.parse(event.body||"{}"),action=String(b.action||"");
