@@ -17,6 +17,17 @@ exports.handler=async event=>{
   }
   if(event.httpMethod!=="POST")return res(405,{success:false,error:"Método no permitido"});
   const b=JSON.parse(event.body||"{}"),action=String(b.action||"");
+  if(action==="update-directory-client"){
+   const id=Number(b.id),nombre=String(b.nombre||"").trim(),telefono=String(b.telefono||"").trim();
+   if(!Number.isInteger(id)||id<1||!nombre)return res(400,{success:false,error:"Nombre requerido"});
+   const {data,error}=await supabase.from("catalogo_clientes").update({nombre,telefono:telefono||null}).eq("id",id).eq("activo",true).select().single();
+   if(error)throw error;return res(200,{success:true,cliente:data});
+  }
+  if(action==="delete-directory-client"){
+   const id=Number(b.id);if(!Number.isInteger(id)||id<1)return res(400,{success:false,error:"Cliente inválido"});
+   const {data,error}=await supabase.from("catalogo_clientes").update({activo:false}).eq("id",id).select().single();
+   if(error)throw error;return res(200,{success:true,cliente:data});
+  }
   if(action==="add-provider"){
    const nombre=String(b.nombre||"").trim();if(!nombre)return res(400,{success:false,error:"Nombre requerido"});
    const {data,error}=await supabase.from("clientes_deuda").insert({nombre}).select().single();if(error)throw error;return res(200,{success:true,cliente:data});
