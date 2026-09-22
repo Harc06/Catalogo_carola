@@ -68,7 +68,7 @@ header p{
   width:min(1050px,94%);
   margin:auto;
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(5,1fr);
   gap:8px;
   padding:10px 0;
 }
@@ -1700,7 +1700,7 @@ footer{
     <button id="catalogTab" class="tab" type="button">CATÁLOGO</button>
     <button id="ordersTab" class="tab" type="button">REGISTRO</button>
     <button id="financeTab" class="tab active" type="button">FINANZAS</button>
-    <button id="suppliersTab" class="tab" type="button">DEUDAS</button>
+    <button id="suppliersTab" class="tab" type="button">PROVEEDORES</button><button id="clientsTab" class="tab" type="button">CLIENTES</button>
   </div>
 </div>
 
@@ -2014,6 +2014,13 @@ footer{
   </section>
   <section id="supplierContent" class="card"><div class="finance-empty">Agrega o selecciona un proveedor.</div></section>
 </div>
+<div id="clientsPanel" class="panel">
+  <div class="orders-header"><div><h2>Deudas clientes</h2><p>Notas de venta, abonos, pares y saldo pendiente por cliente.</p></div><button id="refreshClients" class="refresh" type="button">Actualizar</button></div>
+  <div class="record-tools-tabs" style="margin-bottom:14px"><button id="toggleNewClient" class="record-tool-btn" type="button">+ Nuevo cliente</button></div>
+  <section id="newClientPanel" class="card" style="display:none"><div class="finance-grid"><div><label>Nombre del cliente</label><input id="clientName" type="text" placeholder="Ej. Boutique Luna"></div></div><button id="addClient" type="button" style="margin-top:12px;padding:12px 18px;border:0;border-radius:12px;background:#171717;color:#fff;font-weight:800">+ Agregar cliente</button></section>
+  <section class="card" style="padding:16px;margin-bottom:14px"><label for="clientSelect" style="display:block;font-weight:800;margin-bottom:8px">Cliente</label><select id="clientSelect" style="width:100%;padding:14px;border:1px solid #ead8df;border-radius:14px;background:#fff;font-size:16px;font-weight:700"></select></section>
+  <section id="clientContent" class="card"><div class="finance-empty">Agrega o selecciona un cliente.</div></section>
+</div>
 
 </main>
 
@@ -2298,6 +2305,87 @@ document.getElementById("addSupplier").onclick=async()=>{const nombre=supplierNa
 document.getElementById("refreshSuppliers").onclick=loadSuppliers;
 document.getElementById("supplierSelect").onchange=e=>selectSupplier(e.target.value);
 document.getElementById("toggleNewSupplier").onclick=()=>{const p=document.getElementById("newSupplierPanel"),open=p.style.display!=="none";p.style.display=open?"none":"block";toggleNewSupplier.classList.toggle("active",!open)};
+let clientsLoaded=false,clients=[],clientMoves=[],selectedClient=0;
+async function clientCall(payload){
+ const r=await fetch("/.netlify/functions/admin-clientes",{method:payload?"POST":"GET",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:payload?JSON.stringify(payload):undefined});
+ const j=await r.json();if(!r.ok||!j.success)throw new Error(j.error||"Error");return j;
+}
+async function loadClients(){
+ try{const j=await clientCall();clients=(j.clientes_deuda||[]).sort((a,b)=>{const an=String(a.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(),bn=String(b.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();if(an==="noe")return -1;if(bn==="noe")return 1;return an.localeCompare(bn,"es")});clientMoves=j.movimientos||[];clientsLoaded=true;if(!selectedClient&&clients.length)selectedClient=clients[0].id;renderClients()}catch(e){clientContent.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
+}
+function pendingField(x,key,type,placeholder){
+ if(x[key])return key==="fecha"?formatFinanceDate(x[key]):escapeHtml(x[key]);
+ return '<input id="pend-'+key+'-'+x.id+'" type="'+type+'" placeholder="'+placeholder+'" style="width:120px;padding:7px;border:1px solid #e3d5db;border-radius:8px">';
+}
+function clientHistoryTable(items,tipo){
+ if(!items.length)return '<div class="finance-empty">Sin '+(tipo==="nota"?"notas":"pagos")+'.</div>';
+ return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Fecha</th><th>'+(tipo==="nota"?"Folio":"Forma")+'</th><th>Importe</th>'+(tipo==="nota"?'<th>Pares</th>':'')+'<th></th></tr></thead><tbody>'+items.map(x=>{
+  const date=x.fecha?formatFinanceDate(x.fecha):"—";
+  const detail=tipo==="nota"?(x.folio?escapeHtml(x.folio):"—"):(x.forma_pago?escapeHtml(x.forma_pago):"—");
+  const pairs=tipo==="nota"?(x.pares||"—"):"";
+  return '<tr id="move-row-'+x.id+'"><td>'+date+'</td><td>'+detail+'</td><td>'+moneyShort(x.importe)+'</td>'+(tipo==="nota"?'<td>'+pairs+'</td>':'')+'<td><details class="move-menu"><summary>Editar</summary><div><button type="button" onclick="editClientMove('+x.id+')">Editar datos</button><button type="button" onclick="deleteClientMove('+x.id+')">Eliminar</button></div></details></td></tr>'
+ }).join("")+'</tbody></table></div>';
+}
+function editClientMove(id){
+ const x=clientMoves.find(m=>m.id===id);if(!x)return;
+ const row=document.getElementById("move-row-"+id),note=x.tipo==="nota";
+ row.innerHTML='<td><input id="edit-date-'+id+'" type="date" value="'+(x.fecha||"")+'"></td><td><input id="edit-detail-'+id+'" type="text" value="'+escapeHtml(note?(x.folio||""):(x.forma_pago||""))+'" placeholder="'+(note?"Folio":"Forma de abono")+'"></td><td><input id="edit-amount-'+id+'" type="number" min=".01" step=".01" value="'+Number(x.importe)+'"></td>'+(note?'<td><input id="edit-pairs-'+id+'" type="number" min="1" step="1" value="'+(x.pares||"")+'"></td>':'')+'<td><button class="record-tool-btn" onclick="saveClientEdit('+id+')">Guardar</button> <button class="record-tool-btn" onclick="renderClients()">Cancelar</button></td>';
+}
+async function saveClientEdit(id){
+ const x=clientMoves.find(m=>m.id===id),note=x.tipo==="nota";
+ const b={action:"update-movement",id,tipo:x.tipo,fecha:document.getElementById("edit-date-"+id).value,importe:Number(document.getElementById("edit-amount-"+id).value)};
+ if(note){b.folio=document.getElementById("edit-detail-"+id).value;b.pares=Number(document.getElementById("edit-pairs-"+id).value)}else b.forma_pago=document.getElementById("edit-detail-"+id).value;
+ try{await clientCall(b);await loadClients()}catch(e){alert(e.message)}
+}
+function deletedClientTable(items){
+ if(!items.length)return '<div class="finance-empty">No hay movimientos eliminados.</div>';
+ return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Importe</th><th></th></tr></thead><tbody>'+items.map(x=>'<tr><td>'+(x.fecha?formatFinanceDate(x.fecha):"—")+'</td><td>'+(x.tipo==="nota"?"Nota":"Pago")+'</td><td>'+escapeHtml(x.tipo==="nota"?(x.folio||"—"):(x.forma_pago||"—"))+'</td><td>'+moneyShort(x.importe)+'</td><td><button class="record-tool-btn" onclick="restoreClientMove('+x.id+')">Restaurar</button></td></tr>').join("")+'</tbody></table></div>';
+}
+async function restoreClientMove(id){try{await clientCall({action:"restore-movement",id});await loadClients()}catch(e){alert(e.message)}}
+function renderClients(){
+ clientSelect.innerHTML=clients.length?clients.map(p=>'<option value="'+p.id+'" '+(p.id===selectedClient?'selected':'')+'>'+escapeHtml(p.nombre)+'</option>').join(""):'<option value="">Sin clientees</option>';
+ const p=clients.find(x=>x.id===selectedClient);if(!p){clientContent.innerHTML='<div class="finance-empty">Agrega un cliente para comenzar.</div>';return}
+ const all=clientMoves.filter(x=>x.cliente_id===p.id),m=all.filter(x=>!x.eliminado_en),deleted=all.filter(x=>x.eliminado_en),sortMoves=a=>a.sort((x,y)=>{if(!x.fecha&&!y.fecha)return Number(y.id)-Number(x.id);if(!x.fecha)return 1;if(!y.fecha)return -1;const d=String(y.fecha).localeCompare(String(x.fecha));return d||Number(y.id)-Number(x.id)}),notes=sortMoves(m.filter(x=>x.tipo==="nota")),pays=sortMoves(m.filter(x=>x.tipo==="pago")),openings=m.filter(x=>x.tipo==="saldo_inicial");
+ const nt=notes.reduce((s,x)=>s+Number(x.importe),0),pt=pays.reduce((s,x)=>s+Number(x.importe),0),opening=openings.reduce((s,x)=>s+Number(x.importe),0),pairs=notes.reduce((s,x)=>s+Number(x.pares||0),0),pending=notes.filter(x=>!x.pares||!x.fecha||!x.folio).length+pays.filter(x=>!x.fecha||!x.forma_pago).length,balance=opening+nt-pt;
+ clientContent.innerHTML='<h2>'+escapeHtml(p.nombre)+'</h2><div class="finance-summary"><div class="summary-box"><strong>'+moneyShort(nt)+'</strong><span>TOTAL NOTAS</span></div><div class="summary-box"><strong>'+moneyShort(pt)+'</strong><span>TOTAL ABONADO</span></div><div class="summary-box"><strong>'+moneyShort(balance)+'</strong><span>SALDO PENDIENTE</span></div><div class="summary-box"><strong>'+pairs+'</strong><span>PARES VENDIDOS</span></div></div>'+
+ '<div class="record-tools-tabs"><button id="newNoteBtn" class="record-tool-btn">+ Nota / venta</button><button id="newPayBtn" class="record-tool-btn">+ Abono</button></div><div id="clientForm"></div>'+
+ ''+
+ '<div class="client-split"><details class="client-column client-notes"><summary class="client-card-head"><div><span class="client-kicker">ENTRADAS</span><h3>Notas / ventas</h3></div><div class="client-summary-right"><strong class="client-card-total">'+moneyShort(nt)+'</strong><span class="client-chevron">⌄</span></div></summary><div class="client-card-body">'+clientHistoryTable(notes,"nota")+'</div></details><details class="client-column client-pays"><summary class="client-card-head"><div><span class="client-kicker">SALIDAS</span><h3>Abonos</h3></div><div class="client-summary-right"><strong class="client-card-total">'+moneyShort(pt)+'</strong><span class="client-chevron">⌄</span></div></summary><div class="client-card-body">'+clientHistoryTable(pays,"pago")+'</div></details></div><details class="deleted-box"><summary>Eliminados ('+deleted.length+')</summary>'+deletedClientTable(deleted)+'</details>';
+ document.getElementById("newNoteBtn").onclick=()=>clientForm("nota");document.getElementById("newPayBtn").onclick=()=>clientForm("pago");
+}
+async function savePendingClientMove(id,tipo){
+ const get=k=>{const e=document.getElementById('pend-'+k+'-'+id);return e?e.value:undefined};
+ const b={action:"complete-movement",id,fecha:get("fecha")};
+ if(tipo==="nota"){b.folio=get("folio");const v=get("pares");if(v!==undefined)b.pares=Number(v)}
+ else b.forma_pago=get("forma_pago");
+ try{await clientCall(b);await loadClients()}catch(e){alert(e.message)}
+}
+function selectClient(id){selectedClient=Number(id);renderClients()}
+function clientForm(tipo){
+ const isNote=tipo==="nota";document.getElementById("clientForm").innerHTML='<div class="finance-grid" style="margin-top:16px"><div><label>Fecha</label><input id="smDate" type="date" value="'+new Date().toISOString().slice(0,10)+'"></div>'+(isNote?'<div><label>Folio de nota</label><input id="smFolio" type="text" placeholder="Ej. 173"></div>':'<div><label>Forma de abono</label><select id="smPay"><option>Transferencia</option><option>Efectivo</option><option>Depósito</option><option>Otro</option></select></div>')+'<div><label>Importe</label><input id="smAmount" type="number" min="0.01" step="0.01" placeholder="$0.00"></div>'+(isNote?'<div><label>Pares recibidos</label><input id="smPairs" type="number" min="1" step="1" placeholder="0"></div>':'')+'<div><label>Observaciones</label><input id="smObs" type="text" placeholder="Opcional"></div></div><button id="saveClientMove" class="client-save-btn" type="button">Guardar '+(isNote?"nota":"pago")+'</button>';
+ document.getElementById("saveClientMove").onclick=async()=>{try{
+   const fecha=smDate.value,importe=Number(smAmount.value);
+   if(!fecha)return alert("Falta la fecha. No se registró nada.");
+   if(!Number.isFinite(importe)||importe<=0)return alert("Falta un importe válido. No se registró nada.");
+   const b={action:"add-movement",cliente_id:selectedClient,tipo,fecha,importe,observaciones:smObs.value};
+   if(isNote){
+     const folio=smFolio.value.trim(),pares=Number(smPairs.value);
+     if(!folio)return alert("Falta el folio de la nota. No se registró nada.");
+     if(!Number.isInteger(pares)||pares<=0)return alert("Falta el número de pares recibidos. No se registró nada.");
+     b.folio=folio;b.pares=pares;
+   }else{
+     const forma=smPay.value.trim();
+     if(!forma)return alert("Falta la forma de pago. No se registró nada.");
+     b.forma_pago=forma;
+   }
+   await clientCall(b);await loadClients()
+ }catch(e){alert(e.message)}};
+}
+async function deleteClientMove(id){if(!confirm("¿Mover este movimiento a Eliminados?"))return;try{await clientCall({action:"delete-movement",id});await loadClients()}catch(e){alert(e.message)}}
+document.getElementById("addClient").onclick=async()=>{const nombre=clientName.value.trim();if(!nombre)return;try{await clientCall({action:"add-provider",nombre});clientName.value="";await loadClients()}catch(e){alert(e.message)}};
+document.getElementById("refreshClients").onclick=loadClients;
+document.getElementById("clientSelect").onchange=e=>selectClient(e.target.value);
+document.getElementById("toggleNewClient").onclick=()=>{const p=document.getElementById("newClientPanel"),open=p.style.display!=="none";p.style.display=open?"none":"block";toggleNewClient.classList.toggle("active",!open)};
 
 /* PESTAÑAS */
 
@@ -2306,10 +2394,12 @@ catalogTab.onclick=function(){
   ordersTab.classList.remove("active");
   financeTab.classList.remove("active");
   suppliersTab.classList.remove("active");
+  clientsTab.classList.remove("active");
   catalogPanel.classList.add("active");
   ordersPanel.classList.remove("active");
   financePanel.classList.remove("active");
   suppliersPanel.classList.remove("active");
+  clientsPanel.classList.remove("active");
 };
 
 ordersTab.onclick=async function(){
@@ -2317,10 +2407,12 @@ ordersTab.onclick=async function(){
   catalogTab.classList.remove("active");
   financeTab.classList.remove("active");
   suppliersTab.classList.remove("active");
+  clientsTab.classList.remove("active");
   ordersPanel.classList.add("active");
   catalogPanel.classList.remove("active");
   financePanel.classList.remove("active");
   suppliersPanel.classList.remove("active");
+  clientsPanel.classList.remove("active");
 
   if(!ordersLoaded){
     await loadOrders();
@@ -2332,10 +2424,12 @@ financeTab.onclick=async function(){
   catalogTab.classList.remove("active");
   ordersTab.classList.remove("active");
   suppliersTab.classList.remove("active");
+  clientsTab.classList.remove("active");
   financePanel.classList.add("active");
   catalogPanel.classList.remove("active");
   ordersPanel.classList.remove("active");
   suppliersPanel.classList.remove("active");
+  clientsPanel.classList.remove("active");
   if(!financeLoaded) await loadFinance();
 };
 
@@ -2344,6 +2438,7 @@ suppliersTab.onclick=async function(){
   [catalogPanel,ordersPanel,financePanel].forEach(x=>x.classList.remove("active"));suppliersPanel.classList.add("active");
   if(!suppliersLoaded)await loadSuppliers();
 };
+clientsTab.onclick=async function(){[catalogTab,ordersTab,financeTab,suppliersTab].forEach(x=>x.classList.remove("active"));clientsTab.classList.add("active");[catalogPanel,ordersPanel,financePanel,suppliersPanel].forEach(x=>x.classList.remove("active"));clientsPanel.classList.add("active");if(!clientsLoaded)await loadClients();};
 
 /* MENSAJES */
 
