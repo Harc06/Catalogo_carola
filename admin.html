@@ -2320,7 +2320,7 @@ async function clientCall(payload){
  const j=await r.json();if(!r.ok||!j.success)throw new Error(j.error||"Error");return j;
 }
 async function loadClients(){
- try{const j=await clientCall();clients=(j.clientes_deuda||[]).sort((a,b)=>{const an=String(a.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(),bn=String(b.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();if(an==="noe")return -1;if(bn==="noe")return 1;return an.localeCompare(bn,"es")});clientMoves=j.movimientos||[];clientsLoaded=true;if(!selectedClient&&clients.length)selectedClient=clients[0].id;renderClients()}catch(e){clientContent.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
+ try{const j=await clientCall();clients=(j.clientes_deuda||[]).sort((a,b)=>{const an=String(a.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(),bn=String(b.nombre||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();if(an==="noe")return -1;if(bn==="noe")return 1;return an.localeCompare(bn,"es")});clientMoves=j.movimientos||[];window.catalogClients=j.catalogo_clientes||[];clientsLoaded=true;if(!selectedClient&&clients.length)selectedClient=clients[0].id;renderClients();renderClientDirectory()}catch(e){clientContent.innerHTML='<div class="finance-empty">'+escapeHtml(e.message)+'</div>'}
 }
 function pendingField(x,key,type,placeholder){
  if(x[key])return key==="fecha"?formatFinanceDate(x[key]):escapeHtml(x[key]);
