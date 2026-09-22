@@ -4954,7 +4954,7 @@ function escapeAttribute(value){
 
 /* INICIAR */
 
-authenticateAdmin().then(async()=>{createColorBlock("");await loadFinance();window.scrollTo({top:0,left:0,behavior:"auto"});}).catch(err=>{authOverlay("No se pudo iniciar sesión: "+err.message+". Recarga la página para intentar de nuevo.");});
+authenticateAdmin().then(async()=>{createColorBlock("");await Promise.all([loadModels(),loadFinance()]);window.scrollTo({top:0,left:0,behavior:"auto"});}).catch(err=>{authOverlay("No se pudo iniciar sesión: "+err.message+". Recarga la página para intentar de nuevo.");});
 
 </script>
 
