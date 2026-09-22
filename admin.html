@@ -1689,7 +1689,7 @@ footer{
 .client-agenda-list{display:grid;gap:8px;margin-top:14px;max-height:480px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
 .client-agenda-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,.55fr);gap:16px;align-items:center;padding:14px 16px;border:1px solid #ead8df;border-radius:16px;background:#fff}
 .client-agenda-name{font-weight:800;color:#222}
-.client-agenda-phone{color:#666;text-align:right;word-break:break-word} .client-agenda-list .client-agenda-row{padding:10px 14px;min-height:0}
+.client-agenda-phone{color:#666;text-align:right;word-break:break-word} .client-agenda-list .client-agenda-row{padding:10px 14px;min-height:0;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) auto;align-items:center}
 @media(max-width:600px){.tabs{width:96%;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;overflow:visible}.tab{min-width:0;padding:11px 4px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.desktop-account-tab{display:none}.mobile-account-tab{display:block}.finance-quick-tabs,.record-tools-tabs{gap:8px}.finance-quick-btn,.record-tool-btn{font-size:13px}.client-agenda-row{grid-template-columns:1fr;gap:4px}.client-agenda-phone{text-align:left}}
 </style>
 </head>
@@ -2401,7 +2401,19 @@ function renderClientDirectory(){
  const all=[...(window.catalogClients||[])].sort((a,b)=>String(a.nombre||"").localeCompare(String(b.nombre||""),"es",{sensitivity:"base"}));
  const rows=q?all.filter(x=>normalizeText((x.nombre||"")+" "+(x.telefono||"")).includes(q)):all;
  meta.textContent=(q?rows.length+" de ":"")+all.length+" clientes en la agenda";
- list.innerHTML=rows.length?rows.map(x=>'<div class="client-agenda-row"><div class="client-agenda-name">'+escapeHtml(x.nombre||"")+'</div><div class="client-agenda-phone">'+escapeHtml(x.telefono||"Sin teléfono")+'</div></div>').join(""):'<div class="finance-empty">No encontré clientes.</div>';
+ list.innerHTML=rows.length?rows.map(x=>'<div class="client-agenda-row" id="directory-client-'+x.id+'"><div class="client-agenda-name">'+escapeHtml(x.nombre||"")+'</div><div class="client-agenda-phone">'+escapeHtml(x.telefono||"Sin teléfono")+'</div><details class="move-menu"><summary>Editar</summary><div><button type="button" onclick="editDirectoryClient('+x.id+')">Editar datos</button><button type="button" onclick="deleteDirectoryClient('+x.id+')">Eliminar</button></div></details></div>').join(""):'<div class="finance-empty">No encontré clientes.</div>';
+}
+function editDirectoryClient(id){
+ const x=(window.catalogClients||[]).find(v=>v.id===id),row=document.getElementById("directory-client-"+id);if(!x||!row)return;
+ row.innerHTML='<input id="dir-name-'+id+'" type="text" value="'+escapeHtml(x.nombre||"")+'" placeholder="Nombre" style="min-width:0;padding:9px;border:1px solid #e3d5db;border-radius:9px"><input id="dir-phone-'+id+'" type="tel" value="'+escapeHtml(x.telefono||"")+'" placeholder="Teléfono" style="min-width:0;padding:9px;border:1px solid #e3d5db;border-radius:9px"><div style="display:flex;gap:6px"><button class="supplier-save-btn" type="button" onclick="saveDirectoryClient('+id+')">Guardar</button><button class="record-tool-btn" type="button" onclick="renderClientDirectory()">Cancelar</button></div>';
+}
+async function saveDirectoryClient(id){
+ const nombre=document.getElementById("dir-name-"+id).value.trim(),telefono=document.getElementById("dir-phone-"+id).value.trim();if(!nombre){alert("El nombre es obligatorio.");return}
+ try{await clientCall({action:"update-directory-client",id,nombre,telefono});await loadClients()}catch(e){alert(e.message)}
+}
+async function deleteDirectoryClient(id){
+ const x=(window.catalogClients||[]).find(v=>v.id===id);if(!x||!confirm("¿Eliminar a "+x.nombre+" de la agenda de clientes?"))return;
+ try{await clientCall({action:"delete-directory-client",id});await loadClients()}catch(e){alert(e.message)}
 }
 const clientDirectorySearch=document.getElementById("clientDirectorySearch");if(clientDirectorySearch)clientDirectorySearch.oninput=renderClientDirectory;
 document.getElementById("clientDirectoryBtn").onclick=()=>{const p=document.getElementById("clientDirectory"),open=p.style.display!=="none";p.style.display=open?"none":"block";clientDirectoryBtn.classList.toggle("active",!open)};
