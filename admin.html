@@ -4940,7 +4940,13 @@ financeRows.onclick=async function(e){
     financeProfit.value=Number(row.ganancia);
     financeHalfDozens.value=Number(row.medias_docenas);
     saveFinance.textContent="Guardar cambios";
-    financePanel.scrollIntoView({behavior:"smooth",block:"start"});
+    /* Al editar desde Registros, abre automáticamente el formulario y lleva al usuario a los campos. */
+    document.getElementById("importFinancePanel")?.classList.remove("open");
+    document.getElementById("toggleImportFinance")?.classList.remove("active");
+    document.getElementById("entryFinancePanel")?.classList.add("open");
+    document.getElementById("toggleEntryFinance")?.classList.add("active");
+    document.getElementById("entryFinancePanel")?.scrollIntoView({behavior:"smooth",block:"center"});
+    setTimeout(()=>financeProfit.focus(),350);
     return;
   }
   const del=e.target.closest(".finance-delete");
