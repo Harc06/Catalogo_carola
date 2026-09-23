@@ -2285,19 +2285,17 @@ function pendingField(x,key,type,placeholder){
 }
 function supplierHistoryTable(items,tipo){
  if(!items.length)return '<div class="finance-empty">Sin '+(tipo==="nota"?"notas":"pagos")+'.</div>';
- const supplier=suppliers.find(p=>Number(p.id)===Number(selectedSupplier)),name=supplier?escapeHtml(supplier.nombre):"—";
- return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Nombre</th><th>Importe</th><th>Fecha</th><th>'+(tipo==="nota"?"Folio":"Forma")+'</th>'+(tipo==="nota"?'<th>Pares</th>':'')+'<th></th></tr></thead><tbody>'+items.map(x=>{
+ return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Fecha</th><th>Importe</th><th>'+(tipo==="nota"?"Folio":"Forma")+'</th>'+(tipo==="nota"?'<th>Pares</th>':'')+'<th></th></tr></thead><tbody>'+items.map(x=>{
   const date=x.fecha?formatFinanceDate(x.fecha):"—";
   const detail=tipo==="nota"?(x.folio?escapeHtml(x.folio):"—"):(x.forma_pago?escapeHtml(x.forma_pago):"—");
   const pairs=tipo==="nota"?(x.pares||"—"):"";
-  return '<tr id="move-row-'+x.id+'"><td>'+name+'</td><td>'+moneyShort(x.importe)+'</td><td>'+date+'</td><td>'+detail+'</td>'+(tipo==="nota"?'<td>'+pairs+'</td>':'')+'<td><details class="move-menu"><summary>Editar</summary><div><button type="button" onclick="editSupplierMove('+x.id+')">Editar datos</button><button type="button" onclick="deleteSupplierMove('+x.id+')">Eliminar</button></div></details></td></tr>'
+  return '<tr id="move-row-'+x.id+'"><td>'+date+'</td><td>'+moneyShort(x.importe)+'</td><td>'+detail+'</td>'+(tipo==="nota"?'<td>'+pairs+'</td>':'')+'<td><details class="move-menu"><summary>Editar</summary><div><button type="button" onclick="editSupplierMove('+x.id+')">Editar datos</button><button type="button" onclick="deleteSupplierMove('+x.id+')">Eliminar</button></div></details></td></tr>'
  }).join("")+'</tbody></table></div>';
 }
 function editSupplierMove(id){
  const x=supplierMoves.find(m=>m.id===id);if(!x)return;
  const row=document.getElementById("move-row-"+id),note=x.tipo==="nota";
- const supplier=suppliers.find(p=>Number(p.id)===Number(selectedSupplier)),name=supplier?escapeHtml(supplier.nombre):"—";
- row.innerHTML='<td>'+name+'</td><td><input id="edit-amount-'+id+'" type="number" min=".01" step=".01" value="'+Number(x.importe)+'"></td><td><input id="edit-date-'+id+'" type="date" value="'+(x.fecha||"")+'"></td><td><input id="edit-detail-'+id+'" type="text" value="'+escapeHtml(note?(x.folio||""):(x.forma_pago||""))+'" placeholder="'+(note?"Folio":"Forma de pago")+'"></td>'+(note?'<td><input id="edit-pairs-'+id+'" type="number" min="1" step="1" value="'+(x.pares||"")+'"></td>':'')+'<td><button class="record-tool-btn" onclick="saveSupplierEdit('+id+')">Guardar</button> <button class="record-tool-btn" onclick="renderSuppliers()">Cancelar</button></td>';
+ row.innerHTML='<td><input id="edit-date-'+id+'" type="date" value="'+(x.fecha||"")+'"></td><td><input id="edit-amount-'+id+'" type="number" min=".01" step=".01" value="'+Number(x.importe)+'"></td><td><input id="edit-detail-'+id+'" type="text" value="'+escapeHtml(note?(x.folio||""):(x.forma_pago||""))+'" placeholder="'+(note?"Folio":"Forma de pago")+'"></td>'+(note?'<td><input id="edit-pairs-'+id+'" type="number" min="1" step="1" value="'+(x.pares||"")+'"></td>':'')+'<td><button class="record-tool-btn" onclick="saveSupplierEdit('+id+')">Guardar</button> <button class="record-tool-btn" onclick="renderSuppliers()">Cancelar</button></td>';
 }
 async function saveSupplierEdit(id){
  const x=supplierMoves.find(m=>m.id===id),note=x.tipo==="nota";
@@ -2373,19 +2371,17 @@ function pendingField(x,key,type,placeholder){
 }
 function clientHistoryTable(items,tipo){
  if(!items.length)return '<div class="finance-empty">Sin '+(tipo==="nota"?"notas":"pagos")+'.</div>';
- const client=clients.find(p=>Number(p.id)===Number(selectedClient)),name=client?escapeHtml(client.nombre):"—";
- return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Nombre</th><th>Importe</th><th>Fecha</th><th>'+(tipo==="nota"?"Folio":"Forma")+'</th>'+(tipo==="nota"?'<th>Pares</th>':'')+'<th></th></tr></thead><tbody>'+items.map(x=>{
+ return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Fecha</th><th>Importe</th><th>'+(tipo==="nota"?"Folio":"Forma")+'</th>'+(tipo==="nota"?'<th>Pares</th>':'')+'<th></th></tr></thead><tbody>'+items.map(x=>{
   const date=x.fecha?formatFinanceDate(x.fecha):"—";
   const detail=tipo==="nota"?(x.folio?escapeHtml(x.folio):"—"):(x.forma_pago?escapeHtml(x.forma_pago):"—");
   const pairs=tipo==="nota"?(x.pares||"—"):"";
-  return '<tr id="move-row-'+x.id+'"><td>'+name+'</td><td>'+moneyShort(x.importe)+'</td><td>'+date+'</td><td>'+detail+'</td>'+(tipo==="nota"?'<td>'+pairs+'</td>':'')+'<td><details class="move-menu"><summary>Editar</summary><div><button type="button" onclick="editClientMove('+x.id+')">Editar datos</button><button type="button" onclick="deleteClientMove('+x.id+')">Eliminar</button></div></details></td></tr>'
+  return '<tr id="move-row-'+x.id+'"><td>'+date+'</td><td>'+moneyShort(x.importe)+'</td><td>'+detail+'</td>'+(tipo==="nota"?'<td>'+pairs+'</td>':'')+'<td><details class="move-menu"><summary>Editar</summary><div><button type="button" onclick="editClientMove('+x.id+')">Editar datos</button><button type="button" onclick="deleteClientMove('+x.id+')">Eliminar</button></div></details></td></tr>'
  }).join("")+'</tbody></table></div>';
 }
 function editClientMove(id){
  const x=clientMoves.find(m=>m.id===id);if(!x)return;
  const row=document.getElementById("move-row-"+id),note=x.tipo==="nota";
- const client=clients.find(p=>Number(p.id)===Number(selectedClient)),name=client?escapeHtml(client.nombre):"—";
- row.innerHTML='<td>'+name+'</td><td><input id="edit-amount-'+id+'" type="number" min=".01" step=".01" value="'+Number(x.importe)+'"></td><td><input id="edit-date-'+id+'" type="date" value="'+(x.fecha||"")+'"></td><td><input id="edit-detail-'+id+'" type="text" value="'+escapeHtml(note?(x.folio||""):(x.forma_pago||""))+'" placeholder="'+(note?"Folio":"Forma de abono")+'"></td>'+(note?'<td><input id="edit-pairs-'+id+'" type="number" min="1" step="1" value="'+(x.pares||"")+'"></td>':'')+'<td><button class="record-tool-btn" onclick="saveClientEdit('+id+')">Guardar</button> <button class="record-tool-btn" onclick="renderClients()">Cancelar</button></td>';
+ row.innerHTML='<td><input id="edit-date-'+id+'" type="date" value="'+(x.fecha||"")+'"></td><td><input id="edit-amount-'+id+'" type="number" min=".01" step=".01" value="'+Number(x.importe)+'"></td><td><input id="edit-detail-'+id+'" type="text" value="'+escapeHtml(note?(x.folio||""):(x.forma_pago||""))+'" placeholder="'+(note?"Folio":"Forma de abono")+'"></td>'+(note?'<td><input id="edit-pairs-'+id+'" type="number" min="1" step="1" value="'+(x.pares||"")+'"></td>':'')+'<td><button class="record-tool-btn" onclick="saveClientEdit('+id+')">Guardar</button> <button class="record-tool-btn" onclick="renderClients()">Cancelar</button></td>';
 }
 async function saveClientEdit(id){
  const x=clientMoves.find(m=>m.id===id),note=x.tipo==="nota";
