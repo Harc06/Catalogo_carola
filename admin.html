@@ -814,6 +814,48 @@ details.model-card > .model-card-body > .model-actions{
   grid-column:1 / -1;
 }
 
+/* Two-column collapsible model list; expanded content grows vertically */
+#models{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+details.model-card{
+  width:100%;
+  min-width:0;
+  align-self:start;
+}
+details.model-card[open]{
+  grid-row:span 20;
+}
+details.model-card > .model-card-body{
+  width:100%;
+  box-sizing:border-box;
+  grid-template-columns:1fr;
+}
+details.model-card > .model-card-body > .category-editor,
+details.model-card > .model-card-body > .variant,
+details.model-card > .model-card-body > .model-actions,
+details.model-card > .model-card-body > .model-bottom{
+  grid-column:1 / -1;
+}
+@media(max-width:600px){
+  #models{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+  }
+  details.model-card > summary.model-header{
+    padding:12px 10px;
+    min-height:54px;
+  }
+  details.model-card > .model-card-body{
+    padding:0 9px 10px;
+  }
+  details.model-card .model-title h3{font-size:16px}
+  details.model-card .category-badge{font-size:8px}
+}
+
 /* =========================================================
    REGISTRO DE PEDIDOS
 ========================================================= */
