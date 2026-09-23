@@ -790,6 +790,30 @@ select:focus{
   font-size:10px;
 }
 
+/* Collapsible catalog model cards — final overrides */
+details.model-card{
+  display:block;
+  padding:0;
+  overflow:hidden;
+}
+details.model-card > summary.model-header{
+  display:flex;
+  padding:15px;
+  cursor:pointer;
+}
+details.model-card > .model-card-body{
+  padding:0 15px 15px;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  column-gap:9px;
+  row-gap:9px;
+}
+details.model-card > .model-card-body > .category-editor,
+details.model-card > .model-card-body > .model-bottom,
+details.model-card > .model-card-body > .model-actions{
+  grid-column:1 / -1;
+}
+
 /* =========================================================
    REGISTRO DE PEDIDOS
 ========================================================= */
