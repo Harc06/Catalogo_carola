@@ -55,6 +55,19 @@ exports.handler = async function () {
 
     /*
      * ============================
+     * INVENTARIO MAYOREO
+     * ============================
+     */
+    const inventarioResponse = await fetch(
+      `${supabaseUrl}/rest/v1/inventario_mayoreo?select=variante_id,existencia`,
+      { headers }
+    );
+    if (!inventarioResponse.ok) throw new Error(await inventarioResponse.text());
+    const inventario = await inventarioResponse.json();
+    const stockPorVariante = new Map(inventario.map(i => [Number(i.variante_id), Number(i.existencia || 0)]));
+
+    /*
+     * ============================
      * IMÁGENES
      * ============================
      */
@@ -94,12 +107,13 @@ exports.handler = async function () {
         variantes: variantes
           .filter(
             v =>
-              Number(v.modelo_id) ===
-              Number(modelo.id)
+              Number(v.modelo_id) === Number(modelo.id) &&
+              (stockPorVariante.get(Number(v.id)) || 0) > 0
           )
           .map(v => ({
             id: v.id,
             color: v.color,
+            existencia: stockPorVariante.get(Number(v.id)) || 0,
 
             imagenes: imagenes
               .filter(
@@ -115,6 +129,8 @@ exports.handler = async function () {
           }))
       })
     );
+
+    const productosConStock = productos.filter(p => p.variantes.length > 0);
 
     /*
      * ============================
@@ -138,8 +154,8 @@ exports.handler = async function () {
 
       body: JSON.stringify({
         success: true,
-        count: productos.length,
-        productos
+        count: productosConStock.length,
+        productos: productosConStock
       })
     };
 
