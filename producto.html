@@ -974,44 +974,20 @@ async function loadProduct(){
 
   try{
 
-    const [
-      supabaseResponse,
-      treintaResponse
-    ]=
-      await Promise.all([
-
-        fetch(
-          "/.netlify/functions/supabase?t="+
-          Date.now(),
-          {cache:"no-store"}
-        ),
-
-        fetch(
-          "/.netlify/functions/treinta?t="+
-          Date.now(),
-          {cache:"no-store"}
-        )
-
-      ]);
+    const supabaseResponse=
+      await fetch(
+        "/.netlify/functions/supabase?t="+Date.now(),
+        {cache:"no-store"}
+      );
 
     const supabaseData=
       await supabaseResponse.json();
-
-    const treintaData=
-      await treintaResponse.json();
 
     if(
       !supabaseResponse.ok ||
       !supabaseData.success
     ){
       throw new Error("Supabase error");
-    }
-
-    if(
-      !treintaResponse.ok ||
-      !treintaData.success
-    ){
-      throw new Error("Treinta error");
     }
 
     const products=
@@ -1036,33 +1012,6 @@ async function loadProduct(){
 
       showError(
         "No encontramos este modelo."
-      );
-
-      return;
-    }
-
-    const treintaProducts=
-      Array.isArray(
-        treintaData.products
-      )
-        ?treintaData.products
-        :[];
-
-    const available=
-      treintaProducts.some(
-        function(item){
-
-          return(
-            normalizeModel(item.name)===
-            normalizeModel(currentProduct.modelo)
-          );
-        }
-      );
-
-    if(!available){
-
-      showError(
-        "Este modelo no está disponible actualmente."
       );
 
       return;
