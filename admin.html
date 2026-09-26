@@ -258,6 +258,13 @@ select:focus{
   background:#f7e6ee;
 }
 
+.upload-details{padding:0!important;overflow:hidden}
+.upload-summary{list-style:none;cursor:pointer;padding:20px 24px;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:space-between}
+.upload-summary::-webkit-details-marker{display:none}
+.upload-details[open] .upload-chevron{transform:rotate(180deg)}
+.upload-chevron{transition:.2s;color:#9b7c88}
+.upload-details-body{padding:0 24px 24px}
+#colorBlocks .color-input,.color-block-top{display:none!important}
 #uploadButton{
   width:100%;
   margin-top:18px;
@@ -1936,59 +1943,52 @@ footer{
 
 <div id="catalogPanel" class="panel">
 
-<section class="card" id="uploadSection">
+<details class="card upload-details" id="uploadSection">
+  <summary class="upload-summary">
+    <span>Agregar modelo</span><span class="upload-chevron">⌄</span>
+  </summary>
+  <div class="upload-details-body">
+    <p class="upload-intro">Registra una variante con sus datos de compra, venta, proveedor, existencia y fotografías.</p>
+    <form id="uploadForm">
+      <div class="model-input-wrap">
+        <label for="modelo">1. Modelo</label>
+        <input id="modelo" type="text" placeholder="Ej. 519" autocomplete="off">
 
-  <h2>Agregar modelo</h2>
+        <label for="uploadColor">2. Color</label>
+        <input id="uploadColor" type="text" placeholder="Ej. Negro" autocomplete="off">
 
-  <p class="upload-intro">
-    Selecciona la categoría y agrega todos sus colores con sus fotografías.
-  </p>
+        <label for="uploadProveedor">3. Proveedor</label>
+        <select id="uploadProveedor"><option value="">Seleccionar proveedor...</option></select>
 
-  <form id="uploadForm">
+        <label for="precioCompra">4. Precio de compra</label>
+        <input id="precioCompra" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$0.00">
 
-    <div class="model-input-wrap">
+        <label for="precioVenta">5. Precio de venta</label>
+        <input id="precioVenta" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$0.00">
 
-      <label for="modelo">Modelo</label>
+        <label for="categoria">6. Categoría</label>
+        <select id="categoria">
+          <option value="">Seleccionar categoría...</option>
+          <option value="Botín">Botín</option>
+          <option value="Bota">Bota</option>
+          <option value="Zapatilla">Zapatilla</option>
+          <option value="Mocasín">Mocasín</option>
+          <option value="Huarache">Huarache</option>
+          <option value="Sandalia">Sandalia</option>
+        </select>
 
-      <input
-        id="modelo"
-        type="text"
-        placeholder="Ej. 519"
-        autocomplete="off"
-      >
-
-      <label for="categoria">Categoría</label>
-
-      <select id="categoria">
-        <option value="">Seleccionar categoría...</option>
-        <option value="Bota">Bota</option>
-        <option value="Botín">Botín</option>
-        <option value="Mocasín">Mocasín</option>
-        <option value="Escolar">Escolar</option>
-        <option value="Zapatilla">Zapatilla</option>
-      </select>
-
-      <div class="category-help">
-        “Todos” será un filtro del catálogo, no una categoría del producto.
+        <label for="cantidadPares">7. Cantidad de pares</label>
+        <input id="cantidadPares" type="number" min="6" step="6" inputmode="numeric" placeholder="6, 12, 18...">
+        <div class="category-help">La existencia debe registrarse en múltiplos de 6 pares.</div>
       </div>
 
-    </div>
-
-    <div id="colorBlocks"></div>
-
-    <button id="addColorBlock" type="button">
-      + Agregar otro color
-    </button>
-
-    <button id="uploadButton" type="submit">
-      Subir modelo al catálogo
-    </button>
-
-  </form>
-
-  <div id="status"></div>
-
-</section>
+      <div id="colorBlocks"></div>
+      <button id="addColorBlock" type="button" style="display:none">+ Agregar otro color</button>
+      <button id="uploadButton" type="submit">Guardar modelo</button>
+    </form>
+    <div id="status"></div>
+  </div>
+</details>
 
 <section class="catalog">
 
@@ -2763,6 +2763,17 @@ function formatColor(value){
 
 /* BLOQUES COLOR */
 
+async function loadUploadProviders(){
+  const select=document.getElementById("uploadProveedor");
+  try{
+    const r=await fetch("/.netlify/functions/admin-proveedores",{headers:{"x-admin-password":adminPassword}});
+    const j=await readJson(r);
+    if(!r.ok||!j.success)throw new Error(j.error||"No se pudieron cargar proveedores.");
+    const list=(j.proveedores||[]).filter(x=>x.activo!==false).sort((a,b)=>String(a.nombre).localeCompare(String(b.nombre),"es"));
+    select.innerHTML='<option value="">Seleccionar proveedor...</option>'+list.map(x=>'<option value="'+Number(x.id)+'">'+escapeHtml(x.nombre)+'</option>').join("");
+  }catch(e){select.innerHTML='<option value="">Error al cargar proveedores</option>'}
+}
+
 function createColorBlock(colorValue=""){
   colorBlockCounter++;
 
@@ -2847,6 +2858,10 @@ function createColorBlock(colorValue=""){
 }
 
 function updateColorBlockLabels(){
+  if(!Number.isInteger(cantidadParesValue)||cantidadParesValue<6||cantidadParesValue%6!==0){
+    showStatus("La cantidad de pares debe ser múltiplo de 6.","error");return false;
+  }
+
   const blocks=[
     ...colorBlocks.querySelectorAll(".color-block")
   ];
@@ -2959,6 +2974,10 @@ form.onsubmit=async function(event){
 
   const categoryValue=
     categoria.value.trim();
+  const proveedorValue=Number(document.getElementById("uploadProveedor").value||0);
+  const precioCompraValue=Number(document.getElementById("precioCompra").value);
+  const precioVentaValue=Number(document.getElementById("precioVenta").value);
+  const cantidadParesValue=Number(document.getElementById("cantidadPares").value);
 
   if(!modelValue){
     showStatus(
@@ -2970,6 +2989,12 @@ form.onsubmit=async function(event){
     return false;
   }
 
+  if(!document.getElementById("uploadColor").value.trim()){
+    showStatus("Falta escribir el color.","error"); document.getElementById("uploadColor").focus(); return false;
+  }
+  if(!proveedorValue){showStatus("Selecciona el proveedor.","error");return false;}
+  if(!Number.isFinite(precioCompraValue)||precioCompraValue<0){showStatus("Escribe un precio de compra válido.","error");return false;}
+  if(!Number.isFinite(precioVentaValue)||precioVentaValue<0){showStatus("Escribe un precio de venta válido.","error");return false;}
   if(!categoryValue){
     showStatus(
       "Selecciona la categoría del modelo.",
@@ -3004,7 +3029,7 @@ form.onsubmit=async function(event){
       block.querySelector(".color-files");
 
     const colorValue=
-      colorInput.value.trim();
+      document.getElementById("uploadColor").value.trim();
 
     const files=
       Array.from(fileInput.files||[]);
@@ -3137,6 +3162,10 @@ form.onsubmit=async function(event){
               modelo:modelValue,
               categoria:categoryValue,
               color:entry.color,
+              proveedor_id:proveedorValue,
+              precio_compra:precioCompraValue,
+              precio_venta:precioVentaValue,
+              cantidad_pares:cantidadParesValue,
               imagenes:converted
             })
           }
@@ -3209,6 +3238,11 @@ form.onsubmit=async function(event){
 function resetUploadForm(){
   modelo.value="";
   categoria.value="";
+  document.getElementById("uploadColor").value="";
+  document.getElementById("uploadProveedor").value="";
+  document.getElementById("precioCompra").value="";
+  document.getElementById("precioVenta").value="";
+  document.getElementById("cantidadPares").value="";
   colorBlocks.innerHTML="";
   createColorBlock("");
 }
@@ -5226,7 +5260,7 @@ function escapeAttribute(value){
 
 /* INICIAR */
 
-authenticateAdmin().then(async()=>{createColorBlock("");await Promise.all([loadModels(),loadFinance(),ensureFinanceBalances()]);window.scrollTo({top:0,left:0,behavior:"auto"});}).catch(err=>{authOverlay("No se pudo iniciar sesión: "+err.message+". Recarga la página para intentar de nuevo.");});
+authenticateAdmin().then(async()=>{createColorBlock("");await Promise.all([loadModels(),loadFinance(),ensureFinanceBalances(),loadUploadProviders()]);window.scrollTo({top:0,left:0,behavior:"auto"});}).catch(err=>{authOverlay("No se pudo iniciar sesión: "+err.message+". Recarga la página para intentar de nuevo.");});
 
 </script>
 
