@@ -2766,7 +2766,11 @@ alt="Modelo ${escapeAttribute(product.modelo)}"
 >
 
 <span class="badge">
-DISPONIBLES ${variants(product).reduce((total,variant)=>total+Number(variant.existencia||0),0)} PARES
+${(()=>{
+const availableVariants=variants(product).filter(variant=>Number(variant.existencia||0)>0);
+if(availableVariants.length>3)return "DISPONIBLE EN VARIOS COLORES";
+return "DISPONIBLE: "+availableVariants.map(variant=>Number(variant.existencia||0)+" "+formatColor(variant.color).toUpperCase()).join(" · ");
+})()}
 </span>
 
 </div>
