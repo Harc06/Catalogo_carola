@@ -2419,86 +2419,28 @@ async function loadProducts(){
 
 try{
 
-const [
-supabaseResponse,
-treintaResponse
-]=await Promise.all([
-
-fetch(
+const supabaseResponse=await fetch(
 "/.netlify/functions/supabase?t="+Date.now(),
 {cache:"no-store"}
-),
-
-fetch(
-"/.netlify/functions/treinta?t="+Date.now(),
-{cache:"no-store"}
-)
-
-]);
-
-const supabaseData=
-await supabaseResponse.json();
-
-const treintaData=
-await treintaResponse.json();
-
-if(
-!supabaseResponse.ok ||
-!supabaseData.success
-){
-throw new Error(
-"No se pudo cargar el catálogo."
 );
+
+const supabaseData=await supabaseResponse.json();
+
+if(!supabaseResponse.ok || !supabaseData.success){
+throw new Error("No se pudo cargar el catálogo.");
 }
 
-if(
-!treintaResponse.ok ||
-!treintaData.success
-){
-throw new Error(
-"No se pudo verificar disponibilidad."
-);
-}
-
-const available=
-new Set(
-(
-Array.isArray(treintaData.products)
-?treintaData.products
-:[]
-)
-.map(
-product=>
-normalizeModel(product.name)
-)
-);
-
-products=
-(
+/*
+ * La disponibilidad ahora sale del inventario mayoreo de Supabase.
+ * La función /supabase ya devuelve únicamente modelos/colores con existencia > 0.
+ */
+products=(
 Array.isArray(supabaseData.productos)
 ?supabaseData.productos
 :[]
 )
-.filter(
-product=>
-available.has(
-normalizeModel(product.modelo)
-)
-)
-.filter(
-product=>cover(product)
-)
-.sort(
-(a,b)=>
-String(a.modelo).localeCompare(
-String(b.modelo),
-undefined,
-{
-numeric:true,
-sensitivity:"base"
-}
-)
-);
+.filter(product=>cover(product))
+.sort((a,b)=>String(a.modelo).localeCompare(String(b.modelo),undefined,{numeric:true,sensitivity:"base"}));
 
 buildCategories();
 buildFilters();
