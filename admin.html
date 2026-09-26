@@ -2858,10 +2858,6 @@ function createColorBlock(colorValue=""){
 }
 
 function updateColorBlockLabels(){
-  if(!Number.isInteger(cantidadParesValue)||cantidadParesValue<6||cantidadParesValue%6!==0){
-    showStatus("La cantidad de pares debe ser múltiplo de 6.","error");return false;
-  }
-
   const blocks=[
     ...colorBlocks.querySelectorAll(".color-block")
   ];
@@ -3002,6 +2998,11 @@ form.onsubmit=async function(event){
     );
 
     categoria.focus();
+    return false;
+  }
+  if(!Number.isInteger(cantidadParesValue)||cantidadParesValue<6||cantidadParesValue%6!==0){
+    showStatus("La cantidad de pares debe ser múltiplo de 6.","error");
+    document.getElementById("cantidadPares").focus();
     return false;
   }
 
