@@ -3151,219 +3151,146 @@ document.getElementById(
 ).onclick=
 async function(){
 
-const name=
-customerName.value.trim();
+const name=customerName.value.trim();
 
 if(!name){
-
-alert(
-"Escribe el nombre del cliente."
-);
-
+alert("Escribe el nombre del cliente.");
 customerName.focus();
-
 return;
-
 }
 
 if(!cart.length){
-
-alert(
-"Tu pedido está vacío."
-);
-
+alert("Tu pedido está vacío.");
 return;
-
 }
 
-const button=
-document.getElementById(
-"sendOrder"
-);
-
-const originalText=
-button.textContent;
-
+const button=document.getElementById("sendOrder");
+const originalText=button.textContent;
 button.disabled=true;
 
 try{
 
-button.textContent=
-"Verificando disponibilidad...";
+button.textContent="Verificando existencias...";
 
-const treintaResponse=
-await fetch(
-"/.netlify/functions/treinta?t="+Date.now(),
+/*
+ * La disponibilidad del catálogo mayoreo ya vive en Supabase.
+ * Verificamos modelo + color + cantidad justo antes de guardar/enviar.
+ */
+const stockResponse=await fetch(
+"/.netlify/functions/supabase?t="+Date.now(),
 {cache:"no-store"}
 );
 
-const treintaData=
-await treintaResponse.json();
+const stockData=await stockResponse.json();
 
-if(
-!treintaResponse.ok ||
-!treintaData.success
-){
+if(!stockResponse.ok || !stockData.success){
+throw new Error("No se pudo verificar el inventario.");
+}
 
-throw new Error(
-"No se pudo verificar Treinta"
+const catalog=Array.isArray(stockData.productos)?stockData.productos:[];
+const problems=[];
+
+for(const item of cart){
+
+const product=catalog.find(product=>
+normalizeModel(product.modelo)===normalizeModel(item.modelo)
 );
+
+if(!product){
+problems.push("Modelo "+item.modelo+" ya no está disponible");
+continue;
+}
+
+const variant=variants(product).find(variant=>
+normalize(variant.color)===normalize(item.color)
+);
+
+if(!variant){
+problems.push(
+"Modelo "+item.modelo+" · "+formatColor(item.color)+" ya no está disponible"
+);
+continue;
+}
+
+const stock=Number(variant.existencia||0);
+const requested=Number(item.cantidad||0);
+
+if(stock<requested){
+problems.push(
+"Modelo "+item.modelo+" · "+formatColor(item.color)+
+": pediste "+requested+" pares y quedan "+stock
+);
+}
 
 }
 
-const available=
-new Set(
-(
-Array.isArray(treintaData.products)
-?treintaData.products
-:[]
-)
-.map(
-product=>
-normalizeModel(product.name)
-)
-);
-
-const unavailable=[
-...new Set(
-cart
-.filter(
-item=>
-!available.has(
-normalizeModel(item.modelo)
-)
-)
-.map(
-item=>item.modelo
-)
-)
-];
-
-if(unavailable.length){
-
+if(problems.length){
 alert(
-"Revisa estos modelos antes de enviar: "+
-unavailable.join(", ")
+"Hay cambios en existencias:\n\n"+
+problems.join("\n")+
+"\n\nAjusta el pedido para continuar."
 );
-
 return;
-
 }
 
-const fingerprint=
-buildOrderFingerprint(
-name,
-cart
-);
-
-const lastOrder=
-getLastOrder();
+const fingerprint=buildOrderFingerprint(name,cart);
+const lastOrder=getLastOrder();
 
 if(
-isRecentDuplicate(
-lastOrder,
-fingerprint
-)
-&&
+isRecentDuplicate(lastOrder,fingerprint) &&
 lastOrder.folio
 ){
-
-button.textContent=
-"Abriendo WhatsApp...";
-
-openWhatsApp(
-lastOrder.folio,
-name
-);
-
+button.textContent="Abriendo WhatsApp...";
+openWhatsApp(lastOrder.folio,name);
 return;
-
 }
 
-button.textContent=
-"Guardando pedido...";
+button.textContent="Guardando pedido...";
 
-const orderResponse=
-await fetch(
+const orderResponse=await fetch(
 "/.netlify/functions/pedidos",
 {
-
 method:"POST",
-
-headers:{
-"Content-Type":
-"application/json"
-},
-
-body:
-JSON.stringify({
-
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
 cliente:name,
-
-items:
-cart.map(item=>({
-
+items:cart.map(item=>({
 modelo:item.modelo,
 color:item.color,
 cantidad:Number(item.cantidad)
-
 }))
-
 })
-
 }
 );
 
-const orderData=
-await orderResponse.json();
+const orderData=await orderResponse.json();
 
 if(
 !orderResponse.ok ||
 !orderData.success ||
 !orderData.pedido?.folio
 ){
-
-console.error(
-"Pedido:",
-orderData
-);
-
-throw new Error(
-orderData.error ||
-"No se pudo guardar el pedido"
-);
-
+console.error("Pedido:",orderData);
+throw new Error(orderData.error||"No se pudo guardar el pedido");
 }
 
-const folio=
-orderData.pedido.folio;
+const folio=orderData.pedido.folio;
+saveLastOrder(fingerprint,folio);
 
-saveLastOrder(
-fingerprint,
-folio
-);
-
-button.textContent=
-"Abriendo WhatsApp...";
-
-openWhatsApp(
-folio,
-name
-);
+button.textContent="Abriendo WhatsApp...";
+openWhatsApp(folio,name);
 
 }catch(error){
 
 console.error(error);
-
 alert(
-"No pudimos guardar el pedido. No se envió para evitar perder el registro. Intenta nuevamente."
+error?.message ||
+"No pudimos guardar el pedido. Intenta nuevamente."
 );
 
 }finally{
-
 button.disabled=false;
 button.textContent=originalText;
-
 }
 
 };
