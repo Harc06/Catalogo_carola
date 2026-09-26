@@ -2766,7 +2766,7 @@ alt="Modelo ${escapeAttribute(product.modelo)}"
 >
 
 <span class="badge">
-DISPONIBLE
+DISPONIBLES ${variants(product).reduce((total,variant)=>total+Number(variant.existencia||0),0)} PARES
 </span>
 
 </div>
