@@ -172,6 +172,22 @@ exports.handler = async function (event) {
      * =========================
      */
 
+    if (action === "add-variant") {
+      const modelId = Number(body.modelId);
+      const color = String(body.color || "").trim();
+      const existencia = Number(body.existencia || 0);
+      if (!modelId || !color) throw new Error("Falta modelo o color.");
+      if (!Number.isInteger(existencia) || existencia < 0 || existencia % 6 !== 0) throw new Error("La existencia debe ser 0 o múltiplo de 6.");
+      const existing = await supabase.from("variantes").select("id,color").eq("modelo_id", modelId);
+      if (existing.error) throw new Error(existing.error.message);
+      if ((existing.data || []).some(v => normalizeText(v.color) === normalizeText(color))) throw new Error("Ese color ya existe en el modelo.");
+      const created = await supabase.from("variantes").insert({modelo_id:modelId,color,activo:true}).select("id,color").single();
+      if (created.error) throw new Error(created.error.message);
+      const stock = await supabase.from("inventario_mayoreo").upsert({variante_id:created.data.id,existencia},{onConflict:"variante_id"});
+      if (stock.error) throw new Error(stock.error.message);
+      return respond(200,{success:true});
+    }
+
     if (action === "update-stock") {
       const variantId = Number(body.variantId);
       const existencia = Number(body.existencia);
