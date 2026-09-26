@@ -168,6 +168,48 @@ exports.handler = async function (event) {
 
     /*
      * =========================
+     * EDITAR EXISTENCIA
+     * =========================
+     */
+
+    if (action === "update-stock") {
+      const variantId = Number(body.variantId);
+      const existencia = Number(body.existencia);
+
+      if (!variantId || !Number.isInteger(existencia) || existencia < 0 || existencia % 6 !== 0) {
+        throw new Error("La existencia debe ser 0 o un múltiplo de 6 pares.");
+      }
+
+      const { data: variant, error: variantError } = await supabase
+        .from("variantes")
+        .select("id")
+        .eq("id", variantId)
+        .single();
+
+      if (variantError || !variant) {
+        throw new Error("No se encontró el color.");
+      }
+
+      const { error: stockError } = await supabase
+        .from("inventario_mayoreo")
+        .upsert({
+          variante_id: variantId,
+          existencia,
+          actualizado_en: new Date().toISOString()
+        }, { onConflict: "variante_id" });
+
+      if (stockError) throw new Error(stockError.message);
+
+      return respond(200, {
+        success: true,
+        variante_id: variantId,
+        existencia
+      });
+    }
+
+
+    /*
+     * =========================
      * EDITAR COLOR
      * =========================
      */
