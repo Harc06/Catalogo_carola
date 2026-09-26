@@ -1910,7 +1910,7 @@ footer{
 .client-agenda-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,.55fr);gap:16px;align-items:center;padding:14px 16px;border:1px solid #ead8df;border-radius:16px;background:#fff}
 .client-agenda-name{font-weight:800;color:#222}
 .client-agenda-phone{color:#666;text-align:right;word-break:break-word} .client-agenda-list .client-agenda-row{padding:10px 14px;min-height:0;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) auto;align-items:center}
-@media(max-width:600px){.tabs{width:96%;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;overflow:visible}.tab{min-width:0;padding:11px 4px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.desktop-account-tab{display:none}.mobile-account-tab{display:block}.finance-quick-tabs,.record-tools-tabs{gap:8px}.finance-quick-btn,.record-tool-btn{font-size:13px}.client-agenda-row{grid-template-columns:1fr;gap:4px}.client-agenda-phone{text-align:left}}
+@media(max-width:600px){.tabs{width:96%;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;overflow:visible}.tab{min-width:0;padding:11px 4px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.desktop-account-tab{display:none}.mobile-account-tab{display:block;grid-column:4}.finance-quick-tabs,.record-tools-tabs{gap:8px}.finance-quick-btn,.record-tool-btn{font-size:13px}.client-agenda-row{grid-template-columns:1fr;gap:4px}.client-agenda-phone{text-align:left}}
 </style>
 </head>
 
@@ -1927,7 +1927,7 @@ footer{
     <button id="ordersTab" class="tab" type="button">REGISTRO</button>
     <button id="financeTab" class="tab active" type="button">FINANZAS</button>
     <button id="clientsTab" class="tab desktop-account-tab" type="button">CLIENTES</button>
-    <button id="suppliersTab" class="tab desktop-account-tab" type="button">PROVEEDORES</button>\n    <a href="/catalogo-mayoreo.html" class="tab desktop-account-tab" style="text-decoration:none;text-align:center">STOCK</a>
+    <button id="suppliersTab" class="tab desktop-account-tab" type="button">PROVEEDORES</button>
     <select id="accountsTab" class="tab mobile-account-tab" style="appearance:auto"><option value="" selected>CUENTAS ▾</option><option value="clients">CLIENTES</option><option value="suppliers">PROVEEDORES</option></select>
   </div>
 </div>
