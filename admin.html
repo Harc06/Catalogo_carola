@@ -176,6 +176,16 @@ select:focus{
   margin-top:7px;
 }
 
+#addColorBlock{
+  width:100%;
+  margin:14px 0;
+  padding:14px;
+  border-radius:13px;
+  background:#f7e8ef;
+  color:#1687e8;
+  font-weight:800;
+}
+
 #colorBlocks{
   display:grid;
   gap:16px;
@@ -1966,19 +1976,16 @@ footer{
         <label for="modelo">1. Modelo</label>
         <input id="modelo" type="text" placeholder="Ej. 519" autocomplete="off">
 
-        <label for="uploadColor">2. Color</label>
-        <input id="uploadColor" type="text" placeholder="Ej. Negro" autocomplete="off">
-
-        <label for="uploadProveedor">3. Proveedor</label>
+        <label for="uploadProveedor">2. Proveedor</label>
         <select id="uploadProveedor"><option value="">Seleccionar proveedor...</option></select>
 
-        <label for="precioCompra">4. Precio de compra</label>
+        <label for="precioCompra">3. Precio de compra</label>
         <input id="precioCompra" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$0.00">
 
-        <label for="precioVenta">5. Precio de venta</label>
+        <label for="precioVenta">4. Precio de venta</label>
         <input id="precioVenta" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$0.00">
 
-        <label for="categoria">6. Categoría</label>
+        <label for="categoria">5. Categoría</label>
         <select id="categoria">
           <option value="">Seleccionar categoría...</option>
           <option value="Botín">Botín</option>
@@ -1989,13 +1996,13 @@ footer{
           <option value="Sandalia">Sandalia</option>
         </select>
 
-        <label for="cantidadPares">7. Cantidad de pares</label>
+        <label for="cantidadPares">6. Cantidad de pares</label>
         <input id="cantidadPares" type="number" min="6" step="6" inputmode="numeric" placeholder="6, 12, 18...">
         <div class="category-help">La existencia debe registrarse en múltiplos de 6 pares.</div>
       </div>
 
       <div id="colorBlocks"></div>
-      <button id="addColorBlock" type="button" style="display:none">+ Agregar otro color</button>
+      <button id="addColorBlock" type="button">+ Agregar otro color y foto</button>
       <button id="uploadButton" type="submit">Guardar modelo</button>
     </form>
     <div id="status"></div>
@@ -3014,9 +3021,6 @@ form.onsubmit=async function(event){
     return false;
   }
 
-  if(!document.getElementById("uploadColor").value.trim()){
-    showStatus("Falta escribir el color.","error"); document.getElementById("uploadColor").focus(); return false;
-  }
   if(!proveedorValue){showStatus("Selecciona el proveedor.","error");return false;}
   if(!Number.isFinite(precioCompraValue)||precioCompraValue<0){showStatus("Escribe un precio de compra válido.","error");return false;}
   if(!Number.isFinite(precioVentaValue)||precioVentaValue<0){showStatus("Escribe un precio de venta válido.","error");return false;}
@@ -3059,7 +3063,7 @@ form.onsubmit=async function(event){
       block.querySelector(".color-files");
 
     const colorValue=
-      document.getElementById("uploadColor").value.trim();
+      colorInput.value.trim();
 
     const files=
       Array.from(fileInput.files||[]);
@@ -3268,7 +3272,6 @@ form.onsubmit=async function(event){
 function resetUploadForm(){
   modelo.value="";
   categoria.value="";
-  document.getElementById("uploadColor").value="";
   document.getElementById("uploadProveedor").value="";
   document.getElementById("precioCompra").value="";
   document.getElementById("precioVenta").value="";
