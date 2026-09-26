@@ -2923,37 +2923,54 @@ document.getElementById("addColorBlock").onclick=function(){
 
 function fileToBase64(file){
   return new Promise(function(resolve,reject){
+    /*
+      Las fotos del iPhone pueden pesar varios MB. Enviarlas en base64
+      directamente puede superar el límite de la función de Netlify y Safari
+      sólo muestra "Load failed". Las optimizamos ANTES de enviarlas.
+    */
     const reader=new FileReader();
 
-    reader.onload=function(){
-      const result=
-        String(reader.result||"");
-
-      const comma=
-        result.indexOf(",");
-
-      if(comma===-1){
-        reject(
-          new Error(
-            "No se pudo procesar "+file.name
-          )
-        );
-        return;
-      }
-
-      resolve({
-        name:file.name,
-        type:file.type||"image/jpeg",
-        data:result.substring(comma+1)
-      });
+    reader.onerror=function(){
+      reject(new Error("No se pudo leer "+file.name));
     };
 
-    reader.onerror=function(){
-      reject(
-        new Error(
-          "No se pudo leer "+file.name
-        )
-      );
+    reader.onload=function(){
+      const img=new Image();
+
+      img.onerror=function(){
+        reject(new Error("No se pudo procesar "+file.name));
+      };
+
+      img.onload=function(){
+        try{
+          const MAX_SIDE=1600;
+          const scale=Math.min(1,MAX_SIDE/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+          const width=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));
+          const height=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
+          const canvas=document.createElement("canvas");
+          canvas.width=width;
+          canvas.height=height;
+          const ctx=canvas.getContext("2d",{alpha:false});
+          if(!ctx)throw new Error("No se pudo preparar la fotografía.");
+          ctx.fillStyle="#fff";
+          ctx.fillRect(0,0,width,height);
+          ctx.drawImage(img,0,0,width,height);
+
+          const result=canvas.toDataURL("image/jpeg",0.82);
+          const comma=result.indexOf(",");
+          if(comma===-1)throw new Error("No se pudo convertir la fotografía.");
+
+          resolve({
+            name:String(file.name||"foto").replace(/\.[^.]+$/,"")+".jpg",
+            type:"image/jpeg",
+            data:result.substring(comma+1)
+          });
+        }catch(error){
+          reject(error);
+        }
+      };
+
+      img.src=String(reader.result||"");
     };
 
     reader.readAsDataURL(file);
