@@ -55,6 +55,10 @@ exports.handler = async function (event) {
     const modelo = String(body.modelo || "").trim();
     const color = String(body.color || "").trim();
     const categoria = cleanCategory(body.categoria);
+    const proveedorId = Number(body.proveedor_id || 0);
+    const precioCompra = Number(body.precio_compra);
+    const precioVenta = Number(body.precio_venta);
+    const cantidadPares = Number(body.cantidad_pares);
 
     const imagenes = Array.isArray(body.imagenes)
       ? body.imagenes
@@ -66,13 +70,23 @@ exports.handler = async function (event) {
 
     if (!categoria) {
       throw new Error(
-        "Selecciona una categoría: Bota, Botín, Mocasín, Escolar o Zapatilla."
+        "Selecciona una categoría válida."
       );
     }
 
     if (!color) {
       throw new Error("Falta el color.");
     }
+    if (!proveedorId) throw new Error("Selecciona un proveedor.");
+    if (!Number.isFinite(precioCompra) || precioCompra < 0) throw new Error("Precio de compra inválido.");
+    if (!Number.isFinite(precioVenta) || precioVenta < 0) throw new Error("Precio de venta inválido.");
+    if (!Number.isInteger(cantidadPares) || cantidadPares < 6 || cantidadPares % 6 !== 0) {
+      throw new Error("La cantidad de pares debe ser múltiplo de 6.");
+    }
+
+    const { data: proveedor, error: proveedorError } = await supabase
+      .from("proveedores").select("id,nombre").eq("id", proveedorId).eq("activo", true).maybeSingle();
+    if (proveedorError || !proveedor) throw new Error("El proveedor seleccionado no existe o está inactivo.");
 
     if (!imagenes.length) {
       throw new Error(
@@ -172,7 +186,7 @@ exports.handler = async function (event) {
     const { data: variantes, error: variantesError } =
       await supabase
         .from("variantes")
-        .select("id, modelo_id, color")
+.select("id, modelo_id, color, proveedor_id, precio_compra, precio_venta")
         .eq("modelo_id", modeloId);
 
     if (variantesError) {
@@ -193,8 +207,14 @@ exports.handler = async function (event) {
       varianteId =
         Number(varianteEncontrada.id);
 
-      colorGuardado =
-        varianteEncontrada.color;
+      colorGuardado = varianteEncontrada.color;
+      const { error: variantUpdateError } = await supabase.from("variantes").update({
+        proveedor_id: proveedorId,
+        precio_compra: precioCompra,
+        precio_venta: precioVenta,
+        activo: true
+      }).eq("id", varianteId);
+      if (variantUpdateError) throw new Error(variantUpdateError.message);
 
     } else {
       const { data: nuevaVariante, error } =
@@ -203,6 +223,9 @@ exports.handler = async function (event) {
           .insert({
             modelo_id: modeloId,
             color: color,
+            proveedor_id: proveedorId,
+            precio_compra: precioCompra,
+            precio_venta: precioVenta,
             activo: true
           })
           .select("id, color")
@@ -218,6 +241,13 @@ exports.handler = async function (event) {
       colorGuardado =
         nuevaVariante.color;
     }
+
+    const { error: stockError } = await supabase.from("inventario_mayoreo").upsert({
+      variante_id: varianteId,
+      existencia: cantidadPares,
+      actualizado_en: new Date().toISOString()
+    }, { onConflict: "variante_id" });
+    if (stockError) throw new Error("No se pudo guardar la existencia: " + stockError.message);
 
     /*
      * ============================
@@ -424,6 +454,11 @@ exports.handler = async function (event) {
       modelo: modeloGuardado,
       categoria: categoriaGuardada,
       color: colorGuardado,
+      proveedor: proveedor.nombre,
+      proveedor_id: proveedorId,
+      precio_compra: precioCompra,
+      precio_venta: precioVenta,
+      cantidad_pares: cantidadPares,
       modelo_id: modeloId,
       variante_id: varianteId,
       subidas: uploaded.length,
@@ -463,8 +498,9 @@ function cleanCategory(value) {
     "bota": "Bota",
     "botin": "Botín",
     "mocasin": "Mocasín",
-    "escolar": "Escolar",
-    "zapatilla": "Zapatilla"
+    "zapatilla": "Zapatilla",
+    "huarache": "Huarache",
+    "sandalia": "Sandalia"
   };
 
   return categories[normalized] || "";
