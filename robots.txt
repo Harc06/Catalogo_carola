@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /.netlify/functions/
+
+Sitemap: https://calzadocarola.com/sitemap.xml
