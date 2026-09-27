@@ -4974,7 +4974,8 @@ function escapeAttribute(value){
 
 /* INICIAR */
 
-authenticateAdmin().then(async()=>{createColorBlock("");await Promise.all([loadModels(),loadFinance(),ensureFinanceBalances(),loadUploadProviders()]);window.scrollTo({top:0,left:0,behavior:"auto"});}).catch(err=>{authOverlay("No se pudo iniciar sesión: "+err.message+". Recarga la página para intentar de nuevo.");});
+/* Acceso temporal sin inicio de sesión mientras se termina el administrador. */
+(async()=>{createColorBlock("");await Promise.all([loadModels(),loadFinance(),ensureFinanceBalances(),loadUploadProviders()]);window.scrollTo({top:0,left:0,behavior:"auto"});})().catch(err=>{console.error("Error al iniciar el administrador:",err);});
 
 </script>
 
