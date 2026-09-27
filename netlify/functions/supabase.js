@@ -40,7 +40,7 @@ exports.handler = async function () {
      */
 
     const variantesResponse = await fetch(
-      `${supabaseUrl}/rest/v1/variantes?select=id,modelo_id,color,activo&activo=eq.true&order=id.asc`,
+      `${supabaseUrl}/rest/v1/variantes?select=id,modelo_id,color,activo,precio_compra,precio_venta&activo=eq.true&order=id.asc`,
       { headers }
     );
 
@@ -114,6 +114,8 @@ exports.handler = async function () {
             id: v.id,
             color: v.color,
             existencia: stockPorVariante.get(Number(v.id)) || 0,
+            precio_compra: Number(v.precio_compra || 0),
+            precio_venta: Number(v.precio_venta || 0),
 
             imagenes: imagenes
               .filter(
