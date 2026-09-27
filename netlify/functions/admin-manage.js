@@ -53,6 +53,23 @@ exports.handler = async function (event) {
     const body = JSON.parse(event.body || "{}");
     const action = String(body.action || "");
 
+    if (action === "update-full-model") {
+      const modelId=Number(body.modelId), modelo=String(body.modelo||"").trim(), categoria=cleanCategory(body.categoria), variantes=Array.isArray(body.variantes)?body.variantes:[];
+      if(!modelId||!modelo||!categoria) throw new Error("Revisa modelo y categoría.");
+      const dup=await supabase.from("modelos").select("id,modelo");
+      if(dup.error) throw new Error(dup.error.message);
+      if((dup.data||[]).some(x=>Number(x.id)!==modelId&&normalizeText(x.modelo)===normalizeText(modelo))) throw new Error("Ya existe otro modelo con ese número o nombre.");
+      const mu=await supabase.from("modelos").update({modelo,categoria}).eq("id",modelId);
+      if(mu.error) throw new Error(mu.error.message);
+      for(const v of variantes){
+        const id=Number(v.id),color=String(v.color||"").trim(),buy=Number(v.precio_compra),sale=Number(v.precio_venta),supplier=Number(v.proveedor_id||0);
+        if(!id||!color||!Number.isFinite(buy)||buy<0||!Number.isFinite(sale)||sale<0) throw new Error("Datos inválidos en un color.");
+        const vu=await supabase.from("variantes").update({color,precio_compra:buy,precio_venta:sale,proveedor_id:supplier||null}).eq("id",id).eq("modelo_id",modelId);
+        if(vu.error) throw new Error(vu.error.message);
+      }
+      return respond(200,{success:true});
+    }
+
     /*
      * =========================
      * EDITAR MODELO
