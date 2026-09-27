@@ -1922,6 +1922,62 @@ footer{
 @media(max-width:650px){#models{grid-template-columns:1fr!important}.inventory-row{grid-template-columns:minmax(0,1fr) 105px auto}.inventory-save{padding:9px 8px}}
 
 .inventory-model-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.inventory-add-color{background:#f7e8ef;border-radius:9px;padding:8px 10px;font-size:11px}.inventory-add-form{background:#fff7fa;border:1px solid #f0dce5;border-radius:12px;padding:10px;margin:8px 0;display:grid;grid-template-columns:1fr 90px auto auto;gap:6px}.inventory-add-form[hidden]{display:none!important}.inventory-add-form input[type="text"],.inventory-add-form input[type="number"]{width:100%!important;padding:9px!important;border:1px solid #ddd;border-radius:9px}.inventory-photo-label{margin:0!important;background:#f5e7ed;border-radius:8px;padding:8px 10px;font-size:11px;text-align:center;cursor:pointer}.inventory-photo-label input{display:none}.inventory-confirm-color{background:#171717;color:#fff;border-radius:8px;padding:8px}.inventory-cancel-color{background:#f5e7ed;border-radius:8px;padding:8px}.inventory-color{cursor:pointer}.inventory-color:after{content:" ✎";font-size:11px;color:#b18496}@media(max-width:650px){.inventory-add-form{grid-template-columns:1fr 90px}.inventory-confirm-color,.inventory-cancel-color{width:100%}}
+
+/* ===== ACCIONES FLOTANTES + CONTEO DE INVENTARIO ===== */
+#uploadSection{display:none}
+.catalog-fab{position:fixed;right:22px;bottom:28px;z-index:1400;display:none;flex-direction:column;align-items:flex-end;gap:10px}
+body:has(#catalogPanel.active) .catalog-fab{display:flex}
+.catalog-fab-menu{display:none;gap:8px;flex-direction:column;align-items:flex-end}
+.catalog-fab.open .catalog-fab-menu{display:flex}
+.catalog-fab-item{border:0;border-radius:16px;padding:13px 17px;background:#fff;box-shadow:0 10px 30px rgba(36,20,27,.16);font-weight:850;color:#222;font-size:14px}
+.catalog-fab-main{width:58px;height:58px;border:0;border-radius:50%;background:#111;color:#fff;font-size:34px;line-height:1;box-shadow:0 12px 30px rgba(0,0,0,.25);transition:.2s}
+.catalog-fab.open .catalog-fab-main{transform:rotate(45deg)}
+.catalog-action-modal{position:fixed;inset:0;z-index:1500;background:rgba(20,15,18,.45);display:none;align-items:flex-end;justify-content:center;padding:0}
+.catalog-action-modal.show{display:flex}
+.catalog-action-sheet{background:#fff;width:min(760px,100%);max-height:94dvh;overflow:auto;border-radius:28px 28px 0 0;padding:18px 18px 30px;box-shadow:0 -12px 40px rgba(0,0,0,.16)}
+.catalog-action-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.catalog-action-head h2{margin:0;font-size:24px}
+.catalog-action-close{border:0;background:#f4edf0;border-radius:50%;width:40px;height:40px;font-size:22px}
+#modelActionBody #uploadSection{display:block!important;margin:0;box-shadow:none;border:0;padding:0}
+#modelActionBody #uploadSection>summary{display:none}
+#modelActionBody .upload-details-body{display:block!important;padding:0}
+.count-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:14px 0}
+.count-type-btn{border:1px solid #eadde2;background:#faf6f8;border-radius:15px;padding:14px 8px;font-weight:800}
+.count-type-btn.active{background:#111;color:#fff;border-color:#111}
+.count-filter{margin:12px 0}
+.count-filter label{display:block;font-weight:800;margin-bottom:7px}
+.count-filter select{width:100%;padding:14px;border:1px solid #ded5d8;border-radius:14px;background:#fff;font-size:16px}
+.count-start,.count-finalize{width:100%;border:0;border-radius:16px;padding:16px;background:#111;color:#fff;font-size:16px;font-weight:900}
+.count-progress-top{display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin:4px 2px 8px}
+.count-progress{height:5px;background:#eee;border-radius:999px;overflow:hidden;margin-bottom:14px}
+.count-progress>i{display:block;height:100%;background:#29ad69;width:0;transition:.2s}
+.count-card-wrap{min-height:470px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px 2px}
+.count-card{width:min(430px,100%);background:#fff;border:1px solid #eadfe3;border-radius:24px;box-shadow:0 14px 38px rgba(31,19,24,.14);overflow:hidden;touch-action:pan-y;transition:transform .22s,opacity .22s}
+.count-card.dragging{transition:none}
+.count-photo{width:100%;aspect-ratio:1.2/1;object-fit:cover;background:#f3f0f1;display:block}
+.count-card-body{padding:18px}
+.count-model{text-align:center;font-size:22px;font-weight:900}
+.count-sub{text-align:center;color:#888;margin:3px 0 14px;font-size:13px}
+.count-question{text-align:center;color:#777;font-size:13px}
+.count-qty{display:grid;grid-template-columns:52px 1fr 52px;gap:8px;align-items:center;margin:10px 0 15px}
+.count-qty button{height:50px;border:1px solid #ded7da;background:#fff;border-radius:14px;font-size:24px}
+.count-qty input{height:52px;border:1px solid #ded7da;border-radius:14px;text-align:center;font-size:28px;font-weight:900;width:100%}
+.count-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.count-actions button{border:0;border-radius:16px;padding:14px 8px;font-weight:850}
+.count-review{background:#f5f1f2;color:#222}
+.count-confirm{background:#e6f7ee;color:#178a51}
+.count-swipe-help{display:flex;justify-content:space-between;color:#999;font-size:11px;margin-top:8px}
+.count-done{text-align:center;padding:30px 8px}
+.count-done .big-check{font-size:54px}
+.count-done h3{font-size:25px;margin:8px 0}
+.count-history{margin-top:20px;border-top:1px solid #eee;padding-top:16px}
+.count-history h3{margin:0 0 10px}
+.count-history-row{padding:12px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;gap:10px;font-size:13px}
+.count-diff-list{margin-top:14px;display:grid;gap:8px}
+.count-diff{background:#faf6f8;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;gap:10px}
+@media(min-width:700px){.catalog-action-modal{align-items:center;padding:24px}.catalog-action-sheet{border-radius:28px;max-height:90vh}.catalog-fab{right:34px;bottom:34px}}
+@media(max-width:600px){.count-type-grid{grid-template-columns:1fr}.catalog-fab{right:18px;bottom:22px}}
+
 </style>
 <style>
 .finance-quick-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -2312,6 +2368,29 @@ footer{
 </div>
 
 <div id="operationStatus">Procesando...</div>
+
+
+<div class="catalog-fab" id="catalogFab">
+  <div class="catalog-fab-menu">
+    <button class="catalog-fab-item" id="fabAddModel" type="button">＋ Agregar modelo</button>
+    <button class="catalog-fab-item" id="fabCreateCount" type="button">✓ Crear conteo</button>
+  </div>
+  <button class="catalog-fab-main" id="catalogFabMain" type="button" aria-label="Acciones de catálogo">+</button>
+</div>
+
+<div class="catalog-action-modal" id="modelActionModal">
+  <div class="catalog-action-sheet">
+    <div class="catalog-action-head"><h2>Agregar modelo</h2><button class="catalog-action-close" data-close="modelActionModal" type="button">×</button></div>
+    <div id="modelActionBody"></div>
+  </div>
+</div>
+
+<div class="catalog-action-modal" id="countActionModal">
+  <div class="catalog-action-sheet">
+    <div class="catalog-action-head"><h2 id="countTitle">Crear conteo</h2><button class="catalog-action-close" data-close="countActionModal" type="button">×</button></div>
+    <div id="countActionBody"></div>
+  </div>
+</div>
 
 <footer>Panel interno de Calzado Carola</footer>
 
@@ -4916,5 +4995,213 @@ function wireAccountFilter(kind){
  y.onchange=()=>{if(kind==="supplier"){supplierViewYear=y.value;renderSuppliers()}else{clientViewYear=y.value;renderClients()}};
 }
 </script>
+
+<script>
+/* ===== MENÚ FLOTANTE Y CONTEO DE INVENTARIO ===== */
+(()=>{
+const fab=document.getElementById("catalogFab");
+const fabMain=document.getElementById("catalogFabMain");
+const modelModal=document.getElementById("modelActionModal");
+const countModal=document.getElementById("countActionModal");
+const countBody=document.getElementById("countActionBody");
+const countTitle=document.getElementById("countTitle");
+const originalUploadParent=document.getElementById("uploadSection").parentNode;
+const uploadSection=document.getElementById("uploadSection");
+let countState=null, countQueue=[], countIndex=0, dragX=0, dragging=false;
+
+fabMain.onclick=()=>fab.classList.toggle("open");
+document.addEventListener("click",e=>{
+  const close=e.target.closest("[data-close]");
+  if(close) document.getElementById(close.dataset.close)?.classList.remove("show");
+});
+modelModal.addEventListener("click",e=>{if(e.target===modelModal)modelModal.classList.remove("show")});
+countModal.addEventListener("click",e=>{if(e.target===countModal)countModal.classList.remove("show")});
+
+document.getElementById("fabAddModel").onclick=()=>{
+  fab.classList.remove("open");
+  document.getElementById("modelActionBody").appendChild(uploadSection);
+  uploadSection.open=true;
+  modelModal.classList.add("show");
+};
+document.getElementById("fabCreateCount").onclick=()=>{
+  fab.classList.remove("open");
+  countModal.classList.add("show");
+  renderCountSetup();
+};
+
+async function countCall(payload,id){
+  const url="/.netlify/functions/admin-conteos"+(id?"?id="+encodeURIComponent(id):"");
+  const r=await fetch(url,{
+    method:payload?"POST":"GET",
+    headers:{"Content-Type":"application/json","x-admin-password":adminPassword},
+    body:payload?JSON.stringify(payload):undefined,
+    cache:"no-store"
+  });
+  const j=await r.json();
+  if(!r.ok||!j.success)throw new Error(j.error||"No se pudo procesar el conteo.");
+  return j;
+}
+
+function providerOptions(){
+  const src=document.getElementById("uploadProveedor");
+  return src?src.innerHTML:'<option value="">Seleccionar proveedor...</option>';
+}
+function categoryOptions(){
+  const values=[...new Set((allProducts||[]).map(x=>x.categoria).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
+  return '<option value="">Seleccionar categoría...</option>'+values.map(x=>'<option value="'+escapeAttribute(x)+'">'+escapeHtml(x)+'</option>').join("");
+}
+
+async function renderCountSetup(){
+  countTitle.textContent="Crear conteo";
+  countBody.innerHTML=`
+    <p style="color:#777;margin:0 0 8px">Elige qué parte del inventario quieres revisar. Cada color aparecerá como una tarjeta consecutiva.</p>
+    <div class="count-type-grid">
+      <button class="count-type-btn active" data-type="general" type="button">Todos los modelos</button>
+      <button class="count-type-btn" data-type="categoria" type="button">Por categoría</button>
+      <button class="count-type-btn" data-type="proveedor" type="button">Por proveedor</button>
+    </div>
+    <div class="count-filter" id="countFilter" style="display:none"></div>
+    <button class="count-start" id="countStart" type="button">Comenzar conteo</button>
+    <div class="count-history"><h3>Conteos anteriores</h3><div id="countHistory">Cargando...</div></div>`;
+  let selectedType="general";
+  countBody.querySelectorAll(".count-type-btn").forEach(btn=>btn.onclick=()=>{
+    selectedType=btn.dataset.type;
+    countBody.querySelectorAll(".count-type-btn").forEach(x=>x.classList.toggle("active",x===btn));
+    const filter=document.getElementById("countFilter");
+    if(selectedType==="general"){filter.style.display="none";filter.innerHTML="";return}
+    filter.style.display="block";
+    filter.innerHTML=selectedType==="categoria"
+      ?'<label>Categoría</label><select id="countFilterValue">'+categoryOptions()+'</select>'
+      :'<label>Proveedor</label><select id="countFilterValue">'+providerOptions()+'</select>';
+  });
+  document.getElementById("countStart").onclick=async()=>{
+    const button=document.getElementById("countStart");
+    const value=selectedType==="general"?null:document.getElementById("countFilterValue")?.value;
+    if(selectedType!=="general"&&!value){alert("Selecciona "+(selectedType==="categoria"?"una categoría.":"un proveedor."));return}
+    button.disabled=true;button.textContent="Preparando...";
+    try{
+      const j=await countCall({action:"start",tipo:selectedType,filtro:value});
+      beginCount(j);
+    }catch(e){alert(e.message);button.disabled=false;button.textContent="Comenzar conteo"}
+  };
+  try{
+    const j=await countCall();
+    const done=(j.conteos||[]).filter(x=>x.estado==="finalizado").slice(0,8);
+    document.getElementById("countHistory").innerHTML=done.length?done.map(x=>`
+      <button type="button" class="count-history-row" data-count-id="${x.id}" style="width:100%;background:none;border:0;text-align:left">
+        <span><b>Conteo #${x.id}</b><br>${new Date(x.finalizado_en||x.creado_en).toLocaleString("es-MX")}</span>
+        <span>${x.total_items} colores ›</span>
+      </button>`).join(""):'<div style="color:#999">Todavía no hay conteos finalizados.</div>';
+    countBody.querySelectorAll("[data-count-id]").forEach(b=>b.onclick=()=>showCountHistory(Number(b.dataset.countId)));
+  }catch(e){document.getElementById("countHistory").textContent="No se pudo cargar el historial."}
+}
+
+async function showCountHistory(id){
+  try{
+    const j=await countCall(null,id);
+    const diffs=(j.items||[]).filter(x=>Number(x.cantidad_contada)!==Number(x.existencia_anterior));
+    countTitle.textContent="Conteo #"+id;
+    countBody.innerHTML='<button type="button" id="backCountSetup" class="record-tool-btn">← Volver</button>'+
+      '<h3 style="margin:18px 0 5px">Diferencias registradas</h3>'+
+      '<p style="color:#888;margin-top:0">'+diffs.length+' de '+j.items.length+' colores tuvieron diferencia.</p>'+
+      '<div class="count-diff-list">'+(diffs.length?diffs.map(x=>'<div class="count-diff"><span><b>Modelo '+escapeHtml(x.modelo)+'</b><br>'+escapeHtml(formatColor(x.color))+'</span><span style="text-align:right">'+x.existencia_anterior+' → <b>'+x.cantidad_contada+'</b><br><small>'+(Number(x.cantidad_contada)-Number(x.existencia_anterior)>0?'+':'')+(Number(x.cantidad_contada)-Number(x.existencia_anterior))+' pares</small></span></div>').join(""):'<div class="finance-empty">Sin diferencias.</div>')+'</div>';
+    document.getElementById("backCountSetup").onclick=renderCountSetup;
+  }catch(e){alert(e.message)}
+}
+
+function beginCount(j){
+  countState=j.conteo;
+  countQueue=(j.items||[]).filter(x=>x.estado!=="confirmado");
+  countIndex=0;
+  countTitle.textContent="Conteo de inventario";
+  renderCountCard();
+}
+
+function currentItem(){return countQueue[countIndex]}
+
+function renderCountCard(){
+  const item=currentItem();
+  const total=Number(countState.total_items||countQueue.length);
+  const confirmed=countQueue.filter(x=>x.estado==="confirmado").length+Number(countState.confirmados||0);
+  if(!item){renderCountDone();return}
+  const progress=Math.min(100,Math.round((confirmed/Math.max(1,total))*100));
+  countBody.innerHTML=`
+    <div class="count-progress-top"><span>${Math.min(confirmed+1,total)}/${total}</span><span>${confirmed} confirmados</span></div>
+    <div class="count-progress"><i style="width:${progress}%"></i></div>
+    <div class="count-card-wrap">
+      <article class="count-card" id="countCard">
+        ${item.imagen?'<img class="count-photo" src="'+escapeAttribute(item.imagen)+'" alt="">':'<div class="count-photo"></div>'}
+        <div class="count-card-body">
+          <div class="count-model">Modelo ${escapeHtml(item.modelo)} · ${escapeHtml(formatColor(item.color))}</div>
+          <div class="count-sub">${escapeHtml(item.categoria)}${item.proveedor?' · '+escapeHtml(item.proveedor):''}</div>
+          <div class="count-question">¿Cuántos pares contaste?</div>
+          <div class="count-qty"><button id="countMinus" type="button">−</button><input id="countQty" type="number" min="0" step="1" inputmode="numeric" value="${item.cantidad_contada??item.existencia_anterior}"><button id="countPlus" type="button">+</button></div>
+          <div class="count-actions"><button class="count-review" id="countReview" type="button">↶ Revisar al final</button><button class="count-confirm" id="countConfirm" type="button">✓ Confirmar conteo</button></div>
+          <div class="count-swipe-help"><span>← Desliza para revisar</span><span>Desliza para confirmar →</span></div>
+        </div>
+      </article>
+    </div>`;
+  const input=document.getElementById("countQty");
+  document.getElementById("countMinus").onclick=()=>input.value=Math.max(0,Number(input.value||0)-1);
+  document.getElementById("countPlus").onclick=()=>input.value=Number(input.value||0)+1;
+  document.getElementById("countReview").onclick=()=>actOnCard("revisar");
+  document.getElementById("countConfirm").onclick=()=>actOnCard("confirmado");
+  wireSwipe(document.getElementById("countCard"));
+}
+
+async function actOnCard(action){
+  const item=currentItem(); if(!item)return;
+  const input=document.getElementById("countQty");
+  const qty=Number(input?.value);
+  if(action==="confirmado"&&(!Number.isInteger(qty)||qty<0)){alert("Escribe una cantidad válida de pares.");return}
+  const card=document.getElementById("countCard");
+  if(card){card.style.transform="translateX("+(action==="confirmado"?"120%":"-120%")+") rotate("+(action==="confirmado"?"8deg":"-8deg")+")";card.style.opacity="0"}
+  try{
+    const j=await countCall({action:"save-item",conteo_id:countState.id,item_id:item.id,estado:action,cantidad:qty});
+    if(action==="confirmado"){
+      item.estado="confirmado";item.cantidad_contada=qty;
+      countState.confirmados=j.confirmados;
+      countQueue.splice(countIndex,1);
+    }else{
+      item.estado="revisar";
+      countState.revisar=j.revisar;
+      countQueue.splice(countIndex,1);
+      countQueue.push(item);
+    }
+    setTimeout(renderCountCard,180);
+  }catch(e){alert(e.message);renderCountCard()}
+}
+
+function wireSwipe(card){
+  let start=0,last=0;
+  const begin=x=>{start=x;last=x;dragging=true;card.classList.add("dragging")};
+  const move=x=>{if(!dragging)return;last=x;dragX=x-start;card.style.transform='translateX('+dragX+'px) rotate('+(dragX/25)+'deg)'};
+  const end=()=>{if(!dragging)return;dragging=false;card.classList.remove("dragging");if(dragX>85)actOnCard("confirmado");else if(dragX<-85)actOnCard("revisar");else card.style.transform="";dragX=0};
+  card.addEventListener("touchstart",e=>begin(e.touches[0].clientX),{passive:true});
+  card.addEventListener("touchmove",e=>move(e.touches[0].clientX),{passive:true});
+  card.addEventListener("touchend",end);
+  card.addEventListener("pointerdown",e=>{if(e.pointerType!=="touch"){begin(e.clientX);card.setPointerCapture(e.pointerId)}});
+  card.addEventListener("pointermove",e=>{if(e.pointerType!=="touch")move(e.clientX)});
+  card.addEventListener("pointerup",e=>{if(e.pointerType!=="touch")end()});
+}
+
+function renderCountDone(){
+  countBody.innerHTML=`
+    <div class="count-done"><div class="big-check">✓</div><h3>Conteo terminado</h3>
+    <p>Revisaste todos los modelos y colores seleccionados. Al confirmar se actualizará el inventario y quedará guardado el registro de diferencias.</p></div>
+    <button class="count-finalize" id="countFinalize" type="button">Confirmar conteo</button>`;
+  document.getElementById("countFinalize").onclick=async()=>{
+    const b=document.getElementById("countFinalize");b.disabled=true;b.textContent="Guardando conteo...";
+    try{
+      const j=await countCall({action:"finalize",conteo_id:countState.id});
+      await loadModels();
+      countBody.innerHTML='<div class="count-done"><div class="big-check">✓</div><h3>Conteo guardado</h3><p>Inventario actualizado. Se registraron <b>'+j.diferencias.length+'</b> diferencias contra la existencia anterior.</p></div><button class="count-start" id="viewCountResult" type="button">Ver diferencias</button>';
+      document.getElementById("viewCountResult").onclick=()=>showCountHistory(countState.id);
+    }catch(e){alert(e.message);b.disabled=false;b.textContent="Confirmar conteo"}
+  };
+}
+})();
+</script>
+
 </body>
 </html>
