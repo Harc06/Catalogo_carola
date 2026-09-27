@@ -1886,116 +1886,43 @@ return variant
    DUPLICADOS
 ========================= */
 
+function checkoutItems(items){
+const grouped=new Map();
+for(const item of items){
+const modelo=normalizeModel(item.modelo);
+const color=normalizeModel(item.color);
+const cantidad=Number(item.cantidad);
+if(!modelo || !color || !Number.isSafeInteger(cantidad) || cantidad<6 || cantidad%6!==0){
+throw new Error("Las cantidades deben ser múltiplos de 6.");
+}
+const key=JSON.stringify([modelo,color]);
+const previous=grouped.get(key);
+if(previous) previous.cantidad+=cantidad;
+else grouped.set(key,{modelo,color,cantidad});
+}
+return [...grouped.values()].sort((a,b)=>a.modelo.localeCompare(b.modelo)||a.color.localeCompare(b.color));
+}
+
 function buildOrderFingerprint(name,items){
-
-const normalizedItems=
-(items||[])
-.map(item=>({
-
-modelo:normalizeModel(item.modelo),
-color:normalize(item.color),
-cantidad:Number(item.cantidad||0)
-
-}))
-.sort((a,b)=>{
-
-const modelCompare=
-a.modelo.localeCompare(
-b.modelo,
-undefined,
-{
-numeric:true,
-sensitivity:"base"
-}
-);
-
-if(modelCompare!==0){
-return modelCompare;
+return JSON.stringify({cliente:normalizeModel(name),items:checkoutItems(items)});
 }
 
-const colorCompare=
-a.color.localeCompare(
-b.color,
-undefined,
-{
-sensitivity:"base"
+let checkoutAttempt=null;
+const CHECKOUT_KEY="carola_checkout_attempt_v1";
+function persistCheckoutAttempt(){
+try{localStorage.setItem(CHECKOUT_KEY,JSON.stringify(checkoutAttempt));}
+catch(error){console.warn("No se pudo conservar el intento en este navegador.",error);}
 }
-);
-
-if(colorCompare!==0){
-return colorCompare;
+function getCheckoutAttempt(fingerprint){
+if(!checkoutAttempt){
+try{checkoutAttempt=JSON.parse(localStorage.getItem(CHECKOUT_KEY)||"null");}catch{}
 }
-
-return a.cantidad-b.cantidad;
-
-});
-
-return JSON.stringify({
-
-cliente:normalize(name),
-items:normalizedItems
-
-});
-
+if(!checkoutAttempt || checkoutAttempt.fingerprint!==fingerprint ||
+!checkoutAttempt.requestId || (checkoutAttempt.confirmedAt && Date.now()-checkoutAttempt.confirmedAt>=DUPLICATE_WINDOW)){
+checkoutAttempt={fingerprint,requestId:crypto.randomUUID()};
 }
-
-function getLastOrder(){
-
-try{
-
-const raw=
-localStorage.getItem(LAST_ORDER_KEY);
-
-if(!raw)return null;
-
-const data=JSON.parse(raw);
-
-if(
-!data ||
-!data.fingerprint ||
-!data.folio ||
-!data.savedAt
-){
-return null;
-}
-
-return data;
-
-}catch{
-
-return null;
-
-}
-
-}
-
-function saveLastOrder(fingerprint,folio){
-
-localStorage.setItem(
-LAST_ORDER_KEY,
-JSON.stringify({
-fingerprint,
-folio:String(folio),
-savedAt:Date.now()
-})
-);
-
-}
-
-function isRecentDuplicate(lastOrder,fingerprint){
-
-if(!lastOrder)return false;
-
-if(lastOrder.fingerprint!==fingerprint){
-return false;
-}
-
-const savedAt=Number(lastOrder.savedAt||0);
-
-if(!savedAt)return false;
-
-return Date.now()-savedAt<DUPLICATE_WINDOW;
-
+persistCheckoutAttempt();
+return checkoutAttempt;
 }
 
 /* =========================
@@ -3093,206 +3020,73 @@ saveCart();
    WHATSAPP
 ========================= */
 
-function createWhatsAppMessage(
-folio,
-name
-){
-
-const lines=
-cart.map(
-item=>
-item.cantidad+
-" "+
-item.modelo+
-" "+
-formatColor(item.color)
-);
-
+function createWhatsAppMessage(pedido){
+const lines=pedido.items.map(item=>item.cantidad+" "+item.modelo+" "+formatColor(item.color));
 return `PEDIDO CAROLA
 
-Folio: ${folio}
+Folio: ${pedido.folio}
 
-${name}
+${pedido.cliente}
 
 ${lines.join("\n")}
 
-Total de pares = ${cartTotal()}`;
-
+Total de pares = ${pedido.total_pares}`;
 }
 
-function openWhatsApp(
-folio,
-name
-){
-
-const message=
-createWhatsAppMessage(
-folio,
-name
-);
-
-const whatsappURL=
-"https://wa.me/"+
-WHATSAPP_NUMBER+
-"?text="+
-encodeURIComponent(message);
-
-window.location.href=
-whatsappURL;
-
+function openWhatsApp(pedido){
+const url="https://wa.me/"+WHATSAPP_NUMBER+"?text="+encodeURIComponent(createWhatsAppMessage(pedido));
+// Keep an explicit link available if the browser does not hand off to the app.
+let link=document.getElementById("reopenWhatsApp");
+if(!link){
+link=document.createElement("a");
+link.id="reopenWhatsApp";
+link.style.cssText="display:block;margin-top:12px;text-align:center";
+document.getElementById("sendOrder").insertAdjacentElement("afterend",link);
+}
+link.href=url;
+link.textContent="Abrir WhatsApp · "+pedido.folio;
+window.location.href=url;
 }
 
-/* =========================
-   ENVIAR PEDIDO
-========================= */
-
-document.getElementById(
-"sendOrder"
-).onclick=
-async function(){
-
-const name=customerName.value.trim();
-
-if(!name){
-alert("Escribe el nombre del cliente.");
-customerName.focus();
-return;
-}
-
-if(!cart.length){
-alert("Tu pedido está vacío.");
-return;
-}
-
+let sendingOrder=false;
+document.getElementById("sendOrder").onclick=async function(){
+if(sendingOrder)return;
+const name=customerName.value.trim().replace(/\s+/g," ");
+if(!name){alert("Escribe el nombre del cliente.");customerName.focus();return;}
+if(!cart.length){alert("Tu pedido está vacío.");return;}
 const button=document.getElementById("sendOrder");
 const originalText=button.textContent;
+const controls=[...cartPanel.querySelectorAll("button,input")].map(element=>({element,disabled:element.disabled}));
+sendingOrder=true;
+controls.forEach(({element})=>element.disabled=true);
 button.disabled=true;
-
 try{
-
-button.textContent="Verificando existencias...";
-
-/*
- * La disponibilidad del catálogo mayoreo ya vive en Supabase.
- * Verificamos modelo + color + cantidad justo antes de guardar/enviar.
- */
-const stockResponse=await fetch(
-"/.netlify/functions/supabase?t="+Date.now(),
-{cache:"no-store"}
-);
-
-const stockData=await stockResponse.json();
-
-if(!stockResponse.ok || !stockData.success){
-throw new Error("No se pudo verificar el inventario.");
+// Immutable payload: subsequent UI changes cannot alter the saved order/message.
+const items=checkoutItems(cart);
+const attempt=getCheckoutAttempt(buildOrderFingerprint(name,items));
+button.textContent="Verificando y guardando pedido...";
+// Stock, grouping, idempotency, header and details are handled in one transaction.
+const response=await fetch("/.netlify/functions/pedidos",{
+method:"POST",headers:{"Content-Type":"application/json"},
+body:JSON.stringify({cliente:name,items,request_id:attempt.requestId})
+});
+const data=await response.json();
+if(!response.ok || !data.success || !data.pedido?.folio || !Array.isArray(data.pedido.items)){
+throw new Error(data.error||"No se pudo confirmar el pedido. Vuelve a intentarlo.");
 }
-
-const catalog=Array.isArray(stockData.productos)?stockData.productos:[];
-const problems=[];
-
-for(const item of cart){
-
-const product=catalog.find(product=>
-normalizeModel(product.modelo)===normalizeModel(item.modelo)
-);
-
-if(!product){
-problems.push("Modelo "+item.modelo+" ya no está disponible");
-continue;
-}
-
-const variant=variants(product).find(variant=>
-normalize(variant.color)===normalize(item.color)
-);
-
-if(!variant){
-problems.push(
-"Modelo "+item.modelo+" · "+formatColor(item.color)+" ya no está disponible"
-);
-continue;
-}
-
-const stock=Number(variant.existencia||0);
-const requested=Number(item.cantidad||0);
-
-if(stock<requested){
-problems.push(
-"Modelo "+item.modelo+" · "+formatColor(item.color)+
-": pediste "+requested+" pares y quedan "+stock
-);
-}
-
-}
-
-if(problems.length){
-alert(
-"Hay cambios en existencias:\n\n"+
-problems.join("\n")+
-"\n\nAjusta el pedido para continuar."
-);
-return;
-}
-
-const fingerprint=buildOrderFingerprint(name,cart);
-const lastOrder=getLastOrder();
-
-if(
-isRecentDuplicate(lastOrder,fingerprint) &&
-lastOrder.folio
-){
+attempt.confirmedAt=attempt.confirmedAt||Date.now();
+persistCheckoutAttempt();
 button.textContent="Abriendo WhatsApp...";
-openWhatsApp(lastOrder.folio,name);
-return;
-}
-
-button.textContent="Guardando pedido...";
-
-const orderResponse=await fetch(
-"/.netlify/functions/pedidos",
-{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-cliente:name,
-items:cart.map(item=>({
-modelo:item.modelo,
-color:item.color,
-cantidad:Number(item.cantidad)
-}))
-})
-}
-);
-
-const orderData=await orderResponse.json();
-
-if(
-!orderResponse.ok ||
-!orderData.success ||
-!orderData.pedido?.folio
-){
-console.error("Pedido:",orderData);
-throw new Error(orderData.error||"No se pudo guardar el pedido");
-}
-
-const folio=orderData.pedido.folio;
-saveLastOrder(fingerprint,folio);
-
-button.textContent="Abriendo WhatsApp...";
-openWhatsApp(folio,name);
-
+openWhatsApp(data.pedido);
 }catch(error){
-
 console.error(error);
-alert(
-error?.message ||
-"No pudimos guardar el pedido. Intenta nuevamente."
-);
-
+alert(error?.message||"No se pudo confirmar el pedido. Vuelve a intentarlo.");
 }finally{
+sendingOrder=false;
+controls.forEach(({element,disabled})=>element.disabled=disabled);
 button.disabled=false;
 button.textContent=originalText;
 }
-
 };
 
 /* =========================
