@@ -170,6 +170,41 @@ select:focus{
   border-bottom:1px solid #eee;
 }
 
+/* Campos principales de alta de modelo */
+.model-input-wrap > input,
+.model-input-wrap > select{
+  width:100%;
+  min-height:58px;
+  padding:0 17px;
+  border:1.5px solid #eadde3;
+  border-radius:17px;
+  background:#fff;
+  font-size:17px;
+  color:#222;
+  outline:none;
+  box-shadow:0 5px 18px rgba(45,20,30,.035);
+  transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.model-input-wrap > input:focus,
+.model-input-wrap > select:focus{
+  border-color:#d99ab4;
+  box-shadow:0 0 0 4px rgba(217,154,180,.14);
+}
+#precioCompra,#precioVenta{
+  padding-left:42px;
+  background:
+    linear-gradient(#fff,#fff) padding-box;
+}
+.model-input-wrap label[for="precioCompra"],
+.model-input-wrap label[for="precioVenta"]{position:relative}
+.model-input-wrap label[for="precioCompra"] + input,
+.model-input-wrap label[for="precioVenta"] + input{
+  font-size:20px;
+  font-weight:750;
+  letter-spacing:.1px;
+}
+
+
 .category-help{
   color:#999;
   font-size:12px;
@@ -274,7 +309,25 @@ select:focus{
 .upload-details[open] .upload-chevron{transform:rotate(180deg)}
 .upload-chevron{transition:.2s;color:#9b7c88}
 .upload-details-body{padding:0 24px 24px}
-#colorBlocks .color-input,.color-block-top{display:none!important}
+.color-block-top{display:flex}
+#colorBlocks .color-input{
+  display:block!important;
+  width:100%;
+  min-height:56px;
+  padding:0 16px;
+  border:1.5px solid #ead6df;
+  border-radius:16px;
+  background:#fff;
+  font-size:17px;
+  font-weight:650;
+  color:#222;
+  box-shadow:0 4px 14px rgba(50,20,35,.035);
+}
+#colorBlocks .color-input:focus{
+  border-color:#d99ab4;
+  box-shadow:0 0 0 4px rgba(217,154,180,.14);
+}
+#colorBlocks .color-input::placeholder{color:#aaa;font-weight:500}
 #uploadButton{
   width:100%;
   margin-top:18px;
