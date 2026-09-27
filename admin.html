@@ -1921,9 +1921,11 @@ footer{
 @media(min-width:1100px){#models{grid-template-columns:repeat(4,minmax(0,1fr))!important}.inventory-row{grid-template-columns:1fr}.inventory-save{width:100%}}
 @media(max-width:650px){#models{grid-template-columns:1fr!important}.inventory-row{grid-template-columns:minmax(0,1fr) 105px auto}.inventory-save{padding:9px 8px}}
 
-.inventory-model-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.inventory-add-color{background:#f7e8ef;border-radius:9px;padding:8px 10px;font-size:11px}.inventory-add-form{background:#fff7fa;border:1px solid #f0dce5;border-radius:12px;padding:10px;margin:8px 0;display:grid;grid-template-columns:1fr 90px auto auto;gap:6px}.inventory-add-form[hidden]{display:none!important}.inventory-add-form input[type="text"],.inventory-add-form input[type="number"]{width:100%!important;padding:9px!important;border:1px solid #ddd;border-radius:9px}.inventory-photo-label{margin:0!important;background:#f5e7ed;border-radius:8px;padding:8px 10px;font-size:11px;text-align:center;cursor:pointer}.inventory-photo-label input{display:none}.inventory-confirm-color{background:#171717;color:#fff;border-radius:8px;padding:8px}.inventory-cancel-color{background:#f5e7ed;border-radius:8px;padding:8px}.inventory-color{cursor:pointer}.inventory-color:after{content:" ✎";font-size:11px;color:#b18496}@media(max-width:650px){.inventory-add-form{grid-template-columns:1fr 90px}.inventory-confirm-color,.inventory-cancel-color{width:100%}}
+.inventory-model-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.inventory-model-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.inventory-add-color,.inventory-edit-model{background:#f7e8ef;border-radius:9px;padding:8px 10px;font-size:11px}.inventory-edit-model{background:#f1f1f1;color:#222}.inventory-add-form{background:#fff7fa;border:1px solid #f0dce5;border-radius:12px;padding:10px;margin:8px 0;display:grid;grid-template-columns:1fr 90px auto auto;gap:6px}.inventory-add-form[hidden]{display:none!important}.inventory-add-form input[type="text"],.inventory-add-form input[type="number"]{width:100%!important;padding:9px!important;border:1px solid #ddd;border-radius:9px}.inventory-photo-label{margin:0!important;background:#f5e7ed;border-radius:8px;padding:8px 10px;font-size:11px;text-align:center;cursor:pointer}.inventory-photo-label input{display:none}.inventory-confirm-color{background:#171717;color:#fff;border-radius:8px;padding:8px}.inventory-cancel-color{background:#f5e7ed;border-radius:8px;padding:8px}.inventory-color{cursor:pointer}.inventory-color:after{content:" ✎";font-size:11px;color:#b18496}@media(max-width:650px){.inventory-add-form{grid-template-columns:1fr 90px}.inventory-confirm-color,.inventory-cancel-color{width:100%}}
 
 .inventory-value-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}.inventory-value-card{background:#fff;border:1px solid #f0e2e8;border-radius:20px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.05)}.inventory-value-card span{display:block;font-size:13px;font-weight:850;color:#6f6468;margin-bottom:7px}.inventory-value-card strong{display:block;font-size:25px;line-height:1.1;color:#171717}.inventory-value-card small{display:block;color:#a0969a;margin-top:6px;font-size:11px}@media(max-width:520px){.inventory-value-card{padding:15px 13px}.inventory-value-card strong{font-size:20px}.inventory-value-card span{font-size:12px}}
+
+.model-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.model-edit-grid label,.variant-edit-card label{margin:0 0 6px;font-size:12px;color:#6f6468}.model-edit-grid input,.model-edit-grid select,.variant-edit-card input,.variant-edit-card select{width:100%;padding:12px;border:1px solid #ded7da;border-radius:12px;background:#fff}.variant-edit-list{display:grid;gap:12px;margin-top:18px}.variant-edit-card{border:1px solid #eadfe3;border-radius:16px;padding:14px;background:#fffafb}.variant-edit-title{font-weight:900;margin-bottom:10px}.variant-edit-fields{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.2fr;gap:9px}.model-edit-save{width:100%;margin-top:18px;border-radius:15px;padding:15px;background:#171717;color:#fff;font-weight:900}@media(max-width:650px){.model-edit-grid{grid-template-columns:1fr}.variant-edit-fields{grid-template-columns:1fr 1fr}.inventory-model-head{align-items:flex-start}.inventory-model-actions{max-width:180px}}
 
 /* ===== ACCIONES FLOTANTES + CONTEO DE INVENTARIO ===== */
 #uploadSection{display:none}
@@ -2390,6 +2392,13 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
   <div class="catalog-action-sheet">
     <div class="catalog-action-head"><h2>Agregar modelo</h2><button class="catalog-action-close" data-close="modelActionModal" type="button">×</button></div>
     <div id="modelActionBody"></div>
+  </div>
+</div>
+
+<div class="catalog-action-modal" id="editModelModal">
+  <div class="catalog-action-sheet">
+    <div class="catalog-action-head"><h2>Editar modelo</h2><button class="catalog-action-close" data-close="editModelModal" type="button">×</button></div>
+    <div id="editModelBody"></div>
   </div>
 </div>
 
@@ -3584,7 +3593,7 @@ function renderModels(products){
   let html="";
   products.forEach(function(product){
     const variants=Array.isArray(product.variantes)?product.variantes:[];
-    html+='<div class="inventory-model-card" data-model-id="'+Number(product.id)+'"><div class="inventory-model-head"><div class="inventory-model-name">Modelo '+escapeHtml(product.modelo)+'</div><button type="button" class="inventory-add-color">+ Agregar color</button></div><div class="inventory-add-form" hidden><input class="inventory-new-color" type="text" placeholder="Color"><input class="inventory-new-stock" type="number" min="0" step="6" inputmode="numeric" placeholder="Pares"><label class="inventory-photo-label">📷 Foto<input class="inventory-new-photo" type="file" accept="image/*"></label><button type="button" class="inventory-confirm-color">Agregar</button><button type="button" class="inventory-cancel-color">Cancelar</button></div>';
+    html+='<div class="inventory-model-card" data-model-id="'+Number(product.id)+'"><div class="inventory-model-head"><div class="inventory-model-name">Modelo '+escapeHtml(product.modelo)+'</div><div class="inventory-model-actions"><button type="button" class="inventory-edit-model">Editar modelo</button><button type="button" class="inventory-add-color">+ Agregar color</button></div></div><div class="inventory-add-form" hidden><input class="inventory-new-color" type="text" placeholder="Color"><input class="inventory-new-stock" type="number" min="0" step="6" inputmode="numeric" placeholder="Pares"><label class="inventory-photo-label">📷 Foto<input class="inventory-new-photo" type="file" accept="image/*"></label><button type="button" class="inventory-confirm-color">Agregar</button><button type="button" class="inventory-cancel-color">Cancelar</button></div>';
     variants.forEach(function(variant){
       html+='<div class="inventory-row" data-variant-id="'+Number(variant.id)+'">'+
         '<div class="inventory-color">'+escapeHtml(formatColor(variant.color))+'</div>'+
@@ -3598,9 +3607,40 @@ function renderModels(products){
 }
 
 
+function openModelEditor(modelId){
+  const product=(allProducts||[]).find(p=>Number(p.id)===Number(modelId));
+  if(!product)return;
+  const suppliers=[...document.querySelectorAll("#uploadProveedor option")].filter(o=>o.value).map(o=>({id:Number(o.value),nombre:o.textContent.trim()}));
+  const supplierOptions=(selected)=>'<option value="">Sin proveedor</option>'+suppliers.map(s=>'<option value="'+Number(s.id)+'" '+(Number(selected)===Number(s.id)?'selected':'')+'>'+escapeHtml(s.nombre)+'</option>').join('');
+  const categories=["Bota","Botín","Zapatilla","Mocasín","Huarache","Sandalia","Escolar"];
+  document.getElementById("editModelBody").innerHTML=
+    '<div class="model-edit-grid"><div><label>Modelo</label><input id="editModelName" value="'+escapeAttribute(product.modelo)+'"></div><div><label>Categoría</label><select id="editModelCategory">'+categories.map(c=>'<option '+(normalizeText(c)===normalizeText(product.categoria)?'selected':'')+'>'+c+'</option>').join('')+'</select></div></div>'+ 
+    '<div class="variant-edit-list">'+(product.variantes||[]).map(v=>'<div class="variant-edit-card" data-variant-id="'+Number(v.id)+'"><div class="variant-edit-title">'+escapeHtml(formatColor(v.color))+'</div><div class="variant-edit-fields"><div><label>Color</label><input class="edit-v-color" value="'+escapeAttribute(v.color)+'"></div><div><label>Precio compra</label><input class="edit-v-buy" type="number" min="0" step=".01" value="'+Number(v.precio_compra||0)+'"></div><div><label>Precio venta</label><input class="edit-v-sale" type="number" min="0" step=".01" value="'+Number(v.precio_venta||0)+'"></div><div><label>Proveedor</label><select class="edit-v-supplier">'+supplierOptions(v.proveedor_id)+'</select></div></div></div>').join('')+'</div>'+ 
+    '<button class="model-edit-save" id="saveFullModelEdit" type="button">Guardar cambios</button>';
+  document.getElementById("editModelModal").classList.add("show");
+  document.getElementById("saveFullModelEdit").onclick=()=>saveFullModelEdit(product);
+}
+
+async function saveFullModelEdit(product){
+  const btn=document.getElementById("saveFullModelEdit");
+  const variants=[...document.querySelectorAll("#editModelBody .variant-edit-card")].map(card=>({
+    id:Number(card.dataset.variantId),color:card.querySelector(".edit-v-color").value.trim(),precio_compra:Number(card.querySelector(".edit-v-buy").value),precio_venta:Number(card.querySelector(".edit-v-sale").value),proveedor_id:Number(card.querySelector(".edit-v-supplier").value||0)
+  }));
+  if(variants.some(v=>!v.color||v.precio_compra<0||v.precio_venta<0)){alert("Revisa color y precios.");return}
+  btn.disabled=true;btn.textContent="Guardando...";
+  const ok=await manage({action:"update-full-model",modelId:Number(product.id),modelo:document.getElementById("editModelName").value.trim(),categoria:document.getElementById("editModelCategory").value,variantes:variants});
+  if(ok){document.getElementById("editModelModal").classList.remove("show")}else{btn.disabled=false;btn.textContent="Guardar cambios"}
+}
+
 /* CLICS CATÁLOGO */
 
 models.onclick=async function(event){
+  const editModel=event.target.closest(".inventory-edit-model");
+  if(editModel){
+    const card=editModel.closest(".inventory-model-card");
+    openModelEditor(Number(card.dataset.modelId));
+    return;
+  }
   const add=event.target.closest(".inventory-add-color");
   if(add){
     const card=add.closest(".inventory-model-card");
