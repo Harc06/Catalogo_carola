@@ -1923,9 +1923,11 @@ footer{
 
 .inventory-model-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.inventory-add-color{background:#f7e8ef;border-radius:9px;padding:8px 10px;font-size:11px}.inventory-add-form{background:#fff7fa;border:1px solid #f0dce5;border-radius:12px;padding:10px;margin:8px 0;display:grid;grid-template-columns:1fr 90px auto auto;gap:6px}.inventory-add-form[hidden]{display:none!important}.inventory-add-form input[type="text"],.inventory-add-form input[type="number"]{width:100%!important;padding:9px!important;border:1px solid #ddd;border-radius:9px}.inventory-photo-label{margin:0!important;background:#f5e7ed;border-radius:8px;padding:8px 10px;font-size:11px;text-align:center;cursor:pointer}.inventory-photo-label input{display:none}.inventory-confirm-color{background:#171717;color:#fff;border-radius:8px;padding:8px}.inventory-cancel-color{background:#f5e7ed;border-radius:8px;padding:8px}.inventory-color{cursor:pointer}.inventory-color:after{content:" ✎";font-size:11px;color:#b18496}@media(max-width:650px){.inventory-add-form{grid-template-columns:1fr 90px}.inventory-confirm-color,.inventory-cancel-color{width:100%}}
 
+.inventory-value-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}.inventory-value-card{background:#fff;border:1px solid #f0e2e8;border-radius:20px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.05)}.inventory-value-card span{display:block;font-size:13px;font-weight:850;color:#6f6468;margin-bottom:7px}.inventory-value-card strong{display:block;font-size:25px;line-height:1.1;color:#171717}.inventory-value-card small{display:block;color:#a0969a;margin-top:6px;font-size:11px}@media(max-width:520px){.inventory-value-card{padding:15px 13px}.inventory-value-card strong{font-size:20px}.inventory-value-card span{font-size:12px}}
+
 /* ===== ACCIONES FLOTANTES + CONTEO DE INVENTARIO ===== */
 #uploadSection{display:none}
-.catalog-fab{position:fixed;right:22px;bottom:28px;z-index:1400;display:none;flex-direction:column;align-items:flex-end;gap:10px}
+.catalog-fab{position:fixed;right:22px;bottom:96px;z-index:1400;display:none;flex-direction:column;align-items:flex-end;gap:10px}
 body:has(#catalogPanel.active) .catalog-fab{display:flex}
 .catalog-fab-menu{display:none;gap:8px;flex-direction:column;align-items:flex-end}
 .catalog-fab.open .catalog-fab-menu{display:flex}
@@ -1975,8 +1977,8 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 .count-history-row{padding:12px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;gap:10px;font-size:13px}
 .count-diff-list{margin-top:14px;display:grid;gap:8px}
 .count-diff{background:#faf6f8;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;gap:10px}
-@media(min-width:700px){.catalog-action-modal{align-items:center;padding:24px}.catalog-action-sheet{border-radius:28px;max-height:90vh}.catalog-fab{right:34px;bottom:34px}}
-@media(max-width:600px){.count-type-grid{grid-template-columns:1fr}.catalog-fab{right:18px;bottom:22px}}
+@media(min-width:700px){.catalog-action-modal{align-items:center;padding:24px}.catalog-action-sheet{border-radius:28px;max-height:90vh}.catalog-fab{right:34px;bottom:88px}}
+@media(max-width:600px){.count-type-grid{grid-template-columns:1fr}.catalog-fab{right:18px;bottom:108px}}
 
 </style>
 <style>
@@ -2066,6 +2068,11 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 </details>
 
 <section class="catalog">
+
+  <div class="inventory-value-summary" aria-label="Resumen de valor del inventario">
+    <div class="inventory-value-card"><span>Total inventario</span><strong id="inventoryCostTotal">$0</strong><small>Costo de compra</small></div>
+    <div class="inventory-value-card"><span>Estimado con ganancia</span><strong id="inventorySaleTotal">$0</strong><small>Valor estimado de venta</small></div>
+  </div>
 
   <div class="catalog-header">
 
@@ -2374,6 +2381,7 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
   <div class="catalog-fab-menu">
     <button class="catalog-fab-item" id="fabAddModel" type="button">＋ Agregar modelo</button>
     <button class="catalog-fab-item" id="fabCreateCount" type="button">✓ Crear conteo</button>
+    <button class="catalog-fab-item" id="fabExport" type="button">⇩ Exportar</button>
   </div>
   <button class="catalog-fab-main" id="catalogFabMain" type="button" aria-label="Acciones de catálogo">+</button>
 </div>
@@ -3469,6 +3477,7 @@ async function loadModels(){
     });
 
     renderFilteredModels();
+    updateInventoryValueSummary();
 
   }catch(error){
     models.innerHTML=
@@ -3479,6 +3488,19 @@ async function loadModels(){
     modelResultCount.textContent=
       "Error";
   }
+}
+
+function updateInventoryValueSummary(){
+  let costo=0,venta=0;
+  (allProducts||[]).forEach(product=>(product.variantes||[]).forEach(variant=>{
+    const stock=Number(variant.existencia||0);
+    costo+=stock*Number(variant.precio_compra||0);
+    venta+=stock*Number(variant.precio_venta||0);
+  }));
+  const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0});
+  const costEl=document.getElementById("inventoryCostTotal"),saleEl=document.getElementById("inventorySaleTotal");
+  if(costEl)costEl.textContent=money.format(costo);
+  if(saleEl)saleEl.textContent=money.format(venta);
 }
 
 /* BUSCADOR MODELOS */
@@ -4851,7 +4873,7 @@ authenticateAdmin().then(async()=>{createColorBlock("");await Promise.all([loadM
 #backToTop.show{opacity:1;visibility:visible;transform:none}
 @media(max-width:600px){#backToTop{left:16px;bottom:18px;width:44px;height:44px}}
 </style>
-<button id="openExportCenter" type="button" class="export-fab">Exportar</button>
+
 <div id="exportModal" class="export-modal" aria-hidden="true"><div class="export-dialog"><div class="export-head"><div><span class="supplier-kicker">RESPALDO</span><h2>Exportar registros</h2></div><button id="closeExportCenter" type="button" class="note-close">×</button></div>
 <div class="export-grid"><div><label>Periodo</label><select id="exportPeriod"><option value="month">Un mes</option><option value="months">Varios meses</option><option value="year">Año completo</option><option value="range">Rango personalizado</option><option value="all">Todo el historial</option></select></div><div id="exportYearWrap"><label>Año</label><input id="exportYear" type="number" min="2020" max="2100"></div><div id="exportMonthWrap"><label>Mes</label><select id="exportMonth"></select></div><div id="exportMonthsWrap" style="display:none"><label>Meses (Ctrl/⌘ o varios toques)</label><select id="exportMonths" multiple size="5"></select></div><div id="exportFromWrap" style="display:none"><label>Desde</label><input id="exportFrom" type="date"></div><div id="exportToWrap" style="display:none"><label>Hasta</label><input id="exportTo" type="date"></div></div>
 <div class="export-checks"><label><input type="checkbox" class="export-section" value="finanzas" checked> Finanzas</label><label><input type="checkbox" class="export-section" value="pedidos" checked> Pedidos</label><label><input id="exportSuppliersCheck" type="checkbox" class="export-section" value="proveedores" checked> Proveedores</label><label><input id="exportClientsCheck" type="checkbox" class="export-section" value="clientes" checked> Clientes</label><label><input id="exportDeleted" type="checkbox"> Incluir eliminados</label></div>
@@ -4866,7 +4888,7 @@ authenticateAdmin().then(async()=>{createColorBlock("");await Promise.all([loadM
 const exportModal=document.getElementById("exportModal"),exportPeriod=document.getElementById("exportPeriod"),exportYear=document.getElementById("exportYear"),exportMonth=document.getElementById("exportMonth"),exportMonths=document.getElementById("exportMonths");
 const exportMonthNames=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 exportMonth.innerHTML=exportMonthNames.map((x,i)=>'<option value="'+(i+1)+'">'+x+'</option>').join("");exportMonths.innerHTML=exportMonth.innerHTML;exportYear.value=new Date().getFullYear();exportMonth.value=new Date().getMonth()+1;
-document.getElementById("openExportCenter").onclick=()=>exportModal.classList.add("show");document.getElementById("closeExportCenter").onclick=()=>exportModal.classList.remove("show");
+document.getElementById("fabExport").onclick=()=>{document.getElementById("catalogFab").classList.remove("open");exportModal.classList.add("show")};document.getElementById("closeExportCenter").onclick=()=>exportModal.classList.remove("show");
 function syncExportPeriod(){const v=exportPeriod.value;document.getElementById("exportYearWrap").style.display=["month","months","year"].includes(v)?"block":"none";document.getElementById("exportMonthWrap").style.display=v==="month"?"block":"none";document.getElementById("exportMonthsWrap").style.display=v==="months"?"block":"none";document.getElementById("exportFromWrap").style.display=v==="range"?"block":"none";document.getElementById("exportToWrap").style.display=v==="range"?"block":"none"}exportPeriod.onchange=syncExportPeriod;syncExportPeriod();
 function exportDateOK(v){if(!v)return exportPeriod.value==="all";const d=String(v).slice(0,10),p=exportPeriod.value;if(p==="all")return true;if(p==="range")return d>=(document.getElementById("exportFrom").value||"0000-00-00")&&d<=(document.getElementById("exportTo").value||"9999-99-99");const y=Number(d.slice(0,4));if(y!==Number(exportYear.value))return false;if(p==="year")return true;const m=Number(d.slice(5,7));if(p==="month")return m===Number(exportMonth.value);return [...exportMonths.selectedOptions].map(x=>Number(x.value)).includes(m)}
 function addExportSheet(wb,name,rows){if(!rows.length)rows=[{Sin_registros:""}];const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=Object.keys(rows[0]).map(k=>({wch:Math.max(12,Math.min(28,k.length+8))}));XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31))}
@@ -5135,15 +5157,16 @@ function renderCountCard(){
           <div class="count-model">Modelo ${escapeHtml(item.modelo)} · ${escapeHtml(formatColor(item.color))}</div>
           <div class="count-sub">${escapeHtml(item.categoria)}${item.proveedor?' · '+escapeHtml(item.proveedor):''}</div>
           <div class="count-question">¿Cuántos pares contaste?</div>
-          <div class="count-qty"><button id="countMinus" type="button">−</button><input id="countQty" type="number" min="0" step="1" inputmode="numeric" value="${item.cantidad_contada??item.existencia_anterior}"><button id="countPlus" type="button">+</button></div>
+          <div class="count-qty"><button id="countMinus" type="button">−</button><input id="countQty" type="number" min="0" step="6" inputmode="numeric" value="${item.cantidad_contada??item.existencia_anterior}"><button id="countPlus" type="button">+</button></div>
           <div class="count-actions"><button class="count-review" id="countReview" type="button">↶ Revisar al final</button><button class="count-confirm" id="countConfirm" type="button">✓ Confirmar conteo</button></div>
           <div class="count-swipe-help"><span>← Desliza para revisar</span><span>Desliza para confirmar →</span></div>
         </div>
       </article>
     </div>`;
   const input=document.getElementById("countQty");
-  document.getElementById("countMinus").onclick=()=>input.value=Math.max(0,Number(input.value||0)-1);
-  document.getElementById("countPlus").onclick=()=>input.value=Number(input.value||0)+1;
+  document.getElementById("countMinus").onclick=()=>input.value=Math.max(0,Number(input.value||0)-6);
+  document.getElementById("countPlus").onclick=()=>input.value=Number(input.value||0)+6;
+  input.addEventListener("change",()=>{const n=Math.max(0,Number(input.value||0));input.value=Math.round(n/6)*6});
   document.getElementById("countReview").onclick=()=>actOnCard("revisar");
   document.getElementById("countConfirm").onclick=()=>actOnCard("confirmado");
   wireSwipe(document.getElementById("countCard"));
@@ -5153,7 +5176,7 @@ async function actOnCard(action){
   const item=currentItem(); if(!item)return;
   const input=document.getElementById("countQty");
   const qty=Number(input?.value);
-  if(action==="confirmado"&&(!Number.isInteger(qty)||qty<0)){alert("Escribe una cantidad válida de pares.");return}
+  if(action==="confirmado"&&(!Number.isInteger(qty)||qty<0||qty%6!==0)){alert("La cantidad debe ser múltiplo de 6 pares.");return}
   const card=document.getElementById("countCard");
   if(card){card.style.transform="translateX("+(action==="confirmado"?"120%":"-120%")+") rotate("+(action==="confirmado"?"8deg":"-8deg")+")";card.style.opacity="0"}
   try{
