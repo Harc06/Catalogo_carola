@@ -10,6 +10,18 @@ revoke all on public.pedido_envios from public, anon, authenticated;
 grant select, insert on public.pedido_envios to service_role;
 create index if not exists pedido_envios_fingerprint_idx on public.pedido_envios(fingerprint, creado_en desc);
 
+-- Transactional counter: failed checkouts and retries do not consume folios.
+create table if not exists public.pedido_folio_contador (
+  id boolean primary key default true check (id),
+  ultimo bigint not null default 0 check (ultimo >= 0)
+);
+alter table public.pedido_folio_contador enable row level security;
+revoke all on public.pedido_folio_contador from public, anon, authenticated;
+grant select, update on public.pedido_folio_contador to service_role;
+insert into public.pedido_folio_contador(id,ultimo)
+  select true,coalesce(max(folio::bigint),0) from public.pedidos where folio ~ '^[0-9]+$'
+  on conflict (id) do nothing;
+
 create or replace function public.pedido_normalize(value text)
 returns text language sql immutable strict security invoker set search_path = ''
 as $$ select lower(regexp_replace(regexp_replace(normalize(btrim(value), NFD), U&'[\0300-\036f]', '', 'g'), '\s+', ' ', 'g')) $$;
@@ -32,6 +44,7 @@ declare
   qty numeric;
   total numeric := 0;
   result jsonb;
+  folio_numero bigint;
 begin
   if p_request_id is null or customer is null or length(customer) not between 1 and 120 then
     raise exception using errcode='P0001', message='Nombre de cliente inválido.';
@@ -108,16 +121,12 @@ begin
     end if;
     canonical := canonical || jsonb_build_array(jsonb_build_object('modelo',variant.modelo,'color',variant.color,'cantidad',qty));
   end loop;
-  for attempt in 1..5 loop
-    begin
-      insert into public.pedidos(folio,cliente,total_pares,estado)
-        values('CAR-'||to_char(now() at time zone 'America/Mexico_City','DDMMYY')||'-'||upper(substr(replace(gen_random_uuid()::text,'-',''),1,12)),customer,total::integer,'Nuevo')
-        returning * into saved;
-      exit;
-    exception when unique_violation then
-      if attempt=5 then raise; end if;
-    end;
-  end loop;
+  update public.pedido_folio_contador set ultimo=ultimo+1 where id=true
+    returning ultimo into folio_numero;
+  if folio_numero is null then raise exception 'No está configurado el contador de folios'; end if;
+  insert into public.pedidos(folio,cliente,total_pares,estado)
+    values(lpad(folio_numero::text,greatest(4,length(folio_numero::text)),'0'),customer,total::integer,'Nuevo')
+    returning * into saved;
   insert into public.pedido_detalles(pedido_id,modelo,color,cantidad)
     select saved.id,value->>'modelo',value->>'color',(value->>'cantidad')::integer
     from jsonb_array_elements(canonical);
