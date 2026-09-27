@@ -1980,6 +1980,19 @@ footer{
 
 .model-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.model-edit-grid label,.variant-edit-card label{margin:0 0 6px;font-size:12px;color:#6f6468}.model-edit-grid input,.model-edit-grid select,.variant-edit-card input,.variant-edit-card select{width:100%;padding:12px;border:1px solid #ded7da;border-radius:12px;background:#fff}.variant-edit-list{display:grid;gap:12px;margin-top:18px}.variant-edit-card{border:1px solid #eadfe3;border-radius:16px;padding:14px;background:#fffafb}.variant-edit-title{font-weight:900;margin-bottom:10px}.variant-edit-fields{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.2fr;gap:9px}.model-edit-save{width:100%;margin-top:18px;border-radius:15px;padding:15px;background:#171717;color:#fff;font-weight:900}@media(max-width:650px){.model-edit-grid{grid-template-columns:1fr}.variant-edit-fields{grid-template-columns:1fr 1fr}.inventory-model-head{align-items:flex-start}.inventory-model-actions{max-width:180px}}
 
+
+/* Tarjetas de inventario desplegables */
+.inventory-model-card{padding:0;overflow:hidden}
+.inventory-model-summary{list-style:none;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px}
+.inventory-model-summary::-webkit-details-marker{display:none}
+.inventory-model-summary .inventory-model-name{margin:0}
+.inventory-model-chevron{flex:none;font-size:22px;line-height:1;color:#9b7c88;transition:transform .18s ease}
+.inventory-model-card[open] .inventory-model-chevron{transform:rotate(180deg)}
+.inventory-model-body{padding:0 16px 16px}
+.inventory-model-head{justify-content:flex-end;margin-bottom:6px}
+.inventory-model-actions{width:min(330px,100%)}
+@media(max-width:650px){.inventory-model-summary{padding:14px 16px}.inventory-model-body{padding:0 16px 14px}.inventory-model-actions{width:100%;max-width:none}}
+
 /* ===== ACCIONES FLOTANTES + CONTEO DE INVENTARIO ===== */
 #uploadSection{display:none}
 .catalog-fab{position:fixed;right:22px;bottom:96px;z-index:1400;display:none;flex-direction:column;align-items:flex-end;gap:10px}
@@ -3651,7 +3664,7 @@ function renderModels(products){
   let html="";
   products.forEach(function(product){
     const variants=Array.isArray(product.variantes)?product.variantes:[];
-    html+='<div class="inventory-model-card" data-model-id="'+Number(product.id)+'"><div class="inventory-model-head"><div class="inventory-model-name">Modelo '+escapeHtml(product.modelo)+'</div><div class="inventory-model-actions"><button type="button" class="inventory-edit-model">Editar modelo</button><button type="button" class="inventory-add-color">+ Agregar color</button></div></div><div class="inventory-add-form" hidden><input class="inventory-new-color" type="text" placeholder="Color"><input class="inventory-new-stock" type="number" min="0" step="6" inputmode="numeric" placeholder="Pares"><label class="inventory-photo-label">📷 Foto<input class="inventory-new-photo" type="file" accept="image/*"></label><button type="button" class="inventory-confirm-color">Agregar</button><button type="button" class="inventory-cancel-color">Cancelar</button></div>';
+    html+='<details class="inventory-model-card" data-model-id="'+Number(product.id)+'"><summary class="inventory-model-summary"><div class="inventory-model-name">Modelo '+escapeHtml(product.modelo)+'</div><span class="inventory-model-chevron">⌄</span></summary><div class="inventory-model-body"><div class="inventory-model-head"><div class="inventory-model-actions"><button type="button" class="inventory-edit-model">Editar modelo</button><button type="button" class="inventory-add-color">+ Agregar color</button></div></div><div class="inventory-add-form" hidden><input class="inventory-new-color" type="text" placeholder="Color"><input class="inventory-new-stock" type="number" min="0" step="6" inputmode="numeric" placeholder="Pares"><label class="inventory-photo-label">📷 Foto<input class="inventory-new-photo" type="file" accept="image/*"></label><button type="button" class="inventory-confirm-color">Agregar</button><button type="button" class="inventory-cancel-color">Cancelar</button></div>';
     variants.forEach(function(variant){
       html+='<div class="inventory-row" data-variant-id="'+Number(variant.id)+'">'+
         '<div class="inventory-color">'+escapeHtml(formatColor(variant.color))+'</div>'+
@@ -3659,7 +3672,7 @@ function renderModels(products){
         '<button type="button" class="inventory-save">Guardar</button>'+
       '</div>';
     });
-    html+='</div>';
+    html+='</div></details>';
   });
   models.innerHTML=html;
 }
