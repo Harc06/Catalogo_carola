@@ -10,7 +10,7 @@ exports.handler=async event=>{
    const {data:proveedores,error:e1}=await supabase.from("proveedores").select("id,nombre,activo,creado_en").eq("activo",true).order("nombre");
    if(e1)throw e1;
    const {data:movimientos,error:e2}=await supabase.from("proveedores_movimientos").select("id,proveedor_id,tipo,fecha,folio,importe,pares,forma_pago,observaciones,creado_en,actualizado_en,eliminado_en").order("fecha",{ascending:false}).order("id",{ascending:false});
-   if(e2)throw e2;return res(200,{success:true,proveedores:proveedores||[],movimientos:movimientos||[]});
+   if(e2)throw e2;\n   const {data:compras,error:e3}=await supabase.from("compras_proveedores").select("id,proveedor_id,movimiento_id,fecha,folio,importe_total,pares_total,observaciones,creado_en,compras_proveedores_detalle(id,variante_id,modelo,color,cantidad,costo_unitario,subtotal)").order("fecha",{ascending:false}).order("id",{ascending:false});\n   if(e3)throw e3;return res(200,{success:true,proveedores:proveedores||[],movimientos:movimientos||[],compras:compras||[]});
   }
   if(event.httpMethod!=="POST")return res(405,{success:false,error:"Método no permitido"});
   const b=JSON.parse(event.body||"{}"),action=String(b.action||"");
