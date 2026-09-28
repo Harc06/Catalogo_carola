@@ -49,6 +49,27 @@ exports.handler=async function(event){
     catch{return response(400,{success:false,error:"Datos inválidos"});}
 
     const action=String(body.action||"");
+
+    if(action==="create-manual"){
+      const cliente=cleanText(body.cliente);
+      const fecha=String(body.fecha||"").trim();
+      const items=Array.isArray(body.items)?body.items:[];
+      if(!cliente) return response(400,{success:false,error:"Falta el nombre del cliente"});
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return response(400,{success:false,error:"Fecha inválida"});
+      if(!items.length) return response(400,{success:false,error:"Agrega al menos un producto"});
+      const {data:id,error:createError}=await supabase.rpc("crear_pedido_manual",{
+        p_cliente:cliente,
+        p_catalogo_cliente_id:Number(body.catalogo_cliente_id)||null,
+        p_cliente_deuda_id:Number(body.cliente_deuda_id)||null,
+        p_fecha:fecha,
+        p_items:items
+      });
+      if(createError)throw createError;
+      const {data,error}=await supabase.from("pedidos").select(SELECT_ORDER).eq("id",id).single();
+      if(error)throw error;
+      return response(200,{success:true,pedido:data});
+    }
+
     const pedidoId=Number(body.pedido_id);
     if(!Number.isInteger(pedidoId)||pedidoId<=0) return response(400,{success:false,error:"Pedido inválido"});
 
