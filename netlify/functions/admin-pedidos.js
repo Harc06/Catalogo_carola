@@ -152,7 +152,7 @@ exports.handler=async function(event){
         const {error}=await supabase.from("inventario_mayoreo").upsert({variante_id:d.variantId,existencia:d.current-d.qty,actualizado_en:new Date().toISOString()},{onConflict:"variante_id"});
         if(error)throw error;
       }
-      const sentNow=new Date(),sentDate=sentNow.getFullYear()+"-"+String(sentNow.getMonth()+1).padStart(2,"0")+"-"+String(sentNow.getDate()).padStart(2,"0");
+      const sentNow=new Date(),sentDate=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Mexico_City",year:"numeric",month:"2-digit",day:"2-digit"}).format(sentNow);
       orderProfit=Math.round((orderProfit+Number.EPSILON)*100)/100;
       const {data,error}=await supabase.from("pedidos").update({estado:"Enviado",fecha_envio:sentDate,ganancia_pedido:orderProfit,actualizado_en:sentNow.toISOString()}).eq("id",pedidoId).select(SELECT_ORDER).single();
       if(error)throw error;
