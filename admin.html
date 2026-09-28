@@ -2806,7 +2806,7 @@ async function quickClientPayment(clientId,balance,full){
  const amount=full?Number(balance):Number(prompt("¿Cuánto abonó "+client.nombre+"?",""));
  if(!Number.isFinite(amount)||amount<=0)return;
  if(amount>Number(balance)){alert("El abono no puede ser mayor al saldo pendiente.");return}
- const fecha=clientDebtOriginDate(clientId);
+ const now=new Date(),fecha=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
  if(!confirm((full?"Registrar como pagado ":"Registrar abono de "+moneyShort(amount)+" para ")+client.nombre+"\nFecha del registro: "+fecha+"?"))return;
  try{await clientCall({action:"add-movement",cliente_id:clientId,tipo:"pago",fecha,importe:amount,forma_pago:full?"Pagado":"Abono",observaciones:"Registrado desde saldo pendiente"});await loadClients()}catch(e){alert(e.message)}
 }
