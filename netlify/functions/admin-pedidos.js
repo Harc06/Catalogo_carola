@@ -125,40 +125,16 @@ exports.handler=async function(event){
     }
 
     if(action==="mark-sent"){
-      const {data:order,error:oe}=await supabase.from("pedidos").select(SELECT_ORDER).eq("id",pedidoId).single();
-      if(oe)throw oe;
-      if(order.estado==="Enviado") return response(200,{success:true,pedido:order,already_sent:true});
-
-      const details=Array.isArray(order.pedido_detalles)?order.pedido_detalles:[];
-      if(!details.length)return response(400,{success:false,error:"El pedido no tiene productos"});
-
-      // Validate all inventory first, so a failed shipment never partially discounts stock.
-      const deductions=[];
-      let orderProfit=0;
-      for(const item of details){
-        const {data:model,error:me}=await supabase.from("modelos").select("id").eq("modelo",String(item.modelo)).maybeSingle();
-        if(me||!model)return response(409,{success:false,error:"No se encontró el modelo "+item.modelo+" en inventario"});
-        const {data:vars,error:ve}=await supabase.from("variantes").select("id,color,precio_compra").eq("modelo_id",model.id).eq("activo",true);
-        if(ve)throw ve;
-        const norm=v=>String(v||"").trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-        const variant=(vars||[]).find(v=>norm(v.color)===norm(item.color));
-        if(!variant)return response(409,{success:false,error:"No se encontró "+item.modelo+" "+item.color+" en inventario"});
-        const {data:stock,error:se}=await supabase.from("inventario_mayoreo").select("existencia").eq("variante_id",variant.id).maybeSingle();
-        if(se)throw se;
-        const current=Number(stock?.existencia||0),qty=Number(item.cantidad||0);
-        if(!Number.isFinite(qty)||qty<=0||current<qty)return response(409,{success:false,error:"Existencia insuficiente para "+item.modelo+" "+item.color+". Hay "+current+" pares y el pedido requiere "+qty+"."});
-        deductions.push({variantId:variant.id,current,qty});
-        orderProfit+=qty*(Number(item.precio_unitario||0)-Number(variant.precio_compra||0));
-      }
-      for(const d of deductions){
-        const {error}=await supabase.from("inventario_mayoreo").upsert({variante_id:d.variantId,existencia:d.current-d.qty,actualizado_en:new Date().toISOString()},{onConflict:"variante_id"});
-        if(error)throw error;
-      }
-      const sentNow=new Date(),sentDate=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Mexico_City",year:"numeric",month:"2-digit",day:"2-digit"}).format(sentNow);
-      orderProfit=Math.round((orderProfit+Number.EPSILON)*100)/100;
-      const {data,error}=await supabase.from("pedidos").update({estado:"Enviado",fecha_envio:sentDate,ganancia_pedido:orderProfit,actualizado_en:sentNow.toISOString()}).eq("id",pedidoId).select(SELECT_ORDER).single();
+      const paymentMethod=cleanText(body.forma_pago,30)||"Deuda";
+      const clientId=Number(body.cliente_id);
+      if(!Number.isInteger(clientId)||clientId<=0) return response(400,{success:false,error:"Cliente inválido"});
+      const {data:atomic,error:atomicError}=await supabase.rpc("enviar_pedido_atomico",{
+        p_pedido_id:pedidoId,p_forma_pago:paymentMethod,p_cliente_id:clientId
+      });
+      if(atomicError) throw atomicError;
+      const {data,error}=await supabase.from("pedidos").select(SELECT_ORDER).eq("id",pedidoId).single();
       if(error)throw error;
-      return response(200,{success:true,pedido:data});
+      return response(200,{success:true,pedido:data,already_sent:Boolean(atomic?.already_sent)});
     }
 
     if(action==="change-status"){
