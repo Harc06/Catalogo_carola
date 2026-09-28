@@ -2474,6 +2474,34 @@ Todos
    COLORES
 ========================= */
 
+function baseCatalogColor(value){
+const raw=String(value||"").trim();
+const n=normalize(raw);
+const groups=[
+["negro",["negro"]],
+["cafe",["cafe","café","moka","moka","chocolate"]],
+["camel",["camel","shedron","shedrón","tan"]],
+["conac",["conac","coñac","cognac"]],
+["latte",["latte"]],
+["maquillaje",["maquillaje"]],
+["blanco",["blanco"]],
+["beige",["beige"]],
+["rojo",["rojo","vino","burgundy"]],
+["azul",["azul","marino"]],
+["verde",["verde"]],
+["rosa",["rosa","pink"]],
+["gris",["gris"]],
+["plata",["plata","plateado"]],
+["oro",["oro","dorado"]]
+];
+for(const [base,words] of groups){if(words.some(w=>n.includes(normalize(w))))return base}
+return n.split(/\s+/)[0]||n;
+}
+function baseCatalogColorLabel(value){
+const base=baseCatalogColor(value);
+return base==="conac"?"Coñac":base==="cafe"?"Café":base.charAt(0).toUpperCase()+base.slice(1);
+}
+
 function buildFilters(){
 
 const colors=new Map();
@@ -2624,6 +2652,11 @@ variants(product)
 .map(
 variant=>normalize(variant.color)
 );
+const colorGroups=
+variants(product)
+.map(
+variant=>baseCatalogColor(variant.color)
+);
 
 const searchOK=
 !query ||
@@ -2639,7 +2672,7 @@ categoryText===selectedCategory;
 
 const colorOK=
 selectedFilter==="todos" ||
-colorTexts.includes(selectedFilter);
+colorGroups.includes(selectedFilter);
 
 return (
 searchOK &&
