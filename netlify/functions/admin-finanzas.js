@@ -54,6 +54,24 @@ exports.handler=async function(event){
 
     const action=String(body.action||"");
 
+    if(action==="add-order-sale"){
+      const fecha=String(body.fecha||"").trim();
+      const ganancia=Number(body.ganancia);
+      const pares=Number(body.pares);
+      if(!validDate(fecha)) return response(400,{success:false,error:"Fecha inválida"});
+      if(!Number.isFinite(ganancia)||ganancia<0) return response(400,{success:false,error:"Ganancia inválida"});
+      if(!Number.isInteger(pares)||pares<0) return response(400,{success:false,error:"Pares inválidos"});
+      const medias=pares/6;
+      if(!Number.isInteger(medias)) return response(400,{success:false,error:"Los pares del pedido deben ser múltiplos de 6"});
+      const {data:existing,error:ee}=await supabase.from("finanzas_diarias").select("id,fecha,ganancia,medias_docenas").eq("fecha",fecha).maybeSingle();
+      if(ee)throw ee;
+      const payload={fecha,ganancia:(Number(existing?.ganancia||0)+ganancia),medias_docenas:(Number(existing?.medias_docenas||0)+medias),actualizado_en:new Date().toISOString()};
+      const query=existing?supabase.from("finanzas_diarias").update(payload).eq("id",existing.id):supabase.from("finanzas_diarias").insert(payload);
+      const {data,error}=await query.select("id,fecha,ganancia,medias_docenas,creado_en,actualizado_en").single();
+      if(error)throw error;
+      return response(200,{success:true,registro:data});
+    }
+
     if(action==="upsert"){
       const fecha=String(body.fecha||"").trim();
       const ganancia=Number(body.ganancia);
