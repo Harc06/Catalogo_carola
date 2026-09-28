@@ -2284,9 +2284,10 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 
 
 
-<div id="manualOrderModal" class="modal">
- <div class="modal-card manual-order-modal">
-  <div class="modal-head"><div><h2>Nueva nota</h2><p>Crea una venta directamente desde Registro.</p></div><button id="manualOrderClose" class="modal-close" type="button">×</button></div>
+<div id="manualOrderModal" class="note-modal" aria-hidden="true">
+ <div class="note-dialog manual-order-modal">
+  <div class="note-head"><div><div class="order-folio">NOTA MANUAL</div><h2>Nueva nota</h2></div><button id="manualOrderClose" class="note-close" type="button" aria-label="Cerrar">×</button></div>
+  <div class="note-body">
   <div class="manual-client-grid">
    <div><label>Cliente</label><input id="manualClientName" list="manualClientSuggestions" type="text" placeholder="Nombre del cliente" autocomplete="off"><datalist id="manualClientSuggestions"></datalist><small id="manualClientMatch">Escribe el nombre del cliente.</small></div>
    <div><label>Teléfono</label><input id="manualClientPhone" type="text" placeholder="Teléfono" readonly></div>
@@ -2297,6 +2298,7 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
   <button id="manualAddLine" class="manual-add-line" type="button">+ Agregar producto</button>
   <div class="manual-note-total"><span>Total de la nota</span><strong id="manualOrderTotal">$0.00</strong></div>
   <div class="manual-actions"><button id="manualCancel" type="button">Cancelar</button><button id="manualSave" type="button">Guardar nota</button></div>
+  </div>
  </div>
 </div>
 
