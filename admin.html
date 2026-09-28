@@ -2050,6 +2050,33 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 @media(min-width:700px){.catalog-action-modal{align-items:center;padding:24px}.catalog-action-sheet{border-radius:28px;max-height:90vh}.catalog-fab{right:34px;bottom:88px}}
 @media(max-width:600px){.count-type-grid{grid-template-columns:1fr}.catalog-fab{right:18px;bottom:108px}}
 
+
+/* Registros eliminados */
+.deleted-records-card{overflow:hidden}
+.deleted-records-header{align-items:center}
+.deleted-count{flex:none;padding:7px 11px;border-radius:999px;background:#f7edf1;color:#7d6570;font-size:11px;font-weight:900}
+.deleted-records-list{display:grid;gap:10px}
+.deleted-empty{padding:28px 16px;text-align:center;color:#999;background:#fffafb;border:1px dashed #eadde3;border-radius:15px}
+.deleted-record{border:1px solid #eee3e8;border-radius:16px;background:#fff;overflow:hidden}
+.deleted-record-main{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 17px}
+.deleted-record-person{min-width:0}
+.deleted-record-person strong{display:block;font-size:16px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.deleted-record-person small{display:block;margin-top:5px;color:#999;font-size:11px}
+.deleted-record-values{display:flex;align-items:center;gap:18px;flex:none}
+.deleted-metric{text-align:right}
+.deleted-metric span{display:block;color:#999;font-size:9px;font-weight:900;letter-spacing:.35px;text-transform:uppercase}
+.deleted-metric strong{display:block;margin-top:3px;font-size:14px}
+.deleted-status{padding:6px 9px;border-radius:999px;background:#f3f0f1;color:#70656a;font-size:10px;font-weight:900}
+.deleted-record-meta{display:flex;gap:18px;flex-wrap:wrap;padding:10px 17px;background:#fffafb;border-top:1px solid #f3e9ed;color:#8b7e84;font-size:10px}
+.deleted-record-meta b{color:#4d4549}
+@media(max-width:600px){
+ .deleted-record-main{align-items:flex-start;flex-direction:column}
+ .deleted-record-values{width:100%;justify-content:space-between;gap:8px}
+ .deleted-metric{text-align:left}
+ .deleted-record-meta{gap:8px 14px}
+ .deleted-count{display:none}
+}
+
 </style>
 <style>
 .finance-quick-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -2244,9 +2271,9 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
     <div id="sentOrders"></div>
   </section>
 
-  <section class="card" style="margin-top:22px">
-    <div class="orders-header"><div><h2>Registros eliminados</h2><p>Historial de pedidos eliminados. Ya no afectan saldos, finanzas ni pedidos activos.</p></div></div>
-    <div class="table-scroll"><table class="records-table"><thead><tr><th>Eliminado</th><th>Cliente</th><th>Folio</th><th>Fecha registro</th><th>Pares</th><th>Total</th><th>Ganancia</th><th>Estado</th></tr></thead><tbody id="deletedOrdersBody"><tr><td colspan="8">Sin registros eliminados.</td></tr></tbody></table></div>
+  <section class="card deleted-records-card" style="margin-top:22px">
+    <div class="orders-header deleted-records-header"><div><h2>Registros eliminados</h2><p>Historial de pedidos eliminados. Ya no afectan saldos, finanzas ni pedidos activos.</p></div><span id="deletedRecordsCount" class="deleted-count">0 registros</span></div>
+    <div id="deletedOrdersBody" class="deleted-records-list"><div class="deleted-empty">Sin registros eliminados.</div></div>
   </section>
 
 </div>
