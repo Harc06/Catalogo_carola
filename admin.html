@@ -2691,10 +2691,32 @@ function supplierPurchasesHtml(providerId){
  if(!rows.length)return '<div class="finance-empty">Todavía no hay compras detalladas registradas para este proveedor.</div>';
  return '<div style="max-height:520px;overflow:auto;display:grid;gap:10px">'+rows.slice(0,10).map(x=>{const d=x.compras_proveedores_detalle||[];const detail=d.length?'<div style="padding:0 14px 14px;overflow:auto"><table class="finance-table"><thead><tr><th>Modelo</th><th>Color</th><th>Pares</th><th>Costo</th><th>Subtotal</th></tr></thead><tbody>'+d.map(i=>'<tr><td>'+escapeHtml(i.modelo)+'</td><td>'+escapeHtml(i.color)+'</td><td>'+Number(i.cantidad||0)+'</td><td>'+(i.costo_unitario==null?"—":moneyShort(i.costo_unitario))+'</td><td>'+(i.subtotal==null?"—":moneyShort(i.subtotal))+'</td></tr>').join("")+'</tbody></table></div>':'<div class="finance-empty">Compra sin detalle de modelos.</div>';return '<details class="deleted-box" style="margin:0"><summary style="display:flex;justify-content:space-between;gap:12px"><span><strong>'+formatFinanceDate(x.fecha)+'</strong> · Folio '+escapeHtml(x.folio||"—")+'</span><span><strong>'+Number(x.pares_total||0)+' pares</strong> · '+moneyShort(x.importe_total)+'</span></summary>'+detail+'</details>'}).join("")+'</div>';
 }
+async function quickSupplierPayment(providerId,balance,full){
+ const provider=suppliers.find(x=>Number(x.id)===Number(providerId));if(!provider)return;
+ const amount=full?Number(balance):Number(prompt("¿Cuánto vas a abonar a "+provider.nombre+"?",""));
+ if(!Number.isFinite(amount)||amount<=0)return;
+ if(amount>Number(balance)){alert("El abono no puede ser mayor al saldo pendiente.");return}
+ const choice=prompt("Forma / concepto del pago:\n\n1 = Efectivo\n2 = Transferencia\n3 = Otro","2");
+ if(choice===null)return;
+ let forma="";
+ if(String(choice).trim()==="1")forma="Efectivo";
+ else if(String(choice).trim()==="2")forma="Transferencia";
+ else if(String(choice).trim()==="3"){
+   const other=prompt("Escribe el concepto del pago.\nEjemplo: Nota 282","");
+   if(other===null||!other.trim())return;
+   forma=other.trim();
+ }else{alert("Selecciona 1, 2 o 3.");return}
+ const fecha=new Date().toISOString().slice(0,10);
+ if(!confirm((full?"Registrar pago total de ":"Registrar abono de ")+moneyShort(amount)+" a "+provider.nombre+"\nFecha: "+fecha+"\nConcepto: "+forma+"?"))return;
+ try{
+   await supplierCall({action:"add-movement",proveedor_id:providerId,tipo:"pago",fecha,importe:amount,forma_pago:forma,observaciones:full?"Pago total desde saldo pendiente":"Abono desde saldo pendiente"});
+   await loadSuppliers();
+ }catch(e){alert(e.message)}
+}
 function renderSuppliers(){
  const debtors=suppliers.map(p=>{const m=supplierMoves.filter(x=>x.proveedor_id===p.id&&!x.eliminado_en),notes=m.filter(x=>x.tipo==="nota").reduce((s,x)=>s+Number(x.importe||0),0),pays=m.filter(x=>x.tipo==="pago").reduce((s,x)=>s+Number(x.importe||0),0),opening=m.filter(x=>x.tipo==="saldo_inicial").reduce((s,x)=>s+Number(x.importe||0),0);return {id:p.id,nombre:p.nombre,saldo:opening+notes-pays}}).filter(x=>x.saldo>0).sort((a,b)=>b.saldo-a.saldo);
  const totalDebt=debtors.reduce((s,x)=>s+x.saldo,0),debtBox=document.getElementById("supplierDebtTotal");
- if(debtBox)debtBox.innerHTML='<div style="display:flex;justify-content:space-between;gap:16px;align-items:center"><div><span class="supplier-kicker">POR PAGAR</span><h3 style="margin:3px 0 0">Saldo total a proveedores</h3></div><strong style="font-size:26px">'+moneyShort(totalDebt)+'</strong></div>'+(debtors.length?'<div style="margin-top:12px;display:grid;gap:7px">'+debtors.map(x=>'<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;border-top:1px solid #f0e4e9;padding-top:7px"><span style="flex:1">'+escapeHtml(x.nombre)+'</span><strong>'+moneyShort(x.saldo)+'</strong><button class="record-tool-btn" type="button" onclick="quickClientPayment('+x.id+','+x.saldo+',true)">Pagado</button><button class="record-tool-btn" type="button" onclick="quickClientPayment('+x.id+','+x.saldo+',false)">Abono</button></div>').join("")+'</div>':'<div style="margin-top:8px;color:#888">No hay proveedores con saldo pendiente.</div>');
+ if(debtBox)debtBox.innerHTML='<div style="display:flex;justify-content:space-between;gap:16px;align-items:center"><div><span class="supplier-kicker">POR PAGAR</span><h3 style="margin:3px 0 0">Saldo total a proveedores</h3></div><strong style="font-size:26px">'+moneyShort(totalDebt)+'</strong></div>'+(debtors.length?'<div style="margin-top:12px;display:grid;gap:7px">'+debtors.map(x=>'<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;border-top:1px solid #f0e4e9;padding-top:7px"><span style="flex:1">'+escapeHtml(x.nombre)+'</span><strong>'+moneyShort(x.saldo)+'</strong><button class="record-tool-btn" type="button" onclick="quickSupplierPayment('+x.id+','+x.saldo+',true)">Pagado</button><button class="record-tool-btn" type="button" onclick="quickSupplierPayment('+x.id+','+x.saldo+',false)">Abono</button></div>').join("")+'</div>':'<div style="margin-top:8px;color:#888">No hay proveedores con saldo pendiente.</div>');
  supplierSelect.innerHTML='<option value="">Seleccionar proveedor...</option>'+suppliers.map(p=>'<option value="'+p.id+'" '+(p.id===selectedSupplier?'selected':'')+'>'+escapeHtml(p.nombre)+'</option>').join("");
  const p=suppliers.find(x=>Number(x.id)===Number(selectedSupplier));if(!p){supplierContent.style.display="none";document.getElementById("editSupplier").style.display="none";document.getElementById("deleteSupplier").style.display="none";return}supplierContent.style.display="block";document.getElementById("editSupplier").style.display="";document.getElementById("deleteSupplier").style.display="";
  const all=supplierMoves.filter(x=>Number(x.proveedor_id)===Number(p.id)),m=all.filter(x=>!x.eliminado_en),deleted=all.filter(x=>x.eliminado_en),sortMoves=a=>a.sort((x,y)=>{if(!x.fecha&&!y.fecha)return Number(y.id)-Number(x.id);if(!x.fecha)return 1;if(!y.fecha)return -1;const d=String(y.fecha).localeCompare(String(x.fecha));return d||Number(y.id)-Number(x.id)}),notes=sortMoves(m.filter(x=>x.tipo==="nota")),pays=sortMoves(m.filter(x=>x.tipo==="pago")),openings=sortMoves(m.filter(x=>x.tipo==="saldo_inicial")),cuts=sortMoves(m.filter(x=>x.tipo==="corte"));
