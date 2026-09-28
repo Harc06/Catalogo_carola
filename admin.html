@@ -4044,7 +4044,7 @@ function renderOrders(){
           <div class="order-client">${escapeHtml(order.nota_cliente||order.cliente)}</div>
           <div class="order-date">${escapeHtml(order.nota_fecha||formatDate(order.creado_en))}</div>
           ${order.nota_guardada?'<div class="note-badge">NOTA GUARDADA · '+escapeHtml(money(order.nota_total))+'</div>':""}
-          ${String(order.estado||"")==="Enviado"?'<div class="note-badge order-complete-badge">✓ PEDIDO COMPLETADO</div>':""}
+          ${String(order.estado||"")==="Enviado"?'<div class="note-badge order-complete-badge">✓ PEDIDO COMPLETADO</div><div class="note-badge order-complete-badge">GANANCIA · '+escapeHtml(money(order.ganancia_pedido||0))+'</div>':""}
         </div>
         <div class="order-total"><strong>${Number(order.total_pares||0)}</strong><span>PARES</span></div>
       </div>
@@ -4064,8 +4064,8 @@ function renderSentOrders(){
  if(!rows.length){sentOrders.innerHTML='<div class="empty">Todavía no hay pedidos enviados'+(q?" con esa búsqueda":"")+'.</div>';return}
  sentOrders.innerHTML=rows.map(o=>{
    const details=Array.isArray(o.pedido_detalles)?o.pedido_detalles:[];
-   const lines=details.map(x=>'<div class="order-line"><div class="order-qty">'+Number(x.cantidad||0)+'</div><div class="order-product">Modelo '+escapeHtml(x.modelo)+' <span>'+escapeHtml(formatColor(x.color))+'</span></div></div>').join("");
-   return '<details class="order-card" style="margin-bottom:12px"><summary class="order-top" style="cursor:pointer;list-style:none"><div><div class="order-client">'+escapeHtml(o.nota_cliente||o.cliente)+'</div><div class="order-date">'+escapeHtml(o.nota_fecha||formatDate(o.creado_en))+' · Folio '+escapeHtml(o.folio)+'</div><div class="note-badge">'+escapeHtml(money(o.nota_total))+'</div></div><div class="order-total"><strong>'+Number(o.total_pares||0)+'</strong><span>PARES</span></div></summary><div class="order-items">'+(lines||'<div class="order-line">Sin productos</div>')+'</div></details>';
+   const lines=details.map(x=>'<div class="order-line" style="grid-template-columns:60px 1fr auto"><div class="order-qty">'+Number(x.cantidad||0)+'</div><div class="order-product">Modelo '+escapeHtml(x.modelo)+' <span>'+escapeHtml(formatColor(x.color))+'</span></div><strong>'+money(Number(x.precio_unitario||0))+'</strong></div>').join("");
+   return '<details class="order-card" style="margin-bottom:12px"><summary class="order-top" style="cursor:pointer;list-style:none"><div><div class="order-client">'+escapeHtml(o.nota_cliente||o.cliente)+'</div><div class="order-date">'+escapeHtml(o.fecha_envio||o.nota_fecha||formatDate(o.creado_en))+' · Folio '+escapeHtml(o.folio)+'</div><div class="note-badge">'+escapeHtml(money(o.nota_total))+'</div></div><div class="order-total"><strong>'+Number(o.total_pares||0)+'</strong><span>PARES</span></div></summary><div class="order-items">'+(lines||'<div class="order-line">Sin productos</div>')+'</div></details>';
  }).join("");
 }
 function localDateInput(value){
@@ -4414,6 +4414,11 @@ async function processSentOrder(paymentMethod){
     }
     const index=allOrders.findIndex(o=>Number(o.id)===Number(result.pedido.id));
     if(index>=0)allOrders[index]=result.pedido;activeNoteOrder=result.pedido;
+    if(!result.already_sent){
+      const fr=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"add-order-sale",fecha:result.pedido.fecha_envio,ganancia:Number(result.pedido.ganancia_pedido||0),pares:Number(result.pedido.total_pares||0)})});
+      const fj=await readJson(fr);if(!fr.ok||!fj.success)throw new Error(fj.error||"El pedido se envió, pero no se pudo registrar en Finanzas.");
+      if(financeLoaded)await loadFinance();
+    }
     await Promise.all([loadModels(),loadClients()]);renderOrders();renderSentOrders();
     btn.textContent="✓ Pedido enviado";showOperation("✓ Pedido enviado · "+paymentMethod);setTimeout(hideOperation,2200);
   }catch(error){alert(error.message);btn.disabled=false;btn.textContent="Pedido enviado"}
