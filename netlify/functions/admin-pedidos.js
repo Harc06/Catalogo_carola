@@ -37,7 +37,9 @@ exports.handler=async function(event){
     if(event.httpMethod==="GET"){
       const {data,error}=await supabase.from("pedidos").select(SELECT_ORDER).order("creado_en",{ascending:false});
       if(error) throw error;
-      return response(200,{success:true,count:(data||[]).length,pedidos:data||[]});
+      const {data:eliminados,error:deletedError}=await supabase.from("registros_eliminados").select("id,tipo,registro_id,folio,cliente,fecha_original,fecha_eliminado,estado,total_pares,total,ganancia,detalle").order("fecha_eliminado",{ascending:false}).limit(200);
+      if(deletedError) throw deletedError;
+      return response(200,{success:true,count:(data||[]).length,pedidos:data||[],eliminados:eliminados||[]});
     }
 
     if(event.httpMethod!=="POST") return response(405,{success:false,error:"Método no permitido"});
@@ -168,6 +170,16 @@ exports.handler=async function(event){
     }
 
     if(action==="delete-order"){
+      const {data:original,error:originalError}=await supabase.from("pedidos").select(SELECT_ORDER).eq("id",pedidoId).single();
+      if(originalError) throw originalError;
+      const audit={
+        tipo:"pedido",registro_id:original.id,folio:original.folio,cliente:original.nota_cliente||original.cliente||"",
+        fecha_original:original.fecha_envio||original.nota_fecha||String(original.creado_en||"").slice(0,10)||null,
+        estado:original.estado||"",total_pares:Number(original.total_pares||0),total:Number(original.nota_total||0),
+        ganancia:Number(original.ganancia_pedido||0),detalle:Array.isArray(original.pedido_detalles)?original.pedido_detalles:[],datos_originales:original
+      };
+      const {error:auditError}=await supabase.from("registros_eliminados").insert(audit);
+      if(auditError) throw auditError;
       const {data,error}=await supabase.from("pedidos").delete().eq("id",pedidoId).select("id, folio").single();
       if(error) throw error;
       return response(200,{success:true,eliminado:data});
