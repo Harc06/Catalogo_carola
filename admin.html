@@ -4323,48 +4323,25 @@ orders.onclick=async function(event){
     if(order)openNote(order);
     return;
   }
-
   const deleteButton=event.target.closest(".delete-order");
   if(!deleteButton)return;
   const pedidoId=Number(deleteButton.dataset.id);
   const folio=deleteButton.dataset.folio||"";
   const client=deleteButton.dataset.client||"";
   if(!Number.isInteger(pedidoId)||pedidoId<=0){alert("Pedido inválido.");return}
-  if(!confirm("¿Eliminar este registro?\n\nCliente: "+client+"\nFolio: "+folio+"\n\nTambién se eliminarán sus movimientos de CLIENTES y, si fue enviado, su aportación en FINANZAS."))return;
-  const orderToDelete=(allOrders||[]).find(o=>Number(o.id)===pedidoId);
-
-  deleteButton.disabled=true; deleteButton.textContent="Eliminando...";
-  showOperation("Eliminando registro...");
+  if(!confirm("¿Eliminar este registro?\n\nCliente: "+client+"\nFolio: "+folio+"\n\nSi fue enviado, se revertirán CLIENTES, FINANZAS e INVENTARIO. El registro quedará guardado en Registros eliminados."))return;
+  deleteButton.disabled=true;deleteButton.textContent="Eliminando...";
+  showOperation("Eliminando y revirtiendo registro...");
   try{
     const response=await fetch("/.netlify/functions/admin-pedidos",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"delete-order",pedido_id:pedidoId})});
     const result=await readJson(response);
     if(!response.ok||!result.success)throw new Error(result.error||"No se pudo eliminar el registro.");
-    // Si el pedido ya fue enviado, revertir exactamente su aportación al registro financiero de ese día.
-    if(orderToDelete&&String(orderToDelete.estado||"")==="Enviado"&&orderToDelete.fecha_envio){
-      const fr=await fetch("/.netlify/functions/admin-finanzas",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"remove-order-sale",fecha:orderToDelete.fecha_envio,ganancia:Number(orderToDelete.ganancia_pedido||0),pares:Number(orderToDelete.total_pares||0)})});
-      const fj=await readJson(fr);if(!fr.ok||!fj.success)throw new Error(fj.error||"No se pudo descontar el pedido de Finanzas.");
-      if(financeLoaded)await loadFinance();
-    }
-    // Eliminar también los movimientos de cliente generados por este pedido (nota y pago ligado al folio).
-    try{
-      if(!clientsLoaded)await loadClients();
-      const linkedClient=(clients||[]).find(x=>normalizeText(x.nombre)===normalizeText(client));
-      if(linkedClient){
-        const linked=(clientMoves||[]).filter(m=>Number(m.cliente_id)===Number(linkedClient.id) && (
-          (String(m.tipo||"")==="nota" && String(m.folio||"")===String(folio)) ||
-          (String(m.tipo||"")==="pago" && String(m.observaciones||"").includes("pedido "+folio))
-        ));
-        for(const move of linked) await clientCall({action:"delete-movement",id:Number(move.id)});
-      }
-    }catch(cleanErr){console.error("No se pudieron limpiar movimientos del cliente:",cleanErr);throw new Error("El pedido se eliminó, pero no se pudieron eliminar todos sus movimientos del cliente: "+cleanErr.message)}
-    allOrders=allOrders.filter(order=>Number(order.id)!==pedidoId);
-    await loadOrders();
-    await loadClients();
-    renderOrders();renderSentOrders();
-    operationStatus.textContent="✓ Registro eliminado de pedidos, cliente y finanzas";
-    setTimeout(hideOperation,1500);
+    await Promise.all([loadOrders(),loadModels(),loadClients(),loadFinance()]);
+    renderOrders();renderSentOrders();renderDeletedOrders();
+    operationStatus.textContent="✓ Registro eliminado y movimientos revertidos";
+    setTimeout(hideOperation,1800);
   }catch(error){
-    deleteButton.disabled=false; deleteButton.textContent="🗑 Eliminar registro";
+    deleteButton.disabled=false;deleteButton.textContent="🗑 Eliminar registro";
     operationStatus.textContent="Error: "+error.message;
     setTimeout(hideOperation,4000);
   }
