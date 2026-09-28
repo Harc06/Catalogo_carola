@@ -2121,10 +2121,6 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
           <option value="Huarache">Huarache</option>
           <option value="Sandalia">Sandalia</option>
         </select>
-
-        <label for="cantidadPares">6. Cantidad de pares</label>
-        <input id="cantidadPares" type="number" min="6" step="6" inputmode="numeric" placeholder="6, 12, 18...">
-        <div class="category-help">La existencia debe registrarse en múltiplos de 6 pares.</div>
       </div>
 
       <div id="colorBlocks"></div>
@@ -2995,6 +2991,18 @@ function createColorBlock(colorValue=""){
       value="${escapeAttribute(colorValue)}"
     >
 
+    <label>Cantidad de pares</label>
+
+    <input
+      type="number"
+      class="color-quantity"
+      min="6"
+      step="6"
+      inputmode="numeric"
+      placeholder="6, 12, 18..."
+    >
+    <div class="category-help">La existencia de este color debe registrarse en múltiplos de 6 pares.</div>
+
     <label
       class="file-label"
       for="colorFiles${id}"
@@ -3176,7 +3184,7 @@ form.onsubmit=async function(event){
   const proveedorValue=Number(document.getElementById("uploadProveedor").value||0);
   const precioCompraValue=Number(document.getElementById("precioCompra").value);
   const precioVentaValue=Number(document.getElementById("precioVenta").value);
-  const cantidadParesValue=Number(document.getElementById("cantidadPares").value);
+
 
   if(!modelValue){
     showStatus(
@@ -3200,11 +3208,6 @@ form.onsubmit=async function(event){
     categoria.focus();
     return false;
   }
-  if(!Number.isInteger(cantidadParesValue)||cantidadParesValue<6||cantidadParesValue%6!==0){
-    showStatus("La cantidad de pares debe ser múltiplo de 6.","error");
-    document.getElementById("cantidadPares").focus();
-    return false;
-  }
 
   const blocks=[
     ...colorBlocks.querySelectorAll(".color-block")
@@ -3226,11 +3229,17 @@ form.onsubmit=async function(event){
     const colorInput=
       block.querySelector(".color-input");
 
+    const quantityInput=
+      block.querySelector(".color-quantity");
+
     const fileInput=
       block.querySelector(".color-files");
 
     const colorValue=
       colorInput.value.trim();
+
+    const cantidadParesValue=
+      Number(quantityInput.value);
 
     const files=
       Array.from(fileInput.files||[]);
@@ -3245,6 +3254,15 @@ form.onsubmit=async function(event){
       return false;
     }
 
+    if(!Number.isInteger(cantidadParesValue)||cantidadParesValue<6||cantidadParesValue%6!==0){
+      showStatus(
+        "La cantidad de pares del color "+colorValue+" debe ser múltiplo de 6.",
+        "error"
+      );
+      quantityInput.focus();
+      return false;
+    }
+
     if(!files.length){
       showStatus(
         "Selecciona fotografías para el color "+colorValue+".",
@@ -3255,6 +3273,7 @@ form.onsubmit=async function(event){
 
     entries.push({
       color:colorValue,
+      cantidadPares:cantidadParesValue,
       files
     });
   }
@@ -3366,7 +3385,7 @@ form.onsubmit=async function(event){
               proveedor_id:proveedorValue,
               precio_compra:precioCompraValue,
               precio_venta:precioVentaValue,
-              cantidad_pares:cantidadParesValue,
+              cantidad_pares:entry.cantidadPares,
               imagenes:converted
             })
           }
@@ -3442,7 +3461,7 @@ function resetUploadForm(){
   document.getElementById("uploadProveedor").value="";
   document.getElementById("precioCompra").value="";
   document.getElementById("precioVenta").value="";
-  document.getElementById("cantidadPares").value="";
+
   colorBlocks.innerHTML="";
   createColorBlock("");
 }
