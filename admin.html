@@ -2077,6 +2077,11 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
  .deleted-count{display:none}
 }
 
+
+.record-header-actions{display:flex;gap:10px;align-items:center}.manual-order-btn{border:0;border-radius:13px;background:#171717;color:#fff;padding:12px 17px;font-weight:900;font-size:14px}
+.manual-order-modal{width:min(900px,94vw);max-height:90vh;overflow:auto}.manual-client-grid{display:grid;grid-template-columns:2fr 1.2fr 1fr;gap:12px;margin:18px 0}.manual-client-grid label{display:block;font-size:10px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;margin:0 0 6px;color:#777}.manual-client-grid input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #e4d9dd;border-radius:12px;background:#fff;font:inherit}.manual-client-grid small{display:block;margin-top:6px;color:#999}.manual-note-head,.manual-note-line{display:grid;grid-template-columns:90px 1fr 150px 150px 38px;gap:10px;align-items:center}.manual-note-head{padding:10px 8px;color:#8c7d83;font-size:9px;font-weight:900;text-transform:uppercase}.manual-note-line{padding:8px;border-top:1px solid #f0e5e9}.manual-note-line input,.manual-note-line select{width:100%;box-sizing:border-box;padding:11px;border:1px solid #e5d9de;border-radius:10px;background:#fff;font:inherit}.manual-line-total{font-weight:900;text-align:right}.manual-remove{border:0;background:#f8edf1;border-radius:9px;width:34px;height:34px;font-size:20px}.manual-add-line{margin-top:12px;width:100%;padding:12px;border:1px solid #ead9e0;border-radius:12px;background:#f9eff3;font-weight:900}.manual-note-total{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:18px;border-radius:14px;background:#f8eef2;font-size:18px}.manual-note-total strong{font-size:24px}.manual-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:15px}.manual-actions button{padding:12px 18px;border-radius:12px;border:1px solid #e4d8dd;background:#fff;font-weight:900}.manual-actions #manualSave{background:#171717;color:#fff;border-color:#171717}
+@media(max-width:700px){.manual-client-grid{grid-template-columns:1fr}.manual-note-head{display:none}.manual-note-line{grid-template-columns:80px 1fr 36px}.manual-note-line .manual-price,.manual-note-line .manual-line-total{grid-column:span 1}.manual-note-line .manual-price:before{content:""}.record-header-actions{flex-wrap:wrap}}
+
 </style>
 <style>
 .finance-quick-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -2226,9 +2231,8 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
       <p>Historial generado desde el catálogo.</p>
     </div>
 
-    <button id="refreshOrders" class="refresh" type="button">
-      Actualizar
-    </button>
+    <div class="record-header-actions"><button id="createManualOrder" class="manual-order-btn" type="button">+ Crear nota</button>
+    <button id="refreshOrders" class="refresh" type="button">Actualizar</button></div>
 
   </div>
 
@@ -2278,6 +2282,23 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 
 </div>
 
+
+
+<div id="manualOrderModal" class="modal">
+ <div class="modal-card manual-order-modal">
+  <div class="modal-head"><div><h2>Nueva nota</h2><p>Crea una venta directamente desde Registro.</p></div><button id="manualOrderClose" class="modal-close" type="button">×</button></div>
+  <div class="manual-client-grid">
+   <div><label>Cliente</label><input id="manualClientName" list="manualClientSuggestions" type="text" placeholder="Nombre del cliente" autocomplete="off"><datalist id="manualClientSuggestions"></datalist><small id="manualClientMatch">Escribe el nombre del cliente.</small></div>
+   <div><label>Teléfono</label><input id="manualClientPhone" type="text" placeholder="Teléfono" readonly></div>
+   <div><label>Fecha</label><input id="manualOrderDate" type="date"></div>
+  </div>
+  <div class="manual-note-head"><span>Cantidad</span><span>Modelo</span><span>Precio unitario</span><span>Precio final</span><span></span></div>
+  <div id="manualOrderLines"></div>
+  <button id="manualAddLine" class="manual-add-line" type="button">+ Agregar producto</button>
+  <div class="manual-note-total"><span>Total de la nota</span><strong id="manualOrderTotal">$0.00</strong></div>
+  <div class="manual-actions"><button id="manualCancel" type="button">Cancelar</button><button id="manualSave" type="button">Guardar nota</button></div>
+ </div>
+</div>
 
 <div id="financePanel" class="panel active">
   <div class="finance-quick-tabs">
