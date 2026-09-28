@@ -1152,9 +1152,9 @@ details.model-card .model-title h3{
 .note-meta label{margin:0 0 7px;font-size:12px}
 .note-meta input{width:100%;padding:13px;border:1px solid #ddd;border-radius:11px;font-size:16px}
 .note-table{margin-top:20px;border:1px solid #eee;border-radius:14px;overflow:hidden}
-.note-row{display:grid;grid-template-columns:70px 1fr 125px 125px;gap:10px;align-items:center;padding:11px 12px;border-bottom:1px solid #eee}
+.note-row{display:grid;grid-template-columns:70px 1fr 125px 125px 38px;gap:10px;align-items:center;padding:11px 12px;border-bottom:1px solid #eee}
 .note-row:last-child{border-bottom:0}.note-row.head{background:#fff8fb;font-size:10px;font-weight:900;color:#777;text-transform:uppercase}
-.note-price{width:100%;padding:10px;border:1px solid #ddd;border-radius:9px;font-size:15px;text-align:right}
+.note-price{width:100%;padding:10px;border:1px solid #ddd;border-radius:9px;font-size:15px;text-align:right}.note-remove{width:32px;height:32px;border:0;border-radius:9px;background:#fff0f0;color:#c53535;font-size:20px;font-weight:900;display:grid;place-items:center}
 .note-amount{text-align:right;font-weight:900}.note-total{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:18px;border-radius:14px;background:#171717;color:#fff}
 .note-total strong{font-size:25px}.note-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
 .note-buttons button{padding:13px;border-radius:11px}.save-note{background:#171717;color:#fff}.share-note,.print-note{background:#f5e6ed}
@@ -2418,7 +2418,7 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
       <div id="noteLines" class="note-table"></div>
       <div class="note-section-title">Extras</div>
       <div id="extraLines" class="note-table"></div>
-      <button id="addExtra" class="add-extra" type="button">+ Agregar extra</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="addExtra" class="add-extra" type="button">+ Agregar extra</button><button id="addShippingBox" class="add-extra" type="button">+ Agregar caja de embarque</button></div>
       <div class="note-total"><span>Total</span><strong id="noteTotal">$0.00</strong></div>
       <div class="note-buttons">
         <button id="saveNote" class="save-note" type="button">Guardar nota</button>
@@ -4016,14 +4016,14 @@ function openNote(order){
   noteClient.value=order.nota_cliente||order.cliente||"";
   noteDate.value=localDateInput(order.nota_fecha||order.creado_en);
   const details=Array.isArray(order.pedido_detalles)?order.pedido_detalles:[];
-  noteLines.innerHTML='<div class="note-row head"><div>Cantidad</div><div>Producto</div><div>Precio</div><div>Importe</div></div>'+
+  noteLines.innerHTML='<div class="note-row head"><div>Cantidad</div><div>Producto</div><div>Precio</div><div>Importe</div><div></div></div>'+
     details.map(function(item){
       const price=item.precio_unitario==null?"":Number(item.precio_unitario);
       return `<div class="note-row" data-detail-id="${Number(item.id)}">
         <div><input class="note-qty" type="number" min="1" step="1" inputmode="numeric" value="${Number(item.cantidad)}"></div>
         <div><strong>${escapeHtml(item.modelo)} ${escapeHtml(formatColor(item.color))}</strong></div>
         <div><input class="note-price" type="number" min="0" step="0.01" inputmode="decimal" value="${price}" placeholder="$0"></div>
-        <div class="note-amount">$0.00</div>
+        <div class="note-amount">$0.00</div><button class="note-remove" type="button" title="Eliminar línea" aria-label="Eliminar línea">×</button>
       </div>`;
     }).join("");
   const extras=Array.isArray(order.nota_extras)?order.nota_extras:[];
@@ -4262,9 +4262,11 @@ orders.onclick=async function(event){
 };
 
 noteLines.addEventListener("input",calculateNote);
+noteLines.addEventListener("click",function(e){const b=e.target.closest(".note-remove");if(!b)return;if(!confirm("¿Eliminar este modelo de la nota?"))return;b.closest(".note-row[data-detail-id]").remove();calculateNote()});
 extraLines.addEventListener("input",calculateNote);
 extraLines.addEventListener("click",function(e){const b=e.target.closest(".extra-remove");if(b){b.closest(".extra-row").remove();calculateNote()}});
 addExtra.onclick=function(){extraLines.insertAdjacentHTML("beforeend",extraRow({cantidad:1,concepto:"",precio_unitario:""}))};
+document.getElementById("addShippingBox").onclick=function(){extraLines.insertAdjacentHTML("beforeend",extraRow({cantidad:1,concepto:"Caja de embarque",precio_unitario:45}))};
 noteClose.onclick=closeNote;
 noteModal.onclick=function(event){if(event.target===noteModal)closeNote()};
 async function ensureOrderClient(order){
