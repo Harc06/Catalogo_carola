@@ -1572,8 +1572,20 @@ function renderSentOrders(){
 }
 function renderDeletedOrders(){
  const body=document.getElementById("deletedOrdersBody"); if(!body)return;
- if(!deletedOrders.length){body.innerHTML='<tr><td colspan="8">Sin registros eliminados.</td></tr>';return}
- body.innerHTML=deletedOrders.map(x=>'<tr><td>'+escapeHtml(formatDate(x.fecha_eliminado))+'</td><td>'+escapeHtml(x.cliente||"")+'</td><td>'+escapeHtml(x.folio||"")+'</td><td>'+escapeHtml(x.fecha_original||"")+'</td><td>'+Number(x.total_pares||0)+'</td><td>'+escapeHtml(money(x.total||0))+'</td><td>'+escapeHtml(money(x.ganancia||0))+'</td><td>'+escapeHtml(x.estado||"")+'</td></tr>').join("");
+ const count=document.getElementById("deletedRecordsCount");
+ if(count)count.textContent=deletedOrders.length+" "+(deletedOrders.length===1?"registro":"registros");
+ if(!deletedOrders.length){body.innerHTML='<div class="deleted-empty">Sin registros eliminados.</div>';return}
+ body.innerHTML=deletedOrders.map(x=>{
+   const client=escapeHtml(x.cliente||"Sin cliente");
+   const folio=escapeHtml(x.folio||"—");
+   const original=escapeHtml(x.fecha_original||"—");
+   const removed=escapeHtml(formatDate(x.fecha_eliminado));
+   const pairs=Number(x.total_pares||0);
+   const total=escapeHtml(money(x.total||0));
+   const profit=escapeHtml(money(x.ganancia||0));
+   const state=escapeHtml(x.estado||"Eliminado");
+   return '<article class="deleted-record"><div class="deleted-record-main"><div class="deleted-record-person"><strong>'+client+'</strong><small>Folio '+folio+'</small></div><div class="deleted-record-values"><div class="deleted-metric"><span>Pares</span><strong>'+pairs+'</strong></div><div class="deleted-metric"><span>Total</span><strong>'+total+'</strong></div><div class="deleted-metric"><span>Ganancia</span><strong>'+profit+'</strong></div><span class="deleted-status">'+state+'</span></div></div><div class="deleted-record-meta"><span>Registro: <b>'+original+'</b></span><span>Eliminado: <b>'+removed+'</b></span></div></article>';
+ }).join("");
 }
 
 function localDateInput(value){
