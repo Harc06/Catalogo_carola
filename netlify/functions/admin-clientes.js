@@ -17,6 +17,16 @@ exports.handler=async event=>{
   }
   if(event.httpMethod!=="POST")return res(405,{success:false,error:"Método no permitido"});
   const b=JSON.parse(event.body||"{}"),action=String(b.action||"");
+  if(action==="add-directory-client"){
+   const nombre=String(b.nombre||"").trim(),telefono=String(b.telefono||"").trim();
+   if(!nombre)return res(400,{success:false,error:"Nombre requerido"});
+   if(!telefono)return res(400,{success:false,error:"Teléfono requerido"});
+   const {data:existing,error:ee}=await supabase.from("catalogo_clientes").select("id,nombre,telefono,activo").ilike("nombre",nombre).eq("activo",true).limit(1);
+   if(ee)throw ee;
+   if(existing&&existing.length)return res(200,{success:true,cliente:existing[0],existing:true});
+   const {data,error}=await supabase.from("catalogo_clientes").insert({nombre,telefono,activo:true}).select().single();
+   if(error)throw error;return res(200,{success:true,cliente:data,existing:false});
+  }
   if(action==="update-directory-client"){
    const id=Number(b.id),nombre=String(b.nombre||"").trim(),telefono=String(b.telefono||"").trim();
    if(!Number.isInteger(id)||id<1||!nombre)return res(400,{success:false,error:"Nombre requerido"});
