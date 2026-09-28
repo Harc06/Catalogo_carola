@@ -58,7 +58,17 @@ exports.handler=async function(event){
 
       if(!cliente) return response(400,{success:false,error:"Falta el nombre del cliente"});
       if(!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return response(400,{success:false,error:"Fecha inválida"});
-      if(!items.length) return response(400,{success:false,error:"La nota no tiene productos"});
+      if(!items.length && !extras.length) return response(400,{success:false,error:"La nota no tiene productos"});
+
+      // Lines removed in the editor are deleted from the order as well.
+      const keptIds=items.map(x=>Number(x.id)).filter(Number.isInteger);
+      const {data:currentDetails,error:currentError}=await supabase.from("pedido_detalles").select("id").eq("pedido_id",pedidoId);
+      if(currentError)throw currentError;
+      const removedIds=(currentDetails||[]).map(x=>Number(x.id)).filter(id=>!keptIds.includes(id));
+      if(removedIds.length){
+        const {error:deleteError}=await supabase.from("pedido_detalles").delete().eq("pedido_id",pedidoId).in("id",removedIds);
+        if(deleteError)throw deleteError;
+      }
 
       let total=0;
       for(const item of items){
@@ -87,13 +97,18 @@ exports.handler=async function(event){
       }
       total=Math.round((total+Number.EPSILON)*100)/100;
 
+      const {data:remainingDetails,error:remainingError}=await supabase.from("pedido_detalles").select("cantidad").eq("pedido_id",pedidoId);
+      if(remainingError)throw remainingError;
+      const totalPares=(remainingDetails||[]).reduce((sum,x)=>sum+Number(x.cantidad||0),0);
+
       const updateData={
         nota_cliente:cliente,
         nota_fecha:fecha,
         nota_total:total,
         nota_guardada:true,
         nota_actualizada_en:new Date().toISOString(),
-        estado:"Confirmado"
+        estado:"Confirmado",
+        total_pares:totalPares
       };
 
       // nota_extras es opcional para que el registro siga funcionando
