@@ -2430,6 +2430,18 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
   </div>
 </div>
 
+<div id="sentPaymentModal" class="catalog-action-modal">
+  <div class="catalog-action-sheet" style="max-width:430px">
+    <div class="catalog-action-head"><h2>Forma de pago</h2><button class="catalog-action-close" type="button" onclick="closeSentPaymentModal()">×</button></div>
+    <p style="margin:0 0 14px;color:#777">¿Cómo se registrará este pedido?</p>
+    <div style="display:grid;gap:9px">
+      <button class="supplier-save-btn sent-pay-option" data-method="Efectivo" type="button">Efectivo</button>
+      <button class="supplier-save-btn sent-pay-option" data-method="Tarjeta" type="button">Tarjeta</button>
+      <button class="supplier-save-btn sent-pay-option" data-method="Deuda" type="button">Deuda</button>
+    </div>
+  </div>
+</div>
+
 <div id="receiptPreview" class="receipt-preview">
   <div class="receipt-brand">CAROLA</div>
   <div class="receipt-phone">☎ 4775971996</div>
@@ -2682,7 +2694,7 @@ function supplierPurchasesHtml(providerId){
 function renderSuppliers(){
  const debtors=suppliers.map(p=>{const m=supplierMoves.filter(x=>x.proveedor_id===p.id&&!x.eliminado_en),notes=m.filter(x=>x.tipo==="nota").reduce((s,x)=>s+Number(x.importe||0),0),pays=m.filter(x=>x.tipo==="pago").reduce((s,x)=>s+Number(x.importe||0),0),opening=m.filter(x=>x.tipo==="saldo_inicial").reduce((s,x)=>s+Number(x.importe||0),0);return {id:p.id,nombre:p.nombre,saldo:opening+notes-pays}}).filter(x=>x.saldo>0).sort((a,b)=>b.saldo-a.saldo);
  const totalDebt=debtors.reduce((s,x)=>s+x.saldo,0),debtBox=document.getElementById("supplierDebtTotal");
- if(debtBox)debtBox.innerHTML='<div style="display:flex;justify-content:space-between;gap:16px;align-items:center"><div><span class="supplier-kicker">POR PAGAR</span><h3 style="margin:3px 0 0">Saldo total a proveedores</h3></div><strong style="font-size:26px">'+moneyShort(totalDebt)+'</strong></div>'+(debtors.length?'<div style="margin-top:12px;display:grid;gap:7px">'+debtors.map(x=>'<div style="display:flex;justify-content:space-between;border-top:1px solid #f0e4e9;padding-top:7px"><span>'+escapeHtml(x.nombre)+'</span><strong>'+moneyShort(x.saldo)+'</strong></div>').join("")+'</div>':'<div style="margin-top:8px;color:#888">No hay proveedores con saldo pendiente.</div>');
+ if(debtBox)debtBox.innerHTML='<div style="display:flex;justify-content:space-between;gap:16px;align-items:center"><div><span class="supplier-kicker">POR PAGAR</span><h3 style="margin:3px 0 0">Saldo total a proveedores</h3></div><strong style="font-size:26px">'+moneyShort(totalDebt)+'</strong></div>'+(debtors.length?'<div style="margin-top:12px;display:grid;gap:7px">'+debtors.map(x=>'<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;border-top:1px solid #f0e4e9;padding-top:7px"><span style="flex:1">'+escapeHtml(x.nombre)+'</span><strong>'+moneyShort(x.saldo)+'</strong><button class="record-tool-btn" type="button" onclick="quickClientPayment('+x.id+','+x.saldo+',true)">Pagado</button><button class="record-tool-btn" type="button" onclick="quickClientPayment('+x.id+','+x.saldo+',false)">Abono</button></div>').join("")+'</div>':'<div style="margin-top:8px;color:#888">No hay proveedores con saldo pendiente.</div>');
  supplierSelect.innerHTML='<option value="">Seleccionar proveedor...</option>'+suppliers.map(p=>'<option value="'+p.id+'" '+(p.id===selectedSupplier?'selected':'')+'>'+escapeHtml(p.nombre)+'</option>').join("");
  const p=suppliers.find(x=>Number(x.id)===Number(selectedSupplier));if(!p){supplierContent.style.display="none";document.getElementById("editSupplier").style.display="none";document.getElementById("deleteSupplier").style.display="none";return}supplierContent.style.display="block";document.getElementById("editSupplier").style.display="";document.getElementById("deleteSupplier").style.display="";
  const all=supplierMoves.filter(x=>Number(x.proveedor_id)===Number(p.id)),m=all.filter(x=>!x.eliminado_en),deleted=all.filter(x=>x.eliminado_en),sortMoves=a=>a.sort((x,y)=>{if(!x.fecha&&!y.fecha)return Number(y.id)-Number(x.id);if(!x.fecha)return 1;if(!y.fecha)return -1;const d=String(y.fecha).localeCompare(String(x.fecha));return d||Number(y.id)-Number(x.id)}),notes=sortMoves(m.filter(x=>x.tipo==="nota")),pays=sortMoves(m.filter(x=>x.tipo==="pago")),openings=sortMoves(m.filter(x=>x.tipo==="saldo_inicial")),cuts=sortMoves(m.filter(x=>x.tipo==="corte"));
@@ -2763,6 +2775,19 @@ function deletedClientTable(items){
  return '<div style="overflow:auto"><table class="finance-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Importe</th><th></th></tr></thead><tbody>'+items.map(x=>'<tr><td>'+(x.fecha?formatFinanceDate(x.fecha):"—")+'</td><td>'+(x.tipo==="nota"?"Nota":"Pago")+'</td><td>'+escapeHtml(x.tipo==="nota"?(x.folio||"—"):(x.forma_pago||"—"))+'</td><td>'+moneyShort(x.importe)+'</td><td><button class="record-tool-btn" onclick="restoreClientMove('+x.id+')">Restaurar</button></td></tr>').join("")+'</tbody></table></div>';
 }
 async function restoreClientMove(id){try{await clientCall({action:"restore-movement",id});await loadClients()}catch(e){alert(e.message)}}
+function clientDebtOriginDate(clientId){
+ const notes=clientMoves.filter(x=>x.cliente_id===clientId&&!x.eliminado_en&&(x.tipo==="nota"||x.tipo==="saldo_inicial")&&x.fecha).sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha)));
+ return notes.length?notes[0].fecha:new Date().toISOString().slice(0,10);
+}
+async function quickClientPayment(clientId,balance,full){
+ const client=clients.find(x=>x.id===clientId);if(!client)return;
+ const amount=full?Number(balance):Number(prompt("¿Cuánto abonó "+client.nombre+"?",""));
+ if(!Number.isFinite(amount)||amount<=0)return;
+ if(amount>Number(balance)){alert("El abono no puede ser mayor al saldo pendiente.");return}
+ const fecha=clientDebtOriginDate(clientId);
+ if(!confirm((full?"Registrar como pagado ":"Registrar abono de "+moneyShort(amount)+" para ")+client.nombre+"\nFecha del registro: "+fecha+"?"))return;
+ try{await clientCall({action:"add-movement",cliente_id:clientId,tipo:"pago",fecha,importe:amount,forma_pago:full?"Pagado":"Abono",observaciones:"Registrado desde saldo pendiente"});await loadClients()}catch(e){alert(e.message)}
+}
 function renderClients(){
  const debtors=clients.map(p=>{const m=clientMoves.filter(x=>x.cliente_id===p.id&&!x.eliminado_en),notes=m.filter(x=>x.tipo==="nota").reduce((s,x)=>s+Number(x.importe||0),0),pays=m.filter(x=>x.tipo==="pago").reduce((s,x)=>s+Number(x.importe||0),0),opening=m.filter(x=>x.tipo==="saldo_inicial").reduce((s,x)=>s+Number(x.importe||0),0);return {id:p.id,nombre:p.nombre,saldo:opening+notes-pays}}).filter(x=>x.saldo>0).sort((a,b)=>b.saldo-a.saldo);
  const totalDebt=debtors.reduce((s,x)=>s+x.saldo,0),debtBox=document.getElementById("clientDebtTotal");
@@ -4285,39 +4310,42 @@ async function ensureOrderClient(order){
   return {directory:created.cliente,debtClient:(clients||[]).find(x=>norm(x.nombre)===norm(name))};
 }
 
-async function markActiveOrderSent(){
+function closeSentPaymentModal(){document.getElementById("sentPaymentModal").classList.remove("show")}
+function markActiveOrderSent(){
+  if(!activeNoteOrder||String(activeNoteOrder.estado||"")==="Enviado")return;
+  document.getElementById("sentPaymentModal").classList.add("show");
+}
+async function processSentOrder(paymentMethod){
+  closeSentPaymentModal();
   if(!activeNoteOrder)return;
   const btn=document.getElementById("markOrderSent");
-  if(String(activeNoteOrder.estado||"")==="Enviado")return;
-  if(!confirm("¿Marcar este pedido como enviado?\n\nSe rebajarán las existencias del inventario y se guardará la venta en el historial del cliente."))return;
   btn.disabled=true;btn.textContent="Procesando...";
   try{
     const saved=await saveActiveNote();
     if(!saved)throw new Error("Primero guarda correctamente la nota.");
-    const clientInfo=await ensureOrderClient(activeNoteOrder);
+    await ensureOrderClient(activeNoteOrder);
     const response=await fetch("/.netlify/functions/admin-pedidos",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"mark-sent",pedido_id:Number(activeNoteOrder.id)})});
     const result=await readJson(response);
     if(!response.ok||!result.success)throw new Error(result.error||"No se pudo marcar como enviado.");
 
     const name=(noteClient.value.trim()||activeNoteOrder.nota_cliente||activeNoteOrder.cliente||"").trim();
     let debt=(clients||[]).find(x=>normalizeText(x.nombre)===normalizeText(name));
-    if(!debt){
-      const created=await clientCall({action:"add-provider",nombre:name});
-      debt=created.cliente;
-    }
-    // Avoid duplicating the client's sale if this order was already sent.
+    if(!debt){const created=await clientCall({action:"add-provider",nombre:name});debt=created.cliente}
     if(!result.already_sent){
-      await clientCall({action:"add-movement",cliente_id:Number(debt.id),tipo:"nota",fecha:noteDate.value,importe:Number(calculateNote()),folio:String(activeNoteOrder.folio||""),pares:Number(activeNoteOrder.total_pares||0),observaciones:"Pedido enviado desde Registro"});
+      const fecha=noteDate.value,total=Number(calculateNote()),folio=String(activeNoteOrder.folio||""),pares=Number(result.pedido.total_pares||activeNoteOrder.total_pares||0);
+      await clientCall({action:"add-movement",cliente_id:Number(debt.id),tipo:"nota",fecha,importe:total,folio,pares,observaciones:"Pedido enviado desde Registro · "+paymentMethod});
+      if(paymentMethod!=="Deuda"){
+        await clientCall({action:"add-movement",cliente_id:Number(debt.id),tipo:"pago",fecha,importe:total,forma_pago:paymentMethod,observaciones:"Cobro de pedido "+folio});
+      }
     }
     const index=allOrders.findIndex(o=>Number(o.id)===Number(result.pedido.id));
-    if(index>=0)allOrders[index]=result.pedido;
-    activeNoteOrder=result.pedido;
-    await Promise.all([loadModels(),loadClients()]);
-    renderOrders();
-    btn.textContent="✓ Pedido enviado";
-    showOperation("✓ Pedido enviado · inventario y cliente actualizados");setTimeout(hideOperation,2200);
-  }catch(error){alert(error.message);btn.disabled=false;btn.textContent="Pedido enviado";}
+    if(index>=0)allOrders[index]=result.pedido;activeNoteOrder=result.pedido;
+    await Promise.all([loadModels(),loadClients()]);renderOrders();
+    btn.textContent="✓ Pedido enviado";showOperation("✓ Pedido enviado · "+paymentMethod);setTimeout(hideOperation,2200);
+  }catch(error){alert(error.message);btn.disabled=false;btn.textContent="Pedido enviado"}
 }
+document.querySelectorAll(".sent-pay-option").forEach(b=>b.onclick=()=>processSentOrder(b.dataset.method));
+
 saveNote.onclick=saveActiveNote;
 document.getElementById("markOrderSent").onclick=markActiveOrderSent;
 printNote.onclick=function(){buildReceipt();window.print()};
