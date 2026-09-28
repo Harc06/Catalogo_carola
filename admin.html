@@ -1156,7 +1156,7 @@ details.model-card .model-title h3{
 .note-row:last-child{border-bottom:0}.note-row.head{background:#fff8fb;font-size:10px;font-weight:900;color:#777;text-transform:uppercase}
 .note-price{width:100%;padding:10px;border:1px solid #ddd;border-radius:9px;font-size:15px;text-align:right}
 .note-amount{text-align:right;font-weight:900}.note-total{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:18px;border-radius:14px;background:#171717;color:#fff}
-.note-total strong{font-size:25px}.note-buttons{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+.note-total strong{font-size:25px}.note-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
 .note-buttons button{padding:13px;border-radius:11px}.save-note{background:#171717;color:#fff}.share-note,.print-note{background:#f5e6ed}
 @media(max-width:650px){.note-modal{padding:0}.note-dialog{min-height:100%;border-radius:0}.note-body{padding:15px}.note-meta{grid-template-columns:1fr}.note-row{grid-template-columns:48px 1fr 92px}.note-row .note-amount{grid-column:2 / -1;font-size:12px}.note-row.head{display:none}.note-buttons{grid-template-columns:1fr}.continue-order,.delete-order{flex:1}}
 @media print{
@@ -2422,6 +2422,7 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
       <div class="note-total"><span>Total</span><strong id="noteTotal">$0.00</strong></div>
       <div class="note-buttons">
         <button id="saveNote" class="save-note" type="button">Guardar nota</button>
+        <button id="markOrderSent" class="save-note" type="button">Pedido enviado</button>
         <button id="shareNote" class="share-note" type="button">Compartir</button>
         <button id="printNote" class="print-note" type="button">Imprimir</button>
       </div>
@@ -4028,6 +4029,8 @@ function openNote(order){
   const extras=Array.isArray(order.nota_extras)?order.nota_extras:[];
   extraLines.innerHTML=extras.map(extraRow).join("");
   calculateNote();
+  const sentBtn=document.getElementById("markOrderSent");
+  if(sentBtn){const sent=String(order.estado||"")==="Enviado";sentBtn.disabled=sent;sentBtn.textContent=sent?"✓ Pedido enviado":"Pedido enviado";}
   noteModal.classList.add("open");
   noteModal.setAttribute("aria-hidden","false");
   document.body.style.overflow="hidden";
@@ -4264,7 +4267,57 @@ extraLines.addEventListener("click",function(e){const b=e.target.closest(".extra
 addExtra.onclick=function(){extraLines.insertAdjacentHTML("beforeend",extraRow({cantidad:1,concepto:"",precio_unitario:""}))};
 noteClose.onclick=closeNote;
 noteModal.onclick=function(event){if(event.target===noteModal)closeNote()};
+async function ensureOrderClient(order){
+  if(!clientsLoaded)await loadClients();
+  const name=(noteClient.value.trim()||order.nota_cliente||order.cliente||"").trim();
+  const norm=v=>normalizeText(String(v||""));
+  const directory=(window.catalogClients||[]).find(x=>norm(x.nombre)===norm(name));
+  const debtClient=(clients||[]).find(x=>norm(x.nombre)===norm(name));
+  if(directory)return {directory,debtClient};
+
+  const phone=prompt("Este cliente no está en tu agenda.\n\nCliente: "+name+"\n\nIngresa su número de teléfono para agregarlo:");
+  if(phone===null)throw new Error("Primero agrega al cliente para marcar el pedido como enviado.");
+  if(!phone.trim())throw new Error("El número de teléfono es obligatorio para agregar al cliente.");
+  const created=await clientCall({action:"add-directory-client",nombre:name,telefono:phone.trim()});
+  await loadClients();
+  return {directory:created.cliente,debtClient:(clients||[]).find(x=>norm(x.nombre)===norm(name))};
+}
+
+async function markActiveOrderSent(){
+  if(!activeNoteOrder)return;
+  const btn=document.getElementById("markOrderSent");
+  if(String(activeNoteOrder.estado||"")==="Enviado")return;
+  if(!confirm("¿Marcar este pedido como enviado?\n\nSe rebajarán las existencias del inventario y se guardará la venta en el historial del cliente."))return;
+  btn.disabled=true;btn.textContent="Procesando...";
+  try{
+    const saved=await saveActiveNote();
+    if(!saved)throw new Error("Primero guarda correctamente la nota.");
+    const clientInfo=await ensureOrderClient(activeNoteOrder);
+    const response=await fetch("/.netlify/functions/admin-pedidos",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"mark-sent",pedido_id:Number(activeNoteOrder.id)})});
+    const result=await readJson(response);
+    if(!response.ok||!result.success)throw new Error(result.error||"No se pudo marcar como enviado.");
+
+    const name=(noteClient.value.trim()||activeNoteOrder.nota_cliente||activeNoteOrder.cliente||"").trim();
+    let debt=(clients||[]).find(x=>normalizeText(x.nombre)===normalizeText(name));
+    if(!debt){
+      const created=await clientCall({action:"add-provider",nombre:name});
+      debt=created.cliente;
+    }
+    // Avoid duplicating the client's sale if this order was already sent.
+    if(!result.already_sent){
+      await clientCall({action:"add-movement",cliente_id:Number(debt.id),tipo:"nota",fecha:noteDate.value,importe:Number(calculateNote()),folio:String(activeNoteOrder.folio||""),pares:Number(activeNoteOrder.total_pares||0),observaciones:"Pedido enviado desde Registro"});
+    }
+    const index=allOrders.findIndex(o=>Number(o.id)===Number(result.pedido.id));
+    if(index>=0)allOrders[index]=result.pedido;
+    activeNoteOrder=result.pedido;
+    await Promise.all([loadModels(),loadClients()]);
+    renderOrders();
+    btn.textContent="✓ Pedido enviado";
+    showOperation("✓ Pedido enviado · inventario y cliente actualizados");setTimeout(hideOperation,2200);
+  }catch(error){alert(error.message);btn.disabled=false;btn.textContent="Pedido enviado";}
+}
 saveNote.onclick=saveActiveNote;
+document.getElementById("markOrderSent").onclick=markActiveOrderSent;
 printNote.onclick=function(){buildReceipt();window.print()};
 shareNote.onclick=async function(){
   try{
