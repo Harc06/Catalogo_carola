@@ -64,7 +64,8 @@ exports.handler = async function (event) {
     );
     if (!inventarioResponse.ok) throw new Error(await inventarioResponse.text());
     const inventario = await inventarioResponse.json();
-    const stockPorVariante = new Map(inventario.map(i => [Number(i.variante_id), Number(i.existencia || 0)]));\n    const includeOutOfStock = event && event.queryStringParameters && event.queryStringParameters.includeOutOfStock === "1";
+    const stockPorVariante = new Map(inventario.map(i => [Number(i.variante_id), Number(i.existencia || 0)]));
+    const includeOutOfStock = event && event.queryStringParameters && event.queryStringParameters.includeOutOfStock === "1";
 
     /*
      * ============================
