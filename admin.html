@@ -1141,7 +1141,7 @@ details.model-card .model-title h3{
    NOTA DE PEDIDO
 ========================================================= */
 .continue-order{background:#171717;color:#fff;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:800}
-.note-badge{display:inline-flex;margin-top:8px;padding:5px 9px;border-radius:999px;background:#e7f8ed;color:#146b34;font-size:10px;font-weight:900}
+.note-badge{display:inline-flex;margin-top:8px;padding:5px 9px;border-radius:999px;background:#e7f8ed;color:#146b34;font-size:10px;font-weight:900}.order-complete-badge{margin-left:6px;background:#dff6e8;color:#08783d;border:1px solid #bce8ce}
 .order-actions{gap:8px;flex-wrap:wrap}
 .note-modal{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.46);display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto}
 .note-modal.open{display:flex}
@@ -4044,6 +4044,7 @@ function renderOrders(){
           <div class="order-client">${escapeHtml(order.nota_cliente||order.cliente)}</div>
           <div class="order-date">${escapeHtml(order.nota_fecha||formatDate(order.creado_en))}</div>
           ${order.nota_guardada?'<div class="note-badge">NOTA GUARDADA · '+escapeHtml(money(order.nota_total))+'</div>':""}
+          ${String(order.estado||"")==="Enviado"?'<div class="note-badge order-complete-badge">✓ PEDIDO COMPLETADO</div>':""}
         </div>
         <div class="order-total"><strong>${Number(order.total_pares||0)}</strong><span>PARES</span></div>
       </div>
@@ -4328,9 +4329,22 @@ orders.onclick=async function(event){
     const response=await fetch("/.netlify/functions/admin-pedidos",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"delete-order",pedido_id:pedidoId})});
     const result=await readJson(response);
     if(!response.ok||!result.success)throw new Error(result.error||"No se pudo eliminar el registro.");
+    // Eliminar también los movimientos de cliente generados por este pedido (nota y pago ligado al folio).
+    try{
+      if(!clientsLoaded)await loadClients();
+      const linkedClient=(clients||[]).find(x=>normalizeText(x.nombre)===normalizeText(client));
+      if(linkedClient){
+        const linked=(clientMoves||[]).filter(m=>Number(m.cliente_id)===Number(linkedClient.id) && (
+          (String(m.tipo||"")==="nota" && String(m.folio||"")===String(folio)) ||
+          (String(m.tipo||"")==="pago" && String(m.observaciones||"").includes("pedido "+folio))
+        ));
+        for(const move of linked) await clientCall({action:"delete-movement",id:Number(move.id)});
+      }
+    }catch(cleanErr){console.error("No se pudieron limpiar movimientos del cliente:",cleanErr);throw new Error("El pedido se eliminó, pero no se pudieron eliminar todos sus movimientos del cliente: "+cleanErr.message)}
     allOrders=allOrders.filter(order=>Number(order.id)!==pedidoId);
-    renderOrders();
-    operationStatus.textContent="✓ Registro eliminado";
+    await loadClients();
+    renderOrders();renderSentOrders();
+    operationStatus.textContent="✓ Registro y movimientos del cliente eliminados";
     setTimeout(hideOperation,1500);
   }catch(error){
     deleteButton.disabled=false; deleteButton.textContent="🗑 Eliminar registro";
