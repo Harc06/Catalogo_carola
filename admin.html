@@ -2244,6 +2244,11 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
     <div id="sentOrders"></div>
   </section>
 
+  <section class="card" style="margin-top:22px">
+    <div class="orders-header"><div><h2>Registros eliminados</h2><p>Historial de pedidos eliminados. Ya no afectan saldos, finanzas ni pedidos activos.</p></div></div>
+    <div class="table-scroll"><table class="records-table"><thead><tr><th>Eliminado</th><th>Cliente</th><th>Folio</th><th>Fecha registro</th><th>Pares</th><th>Total</th><th>Ganancia</th><th>Estado</th></tr></thead><tbody id="deletedOrdersBody"><tr><td colspan="8">Sin registros eliminados.</td></tr></tbody></table></div>
+  </section>
+
 </div>
 
 
@@ -2560,6 +2565,7 @@ async function authenticateAdmin(){
 
 let allProducts=[];
 let allOrders=[];
+let deletedOrders=[];
 let ordersLoaded=false;
 let colorBlockCounter=0;
 let activeNoteOrder=null;
@@ -3939,17 +3945,14 @@ async function loadOrders(){
       );
     }
 
-    allOrders=
-      Array.isArray(
-        result.pedidos
-      )
-        ?result.pedidos
-        :[];
+    allOrders=Array.isArray(result.pedidos)?result.pedidos:[];
+    deletedOrders=Array.isArray(result.eliminados)?result.eliminados:[];
 
     ordersLoaded=true;
 
     renderOrders();
     renderSentOrders();
+    renderDeletedOrders();
 
   }catch(error){
     orders.innerHTML=
@@ -4068,6 +4071,12 @@ function renderSentOrders(){
    return '<details class="order-card" style="margin-bottom:12px"><summary class="order-top" style="cursor:pointer;list-style:none"><div><div class="order-client">'+escapeHtml(o.nota_cliente||o.cliente)+'</div><div class="order-date">'+escapeHtml(o.fecha_envio||o.nota_fecha||formatDate(o.creado_en))+' · Folio '+escapeHtml(o.folio)+'</div><div class="note-badge">'+escapeHtml(money(o.nota_total))+'</div></div><div class="order-total"><strong>'+Number(o.total_pares||0)+'</strong><span>PARES</span></div></summary><div class="order-items">'+(lines||'<div class="order-line">Sin productos</div>')+'</div></details>';
  }).join("");
 }
+function renderDeletedOrders(){
+ const body=document.getElementById("deletedOrdersBody"); if(!body)return;
+ if(!deletedOrders.length){body.innerHTML='<tr><td colspan="8">Sin registros eliminados.</td></tr>';return}
+ body.innerHTML=deletedOrders.map(x=>'<tr><td>'+escapeHtml(formatDate(x.fecha_eliminado))+'</td><td>'+escapeHtml(x.cliente||"")+'</td><td>'+escapeHtml(x.folio||"")+'</td><td>'+escapeHtml(x.fecha_original||"")+'</td><td>'+Number(x.total_pares||0)+'</td><td>'+escapeHtml(money(x.total||0))+'</td><td>'+escapeHtml(money(x.ganancia||0))+'</td><td>'+escapeHtml(x.estado||"")+'</td></tr>').join("");
+}
+
 function localDateInput(value){
   if(value&&/^\d{4}-\d{2}-\d{2}$/.test(String(value))) return String(value);
   const d=value?new Date(value):new Date();
@@ -4349,6 +4358,7 @@ orders.onclick=async function(event){
       }
     }catch(cleanErr){console.error("No se pudieron limpiar movimientos del cliente:",cleanErr);throw new Error("El pedido se eliminó, pero no se pudieron eliminar todos sus movimientos del cliente: "+cleanErr.message)}
     allOrders=allOrders.filter(order=>Number(order.id)!==pedidoId);
+    await loadOrders();
     await loadClients();
     renderOrders();renderSentOrders();
     operationStatus.textContent="✓ Registro eliminado de pedidos, cliente y finanzas";
