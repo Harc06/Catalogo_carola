@@ -23,7 +23,7 @@ function cleanText(value,max=120){
 }
 
 const SELECT_ORDER = `
-  id, folio, cliente, total_pares, estado, creado_en, actualizado_en,
+  id, folio, cliente, total_pares, estado, creado_en, actualizado_en, fecha_envio, ganancia_pedido,
   nota_cliente, nota_fecha, nota_total, nota_guardada, nota_actualizada_en,
   pedido_detalles (
     id, modelo, color, cantidad, precio_unitario, importe
@@ -132,10 +132,11 @@ exports.handler=async function(event){
 
       // Validate all inventory first, so a failed shipment never partially discounts stock.
       const deductions=[];
+      let orderProfit=0;
       for(const item of details){
         const {data:model,error:me}=await supabase.from("modelos").select("id").eq("modelo",String(item.modelo)).maybeSingle();
         if(me||!model)return response(409,{success:false,error:"No se encontró el modelo "+item.modelo+" en inventario"});
-        const {data:vars,error:ve}=await supabase.from("variantes").select("id,color").eq("modelo_id",model.id).eq("activo",true);
+        const {data:vars,error:ve}=await supabase.from("variantes").select("id,color,precio_compra").eq("modelo_id",model.id).eq("activo",true);
         if(ve)throw ve;
         const norm=v=>String(v||"").trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
         const variant=(vars||[]).find(v=>norm(v.color)===norm(item.color));
@@ -145,12 +146,15 @@ exports.handler=async function(event){
         const current=Number(stock?.existencia||0),qty=Number(item.cantidad||0);
         if(!Number.isFinite(qty)||qty<=0||current<qty)return response(409,{success:false,error:"Existencia insuficiente para "+item.modelo+" "+item.color+". Hay "+current+" pares y el pedido requiere "+qty+"."});
         deductions.push({variantId:variant.id,current,qty});
+        orderProfit+=qty*(Number(item.precio_unitario||0)-Number(variant.precio_compra||0));
       }
       for(const d of deductions){
         const {error}=await supabase.from("inventario_mayoreo").upsert({variante_id:d.variantId,existencia:d.current-d.qty,actualizado_en:new Date().toISOString()},{onConflict:"variante_id"});
         if(error)throw error;
       }
-      const {data,error}=await supabase.from("pedidos").update({estado:"Enviado",actualizado_en:new Date().toISOString()}).eq("id",pedidoId).select(SELECT_ORDER).single();
+      const sentNow=new Date(),sentDate=sentNow.getFullYear()+"-"+String(sentNow.getMonth()+1).padStart(2,"0")+"-"+String(sentNow.getDate()).padStart(2,"0");
+      orderProfit=Math.round((orderProfit+Number.EPSILON)*100)/100;
+      const {data,error}=await supabase.from("pedidos").update({estado:"Enviado",fecha_envio:sentDate,ganancia_pedido:orderProfit,actualizado_en:sentNow.toISOString()}).eq("id",pedidoId).select(SELECT_ORDER).single();
       if(error)throw error;
       return response(200,{success:true,pedido:data});
     }
