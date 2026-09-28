@@ -2806,9 +2806,19 @@ async function quickClientPayment(clientId,balance,full){
  const amount=full?Number(balance):Number(prompt("¿Cuánto abonó "+client.nombre+"?",""));
  if(!Number.isFinite(amount)||amount<=0)return;
  if(amount>Number(balance)){alert("El abono no puede ser mayor al saldo pendiente.");return}
+ const choice=prompt("Forma / concepto del pago:\n\n1 = Efectivo\n2 = Transferencia\n3 = Otro","2");
+ if(choice===null)return;
+ let forma="";
+ if(String(choice).trim()==="1")forma="Efectivo";
+ else if(String(choice).trim()==="2")forma="Transferencia";
+ else if(String(choice).trim()==="3"){
+   const other=prompt("Escribe el concepto del pago.\nEjemplo: Nota 280, devolución, cheque...","");
+   if(other===null||!other.trim())return;
+   forma=other.trim();
+ }else{alert("Selecciona 1, 2 o 3.");return}
  const now=new Date(),fecha=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
- if(!confirm((full?"Registrar como pagado ":"Registrar abono de "+moneyShort(amount)+" para ")+client.nombre+"\nFecha del registro: "+fecha+"?"))return;
- try{await clientCall({action:"add-movement",cliente_id:clientId,tipo:"pago",fecha,importe:amount,forma_pago:full?"Pagado":"Abono",observaciones:"Registrado desde saldo pendiente"});await loadClients()}catch(e){alert(e.message)}
+ if(!confirm((full?"Registrar como pagado ":"Registrar abono de "+moneyShort(amount)+" para ")+client.nombre+"\nFecha: "+fecha+"\nConcepto: "+forma+"?"))return;
+ try{await clientCall({action:"add-movement",cliente_id:clientId,tipo:"pago",fecha,importe:amount,forma_pago:forma,observaciones:full?"Pago total desde saldo pendiente":"Abono desde saldo pendiente"});await loadClients()}catch(e){alert(e.message)}
 }
 function renderClients(){
  const debtors=clients.map(p=>{const m=clientMoves.filter(x=>x.cliente_id===p.id&&!x.eliminado_en),notes=m.filter(x=>x.tipo==="nota").reduce((s,x)=>s+Number(x.importe||0),0),pays=m.filter(x=>x.tipo==="pago").reduce((s,x)=>s+Number(x.importe||0),0),opening=m.filter(x=>x.tipo==="saldo_inicial").reduce((s,x)=>s+Number(x.importe||0),0);return {id:p.id,nombre:p.nombre,saldo:opening+notes-pays}}).filter(x=>x.saldo>0).sort((a,b)=>b.saldo-a.saldo);
