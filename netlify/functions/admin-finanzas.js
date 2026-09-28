@@ -72,6 +72,18 @@ exports.handler=async function(event){
       return response(200,{success:true,registro:data});
     }
 
+    if(action==="remove-order-sale"){
+      const fecha=String(body.fecha||"").trim(),ganancia=Number(body.ganancia),pares=Number(body.pares);
+      if(!validDate(fecha)||!Number.isFinite(ganancia)||ganancia<0||!Number.isInteger(pares)||pares<0) return response(400,{success:false,error:"Datos del pedido inválidos"});
+      const {data:existing,error:ee}=await supabase.from("finanzas_diarias").select("id,ganancia,medias_docenas").eq("fecha",fecha).maybeSingle();
+      if(ee)throw ee;
+      if(!existing)return response(200,{success:true});
+      const newProfit=Math.max(0,Number(existing.ganancia||0)-ganancia),newHalf=Math.max(0,Number(existing.medias_docenas||0)-(pares/6));
+      const {error}=await supabase.from("finanzas_diarias").update({ganancia:newProfit,medias_docenas:newHalf,actualizado_en:new Date().toISOString()}).eq("id",existing.id);
+      if(error)throw error;
+      return response(200,{success:true});
+    }
+
     if(action==="upsert"){
       const fecha=String(body.fecha||"").trim();
       const ganancia=Number(body.ganancia);
