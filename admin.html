@@ -2004,6 +2004,8 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 .catalog-fab.open .catalog-fab-main{transform:rotate(45deg)}
 .catalog-action-modal{position:fixed;inset:0;z-index:1500;background:rgba(20,15,18,.45);display:none;align-items:flex-end;justify-content:center;padding:0}
 .catalog-action-modal.show{display:flex}
+#sentPaymentModal{z-index:12050;align-items:center;padding:24px}
+#sentPaymentModal .catalog-action-sheet{border-radius:24px;max-height:90vh}
 .catalog-action-sheet{background:#fff;width:min(760px,100%);max-height:94dvh;overflow:auto;border-radius:28px 28px 0 0;padding:18px 18px 30px;box-shadow:0 -12px 40px rgba(0,0,0,.16)}
 .catalog-action-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 .catalog-action-head h2{margin:0;font-size:24px}
@@ -2236,6 +2238,11 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
   <div id="orders">
     <div class="loading">Abre REGISTRO para cargar.</div>
   </div>
+  <section class="card sent-orders-card" style="margin-top:22px">
+    <div class="orders-header"><div><h2>Pedidos enviados</h2><p>Control diario de pedidos confirmados y enviados.</p></div></div>
+    <div class="order-search-wrap"><input id="sentOrderSearch" type="search" placeholder="Buscar cliente, folio o fecha..." autocomplete="off"></div>
+    <div id="sentOrders"></div>
+  </section>
 
 </div>
 
@@ -2581,6 +2588,8 @@ const modelSearch=document.getElementById("modelSearch");
 const clearModelSearch=document.getElementById("clearModelSearch");
 const modelResultCount=document.getElementById("modelResultCount");
 const orderSearch=document.getElementById("orderSearch");
+const sentOrderSearch=document.getElementById("sentOrderSearch");
+const sentOrders=document.getElementById("sentOrders");
 const noteModal=document.getElementById("noteModal");
 const noteFolio=document.getElementById("noteFolio");
 const noteClient=document.getElementById("noteClient");
@@ -3940,6 +3949,7 @@ async function loadOrders(){
     ordersLoaded=true;
 
     renderOrders();
+    renderSentOrders();
 
   }catch(error){
     orders.innerHTML=
@@ -4046,6 +4056,17 @@ function renderOrders(){
   }).join("");
 }
 
+function renderSentOrders(){
+ if(!sentOrders)return;
+ const q=normalizeText(sentOrderSearch?.value||"");
+ const rows=allOrders.filter(o=>String(o.estado||"")==="Enviado").filter(o=>!q||normalizeText(o.nota_cliente||o.cliente).includes(q)||normalizeText(o.folio).includes(q)||normalizeText(o.nota_fecha||formatDate(o.creado_en)).includes(q));
+ if(!rows.length){sentOrders.innerHTML='<div class="empty">Todavía no hay pedidos enviados'+(q?" con esa búsqueda":"")+'.</div>';return}
+ sentOrders.innerHTML=rows.map(o=>{
+   const details=Array.isArray(o.pedido_detalles)?o.pedido_detalles:[];
+   const lines=details.map(x=>'<div class="order-line"><div class="order-qty">'+Number(x.cantidad||0)+'</div><div class="order-product">Modelo '+escapeHtml(x.modelo)+' <span>'+escapeHtml(formatColor(x.color))+'</span></div></div>').join("");
+   return '<details class="order-card" style="margin-bottom:12px"><summary class="order-top" style="cursor:pointer;list-style:none"><div><div class="order-client">'+escapeHtml(o.nota_cliente||o.cliente)+'</div><div class="order-date">'+escapeHtml(o.nota_fecha||formatDate(o.creado_en))+' · Folio '+escapeHtml(o.folio)+'</div><div class="note-badge">'+escapeHtml(money(o.nota_total))+'</div></div><div class="order-total"><strong>'+Number(o.total_pares||0)+'</strong><span>PARES</span></div></summary><div class="order-items">'+(lines||'<div class="order-line">Sin productos</div>')+'</div></details>';
+ }).join("");
+}
 function localDateInput(value){
   if(value&&/^\d{4}-\d{2}-\d{2}$/.test(String(value))) return String(value);
   const d=value?new Date(value):new Date();
@@ -4332,14 +4353,21 @@ async function ensureOrderClient(order){
   const norm=v=>normalizeText(String(v||""));
   const directory=(window.catalogClients||[]).find(x=>norm(x.nombre)===norm(name));
   const debtClient=(clients||[]).find(x=>norm(x.nombre)===norm(name));
-  if(directory)return {directory,debtClient};
-
-  const phone=prompt("Este cliente no está en tu agenda.\n\nCliente: "+name+"\n\nIngresa su número de teléfono para agregarlo:");
-  if(phone===null)throw new Error("Primero agrega al cliente para marcar el pedido como enviado.");
-  if(!phone.trim())throw new Error("El número de teléfono es obligatorio para agregar al cliente.");
-  const created=await clientCall({action:"add-directory-client",nombre:name,telefono:phone.trim()});
+  let dir=directory;
+  if(!dir){
+    const phone=prompt("Este cliente no está en tu agenda.\n\nCliente: "+name+"\n\nIngresa su número de teléfono para agregarlo:");
+    if(phone===null)throw new Error("Primero agrega al cliente para marcar el pedido como enviado.");
+    if(!phone.trim())throw new Error("El número de teléfono es obligatorio para agregar al cliente.");
+    const created=await clientCall({action:"add-directory-client",nombre:name,telefono:phone.trim()});
+    dir=created.cliente;
+  }
+  let debt=debtClient;
+  if(!debt){
+    const createdDebt=await clientCall({action:"add-provider",nombre:name});
+    debt=createdDebt.cliente;
+  }
   await loadClients();
-  return {directory:created.cliente,debtClient:(clients||[]).find(x=>norm(x.nombre)===norm(name))};
+  return {directory:dir,debtClient:debt};
 }
 
 function closeSentPaymentModal(){document.getElementById("sentPaymentModal").classList.remove("show")}
@@ -4355,14 +4383,14 @@ async function processSentOrder(paymentMethod){
   try{
     const saved=await saveActiveNote();
     if(!saved)throw new Error("Primero guarda correctamente la nota.");
-    await ensureOrderClient(activeNoteOrder);
+    const clientInfo=await ensureOrderClient(activeNoteOrder);
     const response=await fetch("/.netlify/functions/admin-pedidos",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"mark-sent",pedido_id:Number(activeNoteOrder.id)})});
     const result=await readJson(response);
     if(!response.ok||!result.success)throw new Error(result.error||"No se pudo marcar como enviado.");
 
     const name=(noteClient.value.trim()||activeNoteOrder.nota_cliente||activeNoteOrder.cliente||"").trim();
-    let debt=(clients||[]).find(x=>normalizeText(x.nombre)===normalizeText(name));
-    if(!debt){const created=await clientCall({action:"add-provider",nombre:name});debt=created.cliente}
+    let debt=clientInfo.debtClient||(clients||[]).find(x=>normalizeText(x.nombre)===normalizeText(name));
+    if(!debt)throw new Error("No se pudo crear el saldo del cliente.");
     if(!result.already_sent){
       const fecha=noteDate.value,total=Number(calculateNote()),folio=String(activeNoteOrder.folio||""),pares=Number(result.pedido.total_pares||activeNoteOrder.total_pares||0);
       await clientCall({action:"add-movement",cliente_id:Number(debt.id),tipo:"nota",fecha,importe:total,folio,pares,observaciones:"Pedido enviado desde Registro · "+paymentMethod});
@@ -4372,7 +4400,7 @@ async function processSentOrder(paymentMethod){
     }
     const index=allOrders.findIndex(o=>Number(o.id)===Number(result.pedido.id));
     if(index>=0)allOrders[index]=result.pedido;activeNoteOrder=result.pedido;
-    await Promise.all([loadModels(),loadClients()]);renderOrders();
+    await Promise.all([loadModels(),loadClients()]);renderOrders();renderSentOrders();
     btn.textContent="✓ Pedido enviado";showOperation("✓ Pedido enviado · "+paymentMethod);setTimeout(hideOperation,2200);
   }catch(error){alert(error.message);btn.disabled=false;btn.textContent="Pedido enviado"}
 }
@@ -4390,8 +4418,8 @@ shareNote.onclick=async function(){
   }catch(error){if(error.name!=="AbortError")alert("No se pudo compartir la imagen.")}
 };
 
-orderSearch.oninput=
-  renderOrders;
+orderSearch.oninput=renderOrders;
+if(sentOrderSearch)sentOrderSearch.oninput=renderSentOrders;
 
 
 
