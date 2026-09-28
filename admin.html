@@ -1967,7 +1967,7 @@ footer{
 /* Inventario simple del catálogo administrativo */
 #models{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
 .inventory-model-card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 30px rgba(0,0,0,.05);min-width:0}
-.inventory-model-name{font-size:20px;font-weight:900;margin-bottom:9px}
+.inventory-model-name{font-size:20px;font-weight:900;margin-bottom:4px}.inventory-model-summary-text{min-width:0}.inventory-model-availability{font-size:12px;font-weight:800;color:#777;margin-top:2px}.inventory-model-availability.no-stock{color:#b06b82}.inventory-model-availability.has-stock{color:#777}
 .inventory-row{display:grid;grid-template-columns:minmax(0,1fr) 112px auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid #f1e6eb}
 .inventory-color{font-weight:800;overflow:hidden;text-overflow:ellipsis}
 .inventory-stock-wrap{display:flex;align-items:center;gap:5px}.inventory-stock{width:66px!important;padding:9px!important;border:1px solid #ddd;border-radius:9px;text-align:center;font-weight:800}.inventory-stock-wrap span{font-size:10px;color:#888}.inventory-save{background:#171717;color:#fff;border-radius:9px;padding:10px;font-size:10px}.inventory-save:disabled{opacity:.55}
@@ -3521,7 +3521,7 @@ async function loadModels(){
   try{
     const response=
       await fetch(
-        "/.netlify/functions/supabase?t="+Date.now(),
+        "/.netlify/functions/supabase?includeOutOfStock=1&t="+Date.now(),
         {
           cache:"no-store"
         }
@@ -3664,7 +3664,11 @@ function renderModels(products){
   let html="";
   products.forEach(function(product){
     const variants=Array.isArray(product.variantes)?product.variantes:[];
-    html+='<details class="inventory-model-card" data-model-id="'+Number(product.id)+'"><summary class="inventory-model-summary"><div class="inventory-model-name">Modelo '+escapeHtml(product.modelo)+'</div><span class="inventory-model-chevron">⌄</span></summary><div class="inventory-model-body"><div class="inventory-model-head"><div class="inventory-model-actions"><button type="button" class="inventory-edit-model">Editar modelo</button><button type="button" class="inventory-add-color">+ Agregar color</button></div></div><div class="inventory-add-form" hidden><input class="inventory-new-color" type="text" placeholder="Color"><input class="inventory-new-stock" type="number" min="0" step="6" inputmode="numeric" placeholder="Pares"><label class="inventory-photo-label">📷 Foto<input class="inventory-new-photo" type="file" accept="image/*"></label><button type="button" class="inventory-confirm-color">Agregar</button><button type="button" class="inventory-cancel-color">Cancelar</button></div>';
+    const availablePairs=variants.reduce((sum,variant)=>sum+Math.max(0,Number(variant.existencia||0)),0);
+    const availabilityText=availablePairs>0
+      ?availablePairs+" "+(availablePairs===1?"par disponible":"pares disponibles")
+      :"Sin existencias";
+    html+='<details class="inventory-model-card" data-model-id="'+Number(product.id)+'"><summary class="inventory-model-summary"><div class="inventory-model-summary-text"><div class="inventory-model-name">Modelo '+escapeHtml(product.modelo)+'</div><div class="inventory-model-availability '+(availablePairs>0?'has-stock':'no-stock')+'">'+availabilityText+'</div></div><span class="inventory-model-chevron">⌄</span></summary><div class="inventory-model-body"><div class="inventory-model-head"><div class="inventory-model-actions"><button type="button" class="inventory-edit-model">Editar modelo</button><button type="button" class="inventory-add-color">+ Agregar color</button></div></div><div class="inventory-add-form" hidden><input class="inventory-new-color" type="text" placeholder="Color"><input class="inventory-new-stock" type="number" min="0" step="6" inputmode="numeric" placeholder="Pares"><label class="inventory-photo-label">📷 Foto<input class="inventory-new-photo" type="file" accept="image/*"></label><button type="button" class="inventory-confirm-color">Agregar</button><button type="button" class="inventory-cancel-color">Cancelar</button></div>';
     variants.forEach(function(variant){
       html+='<div class="inventory-row" data-variant-id="'+Number(variant.id)+'">'+
         '<div class="inventory-color">'+escapeHtml(formatColor(variant.color))+'</div>'+
