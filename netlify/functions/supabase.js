@@ -97,6 +97,14 @@ exports.handler = async function (event) {
       modelo => ({
         id: modelo.id,
         modelo: modelo.modelo,
+        // Solo se usa en el navegador para ordenar; nunca se muestra en la interfaz.
+        proveedor_orden: (() => {
+          const proveedores = variantes
+            .filter(v => Number(v.modelo_id) === Number(modelo.id))
+            .map(v => Number(v.proveedor_id || 0))
+            .filter(Boolean);
+          return proveedores.length ? Math.min(...proveedores) : Number.MAX_SAFE_INTEGER;
+        })(),
 
         /*
          * Puede ser null en modelos
