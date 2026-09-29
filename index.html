@@ -1738,7 +1738,7 @@ const NAME_KEY="carola_customer_name_v1";
 const LAST_ORDER_KEY="carola_last_order_v1";
 const VIEW_KEY="carola_view_v1";
 const CATALOG_STATE_KEY="carola_catalog_state_v1";
-const PAGE_SIZE=24;
+const PAGE_SIZE=12;
 let visibleLimit=PAGE_SIZE;
 
 const DUPLICATE_WINDOW=30*60*1000;
@@ -2803,7 +2803,12 @@ function appendInfiniteScrollSentinel(total){
   grid.insertAdjacentHTML("beforeend",`<div class="infinite-scroll-sentinel" data-infinite-scroll aria-hidden="true"></div>`);
 }
 
+let infiniteScrollLoading=false;
+
 function loadNextProducts(){
+
+if(infiniteScrollLoading)return;
+infiniteScrollLoading=true;
 
 const visible=filteredProducts();
 const startIndex=Math.min(visibleLimit,visible.length);
@@ -2813,13 +2818,24 @@ const nextProducts=visible.slice(startIndex,nextLimit);
 const sentinel=grid.querySelector("[data-infinite-scroll]");
 if(sentinel)sentinel.remove();
 
-if(nextProducts.length){
-  grid.insertAdjacentHTML("beforeend",nextProducts.map(productCardHtml).join(""));
+const midpoint=Math.ceil(nextProducts.length/2);
+const firstBatch=nextProducts.slice(0,midpoint);
+const secondBatch=nextProducts.slice(midpoint);
+
+if(firstBatch.length){
+  grid.insertAdjacentHTML("beforeend",firstBatch.map(productCardHtml).join(""));
 }
 
-visibleLimit=nextLimit;
-appendInfiniteScrollSentinel(visible.length);
-setupInfiniteScroll();
+requestAnimationFrame(()=>{
+  if(secondBatch.length){
+    grid.insertAdjacentHTML("beforeend",secondBatch.map(productCardHtml).join(""));
+  }
+
+  visibleLimit=nextLimit;
+  appendInfiniteScrollSentinel(visible.length);
+  infiniteScrollLoading=false;
+  setupInfiniteScroll();
+});
 
 }
 
@@ -2837,7 +2853,7 @@ function setupInfiniteScroll(){
     infiniteScrollObserver.disconnect();
     infiniteScrollObserver=null;
     loadNextProducts();
-  },{root:null,rootMargin:"700px 0px",threshold:0});
+  },{root:null,rootMargin:"1600px 0px",threshold:0});
 
   infiniteScrollObserver.observe(sentinel);
 }
