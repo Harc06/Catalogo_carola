@@ -2353,27 +2353,45 @@ body.inventory-sheet-open{overflow:hidden}
 <style id="mobile-top-tabs-layout">
 @media(max-width:650px){
   .tabs{
-    width:calc(100% - 24px);
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:6px;
-    padding:9px 0;
+    width:calc(100% - 24px)!important;
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:6px!important;
+    padding:9px 0!important;
+    overflow:visible!important;
   }
-  .tab{
-    min-width:0;
-    width:100%;
-    padding:12px 4px;
-    border-radius:12px;
-    font-size:12px;
-    line-height:1.1;
-    letter-spacing:-.15px;
-    white-space:nowrap;
-    text-align:center;
-    overflow:hidden;
+  .tabs .tab{
+    min-width:0!important;
+    width:100%!important;
+    height:52px!important;
+    margin:0!important;
+    padding:0 5px!important;
+    border-radius:13px!important;
+    font-size:11px!important;
+    line-height:1!important;
+    letter-spacing:-.15px!important;
+    white-space:nowrap!important;
+    text-align:center!important;
+    overflow:hidden!important;
+    text-overflow:clip!important;
+  }
+  .tabs #catalogTab{grid-column:1!important;display:block!important}
+  .tabs #ordersTab{grid-column:2!important;display:block!important}
+  .tabs #financeTab{grid-column:3!important;display:block!important}
+  .tabs .desktop-account-tab{display:none!important}
+  .tabs #accountsTab{
+    grid-column:4!important;
+    display:block!important;
+    appearance:none!important;
+    -webkit-appearance:none!important;
+    text-align:center!important;
+    text-align-last:center!important;
+    padding:0 2px!important;
   }
 }
 @media(max-width:380px){
-  .tabs{width:calc(100% - 16px);gap:4px}
-  .tab{padding:11px 2px;font-size:11px}
+  .tabs{width:calc(100% - 16px)!important;gap:4px!important}
+  .tabs .tab{font-size:10px!important;padding:0 2px!important}
 }
 </style>
 
