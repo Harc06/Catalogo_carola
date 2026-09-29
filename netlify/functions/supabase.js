@@ -20,7 +20,7 @@ exports.handler = async function (event) {
      */
 
     const modelosResponse = await fetch(
-      `${supabaseUrl}/rest/v1/modelos?select=id,modelo,categoria,activo&activo=eq.true&order=modelo.asc`,
+      `${supabaseUrl}/rest/v1/modelos?select=id,modelo,categoria,activo,mostrar_catalogo&activo=eq.true&mostrar_catalogo=eq.true&order=modelo.asc`,
       { headers }
     );
 
