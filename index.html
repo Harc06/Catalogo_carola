@@ -2837,7 +2837,11 @@ type="button"
 
 `;
 
-}).join("") + (visible.length>visibleLimit?`<button class="load-more" type="button" data-load-more>Ver más modelos</button>`:"");
+}).join("") + (visible.length>visibleLimit?`<div class="infinite-scroll-sentinel" data-infinite-scroll aria-hidden="true"></div>`:"");
+
+setupInfiniteScroll();
+
+}
 
 }
 
@@ -2845,10 +2849,28 @@ type="button"
    EVENTOS CATÁLOGO
 ========================= */
 
-grid.onclick=function(event){
+let infiniteScrollObserver=null;
 
-const more=event.target.closest("[data-load-more]");
-if(more){visibleLimit+=PAGE_SIZE;renderProducts();return;}
+function setupInfiniteScroll(){
+  if(infiniteScrollObserver){
+    infiniteScrollObserver.disconnect();
+    infiniteScrollObserver=null;
+  }
+  const sentinel=grid.querySelector("[data-infinite-scroll]");
+  if(!sentinel)return;
+
+  infiniteScrollObserver=new IntersectionObserver(entries=>{
+    if(!entries.some(entry=>entry.isIntersecting))return;
+    infiniteScrollObserver.disconnect();
+    infiniteScrollObserver=null;
+    visibleLimit+=PAGE_SIZE;
+    renderProducts();
+  },{root:null,rootMargin:"700px 0px",threshold:0});
+
+  infiniteScrollObserver.observe(sentinel);
+}
+
+grid.onclick=function(event){
 
 const button=
 event.target.closest(
