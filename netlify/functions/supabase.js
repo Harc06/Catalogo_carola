@@ -112,13 +112,18 @@ exports.handler = async function (event) {
       modelo => ({
         id: modelo.id,
         modelo: modelo.modelo,
-        // Solo se usa en el navegador para ordenar; nunca se muestra en la interfaz.
+        // Orden interno del catálogo. No expone el nombre del proveedor.
+        // 1: Don Valente, 2: Noé, 3: zapatillas restantes, 4: todo lo demás.
         proveedor_orden: (() => {
-          const proveedores = variantes
+          const nombres = variantes
             .filter(v => Number(v.modelo_id) === Number(modelo.id))
-            .map(v => Number(v.proveedor_id || 0))
-            .filter(Boolean);
-          return proveedores.length ? Math.min(...proveedores) : Number.MAX_SAFE_INTEGER;
+            .map(v => nombreProveedor.get(Number(v.proveedor_id)) || "");
+          if (nombres.some(nombre => nombre.includes("valente"))) return 1;
+          if (nombres.some(nombre => nombre.includes("noe") || nombre.includes("cristina calderon"))) return 2;
+          const categoria = String(modelo.categoria || "").toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+          if (categoria === "zapatilla") return 3;
+          return 4;
         })(),
 
         /*
