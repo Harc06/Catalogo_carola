@@ -53,33 +53,34 @@ exports.handler = async function (event) {
     const body = JSON.parse(event.body || "{}");
     const action = String(body.action || "");
 
-    if (action === "list-color-presets") {
-      const q=await supabase.from("inventario_colores_predefinidos").select("id,color,categoria,proveedor_id,activo").eq("activo",true).order("color");
+    if (action === "list-color-labels") {
+      const q=await supabase.from("inventario_etiquetas_colores").select("id,nombre,colores,activo").eq("activo",true).order("nombre");
       if(q.error)throw new Error(q.error.message);
-      return respond(200,{success:true,colores:q.data||[]});
+      return respond(200,{success:true,etiquetas:q.data||[]});
     }
 
-    if (action === "save-color-preset") {
-      const color=String(body.color||"").trim(), categoria=body.categoria?cleanCategory(body.categoria):null, proveedor_id=Number(body.proveedor_id||0)||null;
-      if(!color)throw new Error("Escribe un color.");
-      if(!categoria&&!proveedor_id)throw new Error("Selecciona una categoría, un proveedor o ambos.");
-      const existing=await supabase.from("inventario_colores_predefinidos").select("id,color,categoria,proveedor_id");
-      if(existing.error)throw new Error(existing.error.message);
-      const same=(existing.data||[]).find(x=>normalizeText(x.color)===normalizeText(color)&&normalizeText(x.categoria||"")===normalizeText(categoria||"")&&Number(x.proveedor_id||0)===Number(proveedor_id||0));
+    if (action === "save-color-label") {
+      const nombre=String(body.nombre||"").trim();
+      const colores=[...new Set((Array.isArray(body.colores)?body.colores:[]).map(x=>String(x||"").trim()).filter(Boolean))];
+      if(!nombre)throw new Error("Escribe el nombre de la etiqueta.");
+      if(!colores.length)throw new Error("Agrega al menos un color.");
+      const all=await supabase.from("inventario_etiquetas_colores").select("id,nombre");
+      if(all.error)throw new Error(all.error.message);
+      const same=(all.data||[]).find(x=>normalizeText(x.nombre)===normalizeText(nombre));
       if(same){
-        const up=await supabase.from("inventario_colores_predefinidos").update({activo:true,color}).eq("id",same.id);
+        const up=await supabase.from("inventario_etiquetas_colores").update({nombre,colores,activo:true,actualizado_en:new Date().toISOString()}).eq("id",same.id);
         if(up.error)throw new Error(up.error.message);
       }else{
-        const ins=await supabase.from("inventario_colores_predefinidos").insert({color,categoria,proveedor_id,activo:true});
+        const ins=await supabase.from("inventario_etiquetas_colores").insert({nombre,colores,activo:true});
         if(ins.error)throw new Error(ins.error.message);
       }
       return respond(200,{success:true});
     }
 
-    if (action === "delete-color-preset") {
+    if (action === "delete-color-label") {
       const id=Number(body.id);
-      if(!id)throw new Error("Color inválido.");
-      const del=await supabase.from("inventario_colores_predefinidos").delete().eq("id",id);
+      if(!id)throw new Error("Etiqueta inválida.");
+      const del=await supabase.from("inventario_etiquetas_colores").delete().eq("id",id);
       if(del.error)throw new Error(del.error.message);
       return respond(200,{success:true});
     }
