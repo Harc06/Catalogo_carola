@@ -2349,6 +2349,33 @@ body.inventory-sheet-open{overflow:hidden}
 }
 @keyframes inventorySheetUp{from{transform:translateY(24px);opacity:.65}to{transform:translateY(0);opacity:1}}
 </style>
+
+<style id="mobile-top-tabs-layout">
+@media(max-width:650px){
+  .tabs{
+    width:calc(100% - 24px);
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:6px;
+    padding:9px 0;
+  }
+  .tab{
+    min-width:0;
+    width:100%;
+    padding:12px 4px;
+    border-radius:12px;
+    font-size:12px;
+    line-height:1.1;
+    letter-spacing:-.15px;
+    white-space:nowrap;
+    text-align:center;
+    overflow:hidden;
+  }
+}
+@media(max-width:380px){
+  .tabs{width:calc(100% - 16px);gap:4px}
+  .tab{padding:11px 2px;font-size:11px}
+}
+</style>
 </head>
 
 <body>
