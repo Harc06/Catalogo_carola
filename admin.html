@@ -2111,9 +2111,10 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 .inventory-pill strong{color:#171717;font-size:13px}
 .inventory-alert-wrap{
   position:absolute;
-  top:8px;
-  right:0;
-  z-index:120;
+  top:18px;
+  left:22px;
+  right:auto;
+  z-index:500;
   display:flex;
   align-items:center;
 }
@@ -2150,7 +2151,8 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 .inventory-alert-popover{
   position:absolute;
   top:50px;
-  right:0;
+  left:0;
+  right:auto;
   z-index:400;
   width:min(390px,88vw);
   max-height:440px;
@@ -2221,7 +2223,7 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
   .inventory-status-bar{gap:8px;margin:9px 0 13px}
   .inventory-pill{min-height:36px;padding:8px 11px;font-size:10px}
   .inventory-pill strong{font-size:11px}
-  .inventory-alert-wrap{top:8px;right:0}
+  .inventory-alert-wrap{top:14px;left:14px;right:auto}
   .inventory-alert-button{width:46px;height:46px;font-size:20px}
 }
 
@@ -2249,6 +2251,13 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 <body>
 
 <header>
+  <div class="inventory-alert-wrap">
+    <button id="inventoryAlertButton" class="inventory-alert-button" type="button" aria-label="Ver alertas de inventario" aria-expanded="false">
+      🔔
+      <span id="inventoryAlertBadge" class="inventory-alert-badge">0</span>
+    </button>
+    <div id="inventoryAlertPopover" class="inventory-alert-popover" aria-hidden="true"></div>
+  </div>
   <div class="logo">CAROLA</div>
   <p>Administrador</p>
 </header>
@@ -2361,13 +2370,7 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
     <div class="inventory-status-bar" aria-label="Resumen de existencias">
       <div class="inventory-pill">Pares totales <strong id="inventoryPairsTotal">0</strong></div>
       <div class="inventory-pill">Agotados <strong id="inventoryOutOfStockTotal">0</strong></div>
-      <div class="inventory-alert-wrap">
-        <button id="inventoryAlertButton" class="inventory-alert-button" type="button" aria-label="Ver alertas de inventario" aria-expanded="false">
-          🔔
-          <span id="inventoryAlertBadge" class="inventory-alert-badge">0</span>
-        </button>
-        <div id="inventoryAlertPopover" class="inventory-alert-popover" aria-hidden="true"></div>
-      </div>
+
     </div>
 
 
