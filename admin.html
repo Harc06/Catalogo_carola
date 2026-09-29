@@ -2083,6 +2083,25 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 @media(max-width:700px){.manual-order-modal{width:min(96vw,900px)}.manual-client-grid{grid-template-columns:1fr}.manual-note-head{display:none}.manual-note-line{grid-template-columns:72px minmax(0,1fr) 92px 38px;gap:8px;align-items:center}.manual-model-wrap{min-width:0}.manual-note-line .manual-price{grid-column:3}.manual-note-line .manual-line-total{grid-column:1 / 4;text-align:left;padding-top:2px;font-size:17px}.manual-remove{grid-column:4;grid-row:1}.record-header-actions{flex-wrap:wrap}}
 
 
+/* Botón general para guardar existencias del modelo */
+.inventory-save-model{
+  width:100%;
+  min-height:40px;
+  margin-top:10px;
+  padding:10px 16px;
+  border:0;
+  border-radius:12px;
+  background:#171717;
+  color:#fff;
+  font:inherit;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 5px 14px rgba(0,0,0,.08);
+}
+.inventory-save-model:active{transform:scale(.99)}
+.inventory-save-model:disabled{opacity:.6;cursor:default}
+
 /* ===== RESUMEN DE INVENTARIO + ALERTAS ===== */
 .catalog{position:relative;}
 .inventory-status-bar{
