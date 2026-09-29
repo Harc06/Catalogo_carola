@@ -1491,7 +1491,7 @@ async function saveFullModelEdit(product){
 
   btn.disabled=true;btn.textContent="Guardando...";
   try{
-    const basePayload={action:"update-full-model",modelId:Number(product.id),modelo:document.getElementById("editModelName").value.trim(),categoria:document.getElementById("editModelCategory").value,variantes};
+    const basePayload={action:"update-full-model",modelId:Number(product.id),modelo:document.getElementById("editModelName").value.trim(),categoria:document.getElementById("editModelCategory").value,variantes:variants};
     const baseResponse=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify(basePayload)});
     const baseResult=await readJson(baseResponse);
     if(!baseResponse.ok||!baseResult.success)throw new Error(baseResult.error||"No se pudo actualizar el modelo.");
