@@ -1163,16 +1163,67 @@ async function loadModels(){
 }
 
 function updateInventoryValueSummary(){
-  let costo=0,venta=0;
-  (allProducts||[]).forEach(product=>(product.variantes||[]).forEach(variant=>{
-    const stock=Number(variant.existencia||0);
-    costo+=stock*Number(variant.precio_compra||0);
-    venta+=stock*Number(variant.precio_venta||0);
-  }));
+  let costo=0,venta=0,totalPares=0,agotados=0;
+  const lowStock=[];
+  const outOfStock=[];
+  (allProducts||[]).forEach(product=>{
+    const variants=Array.isArray(product.variantes)?product.variantes:[];
+    const modelPairs=variants.reduce((sum,variant)=>sum+Math.max(0,Number(variant.existencia||0)),0);
+    totalPares+=modelPairs;
+    if(modelPairs<=0)agotados++;
+
+    variants.forEach(variant=>{
+      const stock=Math.max(0,Number(variant.existencia||0));
+      costo+=stock*Number(variant.precio_compra||0);
+      venta+=stock*Number(variant.precio_venta||0);
+      const item={
+        modelId:Number(product.id),
+        modelo:String(product.modelo||""),
+        categoria:String(product.categoria||""),
+        color:String(variant.color||""),
+        stock
+      };
+      if(stock===0)outOfStock.push(item);
+      else if(stock<=6)lowStock.push(item);
+    });
+  });
+
   const money=new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0});
   const costEl=document.getElementById("inventoryCostTotal"),saleEl=document.getElementById("inventorySaleTotal");
+  const pairsEl=document.getElementById("inventoryPairsTotal"),outEl=document.getElementById("inventoryOutOfStockTotal");
   if(costEl)costEl.textContent=money.format(costo);
   if(saleEl)saleEl.textContent=money.format(venta);
+  if(pairsEl)pairsEl.textContent=new Intl.NumberFormat("es-MX").format(totalPares);
+  if(outEl)outEl.textContent=new Intl.NumberFormat("es-MX").format(agotados);
+  renderInventoryAlerts(outOfStock,lowStock);
+}
+
+function renderInventoryAlerts(outOfStock,lowStock){
+  const button=document.getElementById("inventoryAlertButton");
+  const badge=document.getElementById("inventoryAlertBadge");
+  const pop=document.getElementById("inventoryAlertPopover");
+  if(!button||!badge||!pop)return;
+
+  const totalAlerts=outOfStock.length+lowStock.length;
+  badge.textContent=String(totalAlerts);
+  badge.classList.toggle("show",totalAlerts>0);
+
+  const section=(title,items,emptyText)=>'<div class="inventory-alert-section">'+
+    '<div class="inventory-alert-heading"><span>'+title+'</span><span>'+items.length+'</span></div>'+
+    (items.length?items.map(item=>
+      '<button type="button" class="inventory-alert-item" data-model-id="'+Number(item.modelId)+'">'+
+        '<span><b>Modelo '+escapeHtml(item.modelo)+'</b><small>'+
+          escapeHtml((item.color?formatColor(item.color):"Sin color")+(item.categoria?" · "+item.categoria:""))+
+        '</small></span>'+
+        '<span class="inventory-alert-stock">'+(item.stock===0?'Agotado':item.stock+' pares')+'</span>'+
+      '</button>'
+    ).join(""):'<div class="inventory-alert-empty">'+emptyText+'</div>')+
+  '</div>';
+
+  pop.innerHTML=
+    '<div class="inventory-alert-title"><strong>Alertas de inventario</strong><span>'+totalAlerts+' alerta'+(totalAlerts===1?'':'s')+'</span></div>'+
+    section("Agotados",outOfStock,"No hay colores agotados.")+
+    section("Por acabarse · 1 a 6 pares",lowStock,"No hay colores por acabarse.");
 }
 
 /* BUSCADOR MODELOS */
@@ -1245,6 +1296,38 @@ clearModelSearch.onclick=function(){
   renderFilteredModels();
   modelSearch.focus();
 };
+
+const inventoryAlertButton=document.getElementById("inventoryAlertButton");
+const inventoryAlertPopover=document.getElementById("inventoryAlertPopover");
+if(inventoryAlertButton&&inventoryAlertPopover){
+  inventoryAlertButton.onclick=function(event){
+    event.stopPropagation();
+    const open=inventoryAlertPopover.classList.toggle("open");
+    inventoryAlertPopover.setAttribute("aria-hidden",open?"false":"true");
+    inventoryAlertButton.setAttribute("aria-expanded",open?"true":"false");
+  };
+  inventoryAlertPopover.onclick=function(event){
+    event.stopPropagation();
+    const item=event.target.closest(".inventory-alert-item");
+    if(!item)return;
+    const modelId=Number(item.dataset.modelId);
+    inventoryAlertPopover.classList.remove("open");
+    inventoryAlertPopover.setAttribute("aria-hidden","true");
+    inventoryAlertButton.setAttribute("aria-expanded","false");
+    const card=models.querySelector('[data-model-id="'+modelId+'"]');
+    if(card){
+      card.open=true;
+      card.scrollIntoView({behavior:"smooth",block:"center"});
+    }
+  };
+  document.addEventListener("click",function(event){
+    if(!inventoryAlertPopover.classList.contains("open"))return;
+    if(inventoryAlertPopover.contains(event.target)||inventoryAlertButton.contains(event.target))return;
+    inventoryAlertPopover.classList.remove("open");
+    inventoryAlertPopover.setAttribute("aria-hidden","true");
+    inventoryAlertButton.setAttribute("aria-expanded","false");
+  });
+}
 
 /* RENDER MODELOS */
 
