@@ -85,6 +85,9 @@ a{
 
 .cart-link{
   justify-self:end;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
   border:0;
   background:var(--dark);
   color:#fff;
@@ -641,7 +644,7 @@ h1{
       id="cartLink"
       class="cart-link"
     >
-      Pedido · 0 pares
+      <span aria-hidden="true">🛒</span><span id="cartLinkText">Pedido · 0 pares</span>
     </a>
 
   </div>
@@ -677,6 +680,7 @@ const productPage=
 
 const cartLink=
   document.getElementById("cartLink");
+const cartLinkText=document.getElementById("cartLinkText");
 
 let currentProduct=null;
 let currentVariant=null;
@@ -879,7 +883,7 @@ function updateCartCount(){
   const total=
     getCartTotal();
 
-  cartLink.textContent=
+  (cartLinkText||cartLink).textContent=
     "Pedido · "+total+" pares";
 }
 
