@@ -1918,6 +1918,8 @@ return sortImages(variant?.imagenes)[0]?.url||"";
 
 function cover(product){
 
+if(product && product.portada_url)return product.portada_url;
+
 const variant=variants(product)[0];
 
 return variant
