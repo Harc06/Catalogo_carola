@@ -2082,6 +2082,143 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 .manual-order-modal{width:min(900px,94vw);max-height:90vh;overflow:auto}.manual-client-grid{display:grid;grid-template-columns:2fr 1.2fr 1fr;gap:12px;margin:18px 0}.manual-client-grid label{display:block;font-size:10px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;margin:0 0 6px;color:#777}.manual-client-grid input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #e4d9dd;border-radius:12px;background:#fff;font:inherit}.manual-client-grid small{display:block;margin-top:6px;color:#999}.manual-note-head,.manual-note-line{display:grid;grid-template-columns:90px 1fr 150px 150px 38px;gap:10px;align-items:center}.manual-note-head{padding:10px 8px;color:#8c7d83;font-size:9px;font-weight:900;text-transform:uppercase}.manual-note-line{padding:8px;border-top:1px solid #f0e5e9}.manual-note-line input,.manual-note-line select{width:100%;box-sizing:border-box;padding:11px;border:1px solid #e5d9de;border-radius:10px;background:#fff;font:inherit}.manual-model-wrap{position:relative;min-width:0}.manual-model-suggestions{position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:30;max-height:250px;overflow:auto;background:#fff;border:1px solid #eadde2;border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.14);padding:5px}.manual-model-suggestions[hidden]{display:none}.manual-model-option{display:block;width:100%;border:0;background:#fff;text-align:left;padding:11px 12px;border-radius:9px;font:inherit;color:#222}.manual-model-option:active,.manual-model-option:hover{background:#f8eef2}.manual-model-empty{padding:12px;color:#999;font-size:13px;text-align:center}.manual-line-total{font-weight:900;text-align:right}.manual-remove{border:0;background:#f8edf1;border-radius:9px;width:34px;height:34px;font-size:20px}.manual-add-line{margin-top:12px;width:100%;padding:12px;border:1px solid #ead9e0;border-radius:12px;background:#f9eff3;font-weight:900}.manual-note-total{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:18px;border-radius:14px;background:#f8eef2;font-size:18px}.manual-note-total strong{font-size:24px}.manual-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:15px}.manual-actions button{padding:12px 18px;border-radius:12px;border:1px solid #e4d8dd;background:#fff;font-weight:900}.manual-actions #manualSave{background:#171717;color:#fff;border-color:#171717}
 @media(max-width:700px){.manual-order-modal{width:min(96vw,900px)}.manual-client-grid{grid-template-columns:1fr}.manual-note-head{display:none}.manual-note-line{grid-template-columns:72px minmax(0,1fr) 92px 38px;gap:8px;align-items:center}.manual-model-wrap{min-width:0}.manual-note-line .manual-price{grid-column:3}.manual-note-line .manual-line-total{grid-column:1 / 4;text-align:left;padding-top:2px;font-size:17px}.manual-remove{grid-column:4;grid-row:1}.record-header-actions{flex-wrap:wrap}}
 
+
+/* ===== RESUMEN DE INVENTARIO + ALERTAS ===== */
+.inventory-status-bar{
+  display:grid;
+  grid-template-columns:auto auto minmax(0,1fr);
+  gap:9px;
+  align-items:center;
+  margin:-2px 0 10px;
+}
+.inventory-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  min-height:34px;
+  padding:8px 12px;
+  border:1px solid #eadfe3;
+  border-radius:999px;
+  background:#fff;
+  color:#6f6468;
+  font-size:12px;
+  font-weight:850;
+  box-shadow:0 4px 14px rgba(0,0,0,.025);
+  white-space:nowrap;
+}
+.inventory-pill strong{color:#171717;font-size:13px}
+.inventory-alert-wrap{
+  position:relative;
+  display:flex;
+  justify-content:flex-end;
+}
+.inventory-alert-button{
+  position:relative;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:1px solid #eadfe3;
+  background:#fff;
+  font-size:20px;
+  display:grid;
+  place-items:center;
+  box-shadow:0 7px 20px rgba(0,0,0,.05);
+}
+.inventory-alert-badge{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  min-width:19px;
+  height:19px;
+  padding:0 5px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#171717;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  border:2px solid var(--pink2);
+}
+.inventory-alert-badge.show{display:flex}
+.inventory-alert-popover{
+  position:absolute;
+  top:50px;
+  right:0;
+  z-index:400;
+  width:min(390px,88vw);
+  max-height:440px;
+  overflow:auto;
+  display:none;
+  padding:14px;
+  border:1px solid #eadfe3;
+  border-radius:20px;
+  background:#fff;
+  box-shadow:0 18px 45px rgba(0,0,0,.14);
+}
+.inventory-alert-popover.open{display:block}
+.inventory-alert-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.inventory-alert-title strong{font-size:16px}
+.inventory-alert-section{
+  padding-top:10px;
+  margin-top:10px;
+  border-top:1px solid #f0e7eb;
+}
+.inventory-alert-section:first-of-type{border-top:0;margin-top:0;padding-top:0}
+.inventory-alert-heading{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:7px;
+  color:#776970;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.35px;
+}
+.inventory-alert-item{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 11px;
+  margin-top:6px;
+  border-radius:12px;
+  background:#fff8fb;
+  color:#222;
+  text-align:left;
+  border:1px solid #f2e4ea;
+}
+.inventory-alert-item:hover{background:#f9eef3}
+.inventory-alert-item b{display:block;font-size:13px}
+.inventory-alert-item small{display:block;color:#999;margin-top:2px}
+.inventory-alert-stock{
+  flex:none;
+  font-size:12px;
+  font-weight:900;
+  color:#7b6871;
+}
+.inventory-alert-empty{
+  padding:16px 8px;
+  text-align:center;
+  color:#999;
+  font-size:12px;
+}
+@media(max-width:650px){
+  .inventory-status-bar{grid-template-columns:1fr 1fr auto;gap:7px}
+  .inventory-pill{min-height:32px;padding:7px 9px;font-size:10px}
+  .inventory-pill strong{font-size:11px}
+  .inventory-alert-button{width:38px;height:38px;font-size:18px}
+}
+
 </style>
 <style>
 .finance-quick-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -2213,6 +2350,20 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
     </div>
 
   </div>
+
+  
+    <div class="inventory-status-bar" aria-label="Resumen de existencias">
+      <div class="inventory-pill">Pares totales <strong id="inventoryPairsTotal">0</strong></div>
+      <div class="inventory-pill">Agotados <strong id="inventoryOutOfStockTotal">0</strong></div>
+      <div class="inventory-alert-wrap">
+        <button id="inventoryAlertButton" class="inventory-alert-button" type="button" aria-label="Ver alertas de inventario" aria-expanded="false">
+          🔔
+          <span id="inventoryAlertBadge" class="inventory-alert-badge">0</span>
+        </button>
+        <div id="inventoryAlertPopover" class="inventory-alert-popover" aria-hidden="true"></div>
+      </div>
+    </div>
+
 
   <div id="models">
     <div class="loading">Cargando modelos...</div>
