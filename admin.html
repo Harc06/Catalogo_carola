@@ -2086,7 +2086,8 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 /* ===== RESUMEN DE INVENTARIO + ALERTAS ===== */
 .inventory-status-bar{
   display:grid;
-  grid-template-columns:auto auto minmax(0,1fr);
+  grid-template-columns:max-content max-content max-content;
+  justify-content:start;
   gap:9px;
   align-items:center;
   margin:-2px 0 10px;
@@ -2110,13 +2111,14 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 .inventory-alert-wrap{
   position:relative;
   display:flex;
-  justify-content:flex-end;
+  justify-content:flex-start;
+  align-items:center;
 }
 .inventory-alert-button{
   position:relative;
   width:42px;
-  height:42px;
-  border-radius:50%;
+  height:34px;
+  border-radius:999px;
   border:1px solid #eadfe3;
   background:#fff;
   font-size:20px;
@@ -2213,10 +2215,10 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
   font-size:12px;
 }
 @media(max-width:650px){
-  .inventory-status-bar{grid-template-columns:1fr 1fr auto;gap:7px}
+  .inventory-status-bar{grid-template-columns:max-content max-content max-content;gap:7px}
   .inventory-pill{min-height:32px;padding:7px 9px;font-size:10px}
   .inventory-pill strong{font-size:11px}
-  .inventory-alert-button{width:38px;height:38px;font-size:18px}
+  .inventory-alert-button{width:38px;height:32px;font-size:17px}
 }
 
 </style>
