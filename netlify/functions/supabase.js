@@ -55,6 +55,21 @@ exports.handler = async function (event) {
 
     /*
      * ============================
+     * PROVEEDORES (solo reglas internas de presentación)
+     * ============================
+     */
+    const proveedoresResponse = await fetch(
+      `${supabaseUrl}/rest/v1/proveedores?select=id,nombre&activo=eq.true`,
+      { headers }
+    );
+    if (!proveedoresResponse.ok) throw new Error(await proveedoresResponse.text());
+    const proveedores = await proveedoresResponse.json();
+    const nombreProveedor = new Map(
+      proveedores.map(p => [Number(p.id), String(p.nombre || "").toLowerCase()])
+    );
+
+    /*
+     * ============================
      * INVENTARIO MAYOREO
      * ============================
      */
@@ -122,6 +137,15 @@ exports.handler = async function (event) {
           .map(v => ({
             id: v.id,
             color: v.color,
+            // Prioridad visual calculada en servidor; el nombre del proveedor no se expone.
+            portada_prioridad: (() => {
+              const proveedor = nombreProveedor.get(Number(v.proveedor_id)) || "";
+              const color = String(v.color || "").toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+              if ((proveedor.includes("noe") || proveedor.includes("cristina calderon")) && color.includes("camel")) return 0;
+              if (proveedor.includes("valente") && (color.includes("conac") || color.includes("cognac"))) return 0;
+              return 1;
+            })(),
             existencia: stockPorVariante.get(Number(v.id)) || 0,
             precio_compra: Number(v.precio_compra || 0),
             precio_venta: Number(v.precio_venta || 0),
