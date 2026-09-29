@@ -1526,9 +1526,45 @@ async function saveFullModelEdit(product){
   }
 }
 
+/* INVENTARIO MÓVIL: al tocar una tarjeta abre un bottom sheet en vez de expandirla */
+function isMobileInventory(){return window.matchMedia("(max-width:650px)").matches}
+function closeMobileInventorySheet(){
+  const modal=document.getElementById("mobileInventoryModal");
+  if(modal)modal.remove();
+  document.body.classList.remove("inventory-sheet-open");
+}
+function openMobileInventorySheet(modelId){
+  if(!isMobileInventory())return;
+  const source=models.querySelector('.inventory-model-card[data-model-id="'+Number(modelId)+'"]');
+  if(!source)return;
+  source.open=false;
+  closeMobileInventorySheet();
+  const name=source.querySelector(".inventory-model-name")?.textContent||"Modelo";
+  const availability=source.querySelector(".inventory-model-availability")?.textContent||"";
+  const body=source.querySelector(".inventory-model-body")?.innerHTML||"";
+  const modal=document.createElement("div");
+  modal.id="mobileInventoryModal";
+  modal.className="mobile-inventory-modal show";
+  modal.innerHTML='<div class="mobile-inventory-backdrop" data-mobile-close></div><section class="mobile-inventory-sheet inventory-model-card" data-model-id="'+Number(modelId)+'" role="dialog" aria-modal="true" aria-label="'+escapeAttribute(name)+'"><div class="mobile-inventory-handle"></div><header class="mobile-inventory-head"><div><div class="mobile-inventory-title">'+escapeHtml(name)+'</div><div class="mobile-inventory-availability">'+escapeHtml(availability)+'</div></div><button type="button" class="mobile-inventory-close" data-mobile-close aria-label="Cerrar">×</button></header><div class="inventory-model-body">'+body+'</div></section>';
+  document.body.appendChild(modal);
+  document.body.classList.add("inventory-sheet-open");
+  modal.onclick=inventoryModelClickHandler;
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMobileInventorySheet()});
+window.addEventListener("resize",()=>{if(!isMobileInventory())closeMobileInventorySheet()});
+
 /* CLICS CATÁLOGO */
 
-models.onclick=async function(event){
+async function inventoryModelClickHandler(event){
+  const close=event.target.closest("[data-mobile-close]");
+  if(close){closeMobileInventorySheet();return}
+  const summary=event.target.closest(".inventory-model-summary");
+  if(summary&&isMobileInventory()){
+    event.preventDefault();
+    const card=summary.closest(".inventory-model-card");
+    openMobileInventorySheet(Number(card.dataset.modelId));
+    return;
+  }
   const editModel=event.target.closest(".inventory-edit-model");
   if(editModel){
     const card=editModel.closest(".inventory-model-card");
@@ -1574,12 +1610,14 @@ models.onclick=async function(event){
       if(!ok)throw new Error("No se pudo actualizar una de las existencias.");
     }
     await loadModels();
+    closeMobileInventorySheet();
   }catch(error){
     alert(error.message||"No se pudieron guardar las existencias.");
     save.disabled=false;
     save.textContent="Guardar existencias";
   }
-};
+}
+models.onclick=inventoryModelClickHandler;
 
 /* AGREGAR FOTOS / COLOR */
 
