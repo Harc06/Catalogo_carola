@@ -2409,7 +2409,12 @@ Array.isArray(supabaseData.productos)
 :[]
 )
 .filter(product=>cover(product))
-.sort((a,b)=>String(a.modelo).localeCompare(String(b.modelo),undefined,{numeric:true,sensitivity:"base"}));
+.sort((a,b)=>{
+  const proveedorA=Number(a.proveedor_orden??Number.MAX_SAFE_INTEGER);
+  const proveedorB=Number(b.proveedor_orden??Number.MAX_SAFE_INTEGER);
+  if(proveedorA!==proveedorB)return proveedorA-proveedorB;
+  return String(a.modelo).localeCompare(String(b.modelo),undefined,{numeric:true,sensitivity:"base"});
+});
 
 buildCategories();
 buildFilters();
