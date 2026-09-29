@@ -1442,7 +1442,7 @@ function renderModels(products){
 function modelColorOptions(product){
   const existing=(product.variantes||[]).map(v=>normalizeText(v.color));
   const colors=[...new Set(inventoryColorLabels.flatMap(x=>Array.isArray(x.colores)?x.colores:[]).map(x=>String(x||"").trim()).filter(Boolean))];
-  return colors.filter(x=>!existing.includes(normalizeText(x)));
+  return colors.filter(x=>!existing.includes(normalizeText(x))).sort((a,b)=>String(a).localeCompare(String(b),"es",{sensitivity:"base"}));
 }
 function newVariantEditCard(product){
   const first=(product.variantes||[])[0]||{};
