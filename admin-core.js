@@ -1415,7 +1415,7 @@ function renderModels(products){
     const availabilityText=availablePairs>0
       ?availablePairs+" "+(availablePairs===1?"par disponible":"pares disponibles")
       :"Sin existencias";
-    html+='<details class="inventory-model-card" data-model-id="'+Number(product.id)+'"><summary class="inventory-model-summary"><div class="inventory-model-summary-text"><div class="inventory-model-name">Modelo '+escapeHtml(product.modelo)+'</div><div class="inventory-model-availability '+(availablePairs>0?'has-stock':'no-stock')+'">'+availabilityText+'</div></div><span class="inventory-model-chevron">⌄</span></summary><div class="inventory-model-body"><div class="inventory-model-head"><div class="inventory-model-actions"><button type="button" class="inventory-edit-model">Editar modelo</button><button type="button" class="inventory-add-color">+ Agregar color</button></div></div><div class="inventory-add-form" hidden><input class="inventory-new-color" type="text" placeholder="Color"><input class="inventory-new-stock" type="number" min="0" step="6" inputmode="numeric" placeholder="Pares"><label class="inventory-photo-label">📷 Foto<input class="inventory-new-photo" type="file" accept="image/*"></label><button type="button" class="inventory-confirm-color">Agregar</button><button type="button" class="inventory-cancel-color">Cancelar</button></div>';
+    html+='<details class="inventory-model-card" data-model-id="'+Number(product.id)+'"><summary class="inventory-model-summary"><div class="inventory-model-summary-text"><div class="inventory-model-name">Modelo '+escapeHtml(product.modelo)+'</div><div class="inventory-model-availability '+(availablePairs>0?'has-stock':'no-stock')+'">'+availabilityText+'</div></div><span class="inventory-model-chevron">⌄</span></summary><div class="inventory-model-body"><div class="inventory-model-head"><div class="inventory-model-actions"><button type="button" class="inventory-edit-model">Editar modelo</button><button type="button" class="inventory-add-color">+ Agregar color</button></div></div>';
     variants.forEach(function(variant){
       html+='<div class="inventory-row" data-variant-id="'+Number(variant.id)+'">'+
         '<div class="inventory-color">'+escapeHtml(formatColor(variant.color))+'</div>'+
@@ -1428,28 +1428,48 @@ function renderModels(products){
 }
 
 
-function openModelEditor(modelId){
-  const product=(allProducts||[]).find(p=>Number(p.id)===Number(modelId));
-  if(!product)return;
+function modelColorOptions(product){
+  const existing=(product.variantes||[]).map(v=>normalizeText(v.color));
+  const colors=[...new Set(inventoryColorLabels.flatMap(x=>Array.isArray(x.colores)?x.colores:[]).map(x=>String(x||"").trim()).filter(Boolean))];
+  return colors.filter(x=>!existing.includes(normalizeText(x)));
+}
+function newVariantEditCard(product){
+  const first=(product.variantes||[])[0]||{};
+  const suppliers=[...document.querySelectorAll("#uploadProveedor option")].filter(o=>o.value).map(o=>({id:Number(o.value),nombre:o.textContent.trim()}));
+  const supplierOptions='<option value="">Sin proveedor</option>'+suppliers.map(s=>'<option value="'+s.id+'" '+(Number(first.proveedor_id)===s.id?'selected':'')+'>'+escapeHtml(s.nombre)+'</option>').join('');
+  const colors=modelColorOptions(product);
+  return '<div class="variant-edit-card new-variant-edit-card" data-new-variant="1"><div class="variant-edit-title">Nuevo color</div><div class="variant-edit-fields"><div><label>Color</label><select class="edit-v-color"><option value="">Seleccionar color...</option>'+colors.map(x=>'<option value="'+escapeAttribute(x)+'">'+escapeHtml(formatColor(x))+'</option>').join('')+'</select></div><div><label>Precio compra</label><input class="edit-v-buy" type="number" min="0" step=".01" value="'+Number(first.precio_compra||0)+'"></div><div><label>Precio venta</label><input class="edit-v-sale" type="number" min="0" step=".01" value="'+Number(first.precio_venta||0)+'"></div><div><label>Proveedor</label><select class="edit-v-supplier">'+supplierOptions+'</select></div></div></div>';
+}
+function openModelEditor(modelId,addColor=false){
+  const product=(allProducts||[]).find(p=>Number(p.id)===Number(modelId));if(!product)return;
   const suppliers=[...document.querySelectorAll("#uploadProveedor option")].filter(o=>o.value).map(o=>({id:Number(o.value),nombre:o.textContent.trim()}));
   const supplierOptions=(selected)=>'<option value="">Sin proveedor</option>'+suppliers.map(s=>'<option value="'+Number(s.id)+'" '+(Number(selected)===Number(s.id)?'selected':'')+'>'+escapeHtml(s.nombre)+'</option>').join('');
   const categories=["Bota","Botín","Zapatilla","Mocasín","Huarache","Sandalia","Escolar"];
+  document.querySelector("#editModelModal .catalog-action-head h2").textContent="Agregar o editar modelo";
   document.getElementById("editModelBody").innerHTML=
-    '<div class="model-edit-grid"><div><label>Modelo</label><input id="editModelName" value="'+escapeAttribute(product.modelo)+'"></div><div><label>Categoría</label><select id="editModelCategory">'+categories.map(c=>'<option '+(normalizeText(c)===normalizeText(product.categoria)?'selected':'')+'>'+c+'</option>').join('')+'</select></div></div>'+ 
-    '<div class="variant-edit-list">'+(product.variantes||[]).map(v=>'<div class="variant-edit-card" data-variant-id="'+Number(v.id)+'"><div class="variant-edit-title">'+escapeHtml(formatColor(v.color))+'</div><div class="variant-edit-fields"><div><label>Color</label><input class="edit-v-color" value="'+escapeAttribute(v.color)+'"></div><div><label>Precio compra</label><input class="edit-v-buy" type="number" min="0" step=".01" value="'+Number(v.precio_compra||0)+'"></div><div><label>Precio venta</label><input class="edit-v-sale" type="number" min="0" step=".01" value="'+Number(v.precio_venta||0)+'"></div><div><label>Proveedor</label><select class="edit-v-supplier">'+supplierOptions(v.proveedor_id)+'</select></div></div></div>').join('')+'</div>'+ 
+    '<div class="model-edit-grid"><div><label>Modelo</label><input id="editModelName" value="'+escapeAttribute(product.modelo)+'"></div><div><label>Categoría</label><select id="editModelCategory">'+categories.map(c=>'<option '+(normalizeText(c)===normalizeText(product.categoria)?'selected':'')+'>'+c+'</option>').join('')+'</select></div></div>'+
+    '<div class="variant-edit-list">'+(product.variantes||[]).map(v=>'<div class="variant-edit-card" data-variant-id="'+Number(v.id)+'"><div class="variant-edit-title">'+escapeHtml(formatColor(v.color))+'</div><div class="variant-edit-fields"><div><label>Color</label><input class="edit-v-color" value="'+escapeAttribute(v.color)+'"></div><div><label>Precio compra</label><input class="edit-v-buy" type="number" min="0" step=".01" value="'+Number(v.precio_compra||0)+'"></div><div><label>Precio venta</label><input class="edit-v-sale" type="number" min="0" step=".01" value="'+Number(v.precio_venta||0)+'"></div><div><label>Proveedor</label><select class="edit-v-supplier">'+supplierOptions(v.proveedor_id)+'</select></div></div></div>').join('')+'</div>'+
+    '<button class="model-edit-add-color" id="addColorInModelEditor" type="button">+ Agregar color</button>'+
     '<button class="model-edit-save" id="saveFullModelEdit" type="button">Guardar cambios</button>';
   document.getElementById("editModelModal").classList.add("show");
+  document.getElementById("addColorInModelEditor").onclick=()=>{
+    const list=document.querySelector("#editModelBody .variant-edit-list");
+    const temp=document.createElement("div");temp.innerHTML=newVariantEditCard(product);
+    const card=temp.firstElementChild;
+    if(!card.querySelector(".edit-v-color").options.length||card.querySelector(".edit-v-color").options.length===1){alert("No hay más colores disponibles en las etiquetas configuradas.");return}
+    list.appendChild(card);card.scrollIntoView({behavior:"smooth",block:"center"});
+  };
   document.getElementById("saveFullModelEdit").onclick=()=>saveFullModelEdit(product);
+  if(addColor)document.getElementById("addColorInModelEditor").click();
 }
-
 async function saveFullModelEdit(product){
   const btn=document.getElementById("saveFullModelEdit");
-  const variants=[...document.querySelectorAll("#editModelBody .variant-edit-card")].map(card=>({
-    id:Number(card.dataset.variantId),color:card.querySelector(".edit-v-color").value.trim(),precio_compra:Number(card.querySelector(".edit-v-buy").value),precio_venta:Number(card.querySelector(".edit-v-sale").value),proveedor_id:Number(card.querySelector(".edit-v-supplier").value||0)
-  }));
-  if(variants.some(v=>!v.color||v.precio_compra<0||v.precio_venta<0)){alert("Revisa color y precios.");return}
+  const cards=[...document.querySelectorAll("#editModelBody .variant-edit-card")];
+  const variants=cards.filter(c=>!c.dataset.newVariant).map(card=>({id:Number(card.dataset.variantId),color:card.querySelector(".edit-v-color").value.trim(),precio_compra:Number(card.querySelector(".edit-v-buy").value),precio_venta:Number(card.querySelector(".edit-v-sale").value),proveedor_id:Number(card.querySelector(".edit-v-supplier").value||0)}));
+  const newVariants=cards.filter(c=>c.dataset.newVariant).map(card=>({color:card.querySelector(".edit-v-color").value.trim(),precio_compra:Number(card.querySelector(".edit-v-buy").value),precio_venta:Number(card.querySelector(".edit-v-sale").value),proveedor_id:Number(card.querySelector(".edit-v-supplier").value||0)}));
+  if([...variants,...newVariants].some(v=>!v.color||v.precio_compra<0||v.precio_venta<0)){alert("Revisa color y precios.");return}
   btn.disabled=true;btn.textContent="Guardando...";
-  const ok=await manage({action:"update-full-model",modelId:Number(product.id),modelo:document.getElementById("editModelName").value.trim(),categoria:document.getElementById("editModelCategory").value,variantes:variants});
+  const ok=await manage({action:"update-full-model",modelId:Number(product.id),modelo:document.getElementById("editModelName").value.trim(),categoria:document.getElementById("editModelCategory").value,variantes,newVariants});
   if(ok){document.getElementById("editModelModal").classList.remove("show")}else{btn.disabled=false;btn.textContent="Guardar cambios"}
 }
 
@@ -1465,36 +1485,7 @@ models.onclick=async function(event){
   const add=event.target.closest(".inventory-add-color");
   if(add){
     const card=add.closest(".inventory-model-card");
-    card.querySelector(".inventory-add-form").hidden=false;
-    card.querySelector(".inventory-new-color").focus();
-    return;
-  }
-  const cancel=event.target.closest(".inventory-cancel-color");
-  if(cancel){
-    cancel.closest(".inventory-add-form").hidden=true;
-    return;
-  }
-  const confirmColor=event.target.closest(".inventory-confirm-color");
-  if(confirmColor){
-    const card=confirmColor.closest(".inventory-model-card");
-    const color=card.querySelector(".inventory-new-color").value.trim();
-    const existencia=Number(card.querySelector(".inventory-new-stock").value||0);
-    const photoInput=card.querySelector(".inventory-new-photo");
-    const photo=photoInput&&photoInput.files?photoInput.files[0]:null;
-    if(!color){alert("Escribe el color.");return;}
-    if(!Number.isInteger(existencia)||existencia<0||existencia%6!==0){alert("Los pares deben ser 0 o múltiplo de 6.");return;}
-    if(!photo){alert("Selecciona una fotografía para este color.");return;}
-    confirmColor.disabled=true;
-    confirmColor.textContent="Subiendo...";
-    try{
-      const imagen=await fileToBase64(photo);
-      const ok=await manage({action:"add-variant",modelId:Number(card.dataset.modelId),color,existencia,imagen});
-      if(!ok){confirmColor.disabled=false;confirmColor.textContent="Agregar";}
-    }catch(error){
-      alert(error.message||"No se pudo procesar la fotografía.");
-      confirmColor.disabled=false;
-      confirmColor.textContent="Agregar";
-    }
+    openModelEditor(Number(card.dataset.modelId),true);
     return;
   }
   const editColor=event.target.closest(".inventory-color");
