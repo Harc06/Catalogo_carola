@@ -1903,6 +1903,8 @@ return Array.isArray(product?.variantes)
 variant=>
 Array.isArray(variant.imagenes) &&
 variant.imagenes.length
+).slice().sort((a,b)=>
+Number(a.portada_prioridad??1)-Number(b.portada_prioridad??1)
 )
 :[];
 
