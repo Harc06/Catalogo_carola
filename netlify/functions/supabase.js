@@ -53,22 +53,11 @@ exports.handler = async function (event) {
     const variantes =
       await variantesResponse.json();
 
-    /*
-     * ============================
-     * PROVEEDORES (solo reglas internas de presentación)
-     * ============================
-     */
-    const proveedoresResponse = await fetch(
-      `${supabaseUrl}/rest/v1/proveedores?select=id,nombre&activo=eq.true`,
-      { headers }
-    );
-    if (!proveedoresResponse.ok) throw new Error(await proveedoresResponse.text());
-    const proveedores = await proveedoresResponse.json();
+    // IDs internos confirmados en la base. No consultamos ni exponemos proveedores al público.
+    const PROVEEDOR_DON_VALENTE = 2;
+    const PROVEEDOR_NOE = 8;
     const normalizar = value => String(value || "").toLowerCase()
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const nombreProveedor = new Map(
-      proveedores.map(p => [Number(p.id), normalizar(p.nombre)])
-    );
 
     /*
      * ============================
@@ -117,11 +106,11 @@ exports.handler = async function (event) {
         // Orden interno del catálogo. No expone el nombre del proveedor.
         // 1: Don Valente, 2: Noé, 3: zapatillas restantes, 4: todo lo demás.
         proveedor_orden: (() => {
-          const nombres = variantes
+          const proveedores = variantes
             .filter(v => Number(v.modelo_id) === Number(modelo.id))
-            .map(v => nombreProveedor.get(Number(v.proveedor_id)) || "");
-          if (nombres.some(nombre => nombre.includes("valente"))) return 1;
-          if (nombres.some(nombre => nombre.includes("noe") || nombre.includes("cristina calderon"))) return 2;
+            .map(v => Number(v.proveedor_id));
+          if (proveedores.includes(PROVEEDOR_DON_VALENTE)) return 1;
+          if (proveedores.includes(PROVEEDOR_NOE)) return 2;
           const categoria = String(modelo.categoria || "").toLowerCase()
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
           if (categoria === "zapatilla") return 3;
@@ -141,11 +130,11 @@ exports.handler = async function (event) {
           const candidatas = variantes
             .filter(v => Number(v.modelo_id) === Number(modelo.id))
             .map(v => {
-              const proveedor = nombreProveedor.get(Number(v.proveedor_id)) || "";
+              const proveedorId = Number(v.proveedor_id);
               const color = normalizar(v.color);
               let prioridad = 1;
-              if (proveedor.includes("valente") && (color.includes("conac") || color.includes("cognac"))) prioridad = 0;
-              if ((proveedor.includes("noe") || proveedor.includes("cristina calderon")) && color.includes("camel")) prioridad = 0;
+              if (proveedorId === PROVEEDOR_DON_VALENTE && (color.includes("conac") || color.includes("cognac"))) prioridad = 0;
+              if (proveedorId === PROVEEDOR_NOE && color.includes("camel")) prioridad = 0;
               const foto = imagenes
                 .filter(i => Number(i.variante_id) === Number(v.id))
                 .sort((a,b) => (a.orden ?? 999) - (b.orden ?? 999))[0]?.url || "";
@@ -167,10 +156,10 @@ exports.handler = async function (event) {
             color: v.color,
             // Prioridad visual calculada en servidor; el nombre del proveedor no se expone.
             portada_prioridad: (() => {
-              const proveedor = nombreProveedor.get(Number(v.proveedor_id)) || "";
+              const proveedorId = Number(v.proveedor_id);
               const color = normalizar(v.color);
-              if ((proveedor.includes("noe") || proveedor.includes("cristina calderon")) && color.includes("camel")) return 0;
-              if (proveedor.includes("valente") && (color.includes("conac") || color.includes("cognac"))) return 0;
+              if (proveedorId === PROVEEDOR_NOE && color.includes("camel")) return 0;
+              if (proveedorId === PROVEEDOR_DON_VALENTE && (color.includes("conac") || color.includes("cognac"))) return 0;
               return 1;
             })(),
             existencia: stockPorVariante.get(Number(v.id)) || 0,
