@@ -2083,6 +2083,20 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 @media(max-width:700px){.manual-order-modal{width:min(96vw,900px)}.manual-client-grid{grid-template-columns:1fr}.manual-note-head{display:none}.manual-note-line{grid-template-columns:72px minmax(0,1fr) 92px 38px;gap:8px;align-items:center}.manual-model-wrap{min-width:0}.manual-note-line .manual-price{grid-column:3}.manual-note-line .manual-line-total{grid-column:1 / 4;text-align:left;padding-top:2px;font-size:17px}.manual-remove{grid-column:4;grid-row:1}.record-header-actions{flex-wrap:wrap}}
 
 
+.color-presets-card{margin:0 0 18px;padding:16px;border:1px solid #eadde2;border-radius:18px;background:#fff}
+.color-presets-card summary{cursor:pointer;font-weight:900;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.color-presets-card summary::-webkit-details-marker{display:none}
+.color-preset-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:9px;margin-top:14px}
+.color-preset-form input,.color-preset-form select{width:100%;box-sizing:border-box;padding:11px;border:1px solid #e6dce0;border-radius:11px;background:#fff;font:inherit}
+.color-preset-save{border:0;border-radius:11px;background:#171717;color:#fff;padding:0 16px;font-weight:900}
+.color-preset-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.color-preset-chip{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid #eadde2;border-radius:999px;background:#fff8fb;font-size:11px;font-weight:800}
+.color-preset-chip button{border:0;background:transparent;color:#a75b6d;font-weight:900}
+.color-quick-picks{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
+.color-quick-pick{border:1px solid #e6dce0;border-radius:999px;background:#fff;padding:8px 11px;font-weight:800;font-size:11px}
+.color-quick-pick.used{opacity:.45}
+@media(max-width:700px){.color-preset-form{grid-template-columns:1fr}.color-preset-save{min-height:42px}}
+
 /* Botón general para guardar existencias del modelo */
 .inventory-save-model{
   width:100%;
@@ -2296,6 +2310,17 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 
 <div id="catalogPanel" class="panel">
 
+<details class="color-presets-card" id="colorPresetsSection">
+  <summary><span>Configurar colores</span><span>⌄</span></summary>
+  <div class="color-preset-form">
+    <input id="presetColor" type="text" placeholder="Color, ej. Camel">
+    <select id="presetCategory"><option value="">Todas las categorías</option><option>Bota</option><option>Botín</option><option>Zapatilla</option><option>Mocasín</option><option>Huarache</option><option>Sandalia</option></select>
+    <select id="presetSupplier"><option value="">Todos los proveedores</option></select>
+    <button id="saveColorPreset" class="color-preset-save" type="button">Agregar color</button>
+  </div>
+  <div id="colorPresetList" class="color-preset-list"></div>
+</details>
+
 <details class="card upload-details" id="uploadSection">
   <summary class="upload-summary">
     <span>Agregar modelo</span><span class="upload-chevron">⌄</span>
@@ -2328,6 +2353,7 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
         </select>
       </div>
 
+      <div id="colorQuickPicks" class="color-quick-picks"></div>
       <div id="colorBlocks"></div>
       <button id="addColorBlock" type="button">+ Agregar otro color y foto</button>
       <button id="uploadButton" type="submit">Guardar modelo</button>
