@@ -99,6 +99,20 @@ exports.handler = async function (event) {
         const vu=await supabase.from("variantes").update({color,precio_compra:buy,precio_venta:sale,proveedor_id:supplier||null}).eq("id",id).eq("modelo_id",modelId);
         if(vu.error) throw new Error(vu.error.message);
       }
+      const newVariants=Array.isArray(body.newVariants)?body.newVariants:[];
+      const current=await supabase.from("variantes").select("color").eq("modelo_id",modelId);
+      if(current.error)throw new Error(current.error.message);
+      const used=(current.data||[]).map(x=>normalizeText(x.color));
+      for(const v of newVariants){
+        const color=String(v.color||"").trim(),buy=Number(v.precio_compra),sale=Number(v.precio_venta),supplier=Number(v.proveedor_id||0);
+        if(!color||!Number.isFinite(buy)||buy<0||!Number.isFinite(sale)||sale<0)throw new Error("Datos inválidos en el nuevo color.");
+        if(used.includes(normalizeText(color)))throw new Error("El color "+color+" ya existe en este modelo.");
+        const created=await supabase.from("variantes").insert({modelo_id:modelId,color,precio_compra:buy,precio_venta:sale,proveedor_id:supplier||null,activo:true}).select("id").single();
+        if(created.error)throw new Error(created.error.message);
+        const stock=await supabase.from("inventario_mayoreo").insert({variante_id:created.data.id,existencia:0});
+        if(stock.error)throw new Error(stock.error.message);
+        used.push(normalizeText(color));
+      }
       return respond(200,{success:true});
     }
 
