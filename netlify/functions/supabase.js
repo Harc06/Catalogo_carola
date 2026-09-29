@@ -112,17 +112,15 @@ exports.handler = async function (event) {
       modelo => ({
         id: modelo.id,
         modelo: modelo.modelo,
-        // Orden interno del catálogo. No expone el nombre del proveedor.
-        // 1: Don Valente, 2: Noé, 3: zapatillas restantes, 4: todo lo demás.
+        // Orden interno estable por ID de proveedor:
+        // 1: Don Valente (2), 2: Noé (8), 3: Carla Franco (10), 4: resto.
         proveedor_orden: (() => {
-          const nombres = variantes
+          const ids = variantes
             .filter(v => Number(v.modelo_id) === Number(modelo.id))
-            .map(v => nombreProveedor.get(Number(v.proveedor_id)) || "");
-          if (nombres.some(nombre => nombre.includes("valente"))) return 1;
-          if (nombres.some(nombre => nombre.includes("noe") || nombre.includes("cristina calderon"))) return 2;
-          const categoria = String(modelo.categoria || "").toLowerCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-          if (categoria === "zapatilla") return 3;
+            .map(v => Number(v.proveedor_id));
+          if (ids.includes(2)) return 1;
+          if (ids.includes(8)) return 2;
+          if (ids.includes(10)) return 3;
           return 4;
         })(),
 
@@ -132,6 +130,28 @@ exports.handler = async function (event) {
          */
         categoria:
           modelo.categoria || null,
+
+        // Portada independiente del stock: Valente prioriza Coñac y Noé Camel.
+        // Solo usa variantes e imágenes ya obtenidas; no agrega peticiones externas.
+        portada_url: (() => {
+          const candidatas = variantes
+            .filter(v => Number(v.modelo_id) === Number(modelo.id))
+            .map(v => {
+              const proveedorId = Number(v.proveedor_id);
+              const color = String(v.color || "").toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+              let prioridad = 1;
+              if (proveedorId === 2 && (color.includes("conac") || color.includes("cognac"))) prioridad = 0;
+              if (proveedorId === 8 && color.includes("camel")) prioridad = 0;
+              const foto = imagenes
+                .filter(i => Number(i.variante_id) === Number(v.id))
+                .sort((a,b) => (a.orden ?? 999) - (b.orden ?? 999))[0];
+              return { prioridad, url: foto ? foto.url : "" };
+            })
+            .filter(item => item.url)
+            .sort((a,b) => a.prioridad - b.prioridad);
+          return candidatas.length ? candidatas[0].url : "";
+        })(),
 
         variantes: variantes
           .filter(
