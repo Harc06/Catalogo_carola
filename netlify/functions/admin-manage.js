@@ -237,85 +237,51 @@ exports.handler = async function (event) {
      */
 
     if (action === "add-variant") {
-      const modelId = Number(body.modelId);
-      const color = String(body.color || "").trim();
-      const existencia = Number(body.existencia || 0);
-      const imagen = body.imagen || null;
-      if (!modelId || !color) throw new Error("Falta modelo o color.");
-      if (!imagen || !imagen.data) throw new Error("Selecciona una fotografía para el color.");
-      if (!Number.isInteger(existencia) || existencia < 0 || existencia % 6 !== 0) throw new Error("La existencia debe ser 0 o múltiplo de 6.");
-      const existing = await supabase.from("variantes").select("id,color").eq("modelo_id", modelId);
-      if (existing.error) throw new Error(existing.error.message);
-      if ((existing.data || []).some(v => normalizeText(v.color) === normalizeText(color))) throw new Error("Ese color ya existe en el modelo.");
-      const created = await supabase.from("variantes").insert({modelo_id:modelId,color,activo:true}).select("id,color").single();
-      if (created.error) throw new Error(created.error.message);
-      const stock = await supabase.from("inventario_mayoreo").upsert({variante_id:created.data.id,existencia},{onConflict:"variante_id"});
-      if (stock.error) throw new Error(stock.error.message);
+      const modelId=Number(body.modelId);
+      const color=String(body.color||"").trim();
+      const existencia=Number(body.existencia||0);
+      const precio_compra=Number(body.precio_compra||0);
+      const precio_venta=Number(body.precio_venta||0);
+      const proveedor_id=Number(body.proveedor_id||0)||null;
+      const imagenes=Array.isArray(body.imagenes)?body.imagenes:(body.imagen?[body.imagen]:[]);
+      if(!modelId||!color)throw new Error("Falta modelo o color.");
+      if(!imagenes.length)throw new Error("Selecciona al menos una fotografía para el color.");
+      if(!Number.isInteger(existencia)||existencia<0||existencia%6!==0)throw new Error("La existencia debe ser 0 o múltiplo de 6.");
+      if(!Number.isFinite(precio_compra)||precio_compra<0||!Number.isFinite(precio_venta)||precio_venta<0)throw new Error("Revisa los precios.");
+      const existing=await supabase.from("variantes").select("id,color").eq("modelo_id",modelId);
+      if(existing.error)throw new Error(existing.error.message);
+      if((existing.data||[]).some(v=>normalizeText(v.color)===normalizeText(color)))throw new Error("Ese color ya existe en el modelo.");
+      const created=await supabase.from("variantes").insert({modelo_id:modelId,color,precio_compra,precio_venta,proveedor_id,activo:true}).select("id,color").single();
+      if(created.error)throw new Error(created.error.message);
+      const stock=await supabase.from("inventario_mayoreo").upsert({variante_id:created.data.id,existencia},{onConflict:"variante_id"});
+      if(stock.error)throw new Error(stock.error.message);
 
-      const ext = String(imagen.type || "").includes("png") ? "png" : "jpg";
-      const path = "catalogo/" + modelId + "/" + created.data.id + "/" + Date.now() + "." + ext;
-      const buffer = Buffer.from(String(imagen.data), "base64");
-      const uploaded = await supabase.storage.from("Productos").upload(path, buffer, {
-        contentType: String(imagen.type || "image/jpeg"),
-        upsert: false
-      });
-      if (uploaded.error) throw new Error("No se pudo subir la fotografía: " + uploaded.error.message);
-      const publicData = supabase.storage.from("Productos").getPublicUrl(path);
-      const url = publicData && publicData.data && publicData.data.publicUrl;
-      if (!url) throw new Error("No se pudo obtener la URL de la fotografía.");
-      const imageRow = await supabase.from("imagenes").insert({
-        variante_id: created.data.id,
-        url,
-        orden: 1
-      });
-      if (imageRow.error) {
-        await supabase.storage.from("Productos").remove([path]);
-        throw new Error("No se pudo registrar la fotografía: " + imageRow.error.message);
+      const uploadedPaths=[];
+      try{
+        for(let index=0;index<imagenes.length;index++){
+          const imagen=imagenes[index];
+          if(!imagen||!imagen.data)continue;
+          const ext=String(imagen.type||"").includes("png")?"png":String(imagen.type||"").includes("webp")?"webp":"jpg";
+          const path="catalogo/"+modelId+"/"+created.data.id+"/"+Date.now()+"-"+index+"."+ext;
+          const buffer=Buffer.from(String(imagen.data),"base64");
+          const uploaded=await supabase.storage.from("Productos").upload(path,buffer,{contentType:String(imagen.type||"image/jpeg"),upsert:false});
+          if(uploaded.error)throw new Error("No se pudo subir una fotografía: "+uploaded.error.message);
+          uploadedPaths.push(path);
+          const publicData=supabase.storage.from("Productos").getPublicUrl(path);
+          const url=publicData&&publicData.data&&publicData.data.publicUrl;
+          if(!url)throw new Error("No se pudo obtener la URL de una fotografía.");
+          const imageRow=await supabase.from("imagenes").insert({variante_id:created.data.id,url,orden:index+1});
+          if(imageRow.error)throw new Error("No se pudo registrar una fotografía: "+imageRow.error.message);
+        }
+      }catch(error){
+        if(uploadedPaths.length)await supabase.storage.from("Productos").remove(uploadedPaths);
+        await supabase.from("inventario_mayoreo").delete().eq("variante_id",created.data.id);
+        await supabase.from("imagenes").delete().eq("variante_id",created.data.id);
+        await supabase.from("variantes").delete().eq("id",created.data.id);
+        throw error;
       }
-      return respond(200,{success:true,variante:created.data,imagen:url});
+      return respond(200,{success:true,variante:created.data});
     }
-
-    if (action === "update-stock") {
-      const variantId = Number(body.variantId);
-      const existencia = Number(body.existencia);
-
-      if (!variantId || !Number.isInteger(existencia) || existencia < 0 || existencia % 6 !== 0) {
-        throw new Error("La existencia debe ser 0 o un múltiplo de 6 pares.");
-      }
-
-      const { data: variant, error: variantError } = await supabase
-        .from("variantes")
-        .select("id")
-        .eq("id", variantId)
-        .single();
-
-      if (variantError || !variant) {
-        throw new Error("No se encontró el color.");
-      }
-
-      const { error: stockError } = await supabase
-        .from("inventario_mayoreo")
-        .upsert({
-          variante_id: variantId,
-          existencia,
-          actualizado_en: new Date().toISOString()
-        }, { onConflict: "variante_id" });
-
-      if (stockError) throw new Error(stockError.message);
-
-      return respond(200, {
-        success: true,
-        variante_id: variantId,
-        existencia
-      });
-    }
-
-
-    /*
-     * =========================
-     * EDITAR COLOR
-     * =========================
-     */
 
     if (action === "rename-variant") {
       const variantId =
