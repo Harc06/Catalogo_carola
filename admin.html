@@ -2376,6 +2376,16 @@ body.inventory-sheet-open{overflow:hidden}
   .tab{padding:11px 2px;font-size:11px}
 }
 </style>
+
+<style id="mobile-modal-layer-fix">
+/* El editor de modelo/color siempre debe quedar por encima del popup móvil de inventario. */
+#editModelModal{z-index:17050!important}
+#editModelModal.show{isolation:isolate}
+@media(max-width:650px){
+  #editModelModal{align-items:flex-end;padding:0}
+  #editModelModal .catalog-action-sheet{position:relative;z-index:1;width:100%;max-height:94dvh;border-radius:28px 28px 0 0}
+}
+</style>
 </head>
 
 <body>
