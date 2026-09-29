@@ -80,6 +80,9 @@ a{color:inherit;text-decoration:none}
 
 .cart-button{
   border:0;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
   background:var(--dark);
   color:#fff;
   padding:10px 17px;
@@ -1333,8 +1336,8 @@ a{color:inherit;text-decoration:none}
 
 <a href="/" class="brand">CAROLA</a>
 
-<button id="cartButton" class="cart-button" type="button">
-Pedido · 0 pares
+<button id="cartButton" class="cart-button" type="button" aria-label="Ver pedido">
+<span class="cart-button-icon" aria-hidden="true">🛒</span><span id="cartButtonText">Pedido · 0 pares</span>
 </button>
 
 </div>
@@ -1751,6 +1754,7 @@ const cartPanel=document.getElementById("cart");
 const cartBody=document.getElementById("cartBody");
 const total=document.getElementById("total");
 const cartButton=document.getElementById("cartButton");
+const cartButtonText=document.getElementById("cartButtonText");
 const customerName=document.getElementById("customerName");
 const sheet=document.getElementById("sheet");
 const gridViewButton=document.getElementById("gridViewButton");
@@ -2083,7 +2087,7 @@ cartPairs.textContent=pairs;
 cartColors.textContent=cart.length;
 cartModels.textContent=uniqueModels();
 
-cartButton.textContent=
+(cartButtonText||cartButton).textContent=
 "Pedido · "+pairs+" pares";
 
 if(!cart.length){
