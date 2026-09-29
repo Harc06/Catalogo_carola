@@ -2665,96 +2665,32 @@ function saveCatalogState(){try{sessionStorage.setItem(CATALOG_STATE_KEY,JSON.st
 function restoreCatalogState(){try{const s=JSON.parse(sessionStorage.getItem(CATALOG_STATE_KEY)||"null");if(!s)return;selectedCategory=s.category||"todos";selectedFilter=s.color||"todos";search.value=s.search||"";setTimeout(()=>window.scrollTo(0,Number(s.scrollY||0)),80);}catch{}}
 window.addEventListener("pagehide",saveCatalogState);
 
-function renderProducts(){
+function filteredProducts(){
 
-const query=
-normalize(search.value);
+const query=normalize(search.value);
 
-clearSearch.classList.toggle(
-"show",
-Boolean(query)
-);
+clearSearch.classList.toggle("show",Boolean(query));
 
-const visible=
-products.filter(product=>{
+return products.filter(product=>{
 
-const modelText=
-normalize(product.modelo);
+const modelText=normalize(product.modelo);
+const categoryText=normalize(product.categoria);
+const colorTexts=variants(product).map(variant=>normalize(variant.color));
+const colorGroups=variants(product).map(variant=>baseCatalogColor(variant.color));
 
-const categoryText=
-normalize(product.categoria);
+const searchOK=!query || modelText.includes(query) || categoryText.includes(query) || colorTexts.some(color=>color.includes(query));
+const categoryOK=selectedCategory==="todos" || categoryText===selectedCategory;
+const colorOK=selectedFilter==="todos" || colorGroups.includes(selectedFilter);
 
-const colorTexts=
-variants(product)
-.map(
-variant=>normalize(variant.color)
-);
-const colorGroups=
-variants(product)
-.map(
-variant=>baseCatalogColor(variant.color)
-);
-
-const searchOK=
-!query ||
-modelText.includes(query) ||
-categoryText.includes(query) ||
-colorTexts.some(
-color=>color.includes(query)
-);
-
-const categoryOK=
-selectedCategory==="todos" ||
-categoryText===selectedCategory;
-
-const colorOK=
-selectedFilter==="todos" ||
-colorGroups.includes(selectedFilter);
-
-return (
-searchOK &&
-categoryOK &&
-colorOK
-);
+return searchOK && categoryOK && colorOK;
 
 });
 
-count.textContent=
-visible.length+
-" modelo"+
-(visible.length===1?"":"s");
-
-if(!visible.length){
-
-grid.innerHTML=`
-
-<div class="state">
-
-<strong>
-No encontramos modelos.
-</strong>
-
-<br><br>
-
-Prueba otra categoría, color o búsqueda.
-
-</div>
-
-`;
-
-return;
-
 }
 
-const rendered=visible.slice(0,visibleLimit);
+function productCardHtml(product){
 
-grid.innerHTML=
-rendered.map(product=>{
-
-const category=
-formatCategory(product.categoria);
-const productImages=variants(product).flatMap(v=>sortImages(v.imagenes||[])).map(i=>i.url).filter(Boolean);
-const secondImage=productImages[1]||"";
+const category=formatCategory(product.categoria);
 
 return `
 
@@ -2798,28 +2734,15 @@ Modelo ${escapeHtml(product.modelo)}
 
 </div>
 
-${
-category
-?`
+${category?`
 <div class="product-category">
 ${escapeHtml(category)}
 </div>
-`
-:""
-}
+`:""}
 
 <div class="colors">
 
-${
-variants(product)
-.map(
-variant=>
-escapeHtml(
-formatColor(variant.color)
-)
-)
-.join(" · ")
-}
+${variants(product).map(variant=>escapeHtml(formatColor(variant.color))).join(" · ")}
 
 </div>
 
@@ -2839,8 +2762,30 @@ type="button"
 
 `;
 
-}).join("") + (visible.length>visibleLimit?`<div class="infinite-scroll-sentinel" data-infinite-scroll aria-hidden="true"></div>`:"");
+}
 
+function renderProducts(){
+
+const visible=filteredProducts();
+
+count.textContent=visible.length+" modelo"+(visible.length===1?"":"s");
+
+if(!visible.length){
+
+grid.innerHTML=`
+<div class="state">
+<strong>No encontramos modelos.</strong>
+<br><br>
+Prueba otra categoría, color o búsqueda.
+</div>
+`;
+
+return;
+
+}
+
+grid.innerHTML=visible.slice(0,visibleLimit).map(productCardHtml).join("");
+appendInfiniteScrollSentinel(visible.length);
 setupInfiniteScroll();
 
 }
@@ -2851,11 +2796,39 @@ setupInfiniteScroll();
 
 let infiniteScrollObserver=null;
 
+function appendInfiniteScrollSentinel(total){
+  const previous=grid.querySelector("[data-infinite-scroll]");
+  if(previous)previous.remove();
+  if(visibleLimit>=total)return;
+  grid.insertAdjacentHTML("beforeend",`<div class="infinite-scroll-sentinel" data-infinite-scroll aria-hidden="true"></div>`);
+}
+
+function loadNextProducts(){
+
+const visible=filteredProducts();
+const startIndex=Math.min(visibleLimit,visible.length);
+const nextLimit=Math.min(startIndex+PAGE_SIZE,visible.length);
+const nextProducts=visible.slice(startIndex,nextLimit);
+
+const sentinel=grid.querySelector("[data-infinite-scroll]");
+if(sentinel)sentinel.remove();
+
+if(nextProducts.length){
+  grid.insertAdjacentHTML("beforeend",nextProducts.map(productCardHtml).join(""));
+}
+
+visibleLimit=nextLimit;
+appendInfiniteScrollSentinel(visible.length);
+setupInfiniteScroll();
+
+}
+
 function setupInfiniteScroll(){
   if(infiniteScrollObserver){
     infiniteScrollObserver.disconnect();
     infiniteScrollObserver=null;
   }
+
   const sentinel=grid.querySelector("[data-infinite-scroll]");
   if(!sentinel)return;
 
@@ -2863,8 +2836,7 @@ function setupInfiniteScroll(){
     if(!entries.some(entry=>entry.isIntersecting))return;
     infiniteScrollObserver.disconnect();
     infiniteScrollObserver=null;
-    visibleLimit+=PAGE_SIZE;
-    renderProducts();
+    loadNextProducts();
   },{root:null,rootMargin:"700px 0px",threshold:0});
 
   infiniteScrollObserver.observe(sentinel);
