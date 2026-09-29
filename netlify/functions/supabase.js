@@ -53,11 +53,20 @@ exports.handler = async function (event) {
     const variantes =
       await variantesResponse.json();
 
-    // IDs internos confirmados en la base. No consultamos ni exponemos proveedores al público.
-    const PROVEEDOR_DON_VALENTE = 2;
-    const PROVEEDOR_NOE = 8;
-    const normalizar = value => String(value || "").toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    /*
+     * ============================
+     * PROVEEDORES (solo reglas internas de presentación)
+     * ============================
+     */
+    const proveedoresResponse = await fetch(
+      `${supabaseUrl}/rest/v1/proveedores?select=id,nombre&activo=eq.true`,
+      { headers }
+    );
+    if (!proveedoresResponse.ok) throw new Error(await proveedoresResponse.text());
+    const proveedores = await proveedoresResponse.json();
+    const nombreProveedor = new Map(
+      proveedores.map(p => [Number(p.id), String(p.nombre || "").toLowerCase()])
+    );
 
     /*
      * ============================
@@ -99,57 +108,68 @@ exports.handler = async function (event) {
      * ============================
      */
 
-    const productos = modelos.map(modelo => {
-      const todasLasVariantes = variantes.filter(
-        v => Number(v.modelo_id) === Number(modelo.id)
-      );
-
-      const proveedores = todasLasVariantes.map(v => Number(v.proveedor_id));
-      const categoriaNormalizada = normalizar(modelo.categoria);
-
-      let proveedorOrden = 4;
-      if (proveedores.includes(PROVEEDOR_DON_VALENTE)) proveedorOrden = 1;
-      else if (proveedores.includes(PROVEEDOR_NOE)) proveedorOrden = 2;
-      else if (categoriaNormalizada === "zapatilla") proveedorOrden = 3;
-
-      const variantesPublicas = todasLasVariantes
-        .filter(v => includeOutOfStock || (stockPorVariante.get(Number(v.id)) || 0) > 0)
-        .map(v => ({
-          id: v.id,
-          color: v.color,
-          existencia: stockPorVariante.get(Number(v.id)) || 0,
-          precio_compra: Number(v.precio_compra || 0),
-          precio_venta: Number(v.precio_venta || 0),
-          proveedor_id: v.proveedor_id ? Number(v.proveedor_id) : null,
-          imagenes: imagenes
-            .filter(i => Number(i.variante_id) === Number(v.id))
-            .sort((a,b) => (a.orden ?? 999) - (b.orden ?? 999))
-        }));
-
-      const portadaPreferida = todasLasVariantes
-        .map(v => {
-          const proveedorId = Number(v.proveedor_id);
-          const color = normalizar(v.color);
-          let prioridad = 1;
-          if (proveedorId === PROVEEDOR_DON_VALENTE && (color.includes("conac") || color.includes("cognac"))) prioridad = 0;
-          if (proveedorId === PROVEEDOR_NOE && color.includes("camel")) prioridad = 0;
-          const foto = imagenes
-            .filter(i => Number(i.variante_id) === Number(v.id))
-            .sort((a,b) => (a.orden ?? 999) - (b.orden ?? 999))[0];
-          return { prioridad, url: foto ? foto.url : "" };
-        })
-        .filter(item => item.url)
-        .sort((a,b) => a.prioridad - b.prioridad)[0];
-
-      return {
+    const productos = modelos.map(
+      modelo => ({
         id: modelo.id,
         modelo: modelo.modelo,
-        proveedor_orden: proveedorOrden,
-        categoria: modelo.categoria || null,
-        portada_url: portadaPreferida ? portadaPreferida.url : "",
-        variantes: variantesPublicas
-      };
-    });
+        // Orden interno del catálogo. No expone el nombre del proveedor.
+        // 1: Don Valente, 2: Noé, 3: zapatillas restantes, 4: todo lo demás.
+        proveedor_orden: (() => {
+          const nombres = variantes
+            .filter(v => Number(v.modelo_id) === Number(modelo.id))
+            .map(v => nombreProveedor.get(Number(v.proveedor_id)) || "");
+          if (nombres.some(nombre => nombre.includes("valente"))) return 1;
+          if (nombres.some(nombre => nombre.includes("noe") || nombre.includes("cristina calderon"))) return 2;
+          const categoria = String(modelo.categoria || "").toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+          if (categoria === "zapatilla") return 3;
+          return 4;
+        })(),
+
+        /*
+         * Puede ser null en modelos
+         * antiguos todavía sin categoría.
+         */
+        categoria:
+          modelo.categoria || null,
+
+        variantes: variantes
+          .filter(
+            v =>
+              Number(v.modelo_id) === Number(modelo.id) &&
+              (includeOutOfStock || (stockPorVariante.get(Number(v.id)) || 0) > 0)
+          )
+          .map(v => ({
+            id: v.id,
+            color: v.color,
+            // Prioridad visual calculada en servidor; el nombre del proveedor no se expone.
+            portada_prioridad: (() => {
+              const proveedor = nombreProveedor.get(Number(v.proveedor_id)) || "";
+              const color = String(v.color || "").toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+              if ((proveedor.includes("noe") || proveedor.includes("cristina calderon")) && color.includes("camel")) return 0;
+              if (proveedor.includes("valente") && (color.includes("conac") || color.includes("cognac"))) return 0;
+              return 1;
+            })(),
+            existencia: stockPorVariante.get(Number(v.id)) || 0,
+            precio_compra: Number(v.precio_compra || 0),
+            precio_venta: Number(v.precio_venta || 0),
+            proveedor_id: v.proveedor_id ? Number(v.proveedor_id) : null,
+
+            imagenes: imagenes
+              .filter(
+                i =>
+                  Number(i.variante_id) ===
+                  Number(v.id)
+              )
+              .sort(
+                (a, b) =>
+                  (a.orden ?? 999) -
+                  (b.orden ?? 999)
+              )
+          }))
+      })
+    );
 
     const productosConStock = includeOutOfStock ? productos : productos.filter(p => p.variantes.length > 0);
 
