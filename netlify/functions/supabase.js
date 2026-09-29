@@ -140,9 +140,14 @@ exports.handler = async function (event) {
               const proveedorId = Number(v.proveedor_id);
               const color = String(v.color || "").toLowerCase()
                 .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-              let prioridad = 1;
-              if (proveedorId === 2 && (color.includes("conac") || color.includes("cognac"))) prioridad = 0;
-              if (proveedorId === 8 && color.includes("camel")) prioridad = 0;
+              const existencia = stockPorVariante.get(Number(v.id)) || 0;
+              let prioridad = 3;
+              if (existencia > 0) {
+                if (proveedorId === 2 && (color.includes("conac") || color.includes("cognac"))) prioridad = 0;
+                else if (proveedorId === 8 && color.includes("camel")) prioridad = 0;
+                else if (color === "negro") prioridad = 1;
+                else prioridad = 2;
+              }
               const foto = imagenes
                 .filter(i => Number(i.variante_id) === Number(v.id))
                 .sort((a,b) => (a.orden ?? 999) - (b.orden ?? 999))[0];
