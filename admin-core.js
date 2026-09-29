@@ -542,7 +542,7 @@ async function loadColorPresets(){
 }
 function renderColorPresetList(){
   const el=document.getElementById("colorPresetList");if(!el)return;
-  el.innerHTML=inventoryColorLabels.length?inventoryColorLabels.map(x=>'<span class="color-preset-chip"><b>'+escapeHtml(x.nombre)+'</b> · '+escapeHtml((x.colores||[]).join(", "))+' <button type="button" data-label-delete="'+Number(x.id)+'">×</button></span>').join(""):'<span style="color:#999;font-size:12px">Aún no hay etiquetas de colores.</span>';
+  el.innerHTML=inventoryColorLabels.length?inventoryColorLabels.map(x=>'<span class="color-preset-chip"><b>'+escapeHtml(x.nombre)+'</b> · '+escapeHtml((x.colores||[]).join(", "))+' <button type="button" class="color-label-edit" data-label-edit="'+Number(x.id)+'">Editar</button> <button type="button" data-label-delete="'+Number(x.id)+'">×</button></span>').join(""):'<span style="color:#999;font-size:12px">Aún no hay etiquetas de colores.</span>';
 }
 function renderColorLabelSelect(){
   const s=document.getElementById("uploadColorLabel");if(!s)return;
@@ -734,6 +734,17 @@ document.getElementById("colorLabelInput").addEventListener("keydown",function(e
 document.getElementById("colorLabelTags").onclick=function(e){const b=e.target.closest("[data-tag-index]");if(!b)return;editingColorTags.splice(Number(b.dataset.tagIndex),1);renderEditingColorTags()};
 document.getElementById("saveColorLabel").onclick=saveColorLabel;
 document.getElementById("colorPresetList").onclick=async function(e){
+  const edit=e.target.closest("[data-label-edit]");
+  if(edit){
+    const label=inventoryColorLabels.find(x=>Number(x.id)===Number(edit.dataset.labelEdit));
+    if(!label)return;
+    document.getElementById("colorLabelName").value=label.nombre||"";
+    editingColorTags=[...(label.colores||[])];
+    renderEditingColorTags();
+    document.getElementById("colorLabelInput").focus();
+    document.getElementById("colorLabelInput").scrollIntoView({behavior:"smooth",block:"center"});
+    return;
+  }
   const b=e.target.closest("[data-label-delete]");if(!b)return;
   if(!confirm("¿Eliminar esta etiqueta de colores?"))return;
   const r=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"delete-color-label",id:Number(b.dataset.labelDelete)})});
