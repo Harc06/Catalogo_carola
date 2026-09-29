@@ -2086,7 +2086,12 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 .color-presets-card{margin:0 0 18px;padding:16px;border:1px solid #eadde2;border-radius:18px;background:#fff}
 .color-presets-card summary{cursor:pointer;font-weight:900;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center}
 .color-presets-card summary::-webkit-details-marker{display:none}
-.color-preset-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:9px;margin-top:14px}
+.color-preset-form{display:grid;grid-template-columns:minmax(170px,.7fr) minmax(280px,1.5fr) auto;gap:9px;margin-top:14px}
+.color-tag-editor{border:1px solid #e6dce0;border-radius:11px;padding:7px;background:#fff}
+.color-label-tags{display:flex;flex-wrap:wrap;gap:6px}
+.color-label-tag{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:999px;background:#fff1f5;font-size:12px;font-weight:800}
+.color-label-tag button{border:0;background:transparent;font-weight:900}
+.color-tag-editor input{border:0!important;outline:0;width:100%;padding:8px 4px!important}
 .color-preset-form input,.color-preset-form select{width:100%;box-sizing:border-box;padding:11px;border:1px solid #e6dce0;border-radius:11px;background:#fff;font:inherit}
 .color-preset-save{border:0;border-radius:11px;background:#171717;color:#fff;padding:0 16px;font-weight:900}
 .color-preset-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
@@ -2313,10 +2318,12 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
 <details class="color-presets-card" id="colorPresetsSection">
   <summary><span>Configurar colores</span><span>⌄</span></summary>
   <div class="color-preset-form">
-    <input id="presetColor" type="text" placeholder="Color, ej. Camel">
-    <select id="presetCategory"><option value="">Todas las categorías</option><option>Bota</option><option>Botín</option><option>Zapatilla</option><option>Mocasín</option><option>Huarache</option><option>Sandalia</option></select>
-    <select id="presetSupplier"><option value="">Todos los proveedores</option></select>
-    <button id="saveColorPreset" class="color-preset-save" type="button">Agregar color</button>
+    <input id="colorLabelName" type="text" placeholder="Nombre de etiqueta, ej. Zapatillas">
+    <div class="color-tag-editor">
+      <div id="colorLabelTags" class="color-label-tags"></div>
+      <input id="colorLabelInput" type="text" placeholder="Escribe un color y presiona Enter" autocomplete="off">
+    </div>
+    <button id="saveColorLabel" class="color-preset-save" type="button">Guardar etiqueta</button>
   </div>
   <div id="colorPresetList" class="color-preset-list"></div>
 </details>
@@ -2353,6 +2360,8 @@ body:has(#catalogPanel.active) .catalog-fab{display:flex}
         </select>
       </div>
 
+      <label for="uploadColorLabel">6. Etiqueta de colores</label>
+      <select id="uploadColorLabel"><option value="">Seleccionar etiqueta...</option></select>
       <div id="colorQuickPicks" class="color-quick-picks"></div>
       <div id="colorBlocks"></div>
       <button id="addColorBlock" type="button">+ Agregar otro color y foto</button>
