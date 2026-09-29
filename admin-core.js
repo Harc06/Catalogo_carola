@@ -1348,10 +1348,9 @@ function renderModels(products){
       html+='<div class="inventory-row" data-variant-id="'+Number(variant.id)+'">'+
         '<div class="inventory-color">'+escapeHtml(formatColor(variant.color))+'</div>'+
         '<div class="inventory-stock-wrap"><input class="inventory-stock" type="number" min="0" step="6" inputmode="numeric" value="'+Number(variant.existencia||0)+'"><span>pares</span></div>'+
-        '<button type="button" class="inventory-save">Guardar</button>'+
       '</div>';
     });
-    html+='</div></details>';
+    html+='<button type="button" class="inventory-save-model">Guardar existencias</button></div></details>';
   });
   models.innerHTML=html;
 }
@@ -1436,20 +1435,34 @@ models.onclick=async function(event){
     }
     return;
   }
-  const save=event.target.closest(".inventory-save");
+  const save=event.target.closest(".inventory-save-model");
   if(!save)return;
-  const row=save.closest(".inventory-row");
-  const input=row.querySelector(".inventory-stock");
-  const existencia=Number(input.value);
-  if(!Number.isInteger(existencia)||existencia<0||existencia%6!==0){
-    alert("La existencia debe ser 0 o un múltiplo de 6 pares.");
-    input.focus();
-    return;
+  const card=save.closest(".inventory-model-card");
+  const rows=[...card.querySelectorAll(".inventory-row[data-variant-id]")];
+  const updates=[];
+  for(const row of rows){
+    const input=row.querySelector(".inventory-stock");
+    const existencia=Number(input.value);
+    if(!Number.isInteger(existencia)||existencia<0||existencia%6!==0){
+      alert("Todas las existencias deben ser 0 o múltiplos de 6 pares.");
+      input.focus();
+      return;
+    }
+    updates.push({variantId:Number(row.dataset.variantId),existencia});
   }
   save.disabled=true;
-  save.textContent="Guardando...";
-  const ok=await manage({action:"update-stock",variantId:Number(row.dataset.variantId),existencia});
-  if(!ok){save.disabled=false;save.textContent="Guardar";}
+  save.textContent="Guardando existencias...";
+  try{
+    for(const update of updates){
+      const ok=await manage({action:"update-stock",variantId:update.variantId,existencia:update.existencia},{reload:false});
+      if(!ok)throw new Error("No se pudo actualizar una de las existencias.");
+    }
+    await loadModels();
+  }catch(error){
+    alert(error.message||"No se pudieron guardar las existencias.");
+    save.disabled=false;
+    save.textContent="Guardar existencias";
+  }
 };
 
 /* AGREGAR FOTOS / COLOR */
