@@ -2417,6 +2417,38 @@ Array.isArray(supabaseData.productos)
   const proveedorA=Number(a.proveedor_orden??Number.MAX_SAFE_INTEGER);
   const proveedorB=Number(b.proveedor_orden??Number.MAX_SAFE_INTEGER);
   if(proveedorA!==proveedorB)return proveedorA-proveedorB;
+
+  const ordenValente=["117","519","540","550","565","575","1010","1310","1500"];
+  const ordenNoe=["700","706","710","1714","1716","720 piton","720 flores","724","725","1725","1728","1730","1734","1735","2025","2026"];
+
+  const claveModelo=value=>normalize(String(value||""))
+    .replace(/piton/g,"piton")
+    .replace(/flores/g,"flores")
+    .trim();
+
+  const posicion=(product,orden)=>{
+    const modelo=claveModelo(product.modelo);
+    let index=orden.indexOf(modelo);
+    if(index>=0)return index;
+
+    // Permite variantes de nombre como "724 picas" conservando la posición 724.
+    index=orden.findIndex(item=>{
+      const clave=claveModelo(item);
+      return modelo===clave || modelo.startsWith(clave+" ");
+    });
+    return index>=0?index:Number.MAX_SAFE_INTEGER;
+  };
+
+  if(proveedorA===1){
+    const diferencia=posicion(a,ordenValente)-posicion(b,ordenValente);
+    if(diferencia!==0)return diferencia;
+  }
+
+  if(proveedorA===2){
+    const diferencia=posicion(a,ordenNoe)-posicion(b,ordenNoe);
+    if(diferencia!==0)return diferencia;
+  }
+
   return String(a.modelo).localeCompare(String(b.modelo),undefined,{numeric:true,sensitivity:"base"});
 });
 
