@@ -1,2 +1,26 @@
+[[redirects]]
+  from = "https://catalogo-carola.netlify.app/admin.html"
+  to = "https://admin.calzadocarola.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://catalogo-carola.netlify.app/admin"
+  to = "https://admin.calzadocarola.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://calzadocarola.com/admin.html"
+  to = "https://admin.calzadocarola.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://calzadocarola.com/admin"
+  to = "https://admin.calzadocarola.com/"
+  status = 301
+  force = true
+
 [images]
-  remote_images = ['https://gfkjdpuhbxfwajbkzfap\.supabase\.co/storage/v1/object/public/Productos/.*']
+  remote_images = ['https://gfkjdpuhbxfwajbkzfap\\.supabase\\.co/storage/v1/object/public/Productos/.*']
