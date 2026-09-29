@@ -526,7 +526,50 @@ async function loadUploadProviders(){
     if(!r.ok||!j.success)throw new Error(j.error||"No se pudieron cargar proveedores.");
     const list=(j.proveedores||[]).filter(x=>x.activo!==false).sort((a,b)=>String(a.nombre).localeCompare(String(b.nombre),"es"));
     select.innerHTML='<option value="">Seleccionar proveedor...</option>'+list.map(x=>'<option value="'+Number(x.id)+'">'+escapeHtml(x.nombre)+'</option>').join("");
+    const preset=document.getElementById("presetSupplier");
+    if(preset)preset.innerHTML='<option value="">Todos los proveedores</option>'+list.map(x=>'<option value="'+Number(x.id)+'">'+escapeHtml(x.nombre)+'</option>').join("");
   }catch(e){select.innerHTML='<option value="">Error al cargar proveedores</option>'}
+}
+
+let inventoryColorPresets=[];
+
+async function loadColorPresets(){
+  try{
+    const r=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"list-color-presets"})});
+    const j=await readJson(r);
+    if(!r.ok||!j.success)throw new Error(j.error||"No se pudieron cargar los colores.");
+    inventoryColorPresets=j.colores||[];
+    renderColorPresetList();
+    renderColorQuickPicks();
+  }catch(e){console.error("COLOR PRESETS:",e)}
+}
+function presetSupplierName(id){
+  const o=[...document.querySelectorAll("#uploadProveedor option")].find(x=>Number(x.value)===Number(id));
+  return o?o.textContent.trim():"Proveedor";
+}
+function renderColorPresetList(){
+  const el=document.getElementById("colorPresetList");if(!el)return;
+  el.innerHTML=inventoryColorPresets.length?inventoryColorPresets.map(x=>'<span class="color-preset-chip">'+escapeHtml(formatColor(x.color))+' · '+escapeHtml(x.categoria||"Todas")+' · '+escapeHtml(x.proveedor_id?presetSupplierName(x.proveedor_id):"Todos")+'<button type="button" data-preset-delete="'+Number(x.id)+'">×</button></span>').join(""):'<span style="color:#999;font-size:12px">Aún no hay colores configurados.</span>';
+}
+function matchingColorPresets(){
+  const category=normalizeText(document.getElementById("categoria").value),supplier=Number(document.getElementById("uploadProveedor").value||0);
+  return inventoryColorPresets.filter(x=>(!x.categoria||normalizeText(x.categoria)===category)&&(!x.proveedor_id||Number(x.proveedor_id)===supplier));
+}
+function renderColorQuickPicks(){
+  const el=document.getElementById("colorQuickPicks");if(!el)return;
+  const matches=matchingColorPresets(),used=[...document.querySelectorAll("#colorBlocks .color-input")].map(x=>normalizeText(x.value));
+  el.innerHTML=matches.length?'<div style="width:100%;font-size:11px;font-weight:900;color:#777">COLORES DISPONIBLES</div>'+matches.map(x=>'<button type="button" class="color-quick-pick '+(used.includes(normalizeText(x.color))?'used':'')+'" data-preset-color="'+escapeAttribute(x.color)+'">+ '+escapeHtml(formatColor(x.color))+'</button>').join(""):"";
+}
+async function saveColorPreset(){
+  const color=document.getElementById("presetColor").value.trim(),categoria=document.getElementById("presetCategory").value,proveedor_id=Number(document.getElementById("presetSupplier").value||0)||null;
+  if(!color){alert("Escribe un color.");return}
+  if(!categoria&&!proveedor_id){alert("Selecciona al menos una categoría o un proveedor.");return}
+  const btn=document.getElementById("saveColorPreset");btn.disabled=true;btn.textContent="Guardando...";
+  try{
+    const r=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"save-color-preset",color,categoria:categoria||null,proveedor_id})});
+    const j=await readJson(r);if(!r.ok||!j.success)throw new Error(j.error||"No se pudo guardar.");
+    document.getElementById("presetColor").value="";await loadColorPresets();
+  }catch(e){alert(e.message)}finally{btn.disabled=false;btn.textContent="Agregar color"}
 }
 
 function createColorBlock(colorValue=""){
@@ -675,6 +718,23 @@ function renderColorPreview(block){
     preview.appendChild(img);
   });
 }
+
+document.getElementById("saveColorPreset").onclick=saveColorPreset;
+document.getElementById("colorPresetList").onclick=async function(e){
+  const b=e.target.closest("[data-preset-delete]");if(!b)return;
+  if(!confirm("¿Eliminar este color configurado?"))return;
+  const r=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"delete-color-preset",id:Number(b.dataset.presetDelete)})});
+  const j=await readJson(r);if(!r.ok||!j.success){alert(j.error||"No se pudo eliminar.");return}await loadColorPresets();
+};
+document.getElementById("colorQuickPicks").onclick=function(e){
+  const b=e.target.closest("[data-preset-color]");if(!b||b.classList.contains("used"))return;
+  const empty=[...document.querySelectorAll("#colorBlocks .color-block")].find(x=>!x.querySelector(".color-input").value.trim());
+  if(empty)empty.querySelector(".color-input").value=b.dataset.presetColor;else createColorBlock(b.dataset.presetColor);
+  renderColorQuickPicks();
+};
+document.getElementById("categoria").addEventListener("change",renderColorQuickPicks);
+document.getElementById("uploadProveedor").addEventListener("change",renderColorQuickPicks);
+document.getElementById("colorBlocks").addEventListener("input",e=>{if(e.target.classList.contains("color-input"))renderColorQuickPicks()});
 
 document.getElementById("addColorBlock").onclick=function(){
   const block=createColorBlock("");
@@ -2784,5 +2844,5 @@ document.getElementById("manualSave").onclick=async function(){const btn=this,na
 /* INICIAR */
 
 /* Acceso temporal sin inicio de sesión mientras se termina el administrador. */
-(async()=>{createColorBlock("");await Promise.all([loadModels(),loadFinance(),ensureFinanceBalances(),loadUploadProviders()]);window.scrollTo({top:0,left:0,behavior:"auto"});})().catch(err=>{console.error("Error al iniciar el administrador:",err);});
+(async()=>{createColorBlock("");await Promise.all([loadModels(),loadFinance(),ensureFinanceBalances(),loadUploadProviders()]);await loadColorPresets();window.scrollTo({top:0,left:0,behavior:"auto"});})().catch(err=>{console.error("Error al iniciar el administrador:",err);});
 
