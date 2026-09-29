@@ -2759,9 +2759,7 @@ href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
 <div class="product-image">
 
 <img
-src="${escapeAttribute(carolaImageUrl(cover(product),480))}"
-srcset="${escapeAttribute(carolaImageSet(cover(product),[320,480,640]))}"
-sizes="(max-width:700px) 50vw, (max-width:1000px) 33vw, 20vw"
+src="${escapeAttribute(cover(product))}"
 loading="lazy"
 decoding="async"
 alt="Calzado Carola modelo ${escapeAttribute(product.modelo)} ${escapeAttribute(category||"calzado de mayoreo")}"
