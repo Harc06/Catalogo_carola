@@ -1438,7 +1438,7 @@ function newVariantEditCard(product){
   const suppliers=[...document.querySelectorAll("#uploadProveedor option")].filter(o=>o.value).map(o=>({id:Number(o.value),nombre:o.textContent.trim()}));
   const supplierOptions='<option value="">Sin proveedor</option>'+suppliers.map(s=>'<option value="'+s.id+'" '+(Number(first.proveedor_id)===s.id?'selected':'')+'>'+escapeHtml(s.nombre)+'</option>').join('');
   const colors=modelColorOptions(product);
-  return '<div class="variant-edit-card new-variant-edit-card" data-new-variant="1"><div class="variant-edit-title">Nuevo color</div><div class="variant-edit-fields"><div><label>Color</label><select class="edit-v-color"><option value="">Seleccionar color...</option>'+colors.map(x=>'<option value="'+escapeAttribute(x)+'">'+escapeHtml(formatColor(x))+'</option>').join('')+'</select></div><div><label>Precio compra</label><input class="edit-v-buy" type="number" min="0" step=".01" value="'+Number(first.precio_compra||0)+'"></div><div><label>Precio venta</label><input class="edit-v-sale" type="number" min="0" step=".01" value="'+Number(first.precio_venta||0)+'"></div><div><label>Proveedor</label><select class="edit-v-supplier">'+supplierOptions+'</select></div><div><label>Pares</label><input class="edit-v-stock" type="number" min="0" step="6" inputmode="numeric" value="0"></div></div></div>';
+  return '<div class="variant-edit-card new-variant-edit-card" data-new-variant="1"><div class="variant-edit-title">Nuevo color</div><div class="variant-edit-fields"><div><label>Color</label><select class="edit-v-color"><option value="">Seleccionar color...</option>'+colors.map(x=>'<option value="'+escapeAttribute(x)+'">'+escapeHtml(formatColor(x))+'</option>').join('')+'</select></div><div><label>Precio compra</label><input class="edit-v-buy" type="number" min="0" step=".01" value="'+Number(first.precio_compra||0)+'"></div><div><label>Precio venta</label><input class="edit-v-sale" type="number" min="0" step=".01" value="'+Number(first.precio_venta||0)+'"></div><div><label>Proveedor</label><select class="edit-v-supplier">'+supplierOptions+'</select></div><div><label>Pares</label><input class="edit-v-stock" type="number" min="0" step="6" inputmode="numeric" value="0"></div><div class="edit-v-photo-wrap"><label>Fotografías</label><label class="edit-v-photo-button">📷 Agregar fotos<input class="edit-v-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple></label><small class="edit-v-photo-count">Ninguna foto seleccionada</small></div></div></div>';
 }
 function openModelEditor(modelId,addColor=false){
   const product=(allProducts||[]).find(p=>Number(p.id)===Number(modelId));if(!product)return;
@@ -1457,7 +1457,10 @@ function openModelEditor(modelId,addColor=false){
     const temp=document.createElement("div");temp.innerHTML=newVariantEditCard(product);
     const card=temp.firstElementChild;
     if(!card.querySelector(".edit-v-color").options.length||card.querySelector(".edit-v-color").options.length===1){alert("No hay más colores disponibles en las etiquetas configuradas.");return}
-    list.appendChild(card);card.scrollIntoView({behavior:"smooth",block:"center"});
+    list.appendChild(card);
+    const photoInput=card.querySelector(".edit-v-photos"),photoCount=card.querySelector(".edit-v-photo-count");
+    photoInput.onchange=()=>{const n=(photoInput.files||[]).length;photoCount.textContent=n?(n===1?"1 foto seleccionada":n+" fotos seleccionadas"):"Ninguna foto seleccionada"};
+    card.scrollIntoView({behavior:"smooth",block:"center"});
   };
   document.getElementById("saveFullModelEdit").onclick=()=>saveFullModelEdit(product);
   if(addColor)document.getElementById("addColorInModelEditor").click();
@@ -1465,13 +1468,51 @@ function openModelEditor(modelId,addColor=false){
 async function saveFullModelEdit(product){
   const btn=document.getElementById("saveFullModelEdit");
   const cards=[...document.querySelectorAll("#editModelBody .variant-edit-card")];
-  const variants=cards.filter(c=>!c.dataset.newVariant).map(card=>({id:Number(card.dataset.variantId),color:card.querySelector(".edit-v-color").value.trim(),precio_compra:Number(card.querySelector(".edit-v-buy").value),precio_venta:Number(card.querySelector(".edit-v-sale").value),proveedor_id:Number(card.querySelector(".edit-v-supplier").value||0)}));
-  const newVariants=cards.filter(c=>c.dataset.newVariant).map(card=>({color:card.querySelector(".edit-v-color").value.trim(),precio_compra:Number(card.querySelector(".edit-v-buy").value),precio_venta:Number(card.querySelector(".edit-v-sale").value),proveedor_id:Number(card.querySelector(".edit-v-supplier").value||0),existencia:Number(card.querySelector(".edit-v-stock").value||0)}));
+  const variants=cards.filter(c=>!c.dataset.newVariant).map(card=>({
+    id:Number(card.dataset.variantId),
+    color:card.querySelector(".edit-v-color").value.trim(),
+    precio_compra:Number(card.querySelector(".edit-v-buy").value),
+    precio_venta:Number(card.querySelector(".edit-v-sale").value),
+    proveedor_id:Number(card.querySelector(".edit-v-supplier").value||0)
+  }));
+  const newCards=cards.filter(c=>c.dataset.newVariant);
+  const newVariants=newCards.map(card=>({
+    card,
+    color:card.querySelector(".edit-v-color").value.trim(),
+    precio_compra:Number(card.querySelector(".edit-v-buy").value),
+    precio_venta:Number(card.querySelector(".edit-v-sale").value),
+    proveedor_id:Number(card.querySelector(".edit-v-supplier").value||0),
+    existencia:Number(card.querySelector(".edit-v-stock").value||0),
+    files:[...(card.querySelector(".edit-v-photos").files||[])]
+  }));
   if([...variants,...newVariants].some(v=>!v.color||v.precio_compra<0||v.precio_venta<0)){alert("Revisa color y precios.");return}
   if(newVariants.some(v=>!Number.isInteger(v.existencia)||v.existencia<0||v.existencia%6!==0)){alert("Los pares del nuevo color deben ser 0 o múltiplos de 6.");return}
+  if(newVariants.some(v=>!v.files.length)){alert("Agrega al menos una fotografía para cada color nuevo.");return}
+
   btn.disabled=true;btn.textContent="Guardando...";
-  const ok=await manage({action:"update-full-model",modelId:Number(product.id),modelo:document.getElementById("editModelName").value.trim(),categoria:document.getElementById("editModelCategory").value,variantes,newVariants});
-  if(ok){document.getElementById("editModelModal").classList.remove("show")}else{btn.disabled=false;btn.textContent="Guardar cambios"}
+  try{
+    const basePayload={action:"update-full-model",modelId:Number(product.id),modelo:document.getElementById("editModelName").value.trim(),categoria:document.getElementById("editModelCategory").value,variantes};
+    const baseResponse=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify(basePayload)});
+    const baseResult=await readJson(baseResponse);
+    if(!baseResponse.ok||!baseResult.success)throw new Error(baseResult.error||"No se pudo actualizar el modelo.");
+
+    for(let index=0;index<newVariants.length;index++){
+      const v=newVariants[index];
+      btn.textContent="Guardando color "+(index+1)+" de "+newVariants.length+"...";
+      const imagenes=[];
+      for(const file of v.files)imagenes.push(await fileToBase64(file));
+      const response=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"add-variant",modelId:Number(product.id),color:v.color,existencia:v.existencia,precio_compra:v.precio_compra,precio_venta:v.precio_venta,proveedor_id:v.proveedor_id||null,imagenes})});
+      const result=await readJson(response);
+      if(!response.ok||!result.success)throw new Error(result.error||("No se pudo guardar "+v.color+"."));
+    }
+    document.getElementById("editModelModal").classList.remove("show");
+    await loadModels();
+    showOperation("✓ Modelo y colores guardados");
+    setTimeout(hideOperation,1200);
+  }catch(error){
+    alert(error.message||"No se pudieron guardar los cambios.");
+    btn.disabled=false;btn.textContent="Guardar cambios";
+  }
 }
 
 /* CLICS CATÁLOGO */
