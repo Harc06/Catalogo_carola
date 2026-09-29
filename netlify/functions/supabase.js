@@ -64,8 +64,10 @@ exports.handler = async function (event) {
     );
     if (!proveedoresResponse.ok) throw new Error(await proveedoresResponse.text());
     const proveedores = await proveedoresResponse.json();
+    const normalizar = value => String(value || "").toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const nombreProveedor = new Map(
-      proveedores.map(p => [Number(p.id), String(p.nombre || "").toLowerCase()])
+      proveedores.map(p => [Number(p.id), normalizar(p.nombre)])
     );
 
     /*
@@ -133,6 +135,27 @@ exports.handler = async function (event) {
         categoria:
           modelo.categoria || null,
 
+        // La portada puede venir de un color agotado sin ofrecerlo como disponible.
+        // Don Valente prioriza Coñac y Noé prioriza Camel.
+        portada_url: (() => {
+          const candidatas = variantes
+            .filter(v => Number(v.modelo_id) === Number(modelo.id))
+            .map(v => {
+              const proveedor = nombreProveedor.get(Number(v.proveedor_id)) || "";
+              const color = normalizar(v.color);
+              let prioridad = 1;
+              if (proveedor.includes("valente") && (color.includes("conac") || color.includes("cognac"))) prioridad = 0;
+              if ((proveedor.includes("noe") || proveedor.includes("cristina calderon")) && color.includes("camel")) prioridad = 0;
+              const foto = imagenes
+                .filter(i => Number(i.variante_id) === Number(v.id))
+                .sort((a,b) => (a.orden ?? 999) - (b.orden ?? 999))[0]?.url || "";
+              return { prioridad, foto };
+            })
+            .filter(item => item.foto)
+            .sort((a,b) => a.prioridad - b.prioridad);
+          return candidatas[0]?.foto || "";
+        })(),
+
         variantes: variantes
           .filter(
             v =>
@@ -145,8 +168,7 @@ exports.handler = async function (event) {
             // Prioridad visual calculada en servidor; el nombre del proveedor no se expone.
             portada_prioridad: (() => {
               const proveedor = nombreProveedor.get(Number(v.proveedor_id)) || "";
-              const color = String(v.color || "").toLowerCase()
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+              const color = normalizar(v.color);
               if ((proveedor.includes("noe") || proveedor.includes("cristina calderon")) && color.includes("camel")) return 0;
               if (proveedor.includes("valente") && (color.includes("conac") || color.includes("cognac"))) return 0;
               return 1;
