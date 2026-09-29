@@ -531,45 +531,56 @@ async function loadUploadProviders(){
   }catch(e){select.innerHTML='<option value="">Error al cargar proveedores</option>'}
 }
 
-let inventoryColorPresets=[];
+let inventoryColorLabels=[],editingColorTags=[];
 
 async function loadColorPresets(){
   try{
-    const r=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"list-color-presets"})});
-    const j=await readJson(r);
-    if(!r.ok||!j.success)throw new Error(j.error||"No se pudieron cargar los colores.");
-    inventoryColorPresets=j.colores||[];
-    renderColorPresetList();
-    renderColorQuickPicks();
-  }catch(e){console.error("COLOR PRESETS:",e)}
-}
-function presetSupplierName(id){
-  const o=[...document.querySelectorAll("#uploadProveedor option")].find(x=>Number(x.value)===Number(id));
-  return o?o.textContent.trim():"Proveedor";
+    const r=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"list-color-labels"})});
+    const j=await readJson(r);if(!r.ok||!j.success)throw new Error(j.error||"No se pudieron cargar las etiquetas.");
+    inventoryColorLabels=j.etiquetas||[];renderColorPresetList();renderColorLabelSelect();
+  }catch(e){console.error("COLOR LABELS:",e)}
 }
 function renderColorPresetList(){
   const el=document.getElementById("colorPresetList");if(!el)return;
-  el.innerHTML=inventoryColorPresets.length?inventoryColorPresets.map(x=>'<span class="color-preset-chip">'+escapeHtml(formatColor(x.color))+' · '+escapeHtml(x.categoria||"Todas")+' · '+escapeHtml(x.proveedor_id?presetSupplierName(x.proveedor_id):"Todos")+'<button type="button" data-preset-delete="'+Number(x.id)+'">×</button></span>').join(""):'<span style="color:#999;font-size:12px">Aún no hay colores configurados.</span>';
+  el.innerHTML=inventoryColorLabels.length?inventoryColorLabels.map(x=>'<span class="color-preset-chip"><b>'+escapeHtml(x.nombre)+'</b> · '+escapeHtml((x.colores||[]).join(", "))+' <button type="button" data-label-delete="'+Number(x.id)+'">×</button></span>').join(""):'<span style="color:#999;font-size:12px">Aún no hay etiquetas de colores.</span>';
 }
-function matchingColorPresets(){
-  const category=normalizeText(document.getElementById("categoria").value),supplier=Number(document.getElementById("uploadProveedor").value||0);
-  return inventoryColorPresets.filter(x=>(!x.categoria||normalizeText(x.categoria)===category)&&(!x.proveedor_id||Number(x.proveedor_id)===supplier));
+function renderColorLabelSelect(){
+  const s=document.getElementById("uploadColorLabel");if(!s)return;
+  const current=s.value;
+  s.innerHTML='<option value="">Seleccionar etiqueta...</option>'+inventoryColorLabels.map(x=>'<option value="'+Number(x.id)+'">'+escapeHtml(x.nombre)+'</option>').join("");
+  if([...s.options].some(o=>o.value===current))s.value=current;
+  renderColorQuickPicks();
+}
+function selectedColorLabel(){
+  const id=Number(document.getElementById("uploadColorLabel")?.value||0);
+  return inventoryColorLabels.find(x=>Number(x.id)===id)||null;
 }
 function renderColorQuickPicks(){
   const el=document.getElementById("colorQuickPicks");if(!el)return;
-  const matches=matchingColorPresets(),used=[...document.querySelectorAll("#colorBlocks .color-input")].map(x=>normalizeText(x.value));
-  el.innerHTML=matches.length?'<div style="width:100%;font-size:11px;font-weight:900;color:#777">COLORES DISPONIBLES</div>'+matches.map(x=>'<button type="button" class="color-quick-pick '+(used.includes(normalizeText(x.color))?'used':'')+'" data-preset-color="'+escapeAttribute(x.color)+'">+ '+escapeHtml(formatColor(x.color))+'</button>').join(""):"";
+  const label=selectedColorLabel(),used=[...document.querySelectorAll("#colorBlocks .color-input")].map(x=>normalizeText(x.value));
+  const colors=label&&Array.isArray(label.colores)?label.colores:[];
+  el.innerHTML=colors.length?'<div style="width:100%;font-size:11px;font-weight:900;color:#777">COLORES DE '+escapeHtml(String(label.nombre).toUpperCase())+'</div>'+colors.map(color=>'<button type="button" class="color-quick-pick '+(used.includes(normalizeText(color))?'used':'')+'" data-preset-color="'+escapeAttribute(color)+'">+ '+escapeHtml(formatColor(color))+'</button>').join(""):"";
 }
-async function saveColorPreset(){
-  const color=document.getElementById("presetColor").value.trim(),categoria=document.getElementById("presetCategory").value,proveedor_id=Number(document.getElementById("presetSupplier").value||0)||null;
-  if(!color){alert("Escribe un color.");return}
-  if(!categoria&&!proveedor_id){alert("Selecciona al menos una categoría o un proveedor.");return}
-  const btn=document.getElementById("saveColorPreset");btn.disabled=true;btn.textContent="Guardando...";
+function renderEditingColorTags(){
+  const el=document.getElementById("colorLabelTags");if(!el)return;
+  el.innerHTML=editingColorTags.map((x,i)=>'<span class="color-label-tag">'+escapeHtml(formatColor(x))+'<button type="button" data-tag-index="'+i+'">×</button></span>').join("");
+}
+function addEditingColor(){
+  const input=document.getElementById("colorLabelInput"),v=input.value.trim();if(!v)return;
+  if(!editingColorTags.some(x=>normalizeText(x)===normalizeText(v)))editingColorTags.push(formatColor(v));
+  input.value="";renderEditingColorTags();
+}
+async function saveColorLabel(){
+  addEditingColor();
+  const nombre=document.getElementById("colorLabelName").value.trim();
+  if(!nombre){alert("Escribe el nombre de la etiqueta.");return}
+  if(!editingColorTags.length){alert("Agrega al menos un color y presiona Enter.");return}
+  const btn=document.getElementById("saveColorLabel");btn.disabled=true;btn.textContent="Guardando...";
   try{
-    const r=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"save-color-preset",color,categoria:categoria||null,proveedor_id})});
+    const r=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"save-color-label",nombre,colores:editingColorTags})});
     const j=await readJson(r);if(!r.ok||!j.success)throw new Error(j.error||"No se pudo guardar.");
-    document.getElementById("presetColor").value="";await loadColorPresets();
-  }catch(e){alert(e.message)}finally{btn.disabled=false;btn.textContent="Agregar color"}
+    document.getElementById("colorLabelName").value="";editingColorTags=[];renderEditingColorTags();await loadColorPresets();
+  }catch(e){alert(e.message)}finally{btn.disabled=false;btn.textContent="Guardar etiqueta"}
 }
 
 function createColorBlock(colorValue=""){
@@ -719,21 +730,22 @@ function renderColorPreview(block){
   });
 }
 
-document.getElementById("saveColorPreset").onclick=saveColorPreset;
+document.getElementById("colorLabelInput").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addEditingColor()}});
+document.getElementById("colorLabelTags").onclick=function(e){const b=e.target.closest("[data-tag-index]");if(!b)return;editingColorTags.splice(Number(b.dataset.tagIndex),1);renderEditingColorTags()};
+document.getElementById("saveColorLabel").onclick=saveColorLabel;
 document.getElementById("colorPresetList").onclick=async function(e){
-  const b=e.target.closest("[data-preset-delete]");if(!b)return;
-  if(!confirm("¿Eliminar este color configurado?"))return;
-  const r=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"delete-color-preset",id:Number(b.dataset.presetDelete)})});
+  const b=e.target.closest("[data-label-delete]");if(!b)return;
+  if(!confirm("¿Eliminar esta etiqueta de colores?"))return;
+  const r=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"delete-color-label",id:Number(b.dataset.labelDelete)})});
   const j=await readJson(r);if(!r.ok||!j.success){alert(j.error||"No se pudo eliminar.");return}await loadColorPresets();
 };
+document.getElementById("uploadColorLabel").addEventListener("change",renderColorQuickPicks);
 document.getElementById("colorQuickPicks").onclick=function(e){
   const b=e.target.closest("[data-preset-color]");if(!b||b.classList.contains("used"))return;
   const empty=[...document.querySelectorAll("#colorBlocks .color-block")].find(x=>!x.querySelector(".color-input").value.trim());
   if(empty)empty.querySelector(".color-input").value=b.dataset.presetColor;else createColorBlock(b.dataset.presetColor);
   renderColorQuickPicks();
 };
-document.getElementById("categoria").addEventListener("change",renderColorQuickPicks);
-document.getElementById("uploadProveedor").addEventListener("change",renderColorQuickPicks);
 document.getElementById("colorBlocks").addEventListener("input",e=>{if(e.target.classList.contains("color-input"))renderColorQuickPicks()});
 
 document.getElementById("addColorBlock").onclick=function(){
