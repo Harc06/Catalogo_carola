@@ -383,6 +383,51 @@ exports.handler = async function (event) {
      * =========================
      */
 
+    if (action === "update-variant-images") {
+      const variantId=Number(body.variantId);
+      const deleteIds=(Array.isArray(body.deleteImageIds)?body.deleteImageIds:[]).map(Number).filter(Boolean);
+      const additions=Array.isArray(body.imagenes)?body.imagenes:[];
+      if(!variantId)throw new Error("Color inválido.");
+
+      const current=await supabase.from("imagenes").select("id,url,orden").eq("variante_id",variantId).order("orden",{ascending:true});
+      if(current.error)throw new Error(current.error.message);
+      const currentIds=new Set((current.data||[]).map(x=>Number(x.id)));
+      if(deleteIds.some(id=>!currentIds.has(id)))throw new Error("Una fotografía ya no pertenece a este color.");
+      const remaining=(current.data||[]).filter(x=>!deleteIds.includes(Number(x.id)));
+      if(!remaining.length&&!additions.length)throw new Error("Cada color debe conservar al menos una fotografía.");
+
+      const uploadedPaths=[],insertedIds=[];
+      try{
+        let order=Math.max(0,...remaining.map(x=>Number(x.orden||0)))+1;
+        for(let index=0;index<additions.length;index++){
+          const imagen=additions[index]; if(!imagen||!imagen.data)continue;
+          const ext=String(imagen.type||"").includes("png")?"png":String(imagen.type||"").includes("webp")?"webp":"jpg";
+          const path="catalogo/"+variantId+"/edit/"+Date.now()+"-"+index+"-"+Math.random().toString(36).slice(2,8)+"."+ext;
+          const buffer=Buffer.from(String(imagen.data),"base64");
+          const uploaded=await supabase.storage.from("Productos").upload(path,buffer,{contentType:String(imagen.type||"image/jpeg"),upsert:false});
+          if(uploaded.error)throw new Error("No se pudo subir una fotografía: "+uploaded.error.message);
+          uploadedPaths.push(path);
+          const publicData=supabase.storage.from("Productos").getPublicUrl(path);
+          const url=publicData&&publicData.data&&publicData.data.publicUrl;
+          const inserted=await supabase.from("imagenes").insert({variante_id:variantId,url,orden:order++}).select("id").single();
+          if(inserted.error)throw new Error("No se pudo registrar una fotografía: "+inserted.error.message);
+          insertedIds.push(Number(inserted.data.id));
+        }
+        const deleting=(current.data||[]).filter(x=>deleteIds.includes(Number(x.id)));
+        if(deleteIds.length){
+          const del=await supabase.from("imagenes").delete().in("id",deleteIds);
+          if(del.error)throw new Error("No se pudieron eliminar las fotografías anteriores: "+del.error.message);
+          for(const image of deleting)await removeStorageFile(supabase,image.url);
+        }
+        await normalizeOrders(supabase,variantId);
+        return respond(200,{success:true,added:insertedIds.length,deleted:deleteIds.length});
+      }catch(error){
+        if(insertedIds.length)await supabase.from("imagenes").delete().in("id",insertedIds);
+        if(uploadedPaths.length)await supabase.storage.from("Productos").remove(uploadedPaths);
+        throw error;
+      }
+    }
+
     if (action === "delete-image") {
       const imageId =
         Number(body.imageId);
