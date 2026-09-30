@@ -1459,7 +1459,7 @@ function openModelEditor(modelId,addColor=false){
   document.querySelector("#editModelModal .catalog-action-head h2").textContent="Agregar o editar modelo";
   document.getElementById("editModelBody").innerHTML=
     '<div class="model-edit-grid"><div><label>Modelo</label><input id="editModelName" value="'+escapeAttribute(product.modelo)+'"></div><div><label>Categoría</label><select id="editModelCategory">'+categories.map(c=>'<option '+(normalizeText(c)===normalizeText(product.categoria)?'selected':'')+'>'+c+'</option>').join('')+'</select></div></div>'+
-    '<div class="variant-edit-list">'+(product.variantes||[]).map(v=>'<div class="variant-edit-card" data-variant-id="'+Number(v.id)+'"><div class="variant-edit-title">'+escapeHtml(formatColor(v.color))+'</div><div class="variant-edit-fields"><div><label>Color</label><input class="edit-v-color" value="'+escapeAttribute(v.color)+'"></div><div><label>Precio compra</label><input class="edit-v-buy" type="number" min="0" step=".01" value="'+Number(v.precio_compra||0)+'"></div><div><label>Precio venta</label><input class="edit-v-sale" type="number" min="0" step=".01" value="'+Number(v.precio_venta||0)+'"></div><div><label>Proveedor</label><select class="edit-v-supplier">'+supplierOptions(v.proveedor_id)+'</select></div></div></div>').join('')+'</div>'+
+    '<div class="variant-edit-list">'+(product.variantes||[]).map(v=>{const photos=(v.imagenes||[]).map(img=>'<div class="edit-photo-item" data-image-id="'+Number(img.id)+'"><img src="'+escapeAttribute(img.url)+'" alt=""><button type="button" class="edit-photo-delete" aria-label="Eliminar foto">×</button></div>').join('');return '<div class="variant-edit-card" data-variant-id="'+Number(v.id)+'"><div class="variant-edit-title">'+escapeHtml(formatColor(v.color))+'</div><div class="variant-edit-fields"><div><label>Color</label><input class="edit-v-color" value="'+escapeAttribute(v.color)+'"></div><div><label>Precio compra</label><input class="edit-v-buy" type="number" min="0" step=".01" value="'+Number(v.precio_compra||0)+'"></div><div><label>Precio venta</label><input class="edit-v-sale" type="number" min="0" step=".01" value="'+Number(v.precio_venta||0)+'"></div><div><label>Proveedor</label><select class="edit-v-supplier">'+supplierOptions(v.proveedor_id)+'</select></div></div><div class="edit-existing-photos"><label>Fotografías</label><div class="edit-photo-grid">'+photos+'</div><label class="edit-v-photo-button">📷 Añadir fotografías<input class="edit-v-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple></label><small class="edit-v-photo-count">Puedes agregar nuevas o marcar una foto con × para eliminarla al guardar.</small></div></div>'}).join('')+'</div>'+
     '<button class="model-edit-add-color" id="addColorInModelEditor" type="button">+ Agregar color</button>'+
     '<button class="model-edit-save" id="saveFullModelEdit" type="button">Guardar cambios</button>';
   document.getElementById("editModelModal").classList.add("show");
@@ -1473,6 +1473,11 @@ function openModelEditor(modelId,addColor=false){
     photoInput.onchange=()=>{const n=(photoInput.files||[]).length;photoCount.textContent=n?(n===1?"1 foto seleccionada":n+" fotos seleccionadas"):"Ninguna foto seleccionada"};
     card.scrollIntoView({behavior:"smooth",block:"center"});
   };
+  document.querySelectorAll("#editModelBody .variant-edit-card:not(.new-variant-edit-card)").forEach(card=>{
+    const input=card.querySelector(".edit-v-photos"),count=card.querySelector(".edit-v-photo-count");
+    input.onchange=()=>{const n=(input.files||[]).length;count.textContent=n?(n===1?"1 foto nueva seleccionada":n+" fotos nuevas seleccionadas"):"Puedes agregar nuevas o marcar una foto con × para eliminarla al guardar."};
+    card.querySelector(".edit-photo-grid").onclick=e=>{const b=e.target.closest(".edit-photo-delete");if(!b)return;const item=b.closest(".edit-photo-item");item.classList.toggle("marked-delete");b.textContent=item.classList.contains("marked-delete")?"↶":"×";};
+  });
   document.getElementById("saveFullModelEdit").onclick=()=>saveFullModelEdit(product);
   if(addColor)document.getElementById("addColorInModelEditor").click();
 }
@@ -1486,6 +1491,7 @@ async function saveFullModelEdit(product){
     precio_venta:Number(card.querySelector(".edit-v-sale").value),
     proveedor_id:Number(card.querySelector(".edit-v-supplier").value||0)
   }));
+  const imageChanges=cards.filter(c=>!c.dataset.newVariant).map(card=>({card,variantId:Number(card.dataset.variantId),deleteImageIds:[...card.querySelectorAll(".edit-photo-item.marked-delete")].map(x=>Number(x.dataset.imageId)),files:[...(card.querySelector(".edit-v-photos")?.files||[])]}));
   const newCards=cards.filter(c=>c.dataset.newVariant);
   const newVariants=newCards.map(card=>({
     card,
@@ -1507,6 +1513,13 @@ async function saveFullModelEdit(product){
     const baseResult=await readJson(baseResponse);
     if(!baseResponse.ok||!baseResult.success)throw new Error(baseResult.error||"No se pudo actualizar el modelo.");
 
+    for(let index=0;index<imageChanges.length;index++){
+      const change=imageChanges[index];if(!change.deleteImageIds.length&&!change.files.length)continue;
+      btn.textContent="Actualizando fotos...";
+      const imagenes=[];for(const file of change.files)imagenes.push(await fileToBase64(file));
+      const response=await fetch("/.netlify/functions/admin-manage",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"update-variant-images",variantId:change.variantId,deleteImageIds:change.deleteImageIds,imagenes})});
+      const result=await readJson(response);if(!response.ok||!result.success)throw new Error(result.error||"No se pudieron actualizar las fotografías.");
+    }
     for(let index=0;index<newVariants.length;index++){
       const v=newVariants[index];
       btn.textContent="Guardando color "+(index+1)+" de "+newVariants.length+"...";
