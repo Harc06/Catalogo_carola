@@ -141,12 +141,15 @@ exports.handler = async function (event) {
               const color = String(v.color || "").toLowerCase()
                 .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
               const existencia = stockPorVariante.get(Number(v.id)) || 0;
-              let prioridad = 3;
+              let prioridad = 5;
               if (existencia > 0) {
-                if (proveedorId === 2 && (color.includes("conac") || color.includes("cognac"))) prioridad = 0;
-                else if (proveedorId === 8 && color.includes("camel")) prioridad = 0;
-                else if (color === "negro") prioridad = 1;
-                else prioridad = 2;
+                // Prioridad pública de portada por color:
+                // Camel/Café → Coñac → Negro → Latte → cualquier otro.
+                if (color.includes("camel") || color.includes("cafe") || color.includes("moka") || color.includes("chocolate")) prioridad = 0;
+                else if (color.includes("conac") || color.includes("cognac")) prioridad = 1;
+                else if (color.includes("negro")) prioridad = 2;
+                else if (color.includes("latte")) prioridad = 3;
+                else prioridad = 4;
               }
               const foto = imagenes
                 .filter(i => Number(i.variante_id) === Number(v.id))
