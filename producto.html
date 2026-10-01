@@ -478,6 +478,23 @@ h1{
   font-weight:800;
 }
 
+/* AVISO DE EXISTENCIAS */
+.stock-modal-overlay{
+  position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.42);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.stock-modal-overlay.open{display:flex}
+.stock-modal{
+  width:min(440px,100%);background:#fff;border-radius:20px;padding:24px;
+  box-shadow:0 24px 70px rgba(0,0,0,.22);text-align:left;
+}
+.stock-modal h3{margin:0 0 10px;font-size:20px}
+.stock-modal p{margin:0;color:#625a5e;line-height:1.5;font-size:14px}
+.stock-modal button{
+  width:100%;margin-top:20px;border:0;border-radius:12px;padding:14px;
+  background:#171717;color:#fff;font-weight:900;
+}
+
 /* TOAST */
 
 .toast{
@@ -661,6 +678,14 @@ h1{
 
 <div id="toast" class="toast">
   ✓ Agregado al pedido
+</div>
+
+<div id="stockModalOverlay" class="stock-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="stockModalTitle">
+  <div class="stock-modal">
+    <h3 id="stockModalTitle">Existencia disponible</h3>
+    <p id="stockModalText"></p>
+    <button id="stockModalAccept" type="button">Aceptar</button>
+  </div>
 </div>
 
 <script src="/assets/images.js?v=1"></script>
@@ -887,87 +912,63 @@ function updateCartCount(){
     "Pedido · "+total+" pares";
 }
 
+function showStockModal(available){
+  const overlay=document.getElementById("stockModalOverlay");
+  document.getElementById("stockModalText").textContent=
+    "Por el momento solamente contamos con "+available+" pares disponibles de este color. "+
+    "Agrega los pares disponibles a tu pedido y, al enviarlo por WhatsApp, solicítanos los pares adicionales que necesitas de este modelo.";
+  overlay.classList.add("open");
+}
+
+document.getElementById("stockModalAccept").onclick=function(){
+  document.getElementById("stockModalOverlay").classList.remove("open");
+};
+
 function addToCart(){
 
-  if(
-    !currentProduct ||
-    !currentVariant
-  ){
-    return;
+  if(!currentProduct||!currentVariant)return;
+
+  const available=Math.max(0,Number(currentVariant.existencia||0));
+  const requested=quantity;
+  const quantityToAdd=Math.min(requested,available);
+
+  if(requested>available){
+    showStockModal(available);
   }
 
-  const cart=
-    loadCart();
+  if(quantityToAdd<6)return;
 
-  const existing=
-    cart.find(
-      function(item){
-
-        return(
-          normalizeModel(item.modelo)===
-          normalizeModel(currentProduct.modelo)
-          &&
-          normalize(item.color)===
-          normalize(currentVariant.color)
-        );
-      }
-    );
-
-  const image=
-    getVariantCover(currentVariant);
+  const cart=loadCart();
+  const existing=cart.find(function(item){
+    return normalizeModel(item.modelo)===normalizeModel(currentProduct.modelo)
+      && normalize(item.color)===normalize(currentVariant.color);
+  });
+  const image=getVariantCover(currentVariant);
 
   if(existing){
-
-    existing.cantidad=
-      Number(existing.cantidad||0)+
-      quantity;
-
-    if(!existing.image){
-      existing.image=image;
-    }
-
+    // Nunca deja esta línea por encima de la existencia conocida.
+    existing.cantidad=Math.min(Number(existing.cantidad||0)+quantityToAdd,available);
+    if(!existing.image)existing.image=image;
   }else{
-
     cart.push({
       modelo:String(currentProduct.modelo),
       color:String(currentVariant.color),
-      cantidad:quantity,
+      cantidad:quantityToAdd,
       image:image
     });
   }
 
   saveCart(cart);
+  showToast("✓ "+quantityToAdd+" pares · "+formatColor(currentVariant.color));
 
-  showToast(
-    "✓ "+
-    quantity+
-    " pares · "+
-    formatColor(currentVariant.color)
-  );
-
-  const button=
-    document.getElementById(
-      "addCartButton"
-    );
-
+  const button=document.getElementById("addCartButton");
   if(button){
-
     button.classList.add("added");
-    button.textContent=
-      "✓ Agregado al pedido";
-
-    setTimeout(
-      function(){
-
-        button.classList.remove("added");
-
-        button.textContent=
-          "Agregar "+
-          quantity+
-          " pares al pedido";
-      },
-      1300
-    );
+    button.textContent="✓ "+quantityToAdd+" pares agregados";
+    setTimeout(function(){
+      button.classList.remove("added");
+      button.textContent="Agregar "+quantity+" pares al pedido";
+    },1300);
   }
 }
 
