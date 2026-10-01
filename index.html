@@ -3352,15 +3352,15 @@ openWhatsApp(data.pedido);
 console.error(error);
 
 const rawMessage=String(error?.message||"");
-const stockMatch=rawMessage.match(/Modelo\s+(.+?)\s+-\s+(.+?):\s*pediste\s+(\d+)\s+pares\s+y\s+quedan\s+(\d+)/i);
+const isStockError=/pediste\s+\d+\s+pares\s+y\s+quedan\s+\d+/i.test(rawMessage);
 
-if(stockMatch){
-  const [,modelo,color,pedidos,disponibles]=stockMatch;
+if(isStockError){
+  const availableMatch=rawMessage.match(/quedan\s+(\d+)/i);
+  const available=availableMatch?Number(availableMatch[1]):0;
+
   alert(
-    "Modelo "+modelo+" · "+formatColor(color)+"\n\n"+
-    "Por el momento solamente contamos con "+disponibles+" pares disponibles de este color.\n\n"+
-    "Agrega los "+disponibles+" pares disponibles a tu pedido y, al enviarlo por WhatsApp, solicítanos los "+
-    (Number(pedidos)-Number(disponibles))+" pares adicionales que necesitas de este modelo."
+    "Por el momento solamente contamos con "+available+" pares disponibles de este color. "+
+    "Agrega los pares disponibles a tu pedido y, al enviarlo por WhatsApp, solicítanos los pares adicionales que necesitas de este modelo."
   );
 }else{
   alert(rawMessage||"No se pudo confirmar el pedido. Vuelve a intentarlo.");
