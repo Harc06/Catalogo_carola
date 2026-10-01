@@ -2718,7 +2718,7 @@ const query=normalize(search.value);
 
 clearSearch.classList.toggle("show",Boolean(query));
 
-return products.filter(product=>{
+const visible=products.filter(product=>{
 
 const modelText=normalize(product.modelo);
 const categoryText=normalize(product.categoria);
@@ -2732,6 +2732,18 @@ const colorOK=selectedFilter==="todos" || colorGroups.includes(selectedFilter);
 return searchOK && categoryOK && colorOK;
 
 });
+
+// En Zapatilla el orden es exclusivamente por modelo ascendente (Z600, Z605, etc.),
+// sin agrupar ni dar prioridad a ningún proveedor.
+if(selectedCategory==="zapatilla"){
+  visible.sort((a,b)=>String(a.modelo||"").localeCompare(
+    String(b.modelo||""),
+    undefined,
+    {numeric:true,sensitivity:"base"}
+  ));
+}
+
+return visible;
 
 }
 
