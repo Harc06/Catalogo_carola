@@ -988,6 +988,20 @@ a{color:inherit;text-decoration:none}
   text-align:center;
 }
 
+.stock-warning{
+  display:none;
+  margin:-10px 0 16px;
+  padding:11px 13px;
+  border-radius:12px;
+  background:#fff4f7;
+  border:1px solid #f0d4df;
+  color:#6a4c58;
+  font-size:12px;
+  line-height:1.4;
+}
+
+.stock-warning.show{display:block}
+
 .sheet-add{
   width:100%;
   padding:16px;
@@ -1770,6 +1784,8 @@ Vaciar pedido
 
 </div>
 
+<div id="stockWarning" class="stock-warning" role="status"></div>
+
 <button
 id="sheetAdd"
 class="sheet-add"
@@ -2437,14 +2453,28 @@ ${escapeHtml(formatColor(variant.color))}
 
 function updateSheetQty(){
 
+const available=Math.max(0,Number(quickVariant?.existencia||0));
+const warning=document.getElementById("stockWarning");
+
 document.getElementById(
 "sheetQty"
 ).textContent=quickQty;
 
-document.getElementById(
-"sheetAdd"
-).textContent=
-"Agregar "+quickQty+" pares";
+if(quickQty>available){
+  warning.innerHTML=
+    "Por el momento solamente contamos con <strong>"+available+" pares disponibles</strong> de este color. "+
+    "Agrega los pares disponibles a tu pedido y, al enviarlo por WhatsApp, solicítanos los pares adicionales que necesitas de este modelo.";
+  warning.classList.add("show");
+
+  document.getElementById("sheetAdd").textContent=
+    "Agregar "+available+" pares disponibles";
+}else{
+  warning.textContent="";
+  warning.classList.remove("show");
+
+  document.getElementById("sheetAdd").textContent=
+    "Agregar "+quickQty+" pares";
+}
 
 }
 
@@ -3110,7 +3140,9 @@ Number(variant.id)===
 Number(button.dataset.variant)
 );
 
+quickQty=6;
 renderSheetColors();
+updateSheetQty();
 
 };
 
@@ -3148,10 +3180,15 @@ if(
 return;
 }
 
+const available=Math.max(0,Number(quickVariant.existencia||0));
+const qtyToAdd=Math.min(quickQty,available);
+
+if(qtyToAdd<6)return;
+
 addItem(
 quickProduct.modelo,
 quickVariant.color,
-quickQty,
+qtyToAdd,
 variantCover(quickVariant)
 );
 
