@@ -149,8 +149,10 @@ exports.handler=async function(event){
       const paymentMethod=cleanText(body.forma_pago,30)||"Deuda";
       const clientId=Number(body.cliente_id);
       if(!Number.isInteger(clientId)||clientId<=0) return response(400,{success:false,error:"Cliente inválido"});
+      const sentDate=cleanText(body.fecha_envio,10)||null;
+      if(sentDate&&!/^\d{4}-\d{2}-\d{2}$/.test(sentDate)) return response(400,{success:false,error:"Fecha de envío inválida"});
       const {data:atomic,error:atomicError}=await supabase.rpc("enviar_pedido_atomico",{
-        p_pedido_id:pedidoId,p_forma_pago:paymentMethod,p_cliente_id:clientId
+        p_pedido_id:pedidoId,p_forma_pago:paymentMethod,p_cliente_id:clientId,p_fecha_envio:sentDate
       });
       if(atomicError) throw atomicError;
       const {data,error}=await supabase.from("pedidos").select(SELECT_ORDER).eq("id",pedidoId).single();
