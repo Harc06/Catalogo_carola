@@ -590,12 +590,15 @@ a{color:inherit;text-decoration:none}
   z-index:500;
   opacity:0;
   visibility:hidden;
-  transition:.22s;
+  pointer-events:none;
+  transition:opacity .22s ease,visibility 0s linear .22s;
 }
 
 .overlay.open{
   opacity:1;
   visibility:visible;
+  pointer-events:auto;
+  transition:opacity .22s ease;
 }
 
 /* =========================
@@ -2364,6 +2367,7 @@ renderCart();
 
 function openCart(){
 
+overlay.style.pointerEvents="";
 overlay.classList.add("open");
 cartPanel.classList.add("open");
 sheet.classList.remove("open");
@@ -2376,13 +2380,17 @@ document.body.style.overflow="hidden";
 
 function closePanels(){
 
+// Libera la interacción inmediatamente; la animación visual puede terminar
+// después sin dejar una capa invisible capturando el siguiente toque.
+overlay.style.pointerEvents="none";
 overlay.classList.remove("open");
 cartPanel.classList.remove("open");
 sheet.classList.remove("open");
 
 document.body.classList.remove("cart-open");
-
 document.body.style.overflow="";
+
+requestAnimationFrame(()=>{ overlay.style.pointerEvents=""; });
 
 }
 
@@ -2392,6 +2400,7 @@ document.body.style.overflow="";
 
 function openQuick(product){
 
+overlay.style.pointerEvents="";
 quickProduct=product;
 quickVariant=variants(product)[0];
 quickQty=6;
