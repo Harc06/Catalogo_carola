@@ -1843,6 +1843,24 @@ const CATALOG_CACHE_TTL=30*60*1000;
 
 const DUPLICATE_WINDOW=30*60*1000;
 
+/* ANALÍTICA ANÓNIMA DEL CATÁLOGO */
+const ANALYTICS_VISITOR_KEY="carola_visitor_v1";
+const ANALYTICS_SESSION_KEY="carola_session_v1";
+function analyticsId(key,session=false){
+ try{
+  let value=session?sessionStorage.getItem(key):localStorage.getItem(key);
+  if(!value){value=(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2));(session?sessionStorage:localStorage).setItem(key,value)}
+  return value;
+ }catch(_){return Date.now()+"-"+Math.random().toString(36).slice(2)}
+}
+const analyticsVisitor=analyticsId(ANALYTICS_VISITOR_KEY);
+const analyticsSession=analyticsId(ANALYTICS_SESSION_KEY,true);
+function trackCatalog(evento,data={}){
+ const payload={evento,visitante_id:analyticsVisitor,sesion_id:analyticsSession,pagina:location.pathname,...data};
+ try{fetch("/.netlify/functions/analytics",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload),keepalive:true}).catch(()=>{})}catch(_){}
+}
+trackCatalog("visita");
+
 const CATEGORY_ORDER=[
 "Bota",
 "Botín",
@@ -2426,6 +2444,7 @@ requestAnimationFrame(()=>{ overlay.style.pointerEvents=""; });
 
 function openQuick(product){
 
+trackCatalog("modelo",{modelo:product?.modelo||""});
 overlay.style.pointerEvents="";
 quickProduct=product;
 quickVariant=variants(product)[0];
@@ -3219,6 +3238,7 @@ quickVariant.color,
 qtyToAdd,
 variantCover(quickVariant)
 );
+trackCatalog("agregar",{modelo:quickProduct.modelo,color:quickVariant.color,cantidad:qtyToAdd});
 
 closePanels();
 
@@ -3254,7 +3274,7 @@ saveCart();
 
 };
 
-cartButton.onclick=openCart;
+cartButton.onclick=function(){trackCatalog("carrito");openCart()};
 
 document.getElementById(
 "closeCart"
@@ -3360,6 +3380,7 @@ throw new Error(data.error||"No se pudo confirmar el pedido. Vuelve a intentarlo
 attempt.confirmedAt=attempt.confirmedAt||Date.now();
 persistCheckoutAttempt();
 button.textContent="Abriendo WhatsApp...";
+trackCatalog("whatsapp",{cantidad:(data.pedido.items||[]).reduce((s,x)=>s+Number(x.cantidad||0),0)});
 openWhatsApp(data.pedido);
 }catch(error){
 console.error(error);
