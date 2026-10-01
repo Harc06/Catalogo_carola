@@ -148,7 +148,33 @@ a{color:inherit;text-decoration:none}
 .hero-content{
   position:relative;
   z-index:2;
-  max-width:620px;
+  width:100%;
+  max-width:920px;
+}
+
+.hero-steps{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:14px;
+}
+
+.hero-step{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 10px;
+  border:1px solid rgba(23,23,23,.10);
+  border-radius:999px;
+  background:rgba(255,255,255,.42);
+  font-size:11px;
+  font-weight:750;
+  color:#4f474b;
+}
+
+.hero-step strong{
+  color:#171717;
+  font-size:10px;
 }
 
 .eyebrow{
@@ -178,7 +204,7 @@ a{color:inherit;text-decoration:none}
 
 .hero p{
   color:#675d62;
-  max-width:430px;
+  max-width:720px;
   line-height:1.4;
   margin:0;
   font-size:13px;
@@ -1381,10 +1407,22 @@ html,body{max-width:100%;overflow-x:hidden}img,svg,video{max-width:100%}
 
 <span class="eyebrow">Calzado Carola</span>
 
-<h1>Calzado de mayoreo en León.</h1>
+<h1>Mayoreo desde 6 pares.</h1>
 
 <p>
-Explora nuestro catálogo de botas, botines, mocasines, zapatillas y más. Selecciona modelos y colores; venta por múltiplos de 6 pares y envíos a todo México.
+Compra a partir de <strong>6 pares del mismo modelo y color</strong>. Puedes combinar en tu pedido distintos modelos y colores, agregando 6 pares o más de cada selección.
+</p>
+
+<div class="hero-steps" aria-label="Cómo hacer tu pedido">
+  <span class="hero-step"><strong>1</strong> Elige un modelo</span>
+  <span class="hero-step"><strong>2</strong> Selecciona color y cantidad</span>
+  <span class="hero-step"><strong>3</strong> Agrega más modelos o colores</span>
+  <span class="hero-step"><strong>4</strong> Abre tu carrito</span>
+  <span class="hero-step"><strong>5</strong> Escribe tu nombre y envía</span>
+</div>
+
+<p style="margin-top:12px">
+Al enviar tu pedido se abrirá <strong>WhatsApp</strong> con tu selección. Ahí continuaremos atendiéndote para confirmar tu pedido y darte seguimiento.
 </p>
 
 </div>
