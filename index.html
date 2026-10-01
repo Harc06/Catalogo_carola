@@ -2733,14 +2733,71 @@ return searchOK && categoryOK && colorOK;
 
 });
 
+const modelCompare=(a,b)=>String(a.modelo||"").localeCompare(
+  String(b.modelo||""),
+  undefined,
+  {numeric:true,sensitivity:"base"}
+);
+
+const providerRank=product=>{
+  const ids=variants(product).map(variant=>Number(variant.proveedor_id));
+  if(ids.includes(2))return 1; // Don Valente
+  if(ids.includes(8))return 2; // Noé
+  if(ids.includes(4))return 3; // Daniel
+  if(ids.includes(5))return 4; // Elena
+  if(ids.includes(3)||ids.includes(9))return 5; // Karen / KarenAnterior
+  return 6;
+};
+
+const bootModelPosition=product=>{
+  const provider=providerRank(product);
+  const modelo=normalize(String(product.modelo||"")).trim();
+  const orden=provider===1
+    ?["117","519","540","550","565","575","1010","1310","1500"]
+    :provider===2
+      ?["700","706","710","1714","1716","720 piton","720 flores","724","725","1725","1728","1730","1734","1735","2025","2026"]
+      :[];
+  const index=orden.findIndex(item=>modelo===item||modelo.startsWith(item+" "));
+  return index>=0?index:Number.MAX_SAFE_INTEGER;
+};
+
+// Al mostrar TODOS se respeta la jerarquía comercial:
+// Valente Bota/Botín → Noé Bota/Botín → Daniel Bota/Botín → Elena Bota/Botín
+// → Karen Bota/Botín → Zapatillas → Mocasines → Flats → Huarache → Sandalia.
+if(selectedCategory==="todos"){
+  const categoryRank=product=>{
+    const category=normalize(product.categoria);
+    if(category==="bota"||category==="botin")return providerRank(product);
+    if(category==="zapatilla")return 7;
+    if(category==="mocasin"||category==="mocasines")return 8;
+    if(category==="flats"||category==="flat")return 9;
+    if(category==="huarache")return 10;
+    if(category==="sandalia")return 11;
+    return 12;
+  };
+
+  visible.sort((a,b)=>{
+    const rankA=categoryRank(a);
+    const rankB=categoryRank(b);
+    if(rankA!==rankB)return rankA-rankB;
+
+    // Dentro de Bota/Botín conserva el orden especial ya definido para Valente y Noé.
+    if(rankA<=6){
+      const providerDiff=providerRank(a)-providerRank(b);
+      if(providerDiff!==0)return providerDiff;
+      const positionDiff=bootModelPosition(a)-bootModelPosition(b);
+      if(positionDiff!==0)return positionDiff;
+    }
+
+    // Zapatillas, Mocasines y el resto de cada bloque van por modelo ascendente.
+    return modelCompare(a,b);
+  });
+}
+
 // En Zapatilla el orden es exclusivamente por modelo ascendente (Z600, Z605, etc.),
 // sin agrupar ni dar prioridad a ningún proveedor.
 if(selectedCategory==="zapatilla"){
-  visible.sort((a,b)=>String(a.modelo||"").localeCompare(
-    String(b.modelo||""),
-    undefined,
-    {numeric:true,sensitivity:"base"}
-  ));
+  visible.sort(modelCompare);
 }
 
 return visible;
