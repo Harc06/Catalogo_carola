@@ -3355,17 +3355,10 @@ const rawMessage=String(error?.message||"");
 const isStockError=/pediste\s+\d+\s+pares\s+y\s+quedan\s+\d+/i.test(rawMessage);
 
 if(isStockError){
+  // Esta situación normalmente ya se resuelve al agregar el producto.
+  // Si el inventario cambió mientras el cliente compraba, sincroniza el carrito
+  // silenciosamente con la existencia real y permite que vuelva a enviarlo.
   const stockMatch=rawMessage.match(/Modelo\s+(.+?)\s+-\s+(.+?):\s*pediste\s+(\d+)\s+pares\s+y\s+quedan\s+(\d+)/i);
-  const availableMatch=rawMessage.match(/quedan\s+(\d+)/i);
-  const available=availableMatch?Number(availableMatch[1]):0;
-
-  alert(
-    "Por el momento solamente contamos con "+available+" pares disponibles de este color. "+
-    "Agrega los pares disponibles a tu pedido y, al enviarlo por WhatsApp, solicítanos los pares adicionales que necesitas de este modelo."
-  );
-
-  // Al cerrar el aviso, ajusta automáticamente esa línea del carrito a la
-  // existencia real devuelta por Supabase.
   if(stockMatch){
     const [,modelo,color,,availableText]=stockMatch;
     const availableQty=Number(availableText);
@@ -3373,14 +3366,11 @@ if(isStockError){
       normalize(String(item.modelo))===normalize(String(modelo)) &&
       normalize(String(item.color))===normalize(String(color))
     );
-
     if(index>=0){
-      if(availableQty>=6){
-        cart[index].cantidad=availableQty;
-      }else{
-        cart.splice(index,1);
-      }
+      if(availableQty>=6)cart[index].cantidad=availableQty;
+      else cart.splice(index,1);
       saveCart();
+      showToast("Pedido actualizado a existencias disponibles");
     }
   }
 }else{
