@@ -423,7 +423,14 @@ a{color:inherit;text-decoration:none}
   margin-top:15px;
 }
 
-.product-card{min-width:0}
+.product-card{
+  min-width:0;
+  /* Mantiene todos los modelos en el DOM, pero el navegador omite el trabajo
+     de pintura/layout de tarjetas lejanas hasta que se acercan a la pantalla. */
+  content-visibility:auto;
+  contain-intrinsic-size:auto 430px;
+  contain:layout paint style;
+}
 
 
 .product-image{
@@ -2948,6 +2955,7 @@ href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
 <img
 src="${escapeAttribute(cover(product))}"
 loading="lazy"
+fetchpriority="low"
 decoding="async"
 alt="Calzado Carola modelo ${escapeAttribute(product.modelo)} ${escapeAttribute(category||"calzado de mayoreo")}"
 >
@@ -3026,6 +3034,7 @@ return;
 
 }
 
+// Una sola escritura al DOM evita layouts repetidos incluso con todo el catálogo.
 grid.innerHTML=visible.map(productCardHtml).join("");
 
 }
