@@ -2019,6 +2019,15 @@ return sortImages(variant?.imagenes)[0]?.url||"";
 
 function cover(product){
 
+// Cuando hay un filtro de color activo, la tarjeta debe enseñar ese color
+// y no la portada general del modelo.
+if(selectedFilter!=="todos"){
+  const matchingVariant=variants(product).find(
+    variant=>baseCatalogColor(variant.color)===selectedFilter
+  );
+  if(matchingVariant)return variantCover(matchingVariant);
+}
+
 if(product && product.portada_url)return product.portada_url;
 
 const variant=variants(product)[0];
