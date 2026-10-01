@@ -452,7 +452,8 @@ function categoryOptions(selected){
     "Botín",
     "Mocasín",
     "Escolar",
-    "Zapatilla"
+    "Zapatilla",
+    "Flats"
   ];
 
   let html='<option value="">Seleccionar...</option>';
