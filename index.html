@@ -2104,6 +2104,7 @@ return {
 modelo:String(item.modelo),
 color:String(item.color),
 cantidad,
+adicionales:Math.max(0,Number(item.adicionales||0)),
 image:item.image||""
 };
 
@@ -2277,7 +2278,8 @@ ${escapeHtml(formatColor(item.color))}
 </div>
 
 <div class="cart-pairs">
-${Number(item.cantidad)} pares
+${Number(item.cantidad)} disponibles
+${Number(item.adicionales||0)>0 ? '<div style="margin-top:3px;font-size:10px;color:#9b526c">+'+Number(item.adicionales)+' solicitados</div>' : ""}
 </div>
 
 </div>
@@ -3253,16 +3255,25 @@ saveCart();
 ========================= */
 
 function createWhatsAppMessage(pedido){
-const lines=pedido.items.map(item=>item.cantidad+" "+item.modelo+" "+formatColor(item.color));
-return `PEDIDO CAROLA
+const availableLines=pedido.items.map(item=>item.cantidad+" pares · Modelo "+item.modelo+" · "+formatColor(item.color));
+const extras=cart
+  .filter(item=>Number(item.adicionales||0)>0)
+  .map(item=>Number(item.adicionales)+" pares · Modelo "+item.modelo+" · "+formatColor(item.color));
+const extrasTotal=cart.reduce((sum,item)=>sum+Number(item.adicionales||0),0);
 
-Folio: ${pedido.folio}
+let message="PEDIDO CAROLA\n\n"+
+"Folio: "+pedido.folio+"\n\n"+
+"Cliente: "+pedido.cliente+"\n\n"+
+"EXISTENCIAS DISPONIBLES\n"+
+availableLines.join("\n")+"\n\n"+
+"Total disponible: "+pedido.total_pares+" pares";
 
-${pedido.cliente}
-
-${lines.join("\n")}
-
-Total de pares = ${pedido.total_pares}`;
+if(extras.length){
+message+="\n\nPARES ADICIONALES SOLICITADOS\n"+
+extras.join("\n")+"\n\n"+
+"Adicionales solicitados: "+extrasTotal+" pares";
+}
+return message;
 }
 
 function openWhatsApp(pedido){
