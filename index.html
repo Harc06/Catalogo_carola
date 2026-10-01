@@ -1959,7 +1959,7 @@ const known={
 "botin":"Botín",
 "zapatilla":"Zapatilla",
 "mocasin":"Mocasín",
-"mocasines":"Mocasines",
+"mocasines":"Mocasín",
 "huarache":"Huarache",
 "sandalia":"Sandalia",
 "escolar":"Escolar",
@@ -2624,7 +2624,7 @@ No pudimos cargar el catálogo.
 function buildCategories(){
 
 const available=[...new Map(
-products.map(product=>String(product.categoria||"").trim()).filter(Boolean).map(category=>[normalize(category),formatCategory(category)])
+products.map(product=>String(product.categoria||"").trim()).filter(Boolean).map(category=>[normalize(formatCategory(category)),formatCategory(category)])
 ).values()];
 
 const ordered=[
@@ -2845,7 +2845,9 @@ const colorTexts=variants(product).map(variant=>normalize(variant.color));
 const colorGroups=variants(product).map(variant=>baseCatalogColor(variant.color));
 
 const searchOK=!query || modelText.includes(query) || categoryText.includes(query) || colorTexts.some(color=>color.includes(query));
-const categoryOK=selectedCategory==="todos" || categoryText===selectedCategory || categoryText.startsWith(selectedCategory) || selectedCategory.startsWith(categoryText);
+const selectedCategoryKey=normalize(formatCategory(selectedCategory));
+const productCategoryKey=normalize(formatCategory(product.categoria));
+const categoryOK=selectedCategory==="todos" || productCategoryKey===selectedCategoryKey;
 const colorOK=selectedFilter==="todos" || colorGroups.includes(selectedFilter);
 
 return searchOK && categoryOK && colorOK;
