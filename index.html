@@ -2726,7 +2726,7 @@ const colorTexts=variants(product).map(variant=>normalize(variant.color));
 const colorGroups=variants(product).map(variant=>baseCatalogColor(variant.color));
 
 const searchOK=!query || modelText.includes(query) || categoryText.includes(query) || colorTexts.some(color=>color.includes(query));
-const categoryOK=selectedCategory==="todos" || categoryText===selectedCategory;
+const categoryOK=selectedCategory==="todos" || categoryText===selectedCategory || categoryText.startsWith(selectedCategory) || selectedCategory.startsWith(categoryText);
 const colorOK=selectedFilter==="todos" || colorGroups.includes(selectedFilter);
 
 return searchOK && categoryOK && colorOK;
