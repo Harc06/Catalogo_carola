@@ -1820,7 +1820,7 @@ const NAME_KEY="carola_customer_name_v1";
 const LAST_ORDER_KEY="carola_last_order_v1";
 const VIEW_KEY="carola_view_v1";
 const CATALOG_STATE_KEY="carola_catalog_state_v1";
-const CATALOG_CACHE_KEY="carola_catalog_cache_v1";
+const CATALOG_CACHE_KEY="carola_catalog_cache_v2";
 const CATALOG_CACHE_TTL=30*60*1000;
 // El catálogo se renderiza completo. Con el volumen actual es más estable que
 // paginar tarjetas mediante IntersectionObserver, especialmente en Safari/iPad.
@@ -2492,12 +2492,17 @@ function readCatalogCache(){
     const cached=JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY)||"null");
     if(!cached||!Array.isArray(cached.productos))return null;
     if(Date.now()-Number(cached.savedAt||0)>CATALOG_CACHE_TTL)return null;
+    // Nunca usar como catálogo una respuesta parcial/corrupta.
+    // El catálogo real contiene decenas de modelos; una copia mínima puede
+    // quedar guardada si una petición fue interrumpida en Safari.
+    if(cached.productos.length<10)return null;
     return cached.productos;
   }catch{return null;}
 }
 
 function writeCatalogCache(productos){
   try{
+    if(!Array.isArray(productos)||productos.length<10)return;
     localStorage.setItem(CATALOG_CACHE_KEY,JSON.stringify({
       savedAt:Date.now(),
       productos
