@@ -2694,26 +2694,31 @@ Todos
 ========================= */
 
 function baseCatalogColor(value){
-const raw=String(value||"").trim();
-const n=normalize(raw);
+const n=normalize(String(value||"").trim());
+
+// Familias comerciales para el filtro. El nombre original de la variante
+// se conserva en la ficha del producto.
 const groups=[
-["negro",["negro"]],
-["cafe",["cafe","café","moka","moka","chocolate"]],
-["camel",["camel","shedron","shedrón","tan"]],
-["conac",["conac","coñac","cognac"]],
+["negro",["negro","black"]],
+["vino",["vino","burgundy","burdeos"]],
+["oro",["oro","dorado","gold"]],
+["plata",["plata","plateado","silver"]],
+["cafe",["cafe","moka","chocolate","coffee"]],
+["camel",["camel","shedron","tan"]],
+["conac",["conac","cognac"]],
 ["latte",["latte"]],
-["maquillaje",["maquillaje"]],
-["blanco",["blanco"]],
+["maquillaje",["maquillaje","nude"]],
+["blanco",["blanco","white"]],
 ["beige",["beige"]],
-["rojo",["rojo","vino","burgundy"]],
-["azul",["azul","marino"]],
-["verde",["verde"]],
+["rojo",["rojo","red"]],
+["azul",["azul","marino","navy"]],
+["verde",["verde","green"]],
 ["rosa",["rosa","pink"]],
-["gris",["gris"]],
-["plata",["plata","plateado"]],
-["oro",["oro","dorado"]]
+["gris",["gris","gray","grey"]]
 ];
-for(const [base,words] of groups){if(words.some(w=>n.includes(normalize(w))))return base}
+for(const [base,words] of groups){
+  if(words.some(word=>n.includes(normalize(word))))return base;
+}
 return n.split(/\s+/)[0]||n;
 }
 function baseCatalogColorLabel(value){
@@ -2730,16 +2735,10 @@ products.forEach(product=>{
 variants(product)
 .forEach(variant=>{
 
-const key=
-normalize(variant.color);
+const key=baseCatalogColor(variant.color);
 
 if(!colors.has(key)){
-
-colors.set(
-key,
-formatColor(variant.color)
-);
-
+colors.set(key,baseCatalogColorLabel(variant.color));
 }
 
 });
@@ -2844,7 +2843,7 @@ applyView();
 ========================= */
 
 function saveCatalogState(){try{sessionStorage.setItem(CATALOG_STATE_KEY,JSON.stringify({category:selectedCategory,color:selectedFilter,search:search.value,scrollY:window.scrollY}));}catch{}}
-function restoreCatalogState(){try{const s=JSON.parse(sessionStorage.getItem(CATALOG_STATE_KEY)||"null");if(!s){window.scrollTo(0,0);return;}selectedCategory=s.category||"todos";selectedFilter=s.color||"todos";search.value=s.search||"";window.scrollTo(0,0);}catch{window.scrollTo(0,0);}}
+function restoreCatalogState(){try{const s=JSON.parse(sessionStorage.getItem(CATALOG_STATE_KEY)||"null");if(!s){window.scrollTo(0,0);return;}selectedCategory=s.category||"todos";selectedFilter=s.color&&s.color!=="todos"?baseCatalogColor(s.color):"todos";search.value=s.search||"";window.scrollTo(0,0);}catch{window.scrollTo(0,0);}}
 window.addEventListener("pagehide",saveCatalogState);
 
 function filteredProducts(){
