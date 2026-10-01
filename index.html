@@ -2703,8 +2703,7 @@ const groups=[
 ["vino",["vino","burgundy","burdeos"]],
 ["oro",["oro","dorado","gold"]],
 ["plata",["plata","plateado","silver"]],
-["cafe",["cafe","moka","chocolate","coffee"]],
-["camel",["camel","shedron","tan"]],
+["camel",["camel","shedron","tan","cafe","moka","chocolate","coffee"]],
 ["conac",["conac","cognac"]],
 ["latte",["latte"]],
 ["maquillaje",["maquillaje","nude"]],
@@ -2723,7 +2722,7 @@ return n.split(/\s+/)[0]||n;
 }
 function baseCatalogColorLabel(value){
 const base=baseCatalogColor(value);
-return base==="conac"?"Coñac":base==="cafe"?"Café":base.charAt(0).toUpperCase()+base.slice(1);
+return base==="conac"?"Coñac":base.charAt(0).toUpperCase()+base.slice(1);
 }
 
 function buildFilters(){
