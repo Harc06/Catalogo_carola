@@ -1746,9 +1746,12 @@ const DUPLICATE_WINDOW=30*60*1000;
 const CATEGORY_ORDER=[
 "Bota",
 "Botín",
+"Zapatilla",
 "Mocasín",
+"Huarache",
+"Sandalia",
 "Escolar",
-"Zapatilla"
+"Flats"
 ];
 
 let products=[];
@@ -1865,17 +1868,20 @@ letter=>letter.toUpperCase()
 }
 
 function formatCategory(value){
-
+const original=String(value||"").trim();
+if(!original)return "";
 const known={
 "bota":"Bota",
 "botin":"Botín",
+"zapatilla":"Zapatilla",
 "mocasin":"Mocasín",
+"mocasines":"Mocasines",
+"huarache":"Huarache",
+"sandalia":"Sandalia",
 "escolar":"Escolar",
-"zapatilla":"Zapatilla"
+"flats":"Flats"
 };
-
-return known[normalize(value)]||"";
-
+return known[normalize(original)]||original;
 }
 
 function sortImages(images){
@@ -2498,9 +2504,18 @@ count.textContent="Error";
 
 function buildCategories(){
 
+const available=[...new Map(
+products.map(product=>String(product.categoria||"").trim()).filter(Boolean).map(category=>[normalize(category),formatCategory(category)])
+).values()];
+
+const ordered=[
+...CATEGORY_ORDER.filter(category=>available.some(item=>normalize(item)===normalize(category))),
+...available.filter(category=>!CATEGORY_ORDER.some(item=>normalize(item)===normalize(category))).sort((a,b)=>a.localeCompare(b,"es"))
+];
+
 categories.innerHTML=
 
-CATEGORY_ORDER
+ordered
 .map(category=>`
 
 <button
