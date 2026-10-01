@@ -381,6 +381,18 @@ a{color:inherit;text-decoration:none}
 
 .product-card{min-width:0}
 
+/* El sentinel debe ocupar una fila mínima propia. Si queda como un ítem normal
+   del grid puede crear filas fantasma/huecos al paginar en Safari/iPad. */
+.infinite-scroll-sentinel{
+  grid-column:1/-1;
+  width:100%;
+  height:1px;
+  min-height:1px;
+  margin:0;
+  padding:0;
+  pointer-events:none;
+}
+
 .product-image{
   position:relative;
   aspect-ratio:4/5;
@@ -2934,24 +2946,19 @@ const nextProducts=visible.slice(startIndex,nextLimit);
 const sentinel=grid.querySelector("[data-infinite-scroll]");
 if(sentinel)sentinel.remove();
 
-const midpoint=Math.ceil(nextProducts.length/2);
-const firstBatch=nextProducts.slice(0,midpoint);
-const secondBatch=nextProducts.slice(midpoint);
-
-if(firstBatch.length){
-  grid.insertAdjacentHTML("beforeend",firstBatch.map(productCardHtml).join(""));
+// Inserta la página completa en una sola actualización del DOM. Dividirla entre
+// dos frames podía dejar el grid en un estado intermedio y provocar huecos al
+// hacer scroll hacia atrás, especialmente en Safari/iPad.
+if(nextProducts.length){
+  grid.insertAdjacentHTML("beforeend",nextProducts.map(productCardHtml).join(""));
 }
 
-requestAnimationFrame(()=>{
-  if(secondBatch.length){
-    grid.insertAdjacentHTML("beforeend",secondBatch.map(productCardHtml).join(""));
-  }
+visibleLimit=nextLimit;
+appendInfiniteScrollSentinel(visible.length);
+infiniteScrollLoading=false;
 
-  visibleLimit=nextLimit;
-  appendInfiniteScrollSentinel(visible.length);
-  infiniteScrollLoading=false;
-  setupInfiniteScroll();
-});
+// Espera a que el navegador haya recalculado el grid antes de observar de nuevo.
+requestAnimationFrame(()=>setupInfiniteScroll());
 
 }
 
