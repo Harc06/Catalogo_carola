@@ -203,7 +203,17 @@ function supplierSpecialForm(tipo,target){const el=document.getElementById(targe
 function supplierPurchasesHtml(providerId){
  const rows=supplierPurchases.filter(x=>Number(x.proveedor_id)===Number(providerId)).sort((a,b)=>String(b.fecha||"").localeCompare(String(a.fecha||""))||Number(b.id)-Number(a.id));
  if(!rows.length)return '<div class="finance-empty">Todavía no hay compras detalladas registradas para este proveedor.</div>';
- return '<div style="max-height:520px;overflow:auto;display:grid;gap:10px">'+rows.slice(0,10).map(x=>{const d=x.compras_proveedores_detalle||[];const detail=d.length?'<div style="padding:0 14px 14px;overflow:auto"><table class="finance-table"><thead><tr><th>Modelo</th><th>Color</th><th>Pares</th><th>Costo</th><th>Subtotal</th></tr></thead><tbody>'+d.map(i=>'<tr><td>'+escapeHtml(i.modelo)+'</td><td>'+escapeHtml(i.color)+'</td><td>'+Number(i.cantidad||0)+'</td><td>'+(i.costo_unitario==null?"—":moneyShort(i.costo_unitario))+'</td><td>'+(i.subtotal==null?"—":moneyShort(i.subtotal))+'</td></tr>').join("")+'</tbody></table></div>':'<div class="finance-empty">Compra sin detalle de modelos.</div>';return '<details class="deleted-box" style="margin:0"><summary style="display:flex;justify-content:space-between;gap:12px"><span><strong>'+formatFinanceDate(x.fecha)+'</strong> · Folio '+escapeHtml(x.folio||"—")+'</span><span><strong>'+Number(x.pares_total||0)+' pares</strong> · '+moneyShort(x.importe_total)+'</span></summary>'+detail+'</details>'}).join("")+'</div>';
+ return '<div style="max-height:520px;overflow:auto;display:grid;gap:12px">'+rows.slice(0,10).map(x=>{
+   const d=x.compras_proveedores_detalle||[];
+   // Fecha y folio pertenecen a la nota completa: se muestran una sola vez
+   // en su encabezado. Cada nota conserva su propio bloque independiente.
+   const detail=d.length
+     ?'<div style="padding:0 14px 14px;overflow:auto"><table class="finance-table"><thead><tr><th>Pares</th><th>Modelo</th><th>Color</th><th>Precio unitario</th><th>Total</th></tr></thead><tbody>'+
+       d.map(i=>'<tr><td>'+Number(i.cantidad||0)+'</td><td>'+escapeHtml(i.modelo)+'</td><td>'+escapeHtml(i.color)+'</td><td>'+(i.costo_unitario==null?"—":moneyShort(i.costo_unitario))+'</td><td>'+(i.subtotal==null?"—":moneyShort(i.subtotal))+'</td></tr>').join("")+
+       '</tbody></table></div>'
+     :'<div class="finance-empty">Compra sin detalle de modelos.</div>';
+   return '<details class="deleted-box" style="margin:0"><summary style="display:flex;justify-content:space-between;gap:12px"><span><strong>'+formatFinanceDate(x.fecha)+'</strong> · Folio '+escapeHtml(x.folio||"—")+'</span><span><strong>'+Number(x.pares_total||0)+' pares</strong> · '+moneyShort(x.importe_total)+'</span></summary>'+detail+'</details>';
+ }).join("")+'</div>';
 }
 async function quickSupplierPayment(providerId,balance,full){
  const provider=suppliers.find(x=>Number(x.id)===Number(providerId));if(!provider)return;
