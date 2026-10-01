@@ -35,13 +35,20 @@
 
 *{box-sizing:border-box}
 
-html{scroll-behavior:smooth}
+html{
+  scroll-behavior:smooth;
+  min-height:100%;
+  overscroll-behavior-y:none;
+}
 
 body{
   margin:0;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
   color:var(--text);
   background:#fff;
+  min-height:100vh;
+  min-height:100dvh;
+  overscroll-behavior-y:none;
 }
 
 button,input{font:inherit}
@@ -1739,6 +1746,8 @@ const NAME_KEY="carola_customer_name_v1";
 const LAST_ORDER_KEY="carola_last_order_v1";
 const VIEW_KEY="carola_view_v1";
 const CATALOG_STATE_KEY="carola_catalog_state_v1";
+const CATALOG_CACHE_KEY="carola_catalog_cache_v1";
+const CATALOG_CACHE_TTL=30*60*1000;
 // El catálogo se renderiza completo. Con el volumen actual es más estable que
 // paginar tarjetas mediante IntersectionObserver, especialmente en Safari/iPad.
 
@@ -2395,7 +2404,38 @@ document.getElementById(
    CARGAR
 ========================= */
 
+function renderLoadedProducts(){
+  buildCategories();
+  buildFilters();
+  applyView();
+  renderProducts();
+}
+
+function readCatalogCache(){
+  try{
+    const cached=JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY)||"null");
+    if(!cached||!Array.isArray(cached.productos))return null;
+    if(Date.now()-Number(cached.savedAt||0)>CATALOG_CACHE_TTL)return null;
+    return cached.productos;
+  }catch{return null;}
+}
+
+function writeCatalogCache(productos){
+  try{
+    localStorage.setItem(CATALOG_CACHE_KEY,JSON.stringify({
+      savedAt:Date.now(),
+      productos
+    }));
+  }catch{}
+}
+
 async function loadProducts(){
+
+const cachedProducts=readCatalogCache();
+if(cachedProducts){
+  products=cachedProducts;
+  renderLoadedProducts();
+}
 
 try{
 
@@ -2459,10 +2499,8 @@ Array.isArray(supabaseData.productos)
   return String(a.modelo).localeCompare(String(b.modelo),undefined,{numeric:true,sensitivity:"base"});
 });
 
-buildCategories();
-buildFilters();
-applyView();
-renderProducts();
+writeCatalogCache(products);
+renderLoadedProducts();
 
 await repairCartImages();
 
@@ -2487,13 +2525,17 @@ window.location.pathname
 
 console.error(error);
 
-grid.innerHTML=`
+// Si ya mostramos una copia local válida, una falla temporal de red no debe
+// reemplazar el catálogo visible por una pantalla de error.
+if(!cachedProducts){
+  grid.innerHTML=`
 <div class="state">
 No pudimos cargar el catálogo.
 </div>
 `;
 
-count.textContent="Error";
+  count.textContent="Error";
+}
 
 }
 
