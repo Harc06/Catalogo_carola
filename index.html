@@ -3062,7 +3062,6 @@ if(!button)return;
 
 selectedCategory=
 button.dataset.category;
-visibleLimit=PAGE_SIZE;
 saveCatalogState();
 
 document
@@ -3089,7 +3088,6 @@ if(!button)return;
 
 selectedFilter=
 button.dataset.color;
-visibleLimit=PAGE_SIZE;
 saveCatalogState();
 
 document
@@ -3105,7 +3103,7 @@ renderProducts();
 
 };
 
-search.oninput=function(){visibleLimit=PAGE_SIZE;saveCatalogState();renderProducts();};
+search.oninput=function(){saveCatalogState();renderProducts();};
 
 clearSearch.onclick=function(){
 
