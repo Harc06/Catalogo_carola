@@ -557,6 +557,11 @@ a{color:inherit;text-decoration:none}
   padding:8px;
   border:1px solid var(--border);
   border-radius:14px;
+  /* En lista la altura real es pequeña; no reservar la altura estimada
+     usada para las tarjetas grandes de la cuadrícula. */
+  content-visibility:visible;
+  contain:none;
+  contain-intrinsic-size:none;
 }
 
 .grid.list-view .product-link{display:contents}
