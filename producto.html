@@ -921,13 +921,24 @@ function animateToCart(){
   if(!source||!target||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
   const a=source.getBoundingClientRect(), b=target.getBoundingClientRect();
   const dot=document.createElement("div");
-  dot.style.cssText="position:fixed;z-index:2000;width:18px;height:18px;border-radius:50%;background:#171717;left:"+(a.left+a.width/2-9)+"px;top:"+(a.top+a.height/2-9)+"px;pointer-events:none";
+  dot.style.cssText="position:fixed;z-index:2000;width:46px;height:46px;border-radius:50%;background:#171717;box-shadow:0 8px 24px rgba(0,0,0,.28);left:"+(a.left+a.width/2-23)+"px;top:"+(a.top+a.height/2-23)+"px;pointer-events:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:21px";
+  dot.textContent="✓";
   document.body.appendChild(dot);
   const animation=dot.animate([
-    {transform:"translate(0,0) scale(1)",opacity:1},
-    {transform:"translate("+(b.left+b.width/2-a.left-a.width/2)+"px,"+(b.top+b.height/2-a.top-a.height/2)+"px) scale(.35)",opacity:.35}
-  ],{duration:650,easing:"cubic-bezier(.2,.8,.2,1)"});
-  animation.onfinish=()=>{dot.remove();target.animate([{transform:"scale(1)"},{transform:"scale(1.12)"},{transform:"scale(1)"}],{duration:280});};
+    {transform:"translate(0,0) scale(.75)",opacity:0},
+    {transform:"translate(0,-12px) scale(1.15)",opacity:1,offset:.18},
+    {transform:"translate("+(b.left+b.width/2-a.left-a.width/2)+"px,"+(b.top+b.height/2-a.top-a.height/2)+"px) scale(.45)",opacity:.5}
+  ],{duration:780,easing:"cubic-bezier(.2,.8,.2,1)"});
+  animation.onfinish=()=>{
+    dot.remove();
+    target.animate([{transform:"scale(1)"},{transform:"scale(1.18)"},{transform:"scale(1)"}],{duration:340});
+    const otherAvailableColors=currentProduct.variantes.filter(v=>
+      Number(v.id)!==Number(currentVariant.id) && Number(v.existencia||0)>=6
+    );
+    if(!otherAvailableColors.length){
+      window.setTimeout(()=>{ window.location.href="/"; },220);
+    }
+  };
 }
 
 function showStockModal(available){
