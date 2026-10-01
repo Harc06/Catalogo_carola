@@ -686,10 +686,16 @@ a{color:inherit;text-decoration:none}
   flex:1;
   overflow:auto;
   padding:7px 18px 20px;
+  overscroll-behavior:contain;
+}
+
+.cart-quantity-readonly{
+  padding:9px 12px;
+  min-width:auto;
 }
 
 .cart-empty{
-  min-height:340px;
+  min-height:220px;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -1350,7 +1356,7 @@ a{color:inherit;text-decoration:none}
     height:88px;
   }
     .footer-inner{
-    padding-bottom:95px;
+    padding-bottom:20px;
   }
 
   .footer-top{
@@ -2278,28 +2284,8 @@ ${Number(item.cantidad)} pares
 
 <div class="cart-actions">
 
-<div class="cart-quantity">
-
-<button
-data-action="minus"
-data-index="${index}"
-type="button"
->
-−
-</button>
-
-<strong>
-${Number(item.cantidad)}
-</strong>
-
-<button
-data-action="plus"
-data-index="${index}"
-type="button"
->
-+
-</button>
-
+<div class="cart-quantity cart-quantity-readonly" aria-label="${Number(item.cantidad)} pares">
+<strong>${Number(item.cantidad)} pares</strong>
 </div>
 
 <button
@@ -3213,30 +3199,6 @@ const index=
 Number(button.dataset.index);
 
 if(!cart[index])return;
-
-if(
-button.dataset.action==="plus"
-){
-
-cart[index].cantidad+=6;
-
-}
-
-if(
-button.dataset.action==="minus"
-){
-
-if(cart[index].cantidad<=6){
-
-cart.splice(index,1);
-
-}else{
-
-cart[index].cantidad-=6;
-
-}
-
-}
 
 if(
 button.dataset.action==="remove"
