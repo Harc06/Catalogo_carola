@@ -921,6 +921,9 @@ function showStockModal(available){
 }
 
 document.getElementById("stockModalAccept").onclick=function(){
+  const available=Math.max(0,Number(currentVariant?.existencia||0));
+  quantity=available>=6?available:6;
+  updateQuantity();
   document.getElementById("stockModalOverlay").classList.remove("open");
 };
 
@@ -930,13 +933,16 @@ function addToCart(){
 
   const available=Math.max(0,Number(currentVariant.existencia||0));
   const requested=quantity;
-  const quantityToAdd=Math.min(requested,available);
 
+  // Primero informa y corrige visualmente la cantidad. El cliente decide
+  // después si agrega esa cantidad disponible al pedido.
   if(requested>available){
     showStockModal(available);
+    return;
   }
 
-  if(quantityToAdd<6)return;
+  const quantityToAdd=requested;
+  if(quantityToAdd<6||quantityToAdd>available)return;
 
   const cart=loadCart();
   const existing=cart.find(function(item){
