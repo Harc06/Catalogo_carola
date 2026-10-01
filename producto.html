@@ -870,6 +870,7 @@ function loadCart(){
             modelo:String(item.modelo),
             color:String(item.color),
             cantidad,
+            adicionales:Math.max(0,Number(item.adicionales||0)),
             image:item.image||""
           };
         }
@@ -912,6 +913,23 @@ function updateCartCount(){
     "Pedido · "+total+" pares";
 }
 
+let pendingAdditional=0;
+
+function animateToCart(){
+  const source=document.getElementById("addCartButton");
+  const target=cartLink;
+  if(!source||!target||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const a=source.getBoundingClientRect(), b=target.getBoundingClientRect();
+  const dot=document.createElement("div");
+  dot.style.cssText="position:fixed;z-index:2000;width:18px;height:18px;border-radius:50%;background:#171717;left:"+(a.left+a.width/2-9)+"px;top:"+(a.top+a.height/2-9)+"px;pointer-events:none";
+  document.body.appendChild(dot);
+  const animation=dot.animate([
+    {transform:"translate(0,0) scale(1)",opacity:1},
+    {transform:"translate("+(b.left+b.width/2-a.left-a.width/2)+"px,"+(b.top+b.height/2-a.top-a.height/2)+"px) scale(.35)",opacity:.35}
+  ],{duration:650,easing:"cubic-bezier(.2,.8,.2,1)"});
+  animation.onfinish=()=>{dot.remove();target.animate([{transform:"scale(1)"},{transform:"scale(1.12)"},{transform:"scale(1)"}],{duration:280});};
+}
+
 function showStockModal(available){
   const overlay=document.getElementById("stockModalOverlay");
   document.getElementById("stockModalText").textContent=
@@ -937,6 +955,7 @@ function addToCart(){
   // Primero informa y corrige visualmente la cantidad. El cliente decide
   // después si agrega esa cantidad disponible al pedido.
   if(requested>available){
+    pendingAdditional=requested-available;
     showStockModal(available);
     return;
   }
@@ -954,18 +973,22 @@ function addToCart(){
   if(existing){
     // Nunca deja esta línea por encima de la existencia conocida.
     existing.cantidad=Math.min(Number(existing.cantidad||0)+quantityToAdd,available);
+    existing.adicionales=Math.max(0,Number(existing.adicionales||0))+pendingAdditional;
     if(!existing.image)existing.image=image;
   }else{
     cart.push({
       modelo:String(currentProduct.modelo),
       color:String(currentVariant.color),
       cantidad:quantityToAdd,
+      adicionales:pendingAdditional,
       image:image
     });
   }
 
   saveCart(cart);
-  showToast("✓ "+quantityToAdd+" pares · "+formatColor(currentVariant.color));
+  animateToCart();
+  showToast("✓ "+quantityToAdd+" pares · "+formatColor(currentVariant.color)+(pendingAdditional?" · +"+pendingAdditional+" solicitados":""));
+  pendingAdditional=0;
 
   const button=document.getElementById("addCartButton");
   if(button){
