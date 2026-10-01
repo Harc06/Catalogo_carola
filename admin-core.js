@@ -1456,7 +1456,7 @@ function openModelEditor(modelId,addColor=false){
   const product=(allProducts||[]).find(p=>Number(p.id)===Number(modelId));if(!product)return;
   const suppliers=[...document.querySelectorAll("#uploadProveedor option")].filter(o=>o.value).map(o=>({id:Number(o.value),nombre:o.textContent.trim()}));
   const supplierOptions=(selected)=>'<option value="">Sin proveedor</option>'+suppliers.map(s=>'<option value="'+Number(s.id)+'" '+(Number(selected)===Number(s.id)?'selected':'')+'>'+escapeHtml(s.nombre)+'</option>').join('');
-  const categories=["Bota","Botín","Zapatilla","Mocasín","Huarache","Sandalia","Escolar"];
+  const categories=["Bota","Botín","Zapatilla","Mocasín","Huarache","Sandalia","Escolar","Flats"];
   document.querySelector("#editModelModal .catalog-action-head h2").textContent="Agregar o editar modelo";
   document.getElementById("editModelBody").innerHTML=
     '<div class="model-edit-grid"><div><label>Modelo</label><input id="editModelName" value="'+escapeAttribute(product.modelo)+'"></div><div><label>Categoría</label><select id="editModelCategory">'+categories.map(c=>'<option '+(normalizeText(c)===normalizeText(product.categoria)?'selected':'')+'>'+c+'</option>').join('')+'</select></div></div>'+
