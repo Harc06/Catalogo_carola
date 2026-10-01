@@ -68,6 +68,7 @@ let deletedOrders=[];
 let ordersLoaded=false;
 let colorBlockCounter=0;
 let activeNoteOrder=null;
+let pendingSentDate="";
 let allFinance=[];
 let financeLoaded=false;
 let editingFinanceId=null;
@@ -2167,6 +2168,13 @@ async function ensureOrderClient(order){
 function closeSentPaymentModal(){document.getElementById("sentPaymentModal").classList.remove("show")}
 function markActiveOrderSent(){
   if(!activeNoteOrder||String(activeNoteOrder.estado||"")==="Enviado")return;
+  const today=localDateInput();
+  const chosen=prompt("¿Qué día se envió este pedido?\n\nEscribe la fecha en formato AAAA-MM-DD.\nHoy: "+today,today);
+  if(chosen===null)return;
+  const date=String(chosen).trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert("Escribe una fecha válida en formato AAAA-MM-DD.");return}
+  if(date>today){alert("La fecha de envío no puede ser futura.");return}
+  pendingSentDate=date;
   document.getElementById("sentPaymentModal").classList.add("show");
 }
 async function processSentOrder(paymentMethod){
@@ -2182,7 +2190,7 @@ async function processSentOrder(paymentMethod){
     const debt=clientInfo.debtClient||(clients||[]).find(x=>normalizeText(x.nombre)===normalizeText(name));
     if(!debt)throw new Error("No se pudo crear el saldo del cliente.");
     const response=await fetch("/.netlify/functions/admin-pedidos",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({
-      action:"mark-sent",pedido_id:Number(activeNoteOrder.id),forma_pago:paymentMethod,cliente_id:Number(debt.id)
+      action:"mark-sent",pedido_id:Number(activeNoteOrder.id),forma_pago:paymentMethod,cliente_id:Number(debt.id),fecha_envio:pendingSentDate||localDateInput()
     })});
     const result=await readJson(response);
     if(!response.ok||!result.success)throw new Error(result.error||"No se pudo enviar el pedido.");
@@ -2190,7 +2198,7 @@ async function processSentOrder(paymentMethod){
     if(index>=0)allOrders[index]=result.pedido;activeNoteOrder=result.pedido;
     await Promise.all([loadModels(),loadClients(),loadFinance()]);
     renderOrders();renderSentOrders();
-    btn.textContent="✓ Pedido enviado";showOperation("✓ Pedido enviado · "+paymentMethod);setTimeout(hideOperation,2200);
+    btn.textContent="✓ Pedido enviado";showOperation("✓ Pedido enviado · "+pendingSentDate+" · "+paymentMethod);pendingSentDate="";setTimeout(hideOperation,2200);
   }catch(error){alert(error.message);btn.disabled=false;btn.textContent="Pedido enviado"}
 }
 document.querySelectorAll(".sent-pay-option").forEach(b=>b.onclick=()=>processSentOrder(b.dataset.method));
