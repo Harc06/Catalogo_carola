@@ -3,7 +3,7 @@ exports.handler=async function(event){
  const reply=(statusCode,body)=>({statusCode,headers,body:JSON.stringify(body)});
  try{
   if(event.httpMethod!=="POST")return reply(405,{success:false});
-  const url=process.env.SUPABASE_URL,key=process.env.SUPABASE_KEY;if(!url||!key)return reply(500,{success:false});
+  const url=process.env.SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!url||!key)return reply(500,{success:false});
   const body=JSON.parse(event.body||"{}"),allowed=new Set(["visita","modelo","agregar","carrito","whatsapp"]),evento=String(body.evento||"").toLowerCase();
   if(!allowed.has(evento))return reply(400,{success:false});
   const clean=(v,n)=>String(v||"").trim().slice(0,n);
