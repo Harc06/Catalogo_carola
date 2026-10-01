@@ -18,6 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"Calzado Carola","url":"https://calzadocarola.com/","description":"Calzado de mayoreo en León, Guanajuato, con envíos a todo México.","areaServed":{"@type":"Country","name":"México"}}
+window.addEventListener("pageshow",function(event){if(event.persisted)window.scrollTo(0,0);});
 </script>
 
 <style>
@@ -2827,7 +2828,7 @@ applyView();
 ========================= */
 
 function saveCatalogState(){try{sessionStorage.setItem(CATALOG_STATE_KEY,JSON.stringify({category:selectedCategory,color:selectedFilter,search:search.value,scrollY:window.scrollY}));}catch{}}
-function restoreCatalogState(){try{const s=JSON.parse(sessionStorage.getItem(CATALOG_STATE_KEY)||"null");if(!s)return;selectedCategory=s.category||"todos";selectedFilter=s.color||"todos";search.value=s.search||"";setTimeout(()=>window.scrollTo(0,Number(s.scrollY||0)),80);}catch{}}
+function restoreCatalogState(){try{const s=JSON.parse(sessionStorage.getItem(CATALOG_STATE_KEY)||"null");if(!s){window.scrollTo(0,0);return;}selectedCategory=s.category||"todos";selectedFilter=s.color||"todos";search.value=s.search||"";window.scrollTo(0,0);}catch{window.scrollTo(0,0);}}
 window.addEventListener("pagehide",saveCatalogState);
 
 function filteredProducts(){
