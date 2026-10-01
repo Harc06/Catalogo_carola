@@ -381,17 +381,6 @@ a{color:inherit;text-decoration:none}
 
 .product-card{min-width:0}
 
-/* El sentinel debe ocupar una fila mínima propia. Si queda como un ítem normal
-   del grid puede crear filas fantasma/huecos al paginar en Safari/iPad. */
-.infinite-scroll-sentinel{
-  grid-column:1/-1;
-  width:100%;
-  height:1px;
-  min-height:1px;
-  margin:0;
-  padding:0;
-  pointer-events:none;
-}
 
 .product-image{
   position:relative;
@@ -1750,8 +1739,8 @@ const NAME_KEY="carola_customer_name_v1";
 const LAST_ORDER_KEY="carola_last_order_v1";
 const VIEW_KEY="carola_view_v1";
 const CATALOG_STATE_KEY="carola_catalog_state_v1";
-const PAGE_SIZE=12;
-let visibleLimit=PAGE_SIZE;
+// El catálogo se renderiza completo. Con el volumen actual es más estable que
+// paginar tarjetas mediante IntersectionObserver, especialmente en Safari/iPad.
 
 const DUPLICATE_WINDOW=30*60*1000;
 
@@ -2912,9 +2901,7 @@ return;
 
 }
 
-grid.innerHTML=visible.slice(0,visibleLimit).map(productCardHtml).join("");
-appendInfiniteScrollSentinel(visible.length);
-setupInfiniteScroll();
+grid.innerHTML=visible.map(productCardHtml).join("");
 
 }
 
@@ -2922,64 +2909,7 @@ setupInfiniteScroll();
    EVENTOS CATÁLOGO
 ========================= */
 
-let infiniteScrollObserver=null;
-
-function appendInfiniteScrollSentinel(total){
-  const previous=grid.querySelector("[data-infinite-scroll]");
-  if(previous)previous.remove();
-  if(visibleLimit>=total)return;
-  grid.insertAdjacentHTML("beforeend",`<div class="infinite-scroll-sentinel" data-infinite-scroll aria-hidden="true"></div>`);
-}
-
-let infiniteScrollLoading=false;
-
-function loadNextProducts(){
-
-if(infiniteScrollLoading)return;
-infiniteScrollLoading=true;
-
-const visible=filteredProducts();
-const startIndex=Math.min(visibleLimit,visible.length);
-const nextLimit=Math.min(startIndex+PAGE_SIZE,visible.length);
-const nextProducts=visible.slice(startIndex,nextLimit);
-
-const sentinel=grid.querySelector("[data-infinite-scroll]");
-if(sentinel)sentinel.remove();
-
-// Inserta la página completa en una sola actualización del DOM. Dividirla entre
-// dos frames podía dejar el grid en un estado intermedio y provocar huecos al
-// hacer scroll hacia atrás, especialmente en Safari/iPad.
-if(nextProducts.length){
-  grid.insertAdjacentHTML("beforeend",nextProducts.map(productCardHtml).join(""));
-}
-
-visibleLimit=nextLimit;
-appendInfiniteScrollSentinel(visible.length);
-infiniteScrollLoading=false;
-
-// Espera a que el navegador haya recalculado el grid antes de observar de nuevo.
-requestAnimationFrame(()=>setupInfiniteScroll());
-
-}
-
-function setupInfiniteScroll(){
-  if(infiniteScrollObserver){
-    infiniteScrollObserver.disconnect();
-    infiniteScrollObserver=null;
-  }
-
-  const sentinel=grid.querySelector("[data-infinite-scroll]");
-  if(!sentinel)return;
-
-  infiniteScrollObserver=new IntersectionObserver(entries=>{
-    if(!entries.some(entry=>entry.isIntersecting))return;
-    infiniteScrollObserver.disconnect();
-    infiniteScrollObserver=null;
-    loadNextProducts();
-  },{root:null,rootMargin:"1600px 0px",threshold:0});
-
-  infiniteScrollObserver.observe(sentinel);
-}
+// Sin scroll infinito: todas las tarjetas filtradas ya están presentes en el DOM.
 
 grid.onclick=function(event){
 
