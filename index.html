@@ -2061,13 +2061,37 @@ return sortImages(variant?.imagenes)[0]?.url||"";
 
 function applyCatalogScope(list){
   if(CATALOG_SCOPE!=="cc")return Array.isArray(list)?list:[];
+
+  const ccCategoryRank=product=>{
+    const category=normalize(formatCategory(product?.categoria));
+    return category==="botin"?1:category==="bota"?2:99;
+  };
+
+  const ccProviderRank=product=>{
+    const ids=(Array.isArray(product?.variantes)?product.variantes:[])
+      .map(variant=>Number(variant.proveedor_id));
+    if(ids.includes(8))return 1; // Noé
+    if(ids.includes(2))return 2; // Don Valente
+    return 99;
+  };
+
   return (Array.isArray(list)?list:[])
     .map(product=>({
       ...product,
       variantes:(Array.isArray(product?.variantes)?product.variantes:[])
         .filter(variant=>CC_PROVIDER_IDS.has(Number(variant.proveedor_id)))
     }))
-    .filter(product=>product.variantes.length);
+    .filter(product=>{
+      const category=normalize(formatCategory(product?.categoria));
+      return product.variantes.length && (category==="botin" || category==="bota");
+    })
+    .sort((a,b)=>{
+      const providerDiff=ccProviderRank(a)-ccProviderRank(b);
+      if(providerDiff!==0)return providerDiff;
+      const categoryDiff=ccCategoryRank(a)-ccCategoryRank(b);
+      if(categoryDiff!==0)return categoryDiff;
+      return String(a.modelo||"").localeCompare(String(b.modelo||""),undefined,{numeric:true,sensitivity:"base"});
+    });
 }
 
 function productHref(modelo){
@@ -2962,6 +2986,28 @@ const bootModelPosition=product=>{
   const index=orden.findIndex(item=>modelo===item||modelo.startsWith(item+" "));
   return index>=0?index:Number.MAX_SAFE_INTEGER;
 };
+
+// /cc tiene una jerarquía propia e independiente del catálogo principal:
+if(CATALOG_SCOPE==="cc"){
+  const ccProviderRank=product=>{
+    const ids=variants(product).map(variant=>Number(variant.proveedor_id));
+    if(ids.includes(8))return 1; // Noé
+    if(ids.includes(2))return 2; // Don Valente
+    return 99;
+  };
+  const ccCategoryRank=product=>{
+    const category=normalize(formatCategory(product.categoria));
+    return category==="botin"?1:category==="bota"?2:99;
+  };
+  visible.sort((a,b)=>{
+    const providerDiff=ccProviderRank(a)-ccProviderRank(b);
+    if(providerDiff!==0)return providerDiff;
+    const categoryDiff=ccCategoryRank(a)-ccCategoryRank(b);
+    if(categoryDiff!==0)return categoryDiff;
+    return modelCompare(a,b);
+  });
+  return visible;
+}
 
 // Al mostrar TODOS se respeta la jerarquía comercial:
 // Valente Bota/Botín → Noé Bota/Botín → Daniel Bota/Botín → Elena Bota/Botín
