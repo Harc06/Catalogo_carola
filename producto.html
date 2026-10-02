@@ -700,12 +700,19 @@ const params=
 const requestedModel=
   params.get("modelo");
 
+const CATALOG_SCOPE=params.get("catalogo")==="cc"?"cc":"public";
+const CC_PROVIDER_IDS=new Set([2,8]); // Don Valente y Noé
+const catalogHome=CATALOG_SCOPE==="cc"?"/cc":"/";
+
 const productPage=
   document.getElementById("productPage");
 
 const cartLink=
   document.getElementById("cartLink");
 const cartLinkText=document.getElementById("cartLinkText");
+
+document.querySelectorAll(".back,.brand").forEach(link=>link.href=catalogHome);
+cartLink.href=catalogHome+"?carrito=1";
 
 let currentProduct=null;
 let currentVariant=null;
@@ -936,7 +943,7 @@ function animateToCart(){
       Number(v.id)!==Number(currentVariant.id) && Number(v.existencia||0)>=6
     );
     if(!otherAvailableColors.length){
-      window.setTimeout(()=>{ window.location.href="/"; },220);
+      window.setTimeout(()=>{ window.location.href=catalogHome; },220);
     }
   };
 }
@@ -1080,6 +1087,8 @@ async function loadProduct(){
         function(variant){
 
           return(
+            (CATALOG_SCOPE!=="cc" || CC_PROVIDER_IDS.has(Number(variant.proveedor_id)))
+            &&
             Array.isArray(
               variant.imagenes
             )
