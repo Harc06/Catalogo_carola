@@ -1835,8 +1835,10 @@ const OLD_CART_KEY="carola_cart_v1";
 const NAME_KEY="carola_customer_name_v1";
 const LAST_ORDER_KEY="carola_last_order_v1";
 const VIEW_KEY="carola_view_v1";
-const CATALOG_STATE_KEY="carola_catalog_state_v1";
-const CATALOG_CACHE_KEY="carola_catalog_cache_v2";
+const CATALOG_SCOPE=window.location.pathname.replace(/\/+$/,"")==="/cc"?"cc":"public";
+const CC_PROVIDER_IDS=new Set([2,8]); // Don Valente y Noé
+const CATALOG_STATE_KEY="carola_catalog_state_v1_"+CATALOG_SCOPE;
+const CATALOG_CACHE_KEY="carola_catalog_cache_v2_"+CATALOG_SCOPE;
 const CATALOG_CACHE_TTL=30*60*1000;
 // El catálogo se renderiza completo. Con el volumen actual es más estable que
 // paginar tarjetas mediante IntersectionObserver, especialmente en Safari/iPad.
@@ -2038,6 +2040,21 @@ function variantCover(variant){
 
 return sortImages(variant?.imagenes)[0]?.url||"";
 
+}
+
+function applyCatalogScope(list){
+  if(CATALOG_SCOPE!=="cc")return Array.isArray(list)?list:[];
+  return (Array.isArray(list)?list:[])
+    .map(product=>({
+      ...product,
+      variantes:(Array.isArray(product?.variantes)?product.variantes:[])
+        .filter(variant=>CC_PROVIDER_IDS.has(Number(variant.proveedor_id)))
+    }))
+    .filter(product=>product.variantes.length);
+}
+
+function productHref(modelo){
+  return "/producto.html?modelo="+encodeURIComponent(modelo)+(CATALOG_SCOPE==="cc"?"&catalogo=cc":"");
 }
 
 function cover(product){
@@ -2286,7 +2303,7 @@ cart.map((item,index)=>`
 
 <a
 class="cart-product-link"
-href="/producto.html?modelo=${encodeURIComponent(item.modelo)}"
+href="${productHref(item.modelo)}"
 >
 
 ${
@@ -2313,7 +2330,7 @@ alt="Modelo ${escapeAttribute(item.modelo)}"
 
 <a
 class="cart-model"
-href="/producto.html?modelo=${encodeURIComponent(item.modelo)}"
+href="${productHref(item.modelo)}"
 >
 Modelo ${escapeHtml(item.modelo)}
 </a>
@@ -2558,7 +2575,7 @@ async function loadProducts(){
 
 const cachedProducts=readCatalogCache();
 if(cachedProducts){
-  products=cachedProducts;
+  products=applyCatalogScope(cachedProducts);
   renderLoadedProducts();
 }
 
@@ -2579,7 +2596,7 @@ throw new Error("No se pudo cargar el catálogo.");
  * La disponibilidad ahora sale del inventario mayoreo de Supabase.
  * La función /supabase ya devuelve únicamente modelos/colores con existencia > 0.
  */
-products=(
+products=applyCatalogScope(
 Array.isArray(supabaseData.productos)
 ?supabaseData.productos
 :[]
@@ -2982,7 +2999,7 @@ return `
 
 <a
 class="product-link"
-href="/producto.html?modelo=${encodeURIComponent(product.modelo)}"
+href="${productHref(product.modelo)}"
 >
 
 <div class="product-image">
