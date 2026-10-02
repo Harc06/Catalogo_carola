@@ -3154,7 +3154,20 @@ renderProducts();
 
 };
 
-search.oninput=function(){saveCatalogState();renderProducts();};
+let analyticsSearchTimer=null,lastTrackedSearch="";
+search.oninput=function(){
+ saveCatalogState();renderProducts();
+ clearTimeout(analyticsSearchTimer);
+ const term=String(search.value||"").trim();
+ if(term.length<2)return;
+ analyticsSearchTimer=setTimeout(()=>{
+   const normalized=normalize(term);
+   if(normalized&&normalized!==lastTrackedSearch){
+     lastTrackedSearch=normalized;
+     trackCatalog("busqueda",{modelo:term});
+   }
+ },700);
+};
 
 clearSearch.onclick=function(){
 
