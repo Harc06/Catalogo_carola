@@ -2352,7 +2352,8 @@ item.image
 ?`
 <img
 class="cart-thumb"
-src="${escapeAttribute(item.image)}"
+src="${escapeAttribute(carolaImageUrl(item.image,160))}"
+data-original="${escapeAttribute(item.image)}"
 loading="lazy"
 decoding="async"
 width="72"
@@ -3072,7 +3073,10 @@ href="${productHref(product.modelo)}"
 <div class="product-image">
 
 <img
-src="${escapeAttribute(cover(product))}"
+src="${escapeAttribute(carolaImageUrl(cover(product),480))}"
+srcset="${escapeAttribute(carolaImageSet(cover(product),[320,480,800]))}"
+sizes="(max-width: 600px) calc((100vw - 31px)/2), (max-width: 1100px) 25vw, 320px"
+data-original="${escapeAttribute(cover(product))}"
 loading="lazy"
 fetchpriority="low"
 decoding="async"
