@@ -9,6 +9,7 @@ const product=read("producto.html");
 const wholesale=read("catalogo-mayoreo.html");
 const supabase=read("netlify/functions/supabase.js");
 const pedidos=read("netlify/functions/pedidos.js");
+const netlify=read("netlify.toml");
 
 has(home,"/.netlify/functions/","Public catalog must keep its Netlify API integration");
 has(home,"producto.html","Catalog must keep product-detail navigation");
@@ -29,6 +30,9 @@ has(home,'aria-label="Limpiar búsqueda"',"Clear-search control must remain acce
 has(home,'aria-pressed="true"',"Catalog view controls must expose state");
 has(home,"prefers-reduced-motion","Catalog must respect reduced-motion preferences");
 has(product,"prefers-reduced-motion","Product detail must respect reduced-motion preferences");
+has(netlify,'for = "/assets/*"',"Static assets must keep long-lived cache headers");
+has(netlify,'max-age=31536000',"Static assets must keep a one-year browser cache");
+assert((home.match(/window\.addEventListener\(\s*"scroll"/g)||[]).length<=1,"Catalog should not duplicate global scroll listeners");
 
 
 console.log("✓ Public catalog smoke checks passed");
