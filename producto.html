@@ -1223,6 +1223,8 @@ function renderProduct(){
                   :""
               }"
               data-variant="${Number(variant.id)}"
+              aria-pressed="${Number(variant.id)===Number(currentVariant.id)?"true":"false"}"
+              aria-label="Color ${escapeAttribute(formatColor(variant.color))}"
             >
               ${escapeHtml(
                 formatColor(variant.color)
@@ -1262,7 +1264,7 @@ function renderProduct(){
 
         ${images.length>1?`<button class="gallery-arrow gallery-prev" type="button" aria-label="Fotografía anterior">‹</button><button class="gallery-arrow gallery-next" type="button" aria-label="Fotografía siguiente">›</button>`:""}
 
-        <div class="image-counter" id="imageCounter">1 / ${images.length}</div>
+        <div class="image-counter" id="imageCounter" aria-live="polite">1 / ${images.length}</div>
 
         <div class="image-color">
           ${escapeHtml(formattedColor)}
@@ -1292,7 +1294,7 @@ function renderProduct(){
           :""
       }
 
-      <span class="available">
+      <span class="available" aria-live="polite">
         Disponible: ${Number(currentVariant?.existencia||0)} pares
       </span>
 
@@ -1336,7 +1338,7 @@ function renderProduct(){
           </button>
 
           <div class="quantity-value">
-            <strong id="quantityValue">
+            <strong id="quantityValue" aria-live="polite">
               ${quantity}
             </strong>
             <span>pares</span>
@@ -1358,6 +1360,7 @@ function renderProduct(){
         id="addCartButton"
         class="add-cart"
         type="button"
+        aria-label="Agregar ${quantity} pares del modelo ${escapeAttribute(currentProduct.modelo)} color ${escapeAttribute(formattedColor)} al pedido"
       >
         Agregar ${quantity} pares al pedido
       </button>
