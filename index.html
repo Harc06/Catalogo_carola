@@ -3244,9 +3244,11 @@ renderProducts();
 
 };
 
-let analyticsSearchTimer=null,lastTrackedSearch="";
+let analyticsSearchTimer=null,lastTrackedSearch="",searchRenderFrame=0;
 search.oninput=function(){
- saveCatalogState();renderProducts();
+ saveCatalogState();
+ if(searchRenderFrame)cancelAnimationFrame(searchRenderFrame);
+ searchRenderFrame=requestAnimationFrame(()=>{searchRenderFrame=0;renderProducts();});
  clearTimeout(analyticsSearchTimer);
  const term=String(search.value||"").trim();
  if(term.length<2)return;
