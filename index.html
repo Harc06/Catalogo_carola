@@ -3613,32 +3613,8 @@ return escapeHtml(value);
    BOTONES FLOTANTES
 ========================= */
 
-mobileCart.onclick=
-openCart;
+mobileCart.onclick=openCart;
 
-backTop.onclick=function(){
-
-window.scrollTo({
-top:0,
-behavior:"smooth"
-});
-
-};
-
-window.addEventListener(
-"scroll",
-function(){
-
-backTop.classList.toggle(
-"show",
-window.scrollY>500
-);
-
-},
-{
-passive:true
-}
-);
 /* =========================
    INICIAR
 ========================= */
