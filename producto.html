@@ -1542,11 +1542,15 @@ function updateQuantity(){
   }
 
   if(button){
-
     button.textContent=
       "Agregar "+
       quantity+
       " pares al pedido";
+    button.setAttribute(
+      "aria-label",
+      "Agregar "+quantity+" pares del modelo "+currentProduct.modelo+
+      " color "+formatColor(currentVariant.color)+" al pedido"
+    );
   }
 }
 
