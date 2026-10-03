@@ -24,6 +24,11 @@ has(home,'trackCatalog("agregar"',"Catalog must track add-to-order actions");
 has(home,'trackCatalog("carrito")',"Catalog must track cart opens");
 has(home,'trackCatalog("whatsapp"',"Catalog must track WhatsApp handoff");
 has(home,'trackCatalog("busqueda"',"Catalog must track meaningful searches");
+has(home,'aria-label="Buscar modelos, categorías o colores"',"Catalog search must remain accessible");
+has(home,'aria-label="Limpiar búsqueda"',"Clear-search control must remain accessible");
+has(home,'aria-pressed="true"',"Catalog view controls must expose state");
+has(home,"prefers-reduced-motion","Catalog must respect reduced-motion preferences");
+has(product,"prefers-reduced-motion","Product detail must respect reduced-motion preferences");
 
 
 console.log("✓ Public catalog smoke checks passed");
