@@ -30,6 +30,11 @@ has(home,'aria-label="Limpiar búsqueda"',"Clear-search control must remain acce
 has(home,'aria-pressed="true"',"Catalog view controls must expose state");
 has(home,"prefers-reduced-motion","Catalog must respect reduced-motion preferences");
 has(product,"prefers-reduced-motion","Product detail must respect reduced-motion preferences");
+has(home,'role="dialog" aria-modal="true" aria-labelledby="cartTitle"',"Cart must expose dialog semantics");
+has(home,'aria-label="Cerrar pedido"',"Cart close control must remain accessible");
+has(home,'role="status" aria-live="polite"',"Catalog feedback must remain accessible");
+has(product,'aria-label="Compartir este modelo"',"Product sharing must remain accessible");
+has(product,'role="status" aria-live="polite"',"Product feedback must remain accessible");
 has(netlify,'for = "/assets/*"',"Static assets must keep long-lived cache headers");
 has(netlify,'max-age=31536000',"Static assets must keep a one-year browser cache");
 assert((home.match(/window\.addEventListener\(\s*"scroll"/g)||[]).length<=1,"Catalog should not duplicate global scroll listeners");
