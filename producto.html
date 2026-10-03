@@ -728,6 +728,10 @@ const cartLinkText=document.getElementById("cartLinkText");
 
 document.querySelectorAll(".back,.brand").forEach(link=>link.href=catalogHome);
 cartLink.href=catalogHome+"?carrito=1";
+cartLink.addEventListener("click",function(event){
+  event.preventDefault();
+  window.location.assign(cartLink.href);
+});
 
 let currentProduct=null;
 let currentVariant=null;
