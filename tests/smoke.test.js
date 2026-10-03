@@ -36,7 +36,9 @@ has(home,'role="status" aria-live="polite"',"Catalog feedback must remain access
 has(product,'aria-label="Compartir este modelo"',"Product sharing must remain accessible");
 has(product,'role="status" aria-live="polite"',"Product feedback must remain accessible");
 has(netlify,'for = "/assets/*"',"Static assets must keep long-lived cache headers");
-has(netlify,'max-age=31536000',"Static assets must keep a one-year browser cache");
+has(netlify,'max-age=604800',"Static assets must keep a safe browser cache");
+has(netlify,'stale-while-revalidate=86400',"Static assets should revalidate without blocking repeat visits");
+assert(!netlify.includes('max-age=31536000, immutable'),"Unversioned catalog assets must not be cached immutably for one year");
 assert((home.match(/window\.addEventListener\(\s*"scroll"/g)||[]).length<=1,"Catalog should not duplicate global scroll listeners");
 
 
