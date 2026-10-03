@@ -696,7 +696,7 @@ h1{
 
 </main>
 
-<div id="toast" class="toast">
+<div id="toast" class="toast" role="status" aria-live="polite">
   ✓ Agregado al pedido
 </div>
 
@@ -1389,7 +1389,7 @@ function renderProduct(){
         Puedes combinar diferentes modelos y colores en tu pedido.
       </div>
 
-      <div class="product-actions"><button id="shareProduct" class="share" type="button">Compartir</button><a class="ask-whatsapp" target="_blank" rel="noopener" href="https://wa.me/524775971996?text=${encodeURIComponent(`Hola, me interesa el modelo ${currentProduct.modelo} en color ${formattedColor}`)}">Preguntar por WhatsApp</a></div>
+      <div class="product-actions"><button id="shareProduct" class="share" type="button" aria-label="Compartir este modelo">Compartir</button><a class="ask-whatsapp" target="_blank" rel="noopener" aria-label="Preguntar por este modelo en WhatsApp" href="https://wa.me/524775971996?text=${encodeURIComponent(`Hola, me interesa el modelo ${currentProduct.modelo} en color ${formattedColor}`)}">Preguntar por WhatsApp</a></div>
 
       <a href="/" class="continue">
         ← Seguir viendo modelos
