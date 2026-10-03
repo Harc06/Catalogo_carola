@@ -11,6 +11,11 @@
 <meta property="og:type" content="product">
 <meta property="og:locale" content="es_MX">
 <meta property="og:site_name" content="Calzado Carola">
+<meta property="og:title" content="Modelo de Calzado de Mayoreo | Calzado Carola">
+<meta property="og:description" content="Consulta colores y disponibilidad de este modelo de Calzado Carola.">
+<meta property="og:url" content="https://calzadocarola.com/producto.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://calzadocarola.com/producto.html">
 
 <style>
 :root{
@@ -1141,6 +1146,17 @@ async function loadProduct(){
       " de "+formatCategory(currentProduct.categoria)+
       " de mayoreo en Calzado Carola. Consulta colores y disponibilidad con envíos a todo México.";
     document.querySelector('meta[name="description"]')?.setAttribute("content",productDescription);
+    document.querySelector('meta[property="og:title"]')?.setAttribute("content",document.title);
+    document.querySelector('meta[property="og:description"]')?.setAttribute("content",productDescription);
+    const productUrl="https://calzadocarola.com/producto.html?modelo="+encodeURIComponent(currentProduct.modelo);
+    document.querySelector('link[rel="canonical"]')?.setAttribute("href",productUrl);
+    document.querySelector('meta[property="og:url"]')?.setAttribute("content",productUrl);
+    const socialImage=sortImages(currentProduct.variantes[0]?.imagenes)[0]?.url;
+    if(socialImage){
+      let ogImage=document.querySelector('meta[property="og:image"]');
+      if(!ogImage){ogImage=document.createElement("meta");ogImage.setAttribute("property","og:image");document.head.appendChild(ogImage);}
+      ogImage.setAttribute("content",socialImage);
+    }
 
     renderProduct();
     history.replaceState({},document.title,location.pathname+"?modelo="+encodeURIComponent(currentProduct.modelo)+"&color="+encodeURIComponent(currentVariant.color));
