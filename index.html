@@ -3253,12 +3253,13 @@ document
 .querySelectorAll(
 ".category-filter"
 )
-.forEach(
-item=>
-item.classList.remove("active")
-);
+.forEach(item=>{
+item.classList.remove("active");
+item.setAttribute("aria-pressed","false");
+});
 
 button.classList.add("active");
+button.setAttribute("aria-pressed","true");
 
 renderProducts();
 
@@ -3277,12 +3278,13 @@ saveCatalogState();
 
 document
 .querySelectorAll(".filter")
-.forEach(
-item=>
-item.classList.remove("active")
-);
+.forEach(item=>{
+item.classList.remove("active");
+item.setAttribute("aria-pressed","false");
+});
 
 button.classList.add("active");
+button.setAttribute("aria-pressed","true");
 
 renderProducts();
 
