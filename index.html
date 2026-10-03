@@ -1681,6 +1681,8 @@ arma tu pedido y envíalo directamente por WhatsApp.
 id="mobileCart"
 class="mobile-cart"
 type="button"
+aria-label="Ver pedido"
+aria-controls="cart"
 >
 
 <span class="mobile-cart-label">
@@ -1718,14 +1720,14 @@ aria-label="Volver arriba"
 
 <!-- CARRITO -->
 
-<aside id="cart" class="cart">
+<aside id="cart" class="cart" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
 
 <div class="cart-header">
 
 <div class="cart-header-row">
 
 <div>
-<h2>Tu pedido</h2>
+<h2 id="cartTitle">Tu pedido</h2>
 
 <div class="cart-subtitle">
 Revisa modelos, colores y cantidades
@@ -1736,6 +1738,7 @@ Revisa modelos, colores y cantidades
 id="closeCart"
 class="icon-btn"
 type="button"
+aria-label="Cerrar pedido"
 >
 ×
 </button>
@@ -1826,7 +1829,7 @@ Vaciar pedido
 
 <!-- COMPRA RÁPIDA -->
 
-<section id="sheet" class="sheet">
+<section id="sheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
 
 <div class="sheet-handle"></div>
 
@@ -1838,11 +1841,11 @@ Vaciar pedido
 
 <div class="qty">
 
-<button id="sheetMinus" type="button">−</button>
+<button id="sheetMinus" type="button" aria-label="Restar 6 pares">−</button>
 
-<strong id="sheetQty">6</strong>
+<strong id="sheetQty" aria-live="polite">6</strong>
 
-<button id="sheetPlus" type="button">+</button>
+<button id="sheetPlus" type="button" aria-label="Agregar 6 pares">+</button>
 
 </div>
 
@@ -1858,7 +1861,7 @@ Agregar 6 pares
 
 </section>
 
-<div id="toast" class="toast">
+<div id="toast" class="toast" role="status" aria-live="polite">
 ✓ Agregado al pedido
 </div>
 
