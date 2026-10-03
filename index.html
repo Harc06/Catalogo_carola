@@ -3634,7 +3634,7 @@ loadProducts();
 </style>
 <button id="backToTop" type="button" aria-label="Volver arriba" title="Volver arriba">↑</button>
 <script>
-(()=>{const b=document.getElementById("backToTop");if(!b)return;const sync=()=>b.classList.toggle("show",window.scrollY>450);window.addEventListener("scroll",sync,{passive:true});sync();b.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}))})();
+(()=>{const b=document.getElementById("backToTop");if(!b)return;const sync=()=>b.classList.toggle("show",window.scrollY>450);window.addEventListener("scroll",sync,{passive:true});sync();b.addEventListener("click",()=>window.scrollTo({top:0,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}))})();
 </script>
 </body>
 </html>
