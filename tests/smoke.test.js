@@ -16,5 +16,14 @@ has(product,"/.netlify/functions/","Product detail must keep its Netlify API int
 has(wholesale,"catalogo","Wholesale entry page must keep catalog navigation/content");
 assert(/exports\.handler\s*=/.test(supabase),"Catalog Supabase function must export a handler");
 assert(/exports\.handler\s*=/.test(pedidos),"Orders function must export a handler");
+const analytics=read("netlify/functions/analytics.js");
+has(analytics,'"busqueda"',"Analytics backend must accept search events");
+has(home,'trackCatalog("visita")',"Catalog must track visits");
+has(home,'trackCatalog("modelo"',"Catalog must track model views");
+has(home,'trackCatalog("agregar"',"Catalog must track add-to-order actions");
+has(home,'trackCatalog("carrito")',"Catalog must track cart opens");
+has(home,'trackCatalog("whatsapp"',"Catalog must track WhatsApp handoff");
+has(home,'trackCatalog("busqueda"',"Catalog must track meaningful searches");
+
 
 console.log("✓ Public catalog smoke checks passed");
