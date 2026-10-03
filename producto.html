@@ -1115,7 +1115,13 @@ async function loadProduct(){
     document.title=
       "Modelo "+
       currentProduct.modelo+
-      " | CAROLA";
+      " | Calzado Carola";
+
+    const productDescription=
+      "Modelo "+currentProduct.modelo+
+      " de "+formatCategory(currentProduct.categoria)+
+      " de mayoreo en Calzado Carola. Consulta colores y disponibilidad con envíos a todo México.";
+    document.querySelector('meta[name="description"]')?.setAttribute("content",productDescription);
 
     renderProduct();
     history.replaceState({},document.title,location.pathname+"?modelo="+encodeURIComponent(currentProduct.modelo)+"&color="+encodeURIComponent(currentVariant.color));
