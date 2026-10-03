@@ -1411,7 +1411,11 @@ function changeGalleryImage(step){
   const counter=document.getElementById("imageCounter");if(counter)counter.textContent=(currentImageIndex+1)+" / "+images.length;
   const next=images[(currentImageIndex+1)%images.length];if(next){const preload=new Image();preload.src=carolaImageUrl(next.url,800);}
   const active=document.querySelector(".thumbnail.active");
-  if(active)active.scrollIntoView({behavior:"smooth",block:"nearest",inline:"nearest"});
+  if(active)active.scrollIntoView({
+    behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",
+    block:"nearest",
+    inline:"nearest"
+  });
 }
 
 productPage.addEventListener("touchstart",function(event){
