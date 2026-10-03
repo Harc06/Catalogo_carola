@@ -2353,6 +2353,10 @@ item.image
 <img
 class="cart-thumb"
 src="${escapeAttribute(item.image)}"
+loading="lazy"
+decoding="async"
+width="72"
+height="88"
 alt="Modelo ${escapeAttribute(item.modelo)}"
 >
 `
@@ -3072,6 +3076,8 @@ src="${escapeAttribute(cover(product))}"
 loading="lazy"
 fetchpriority="low"
 decoding="async"
+width="480"
+height="600"
 alt="Calzado Carola modelo ${escapeAttribute(product.modelo)} ${escapeAttribute(category||"calzado de mayoreo")}"
 >
 
