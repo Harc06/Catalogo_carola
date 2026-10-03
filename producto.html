@@ -48,6 +48,21 @@ a{
   -webkit-tap-highlight-color:transparent;
 }
 
+button:focus-visible,
+a:focus-visible{
+  outline:3px solid rgba(23,23,23,.28);
+  outline-offset:3px;
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
+
 /* HEADER */
 
 .header{
