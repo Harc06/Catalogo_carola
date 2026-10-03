@@ -2617,6 +2617,18 @@ function writeCatalogCache(productos){
   }catch{}
 }
 
+function catalogRenderSignature(items){
+  try{
+    return JSON.stringify((items||[]).map(product=>[
+      product.id,product.modelo,product.categoria,product.proveedor_orden,
+      variants(product).map(variant=>[
+        variant.id,variant.color,Number(variant.existencia||0),
+        (variant.imagenes||[]).map(image=>[image.id,image.url,image.orden])
+      ])
+    ]));
+  }catch{return "";}
+}
+
 async function loadProducts(){
 
 const cachedProducts=readCatalogCache();
@@ -2687,8 +2699,12 @@ Array.isArray(supabaseData.productos)
   return String(a.modelo).localeCompare(String(b.modelo),undefined,{numeric:true,sensitivity:"base"});
 });
 
+const freshSignature=catalogRenderSignature(products);
+const cachedSignature=cachedProducts?catalogRenderSignature(applyCatalogScope(cachedProducts)):"";
 writeCatalogCache(products);
-renderLoadedProducts();
+if(!cachedProducts || freshSignature!==cachedSignature){
+  renderLoadedProducts();
+}
 
 await repairCartImages();
 
