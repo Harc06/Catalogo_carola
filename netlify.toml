@@ -34,3 +34,14 @@
 
 [images]
   remote_images = ['https://gfkjdpuhbxfwajbkzfap\\.supabase\\.co/storage/v1/object/public/Productos/.*']
+
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
