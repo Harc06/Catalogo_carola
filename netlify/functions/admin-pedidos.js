@@ -74,6 +74,9 @@ exports.handler=async function(event){
     if(!Number.isInteger(pedidoId)||pedidoId<=0) return response(400,{success:false,error:"Pedido inválido"});
 
     if(action==="save-note"){
+      const {data:orderState,error:stateError}=await supabase.from("pedidos").select("estado").eq("id",pedidoId).single();
+      if(stateError)throw stateError;
+      if(orderState.estado==="Enviado")return response(409,{success:false,error:"El pedido ya fue enviado; no se puede modificar su nota."});
       const cliente=cleanText(body.cliente);
       const fecha=String(body.fecha||"").trim();
       const items=Array.isArray(body.items)?body.items:[];
@@ -130,7 +133,7 @@ exports.handler=async function(event){
         nota_total:total,
         nota_guardada:true,
         nota_actualizada_en:new Date().toISOString(),
-        estado:"Confirmado",
+        estado:orderState.estado==="Apartado"?"Apartado":"Confirmado",
         total_pares:totalPares
       };
 
