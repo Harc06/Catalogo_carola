@@ -40,7 +40,23 @@ exports.handler=async event=>{
   }
   if(action==="add-provider"){
    const nombre=String(b.nombre||"").trim();if(!nombre)return res(400,{success:false,error:"Nombre requerido"});
-   const {data,error}=await supabase.from("clientes_deuda").insert({nombre}).select().single();if(error)throw error;return res(200,{success:true,cliente:data});
+   const {data:existing,error:lookupError}=await supabase.from("clientes_deuda").select("id,nombre,activo").ilike("nombre",nombre).limit(1);
+   if(lookupError)throw lookupError;
+   if(existing?.length){
+    const cliente=existing[0];
+    if(!cliente.activo){const {data:restored,error:restoreError}=await supabase.from("clientes_deuda").update({activo:true}).eq("id",cliente.id).select().single();if(restoreError)throw restoreError;return res(200,{success:true,cliente:restored,existing:true});}
+    return res(200,{success:true,cliente,existing:true});
+   }
+   const {data,error}=await supabase.from("clientes_deuda").insert({nombre}).select().single();
+   if(error){
+    if(error.code==="23505"){
+     const {data:matched,error:matchError}=await supabase.from("clientes_deuda").select("id,nombre,activo").ilike("nombre",nombre).limit(1);
+     if(matchError)throw matchError;
+     if(matched?.length){const cliente=matched[0];if(!cliente.activo){const {data:restored,error:restoreError}=await supabase.from("clientes_deuda").update({activo:true}).eq("id",cliente.id).select().single();if(restoreError)throw restoreError;return res(200,{success:true,cliente:restored,existing:true});}return res(200,{success:true,cliente,existing:true});}
+    }
+    throw error;
+   }
+   return res(200,{success:true,cliente:data,existing:false});
   }
   if(action==="update-provider"){const id=Number(b.id),nombre=String(b.nombre||"").trim();if(!Number.isInteger(id)||id<1||!nombre)return res(400,{success:false,error:"Datos inválidos"});const {data,error}=await supabase.from("clientes_deuda").update({nombre}).eq("id",id).eq("activo",true).select().single();if(error)throw error;return res(200,{success:true,registro:data});}
   if(action==="delete-provider"){const id=Number(b.id);if(!Number.isInteger(id)||id<1)return res(400,{success:false,error:"Cliente inválido"});const {data,error}=await supabase.from("clientes_deuda").update({activo:false}).eq("id",id).select().single();if(error)throw error;return res(200,{success:true,registro:data});}
