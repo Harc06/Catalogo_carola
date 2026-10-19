@@ -1820,7 +1820,7 @@ function renderOrders(){
         <div>
           <div class="order-folio">${escapeHtml(order.folio)}</div>
           <div class="order-client">${escapeHtml(order.nota_cliente||order.cliente)}</div>
-          ${/^\d{10}$/.test(String(order.telefono||""))?`<div class="order-date">Tel. ${escapeHtml(order.telefono)} · <a href="https://wa.me/52${order.telefono}" target="_blank" rel="noopener noreferrer">WhatsApp ↗</a></div>`:""}
+          ${String(order.telefono||"").trim()?`<div class="order-date" style="margin-top:6px;font-weight:600">WhatsApp: <a href="https://wa.me/52${escapeAttribute(String(order.telefono).replace(/\D/g,""))}" target="_blank" rel="noopener noreferrer" style="color:#128c7e;text-decoration:underline">${escapeHtml(order.telefono)} ↗</a></div>`:""}
           <div class="order-date">${escapeHtml(order.nota_fecha||formatDate(order.creado_en))}</div>
           ${order.nota_guardada?'<div class="note-badge">NOTA GUARDADA · '+escapeHtml(money(order.nota_total))+'</div>':""}
           ${String(order.estado||"")==="Enviado"?'<div class="note-badge order-complete-badge">✓ PEDIDO COMPLETADO</div><div class="note-badge order-complete-badge">GANANCIA · '+escapeHtml(money(order.ganancia_pedido||0))+'</div>':""}
