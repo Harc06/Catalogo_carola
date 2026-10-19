@@ -1801,6 +1801,8 @@ class="name-input"
 placeholder="Ej. María Rodríguez"
 autocomplete="name"
 >
+<label for="customerPhone" class="customer-label">Número de teléfono (10 dígitos)</label>
+<input id="customerPhone" class="name-input" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="Ej. 4771234567" required>
 
 <button
 id="sendOrder"
@@ -2167,7 +2169,7 @@ else grouped.set(key,{modelo,color,cantidad});
 return [...grouped.values()].sort((a,b)=>a.modelo.localeCompare(b.modelo)||a.color.localeCompare(b.color));
 }
 
-function buildOrderFingerprint(name,items){
+function buildOrderFingerprint(name+"|"+phone,items){
 return JSON.stringify({cliente:normalizeModel(name),items:checkoutItems(items)});
 }
 
@@ -3477,7 +3479,8 @@ const extrasTotal=cart.reduce((sum,item)=>sum+Number(item.adicionales||0),0);
 
 let message="PEDIDO CAROLA\n\n"+
 "Folio: "+pedido.folio+"\n\n"+
-"Cliente: "+pedido.cliente+"\n\n"+
+"Cliente: "+pedido.cliente+"\n"+
+"Teléfono: "+(pedido.telefono||customerPhone.value.trim())+"\n\n"+
 "EXISTENCIAS DISPONIBLES\n"+
 availableLines.join("\n")+"\n\n"+
 "Total disponible: "+pedido.total_pares+" pares";
@@ -3510,6 +3513,8 @@ document.getElementById("sendOrder").onclick=async function(){
 if(sendingOrder)return;
 const name=customerName.value.trim().replace(/\s+/g," ");
 if(!name){alert("Escribe el nombre del cliente.");customerName.focus();return;}
+const phone=customerPhone.value.replace(/\D/g,"");
+if(!/^\d{10}$/.test(phone)){alert("Escribe un número de teléfono de 10 dígitos.");customerPhone.focus();return;}
 if(!cart.length){alert("Tu pedido está vacío.");return;}
 const button=document.getElementById("sendOrder");
 const originalText=button.textContent;
@@ -3525,7 +3530,7 @@ button.textContent="Verificando y guardando pedido...";
 // Stock, grouping, idempotency, header and details are handled in one transaction.
 const response=await fetch("/.netlify/functions/pedidos",{
 method:"POST",headers:{"Content-Type":"application/json"},
-body:JSON.stringify({cliente:name,items,request_id:attempt.requestId})
+body:JSON.stringify({cliente:name,telefono:phone,items,request_id:attempt.requestId})
 });
 const data=await response.json();
 if(!response.ok || !data.success || !data.pedido?.folio || !Array.isArray(data.pedido.items)){
