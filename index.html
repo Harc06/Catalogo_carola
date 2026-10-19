@@ -3525,7 +3525,7 @@ button.disabled=true;
 try{
 // Immutable payload: subsequent UI changes cannot alter the saved order/message.
 const items=checkoutItems(cart);
-const attempt=getCheckoutAttempt(buildOrderFingerprint(name,items));
+const attempt=getCheckoutAttempt(buildOrderFingerprint(name+"|"+phone,items));
 button.textContent="Verificando y guardando pedido...";
 // Stock, grouping, idempotency, header and details are handled in one transaction.
 const response=await fetch("/.netlify/functions/pedidos",{
