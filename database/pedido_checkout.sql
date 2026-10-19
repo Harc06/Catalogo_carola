@@ -1,4 +1,5 @@
 -- Atomic checkout. Only the Netlify service-role client may call these functions.
+alter table public.pedidos add column if not exists telefono text;
 create table if not exists public.pedido_envios (
   request_id uuid primary key,
   fingerprint text not null,
@@ -28,11 +29,12 @@ as $$ select lower(regexp_replace(regexp_replace(normalize(btrim(value), NFD), U
 revoke all on function public.pedido_normalize(text) from public, anon, authenticated;
 grant execute on function public.pedido_normalize(text) to service_role;
 
-create or replace function public.crear_pedido_catalogo(p_cliente text, p_items jsonb, p_request_id uuid)
+create or replace function public.crear_pedido_catalogo(p_cliente text, p_items jsonb, p_request_id uuid, p_telefono text default null)
 returns jsonb language plpgsql security invoker set search_path = '' as $$
 <<checkout>>
 declare
   customer text := regexp_replace(btrim(p_cliente), '\s+', ' ', 'g');
+  phone text := regexp_replace(coalesce(p_telefono,''), '[^0-9]', '', 'g');
   line jsonb;
   lines jsonb;
   canonical jsonb := '[]'::jsonb;
@@ -48,6 +50,9 @@ declare
 begin
   if p_request_id is null or customer is null or length(customer) not between 1 and 120 then
     raise exception using errcode='P0001', message='Nombre de cliente inválido.';
+  end if;
+  if length(phone) <> 10 then
+    raise exception using errcode='P0001', message='Escribe un teléfono mexicano de 10 dígitos.';
   end if;
   if jsonb_typeof(p_items) is distinct from 'array' then
     raise exception using errcode='P0001', message='Pedido inválido.';
@@ -75,7 +80,7 @@ begin
              sum((value->>'cantidad')::numeric) cantidad
       from jsonb_array_elements(p_items) group by 1,2
     ) grouped;
-  fingerprint := encode(sha256(convert_to(jsonb_build_object('cliente',public.pedido_normalize(customer),'items',lines)::text,'UTF8')),'hex');
+  fingerprint := encode(sha256(convert_to(jsonb_build_object('cliente',public.pedido_normalize(customer),'telefono',phone,'items',lines)::text,'UTF8')),'hex');
   -- Serialize retries and simultaneous submissions before looking up their result.
   perform pg_advisory_xact_lock(hashtextextended(p_request_id::text, 0));
   select * into existing from public.pedido_envios where request_id=p_request_id;
@@ -124,17 +129,17 @@ begin
   update public.pedido_folio_contador set ultimo=ultimo+1 where id=true
     returning ultimo into folio_numero;
   if folio_numero is null then raise exception 'No está configurado el contador de folios'; end if;
-  insert into public.pedidos(folio,cliente,total_pares,estado)
-    values(lpad(folio_numero::text,greatest(4,length(folio_numero::text)),'0'),customer,total::integer,'Nuevo')
+  insert into public.pedidos(folio,cliente,telefono,total_pares,estado)
+    values(lpad(folio_numero::text,greatest(4,length(folio_numero::text)),'0'),customer,phone,total::integer,'Nuevo')
     returning * into saved;
   insert into public.pedido_detalles(pedido_id,modelo,color,cantidad)
     select saved.id,value->>'modelo',value->>'color',(value->>'cantidad')::integer
     from jsonb_array_elements(canonical);
-  result := jsonb_build_object('id',saved.id,'folio',saved.folio,'cliente',saved.cliente,'total_pares',saved.total_pares,'estado',saved.estado,'creado_en',saved.creado_en,'items',canonical);
+  result := jsonb_build_object('id',saved.id,'folio',saved.folio,'cliente',saved.cliente,'telefono',saved.telefono,'total_pares',saved.total_pares,'estado',saved.estado,'creado_en',saved.creado_en,'items',canonical);
   insert into public.pedido_envios(request_id,fingerprint,respuesta) values(p_request_id,fingerprint,result);
   return result;
 end;
 $$;
-revoke all on function public.crear_pedido_catalogo(text,jsonb,uuid) from public, anon, authenticated;
-grant execute on function public.crear_pedido_catalogo(text,jsonb,uuid) to service_role;
+revoke all on function public.crear_pedido_catalogo(text,jsonb,uuid,text) from public, anon, authenticated;
+grant execute on function public.crear_pedido_catalogo(text,jsonb,uuid,text) to service_role;
 notify pgrst, 'reload schema';
