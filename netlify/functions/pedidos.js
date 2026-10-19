@@ -11,6 +11,8 @@ exports.handler = async function(event) {
   if (!body || typeof body.cliente !== "string" || !Array.isArray(body.items)) {
     return reply(400, { success: false, error: "Datos inválidos" });
   }
+  const phone = String(body.telefono || "").replace(/\D/g, "");
+  if (!/^\d{10}$/.test(phone)) return reply(400, { success: false, error: "Escribe un teléfono de 10 dígitos." });
   // Old cached clients still work; the database also deduplicates by canonical content.
   const requestId = body.request_id || randomUUID();
   if (typeof requestId !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) {
@@ -21,7 +23,7 @@ exports.handler = async function(event) {
       auth: { persistSession: false, autoRefreshToken: false }
     });
     const { data, error } = await supabase.rpc("crear_pedido_catalogo", {
-      p_cliente: body.cliente, p_items: body.items, p_request_id: requestId
+      p_cliente: body.cliente, p_items: body.items, p_request_id: requestId, p_telefono: phone
     });
     if (error) {
       if (error.code === "P0001") return reply(409, { success: false, error: error.message });
