@@ -23,7 +23,7 @@ function cleanText(value,max=120){
 }
 
 const SELECT_ORDER = `
-  id, folio, cliente, total_pares, estado, creado_en, actualizado_en, fecha_envio, ganancia_pedido,
+  id, folio, cliente, telefono, total_pares, estado, creado_en, actualizado_en, fecha_envio, ganancia_pedido,
   nota_cliente, nota_fecha, nota_total, nota_guardada, nota_actualizada_en,
   pedido_detalles (
     id, modelo, color, cantidad, precio_unitario, importe
