@@ -2169,7 +2169,7 @@ else grouped.set(key,{modelo,color,cantidad});
 return [...grouped.values()].sort((a,b)=>a.modelo.localeCompare(b.modelo)||a.color.localeCompare(b.color));
 }
 
-function buildOrderFingerprint(name+"|"+phone,items){
+function buildOrderFingerprint(name,items){
 return JSON.stringify({cliente:normalizeModel(name),items:checkoutItems(items)});
 }
 
