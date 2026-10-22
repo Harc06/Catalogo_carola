@@ -8,7 +8,7 @@ exports.handler = async function(event) {
   let body;
   try { body = JSON.parse(event.body || "{}"); }
   catch { return reply(400, { success: false, error: "Datos inválidos" }); }
-  if (!body || typeof body.cliente !== "string" || !Array.isArray(body.items)) {
+  if (!body || typeof body.cliente !== "string" || !body.cliente.trim() || body.cliente.trim().length > 120 || !Array.isArray(body.items)) {
     return reply(400, { success: false, error: "Datos inválidos" });
   }
   const phone = String(body.telefono || "").replace(/\D/g, "");
@@ -29,7 +29,7 @@ exports.handler = async function(event) {
       if (error.code === "P0001") return reply(409, { success: false, error: error.message });
       throw error;
     }
-    if (!data?.folio || !Array.isArray(data.items)) throw new Error("Respuesta de pedido inválida");
+    if (!data?.folio || !Array.isArray(data.items) || !/^\d{10}$/.test(String(data.telefono || ""))) throw new Error("Respuesta de pedido sin teléfono válido");
     return reply(200, { success: true, pedido: data });
   } catch (error) {
     console.error("PEDIDOS ERROR:", error);
