@@ -1498,7 +1498,7 @@ Compra a partir de <strong>6 pares del mismo modelo y color</strong>. Puedes com
   <span class="hero-step"><strong>2</strong> Selecciona el color y la cantidad que deseas. El mínimo es de 6 pares por cada modelo y color.</span>
   <span class="hero-step"><strong>3</strong> Pulsa “Agregar” para añadirlo a tu pedido. Puedes seguir eligiendo otros modelos, colores y cantidades.</span>
   <span class="hero-step"><strong>4</strong> Cuando termines, abre “Pedido” para revisar todo lo que agregaste antes de enviarlo.</span>
-  <span class="hero-step"><strong>5</strong> Escribe tu nombre y pulsa “Enviar pedido”. Se abrirá WhatsApp con el resumen completo de tu selección.</span>
+  <span class="hero-step"><strong>5</strong> Escribe tu nombre y número de teléfono de 10 dígitos. Después pulsa “Continuar por WhatsApp” para enviar tu pedido.</span>
 </div>
 
 <p style="margin-top:12px">
@@ -1800,6 +1800,7 @@ id="customerName"
 class="name-input"
 placeholder="Ej. María Rodríguez"
 autocomplete="name"
+required maxlength="120"
 >
 <label for="customerPhone" class="customer-label">Número de teléfono (10 dígitos)</label>
 <input id="customerPhone" class="name-input" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="Ej. 4771234567" required>
@@ -3533,8 +3534,8 @@ method:"POST",headers:{"Content-Type":"application/json"},
 body:JSON.stringify({cliente:name,telefono:phone,items,request_id:attempt.requestId})
 });
 const data=await response.json();
-if(!response.ok || !data.success || !data.pedido?.folio || !Array.isArray(data.pedido.items)){
-throw new Error(data.error||"No se pudo confirmar el pedido. Vuelve a intentarlo.");
+if(!response.ok || !data.success || !data.pedido?.folio || !Array.isArray(data.pedido.items) || !/^\d{10}$/.test(String(data.pedido.telefono||""))){
+throw new Error(data.error||"No se pudo confirmar el pedido con teléfono válido. Vuelve a intentarlo.");
 }
 attempt.confirmedAt=attempt.confirmedAt||Date.now();
 persistCheckoutAttempt();
