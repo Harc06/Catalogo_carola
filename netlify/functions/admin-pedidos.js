@@ -163,6 +163,20 @@ exports.handler=async function(event){
       return response(200,{success:true,pedido:data,already_sent:Boolean(atomic?.already_sent)});
     }
 
+    if(action==="update-sent-date"){
+      const newDate=cleanText(body.fecha_envio,10);
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(newDate)||!Number.isFinite(Date.parse(newDate+"T00:00:00Z"))||new Date(newDate+"T00:00:00Z").toISOString().slice(0,10)!==newDate){
+        return response(400,{success:false,error:"Fecha de envío inválida"});
+      }
+      const {data:updated,error:updateError}=await supabase.rpc("editar_fecha_pedido_enviado",{
+        p_pedido_id:pedidoId,p_nueva_fecha:newDate
+      });
+      if(updateError)throw updateError;
+      const {data,error}=await supabase.from("pedidos").select(SELECT_ORDER).eq("id",pedidoId).single();
+      if(error)throw error;
+      return response(200,{success:true,pedido:data,cambio:updated});
+    }
+
     if(action==="change-status"){
       const estado=String(body.estado||"").trim();
       if(!ESTADOS_VALIDOS.includes(estado)) return response(400,{success:false,error:"Estado inválido"});
