@@ -1858,7 +1858,7 @@ if(sentOrders){
    const order=allOrders.find(o=>Number(o.id)===pedidoId);
    const status=form.querySelector(".sent-date-message");
    const button=form.querySelector('button[type="submit"]');
-   if(!order||!/^\\d{4}-\\d{2}-\\d{2}$/.test(fecha)){status.textContent="Fecha o pedido inválido.";return}
+   if(!order||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(fecha)){status.textContent="Fecha o pedido inválido.";return}
    if(fecha===order.fecha_envio){status.textContent="La fecha ya está guardada.";return}
    button.disabled=true;button.textContent="Guardando...";
    try{
