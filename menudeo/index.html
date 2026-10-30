@@ -183,6 +183,7 @@ const WHOLE='https://gfkjdpuhbxfwajbkzfap.supabase.co/rest/v1/', WHOLE_KEY='sb_p
 const PHONE='524771397088';let items=[],cart=[],selected=null,chosenSize=null;
 const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(n);
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+const photoColor=s=>norm(s).replace(/\bcharol\b/g,'').replace(/\s+/g,' ').trim();
 const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function get(base,key,path){const r=await fetch(base+path,{headers:{apikey:key,Authorization:'Bearer '+key}});if(!r.ok)throw Error('Consulta '+r.status);return r.json()}
 function photoFor(i){return i.photo?'<img class="photo" loading="lazy" src="'+esc(i.photo)+'" alt="Modelo '+esc(i.modelo)+' color '+esc(i.color)+'">':'<div class="photo placeholder">CAROLA<br>Modelo '+esc(i.modelo)+'</div>'}
@@ -190,8 +191,8 @@ async function load(){try{
  const stock=await get(RETAIL,RETAIL_KEY,'menudeo_catalogo_publico?select=*&order=modelo.asc&limit=1000');
  items=stock.filter(x=>[3,4,5,6].some(s=>Number(x['talla_'+s])>0)&&Number(x.precio)>0);
  try{const [models,variants,photos]=await Promise.all([get(WHOLE,WHOLE_KEY,'modelos?select=id,modelo&limit=3000'),get(WHOLE,WHOLE_KEY,'variantes?select=id,modelo_id,color&limit=5000'),get(WHOLE,WHOLE_KEY,'imagenes?select=variante_id,url,orden&order=orden.asc&limit=10000')]);
- const names=new Map(models.map(m=>[m.id,norm(m.modelo)]));const byVariant=new Map(variants.map(v=>[v.id,names.get(v.modelo_id)+'|'+norm(v.color)]));const images=new Map();for(const p of photos){const k=byVariant.get(p.variante_id);if(k&&!images.has(k))images.set(k,p.url)}
- for(const i of items)i.photo=images.get(norm(i.modelo)+'|'+norm(i.color))||'';
+ const names=new Map(models.map(m=>[m.id,norm(m.modelo)]));const byVariant=new Map(variants.map(v=>[v.id,names.get(v.modelo_id)+'|'+norm(v.color)]));const images=new Map(),normalizedImages=new Map();for(const p of photos){const k=byVariant.get(p.variante_id);if(k&&!images.has(k))images.set(k,p.url);if(k){const split=k.indexOf('|');const normalizedKey=k.slice(0,split)+'|'+photoColor(k.slice(split+1));if(!normalizedImages.has(normalizedKey))normalizedImages.set(normalizedKey,p.url)}}
+ for(const i of items)i.photo=images.get(norm(i.modelo)+'|'+norm(i.color))||normalizedImages.get(norm(i.modelo)+'|'+photoColor(i.color))||'';
  }catch(e){console.warn('Fotografías no disponibles',e)}
  $('status').textContent=items.length+' colores disponibles';render();
  }catch(e){$('status').textContent='No se pudo cargar el inventario';$('grid').innerHTML='<p class="error">Intenta actualizar la página.</p>'}}
