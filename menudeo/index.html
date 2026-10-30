@@ -56,6 +56,49 @@ main{max-width:1320px;padding:0 20px 120px}
 .hero-dot{width:32px;height:5px;border:0;border-radius:10px;background:#ffffff80;padding:0}
 .hero-dot.active{background:#ffc1d0}
 @media(max-width:650px){.hero{min-height:260px}.hero-slide img{object-fit:cover;object-position:center}.hero-dots{bottom:9px}.hero-dot{width:23px;height:4px}}
+
+/* Identidad rosa CAROLA · tarjetas premium con movimiento sutil */
+:root{--carola-pink:#e7a4b7;--carola-blush:#fff2f6;--carola-rose:#bd647f;--carola-ink:#33242b}
+body{background:linear-gradient(180deg,#fff 0%,#fff9fb 45%,#fff2f6 100%);color:var(--carola-ink)}
+.announcement{background:#bb6a82;color:#fff}
+header{background:rgba(255,250,252,.96);border-bottom:1px solid #f3dce5;box-shadow:0 5px 22px #ae6a8210}
+.brand{color:#a94d6b}
+.desktop-nav a{color:#63414f;transition:color .2s}
+.desktop-nav a:hover{color:#c45f81}
+header .pill{background:#b75c7b;color:#fff;border-radius:100px;box-shadow:0 5px 15px #bd647f26;transition:transform .2s,background .2s}
+header .pill:hover{background:#9f4564;transform:translateY(-2px)}
+.section-intro{padding-top:65px}
+.section-intro small{color:#bf6c88;font-weight:800}
+.section-intro h2{color:#7b3b54}
+.section-intro p{color:#9c7d89}
+.filters{background:#fff8fa;border:1px solid #f3dce5;border-radius:18px;padding:13px 18px;margin:20px 0 30px;box-shadow:0 6px 25px #9f54730a}
+.filters input{background:transparent;border:0;border-bottom:1px solid #e8b7c7;color:#583544}
+.filters input:focus{outline:none;border-bottom:2px solid #bc6682}
+.grid{gap:25px 18px}
+.product{position:relative;overflow:hidden;border:1px solid #f4dce5;border-radius:20px;background:#fff;box-shadow:0 7px 22px #9e5b7412;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s;animation:carola-rise .6s both}
+.product:nth-child(4n + 2){animation-delay:.06s}.product:nth-child(4n + 3){animation-delay:.12s}.product:nth-child(4n + 4){animation-delay:.18s}
+.product:hover{transform:translateY(-8px);box-shadow:0 18px 36px #a65c7d2b;border-color:#e6adc1}
+.product .photo{width:100%;aspect-ratio:3/4;object-fit:cover;background:#f9eaf0;border-radius:0;transition:transform .55s cubic-bezier(.2,.8,.2,1),filter .35s}
+.product:hover .photo{transform:scale(1.055);filter:brightness(1.02)}
+.details{position:relative;background:#fff;padding:16px 14px 17px;text-align:center}
+.details h3{color:#593247;font-size:13px}
+.details .muted{color:#947684}
+.details .price,.price{color:#a54c6a;font-weight:900}
+.product .add{background:#fceaf0;color:#9e4867;border:1px solid #edbfd0;border-radius:12px;transition:background .25s,color .25s,transform .25s}
+.product .add:hover{background:#b95e7e;color:#fff;transform:translateY(-2px)}
+.sheet{background:#3a1b2b99}
+.panel{background:#fff9fb;box-shadow:-10px 0 45px #4320322b}
+.panel h2{color:#87405a}
+.panel .pill{background:#b75c7b;border-radius:12px}
+.size{border:1px solid #ebc6d3;border-radius:12px;background:#fff}
+.size.selected{background:#b75c7b;color:white;border-color:#b75c7b}
+.line button{background:#f9e6ee;border-radius:9px;color:#8d3d5a}
+.site-footer{background:#8b4963;color:white}
+.site-footer p{color:#ffe0e9}
+.hero-dot.active{background:#f7adc6}
+@keyframes carola-rise{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:650px){.grid{gap:15px 10px}.product{border-radius:15px;box-shadow:0 5px 16px #9e5b7414}.product:hover{transform:translateY(-3px)}.details{padding:12px 9px 13px}.product .add{border-radius:10px}.filters{padding:10px 12px;border-radius:14px}}
+@media(prefers-reduced-motion:reduce){.product{animation:none;transition:none}.product .photo,.product .add{transition:none}.product:hover{transform:none}.product:hover .photo{transform:none}}
 </style></head><body><div class="announcement">CAROLA · MODA QUE VA CONTIGO · COMPRA DESDE UN PAR</div><header><span class="brand">CAROLA</span><nav class="desktop-nav" aria-label="Navegación"><a href="#coleccion">Lo nuevo</a><a href="#coleccion">Botas y botines</a><a href="#coleccion">Colección</a></nav><button class="pill" id="cartButton">Pedido · <span id="count">0</span></button></header><section class="hero" aria-label="Campañas Carola Menudeo"><a class="hero-slide active" href="#coleccion" aria-label="Explora la colección de calzado femenino"><img src="/menudeo/E3E30543-B27C-456E-B24F-EF6A980E1AFF.png" alt="CAROLA: Tu estilo todos los días, moda y comodidad desde un solo par" fetchpriority="high"></a><a class="hero-slide" href="#coleccion" aria-label="Descubre la colección otoño invierno"><img src="/menudeo/081D34B9-D594-488E-9B88-9BB3C67D574F.png" alt="CAROLA: Colección otoño invierno de botas y botines" loading="eager"></a><div class="hero-dots" aria-label="Seleccionar campaña"><button class="hero-dot active" type="button" aria-label="Mostrar primer banner"></button><button class="hero-dot" type="button" aria-label="Mostrar segundo banner"></button></div></section><main id="coleccion"><div class="section-intro"><small>DESCUBRE CAROLA</small><h2>NEW ARRIVALS</h2><p>Modelos que definen tu estilo, disponibles para ti.</p></div><div class="filters"><input id="search" placeholder="Buscar modelo, color o categoría..." aria-label="Buscar productos"><span id="status" class="muted">Cargando catálogo…</span></div><div id="grid" class="grid"></div></main><footer class="site-footer"><div class="footer-logo">CAROLA</div><p>Calzado para cada versión de ti.<br>León, Guanajuato · Pedidos por WhatsApp</p></footer><div id="sheet" class="sheet" role="dialog" aria-modal="true"><div class="panel"><button id="close" class="close" aria-label="Cerrar">×</button><div id="panelBody"></div></div></div><script>
 const RETAIL='https://hnivrzcjxjofgzgopmbv.supabase.co/rest/v1/', RETAIL_KEY='sb_publishable_5_IdToHZp3qyPv4aJehepA_VsDI6Vgl';
 const WHOLE='https://gfkjdpuhbxfwajbkzfap.supabase.co/rest/v1/', WHOLE_KEY='sb_publishable_Dbg1YhOyxOxgxcvwr9fWtg_mI4iwUw7';
