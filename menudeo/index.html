@@ -1,7 +1,52 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>CAROLA | Catálogo Menudeo</title><meta name="description" content="Compra calzado CAROLA por par. Elige modelo, color y talla y envía tu pedido por WhatsApp."><link rel="icon" href="/favicon-carola.svg"><style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#21191d;background:#fff}*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}header{position:sticky;top:0;z-index:4;background:#ffffffeb;backdrop-filter:blur(16px);border-bottom:1px solid #f2e6ec;padding:16px max(18px,calc((100vw - 1160px)/2));display:flex;align-items:center;justify-content:space-between}.brand{font-size:25px;font-weight:950;letter-spacing:6px}.pill{background:#20171c;color:#fff;border:0;border-radius:50px;padding:12px 17px;font-weight:750}.hero{margin:20px auto;max-width:1160px;padding:32px 24px;background:linear-gradient(115deg,#f1c5d6,#fff5f8);border-radius:24px}.hero small{letter-spacing:2px;font-weight:900}.hero h1{font-size:clamp(32px,5vw,55px);margin:8px 0}.hero p{margin:0;color:#63535b}main{max-width:1160px;margin:auto;padding:0 18px 100px}.filters{display:flex;gap:10px;margin:22px 0;flex-wrap:wrap}input{border:1px solid #e8d9df;border-radius:12px;padding:13px;min-width:0}.filters input{flex:1;min-width:190px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:22px 13px}.product{border:1px solid #f1e7eb;border-radius:17px;overflow:hidden;background:#fff}.photo{width:100%;aspect-ratio:4/5;object-fit:cover;background:#f9f0f4}.placeholder{display:grid;place-items:center;color:#a98c9a;font-size:12px;text-align:center;padding:15px}.details{padding:13px}.details h3{margin:0 0 4px}.muted{color:#897780;font-size:12px}.price{font-weight:900;margin:9px 0}.add{width:100%;border:0;border-radius:10px;background:#23191f;color:#fff;padding:11px}.sheet{position:fixed;inset:0;background:#24141c88;z-index:9;display:none;align-items:end;justify-content:center}.sheet.open{display:flex}.panel{width:min(520px,100%);max-height:90dvh;overflow:auto;background:white;border-radius:24px 24px 0 0;padding:23px 20px calc(25px + env(safe-area-inset-bottom))}.panel h2{margin:0 0 15px}.line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1e8ec}.line button{border:0;border-radius:8px;padding:7px 12px}.row{display:flex;gap:9px;flex-wrap:wrap}.size{border:1px solid #e7d6df;background:white;padding:12px 16px;border-radius:10px}.size.selected{background:#24191e;color:white}.size:disabled{opacity:.3}.wide{width:100%;margin-top:14px}.close{float:right;border:0;background:#f5edf1;border-radius:50%;width:36px;height:36px}.fields{display:grid;gap:10px;margin-top:15px}.error{color:#a22c43}.empty{text-align:center;padding:40px;color:#826c77}@media(max-width:550px){.hero{margin:12px;border-radius:18px;padding:25px 18px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.brand{font-size:20px}}
-</style></head><body><header><span class="brand">CAROLA</span><button class="pill" id="cartButton">Pedido · <span id="count">0</span></button></header><section class="hero"><small>CAROLA · MENUDEO</small><h1>Tu estilo, tu talla.</h1><p>Compra desde un par. Elige modelo, color y talla; envía tu pedido por WhatsApp.</p></section><main><div class="filters"><input id="search" placeholder="Buscar modelo, color o categoría..." aria-label="Buscar productos"><span id="status" class="muted">Cargando catálogo…</span></div><div id="grid" class="grid"></div></main><div id="sheet" class="sheet" role="dialog" aria-modal="true"><div class="panel"><button id="close" class="close" aria-label="Cerrar">×</button><div id="panelBody"></div></div></div><script>
+
+/* CAROLA editorial storefront: inspired by premium fashion retail navigation, not a copy */
+:root{font-family:Arial,Helvetica,sans-serif;color:#151515;background:#fff}
+body{letter-spacing:.01em}
+.announcement{background:#111;color:#fff;text-align:center;font-size:10px;letter-spacing:.15em;padding:10px 12px;font-weight:700}
+header{position:sticky;top:0;z-index:8;background:#fff;padding:19px max(20px,calc((100vw - 1260px)/2));border-bottom:1px solid #eee;box-shadow:none}
+.brand{font-size:clamp(25px,3vw,38px);font-weight:900;letter-spacing:.18em;color:#111}
+.desktop-nav{display:flex;align-items:center;gap:28px}
+.desktop-nav a{color:#111;text-decoration:none;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.desktop-nav a:hover{text-decoration:underline;text-underline-offset:7px}
+.pill{background:#111;border-radius:0;padding:13px 20px;font-size:12px;letter-spacing:.05em}
+.hero{max-width:none;min-height:clamp(300px,43vw,560px);margin:0;border-radius:0;padding:60px max(24px,calc((100vw - 1260px)/2));display:flex;flex-direction:column;justify-content:center;align-items:flex-start;background:linear-gradient(95deg,rgba(0,0,0,.67),rgba(0,0,0,.13)),url('https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=1800&q=80') center 54%/cover;color:white}
+.hero small{letter-spacing:.28em;font-size:12px}
+.hero h1{font-size:clamp(42px,7vw,88px);max-width:760px;line-height:.98;text-transform:uppercase;letter-spacing:-.05em;margin:18px 0 24px}
+.hero p{color:#fff;max-width:470px;line-height:1.6;font-size:15px}
+.hero .hero-cta{display:inline-block;background:#fff;color:#111;padding:15px 30px;text-decoration:none;margin-top:26px;font-size:12px;font-weight:900;letter-spacing:.12em}
+main{max-width:1320px;padding:0 20px 120px}
+.section-intro{text-align:center;padding:55px 12px 20px}
+.section-intro small{font-size:11px;letter-spacing:.23em}
+.section-intro h2{font-size:clamp(26px,3vw,40px);margin:13px 0;text-transform:uppercase;letter-spacing:.04em}
+.section-intro p{font-size:13px;color:#777}
+.filters{margin:16px 0 28px;align-items:center;border-block:1px solid #eee;padding:15px 0}
+.filters input{border:0;border-bottom:1px solid #aaa;border-radius:0;padding:11px 4px;font-size:13px}
+.grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:38px 16px}
+.product{border:0;border-radius:0;overflow:visible}
+.photo{aspect-ratio:3/4;background:#f5f5f5;border-radius:0;transition:filter .2s}
+.product:hover .photo{filter:brightness(.96)}
+.details{padding:14px 2px 8px;text-align:center}
+.details h3{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.details .muted{font-size:12px;color:#777}
+.price{font-size:14px;margin:10px 0}
+.add{background:transparent;color:#111;border:1px solid #111;border-radius:0;text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.1em;padding:13px}
+.add:hover{background:#111;color:#fff}
+.sheet{background:#0009;align-items:stretch;justify-content:flex-end}
+.panel{width:min(480px,100%);max-height:100dvh;border-radius:0;padding:28px 26px calc(28px + env(safe-area-inset-bottom))}
+.panel h2{text-transform:uppercase;letter-spacing:.05em}
+.size,.line button{border-radius:0}
+.size.selected{background:#111}
+.close{border-radius:0;background:transparent;font-size:25px}
+.fields input{border-radius:0}
+.site-footer{background:#111;color:#fff;padding:52px 24px;text-align:center}
+.site-footer .footer-logo{font-size:34px;font-weight:900;letter-spacing:.2em}
+.site-footer p{font-size:12px;color:#bbb;line-height:1.7}
+@media(max-width:900px){.desktop-nav{gap:13px}.desktop-nav a{font-size:10px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.desktop-nav{display:none}.announcement{font-size:9px}.hero{min-height:460px;padding:45px 22px;background-position:62% center}.hero h1{font-size:53px}.hero p{font-size:13px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:25px 10px}.section-intro{padding-top:40px}.details h3{font-size:12px}.add{font-size:10px;padding:12px 5px}.panel{width:100%}.brand{font-size:25px}}
+</style></head><body><div class="announcement">CAROLA · MODA QUE VA CONTIGO · COMPRA DESDE UN PAR</div><header><span class="brand">CAROLA</span><nav class="desktop-nav" aria-label="Navegación"><a href="#coleccion">Lo nuevo</a><a href="#coleccion">Botas y botines</a><a href="#coleccion">Colección</a></nav><button class="pill" id="cartButton">Pedido · <span id="count">0</span></button></header><section class="hero"><small>NUEVA TEMPORADA · CAROLA</small><h1>EL ESTILO ES TUYO.</h1><p>Descubre tus próximos favoritos. Elige tu modelo, color y talla, desde un solo par.</p><a class="hero-cta" href="#coleccion">DESCUBRE LA COLECCIÓN</a></section><main id="coleccion"><div class="section-intro"><small>DESCUBRE CAROLA</small><h2>NEW ARRIVALS</h2><p>Modelos que definen tu estilo, disponibles para ti.</p></div><div class="filters"><input id="search" placeholder="Buscar modelo, color o categoría..." aria-label="Buscar productos"><span id="status" class="muted">Cargando catálogo…</span></div><div id="grid" class="grid"></div></main><footer class="site-footer"><div class="footer-logo">CAROLA</div><p>Calzado para cada versión de ti.<br>León, Guanajuato · Pedidos por WhatsApp</p></footer><div id="sheet" class="sheet" role="dialog" aria-modal="true"><div class="panel"><button id="close" class="close" aria-label="Cerrar">×</button><div id="panelBody"></div></div></div><script>
 const RETAIL='https://hnivrzcjxjofgzgopmbv.supabase.co/rest/v1/', RETAIL_KEY='sb_publishable_5_IdToHZp3qyPv4aJehepA_VsDI6Vgl';
 const WHOLE='https://gfkjdpuhbxfwajbkzfap.supabase.co/rest/v1/', WHOLE_KEY='sb_publishable_Dbg1YhOyxOxgxcvwr9fWtg_mI4iwUw7';
 const PHONE='524775971996';let items=[],cart=[],selected=null,chosenSize=null;
