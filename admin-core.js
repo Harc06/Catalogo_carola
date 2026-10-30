@@ -1839,13 +1839,36 @@ function renderOrders(){
 function renderSentOrders(){
  if(!sentOrders)return;
  const q=normalizeText(sentOrderSearch?.value||"");
- const rows=allOrders.filter(o=>String(o.estado||"")==="Enviado").filter(o=>!q||normalizeText(o.nota_cliente||o.cliente).includes(q)||normalizeText(o.folio).includes(q)||normalizeText(o.nota_fecha||formatDate(o.creado_en)).includes(q));
+ const rows=allOrders.filter(o=>String(o.estado||"")==="Enviado").filter(o=>!q||normalizeText(o.nota_cliente||o.cliente).includes(q)||normalizeText(o.folio).includes(q)||normalizeText(o.fecha_envio||o.nota_fecha||formatDate(o.creado_en)).includes(q));
  if(!rows.length){sentOrders.innerHTML='<div class="empty">Todavía no hay pedidos enviados'+(q?" con esa búsqueda":"")+'.</div>';return}
  sentOrders.innerHTML=rows.map(o=>{
    const details=Array.isArray(o.pedido_detalles)?o.pedido_detalles:[];
    const lines=details.map(x=>'<div class="order-line" style="grid-template-columns:60px 1fr auto"><div class="order-qty">'+Number(x.cantidad||0)+'</div><div class="order-product">Modelo '+escapeHtml(x.modelo)+' <span>'+escapeHtml(formatColor(x.color))+'</span></div><strong>'+money(Number(x.precio_unitario||0))+'</strong></div>').join("");
-   return '<details class="order-card" style="margin-bottom:12px"><summary class="order-top" style="cursor:pointer;list-style:none"><div><div class="order-client">'+escapeHtml(o.nota_cliente||o.cliente)+'</div><div class="order-date">'+escapeHtml(o.fecha_envio||o.nota_fecha||formatDate(o.creado_en))+' · Folio '+escapeHtml(o.folio)+'</div><div class="note-badge">'+escapeHtml(money(o.nota_total))+'</div></div><div class="order-total"><strong>'+Number(o.total_pares||0)+'</strong><span>PARES</span></div></summary><div class="order-items">'+(lines||'<div class="order-line">Sin productos</div>')+'</div></details>';
+   const date=escapeHtml(o.fecha_envio||o.nota_fecha||formatDate(o.creado_en));
+   return '<details class="order-card" style="margin-bottom:12px"><summary class="order-top" style="cursor:pointer;list-style:none"><div><div class="order-client">'+escapeHtml(o.nota_cliente||o.cliente)+'</div><div class="order-date">'+date+' · Folio '+escapeHtml(o.folio)+'</div><div class="note-badge">'+escapeHtml(money(o.nota_total))+'</div></div><div class="order-total"><strong>'+Number(o.total_pares||0)+'</strong><span>PARES</span></div></summary><div class="order-items">'+(lines||'<div class="order-line">Sin productos</div>')+'</div><form class="sent-date-form" data-order-id="'+Number(o.id)+'" style="display:flex;align-items:end;gap:10px;flex-wrap:wrap;padding:14px"><label style="flex:1;min-width:160px;font-size:13px;font-weight:700">Fecha de envío<input type="date" name="fecha_envio" value="'+date+'" required style="display:block;width:100%;box-sizing:border-box;margin-top:5px;padding:11px;border:1px solid #eadce0;border-radius:12px;font:inherit"></label><button type="submit" style="padding:12px 18px;border:0;border-radius:12px;background:#c86f8b;color:white;font-weight:800;cursor:pointer">Guardar fecha</button><div class="sent-date-message" role="status" style="width:100%;font-size:13px"></div></form></details>';
  }).join("");
+}
+if(sentOrders){
+ sentOrders.addEventListener("submit",async event=>{
+   const form=event.target.closest(".sent-date-form");
+   if(!form)return;
+   event.preventDefault();
+   const pedidoId=Number(form.dataset.orderId);
+   const fecha=form.elements.fecha_envio.value;
+   const order=allOrders.find(o=>Number(o.id)===pedidoId);
+   const status=form.querySelector(".sent-date-message");
+   const button=form.querySelector('button[type="submit"]');
+   if(!order||!/^\\d{4}-\\d{2}-\\d{2}$/.test(fecha)){status.textContent="Fecha o pedido inválido.";return}
+   if(fecha===order.fecha_envio){status.textContent="La fecha ya está guardada.";return}
+   button.disabled=true;button.textContent="Guardando...";
+   try{
+     const response=await fetch("/.netlify/functions/admin-pedidos",{method:"POST",headers:{"Content-Type":"application/json","x-admin-password":adminPassword},body:JSON.stringify({action:"update-sent-date",pedido_id:pedidoId,fecha_envio:fecha})});
+     const result=await readJson(response);
+     if(!response.ok||!result.success)throw new Error(result.error||"No se pudo cambiar la fecha.");
+     await Promise.all([loadOrders(),loadFinance(),loadClients()]);
+     renderSentOrders();
+   }catch(error){status.textContent=error.message;status.style.color="#b42318";button.disabled=false;button.textContent="Guardar fecha"}
+ });
 }
 function renderDeletedOrders(){
  const body=document.getElementById("deletedOrdersBody"); if(!body)return;
