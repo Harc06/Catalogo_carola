@@ -192,7 +192,7 @@ async function load(){try{
  items=stock.filter(x=>[3,4,5,6].some(s=>Number(x['talla_'+s])>0)&&Number(x.precio)>0);
  try{const [models,variants,photos]=await Promise.all([get(WHOLE,WHOLE_KEY,'modelos?select=id,modelo&limit=3000'),get(WHOLE,WHOLE_KEY,'variantes?select=id,modelo_id,color&limit=5000'),get(WHOLE,WHOLE_KEY,'imagenes?select=variante_id,url,orden&order=orden.asc&limit=10000')]);
  const names=new Map(models.map(m=>[m.id,norm(m.modelo)]));const byVariant=new Map(variants.map(v=>[v.id,names.get(v.modelo_id)+'|'+norm(v.color)]));const images=new Map(),normalizedImages=new Map();for(const p of photos){const k=byVariant.get(p.variante_id);if(k&&!images.has(k))images.set(k,p.url);if(k){const split=k.indexOf('|');const normalizedKey=k.slice(0,split)+'|'+photoColor(k.slice(split+1));if(!normalizedImages.has(normalizedKey))normalizedImages.set(normalizedKey,p.url)}}
- for(const i of items)i.photo=images.get(norm(i.modelo)+'|'+norm(i.color))||normalizedImages.get(norm(i.modelo)+'|'+photoColor(i.color))||'';
+ for(const i of items){const model=norm(i.modelo),color=norm(i.color);i.photo=images.get(model+'|'+color)||normalizedImages.get(model+'|'+photoColor(i.color))||'';if(!i.photo){const base=color.split(' ')[0];const matches=[...images.entries()].filter(([key])=>key.startsWith(model+'|'+base+' '));if(matches.length===1)i.photo=matches[0][1];}}
  }catch(e){console.warn('Fotografías no disponibles',e)}
  $('status').textContent=items.length+' colores disponibles';render();
  }catch(e){$('status').textContent='No se pudo cargar el inventario';$('grid').innerHTML='<p class="error">Intenta actualizar la página.</p>'}}
