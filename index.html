@@ -1565,6 +1565,111 @@ html,body{max-width:100%;overflow-x:hidden}img,svg,video{max-width:100%}
   .product-title h3{font-size:13px}
   .grid{gap:26px 10px}
 }
+
+/* =========================
+   PALETA CÁLIDA (crema, terracota)
+   Solo colores, radios y transiciones; la estructura sigue igual.
+========================= */
+
+:root{
+  --text:#2b2622;
+  --muted:#8a7f78;
+  --border:#ebe4dc;
+  --terracota:#c96442;
+}
+
+body{
+  background:#faf7f2;
+}
+
+.header{
+  background:rgba(255,253,249,.94);
+  border-bottom-color:var(--border);
+}
+
+.hero-box{
+  border-radius:16px;
+  border-color:var(--border);
+  background:linear-gradient(120deg,#fffdf9 0%,#faf3ec 100%);
+}
+
+.hero-box:before{
+  color:rgba(201,100,66,.06);
+}
+
+.category-filter{
+  border-radius:999px;
+  border-color:var(--border);
+  background:#fffdf9;
+  color:var(--muted);
+  transition:background .2s ease,color .2s ease,border-color .2s ease;
+}
+
+.category-filter.active{
+  background:var(--terracota);
+  border-color:var(--terracota);
+  color:#fff;
+}
+
+.search{
+  background:#fffdf9;
+  border-color:var(--border);
+  border-radius:12px;
+}
+
+.search:focus{
+  border-color:var(--terracota);
+}
+
+.product-image{
+  border-radius:14px;
+  background:#f3eee7;
+  transition:box-shadow .25s ease;
+}
+
+.product-card:hover .product-image{
+  box-shadow:0 10px 24px -14px rgba(60,40,20,.35);
+}
+
+.product-card:hover .product-title h3{
+  color:var(--terracota);
+}
+
+.product-title h3{
+  color:var(--text);
+  transition:color .2s ease;
+}
+
+.quick-add{
+  border:1px solid var(--terracota);
+  color:var(--terracota);
+  background:#fffdf9;
+  border-radius:12px;
+  transition:background .2s ease,color .2s ease;
+}
+
+.quick-add:hover,
+.quick-add:active{
+  background:var(--terracota);
+  border-color:var(--terracota);
+  color:#fff;
+}
+
+.badge{
+  border-radius:999px;
+  background:rgba(255,253,249,.96);
+  color:var(--text);
+}
+
+.hero h1,
+.catalog h2{
+  color:var(--text);
+}
+
+.hero p,
+.catalog .muted{
+  color:var(--muted);
+}
 </style>
 <script src="/assets/images.js"></script>
 </head>
