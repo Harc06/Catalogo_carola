@@ -1468,6 +1468,103 @@ html,body{max-width:100%;overflow-x:hidden}img,svg,video{max-width:100%}
 }
 @media(max-width:360px){.brand{font-size:16px;letter-spacing:4px}.cart-button{padding:8px 9px}.grid{gap:16px 6px}}
 
+/* =========================
+   ESTILO EDITORIAL (solo visual)
+   Inspirado en catálogos de moda minimalistas: fondo blanco, títulos
+   serif, tarjetas sin radios marcados y mucho aire. Colores y lógica
+   de Carola se conservan.
+========================= */
+
+.brand{
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:400;
+  font-size:26px;
+  letter-spacing:7px;
+}
+
+.hero{padding:20px 20px 10px}
+
+.hero-box{
+  border-radius:4px;
+  background:linear-gradient(120deg,#fcf1f6 0%,#fff 70%);
+  box-shadow:none;
+  border:1px solid var(--border);
+}
+
+.hero h1,
+.catalog h2{
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:400;
+  letter-spacing:-.6px;
+}
+
+.catalog{padding-top:34px}
+
+.category-filter{
+  font-weight:500;
+  border-color:#e4dcdf;
+}
+
+.category-filter.active{
+  background:#171717;
+  border-color:#171717;
+}
+
+.search{border-radius:4px}
+
+.grid{gap:38px 18px}
+
+.product-image{
+  border-radius:0;
+  background:#f3f1f0;
+}
+
+.badge{
+  top:10px;
+  left:10px;
+  border-radius:0;
+  padding:4px 7px;
+  font-size:8px;
+  font-weight:600;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  background:rgba(255,255,255,.96);
+}
+
+.product-info{padding:12px 0 0}
+
+.product-title h3{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:15px;
+  font-weight:400;
+  letter-spacing:-.2px;
+}
+
+.product-category{
+  letter-spacing:1.2px;
+  font-weight:700;
+}
+
+.quick-add{
+  border-radius:0;
+  border-color:#171717;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+  font-size:9px;
+  font-weight:700;
+}
+
+.quick-add:hover,
+.quick-add:active{
+  background:#171717;
+  color:#fff;
+}
+
+@media (max-width:650px){
+  .brand{font-size:20px;letter-spacing:5px}
+  .product-title h3{font-size:13px}
+  .grid{gap:26px 10px}
+}
 </style>
 <script src="/assets/images.js"></script>
 </head>
