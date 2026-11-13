@@ -77,18 +77,31 @@ jobs:
                   offset+=1000
           walk()
 
+          failed=[]
           for name in files:
               target=root/name
               target.parent.mkdir(parents=True, exist_ok=True)
               # La descarga autenticada de Storage usa /object/authenticated/{bucket}/{path}.
               url=f"{base}/storage/v1/object/authenticated/{urllib.parse.quote(bucket, safe='')}/{urllib.parse.quote(name, safe='/')}"
               req=urllib.request.Request(url,headers={"apikey":key,"Authorization":"Bearer "+key})
-              with urllib.request.urlopen(req) as r, open(target,"wb") as out:
-                  out.write(r.read())
+              # Un archivo que falla no detiene el respaldo: se registra y se sigue.
+              try:
+                  with urllib.request.urlopen(req, timeout=120) as r:
+                      data=r.read()
+                  target.write_bytes(data)
+              except Exception as e:
+                  reason=getattr(e,"code",type(e).__name__)
+                  failed.append(f"{name}\t{reason}")
+                  print(f"::warning::No se pudo descargar {name}: {reason}")
 
           if not files:
               raise SystemExit("No se encontró ningún archivo en el bucket Productos")
-          print(f"Storage respaldado: {len(files)} archivos")
+          fallidos=pathlib.Path("backup/storage-fallidos.txt")
+          fallidos.parent.mkdir(parents=True, exist_ok=True)
+          fallidos.write_text("\n".join(failed)+("\n" if failed else ""), encoding="utf-8")
+          print(f"Storage respaldado: {len(files)-len(failed)} de {len(files)} archivos")
+          if failed:
+              print(f"::error::Archivos no respaldados: {len(failed)}. Ver backup/storage-fallidos.txt")
           PY
 
       - name: Información del respaldo
@@ -107,3 +120,12 @@ jobs:
           path: carola-backup-completo.tar.gz
           retention-days: 30
           if-no-files-found: error
+
+      - name: Verificar respaldo completo
+        run: |
+          if [ -s backup/storage-fallidos.txt ]; then
+            echo "::error::El respaldo se guardó, pero faltan archivos de Storage:"
+            cat backup/storage-fallidos.txt
+            exit 1
+          fi
+          echo "Respaldo completo: todos los archivos de Storage fueron descargados."
