@@ -33,7 +33,7 @@
   force = true
 
 [images]
-  remote_images = ['https://gfkjdpuhbxfwajbkzfap\\.supabase\\.co/storage/v1/object/public/Productos/.*']
+  remote_images = ['https://gfkjdpuhbxfwajbkzfap\.supabase\.co/storage/v1/object/public/Productos/.*']
 
 
 [[headers]]
